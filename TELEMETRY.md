@@ -38,7 +38,7 @@ Events follow the pattern: `<feature>_<action>`
 - `settings_name_clear` - User clears their preferred name
 - `settings_location_set` - User sets their location initially
 - `settings_location_update` - User updates their location
-- `settings_localization_update` - User updates localization settings (temperature, wind speed, precipitation, time format, language)
+- `settings_localization_update` - User updates localization settings (temperature, wind speed, precipitation, time format, language). May include property `ui_language` (`en` | `ru`) when the interface language changes.
 - `settings_database_reset` - User resets the application database
 - `settings_data_collection_enabled` - User enables data collection
 - `settings_data_collection_disabled` - User disables data collection
