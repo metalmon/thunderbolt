@@ -9,6 +9,15 @@ NC := \033[0m # No Color
 # Container compose tool (auto-detect podman-compose, fallback to docker compose)
 COMPOSE ?= $(shell command -v podman-compose > /dev/null 2>&1 && podman info > /dev/null 2>&1 && echo podman-compose || echo docker compose)
 
+# Detect cargo without relying on POSIX `command -v` inside recipe lines.
+# GnuWin32 make on Windows runs recipes via cmd.exe, where `command -v` fails
+# with "Incorrect command: -v". Use Make $(shell) + ifdef instead.
+ifeq ($(OS),Windows_NT)
+  CARGO := $(shell where cargo 2>NUL)
+else
+  CARGO := $(shell command -v cargo 2>/dev/null)
+endif
+
 # Isolate Docker volumes/networks per clone so sibling working trees (e.g. ~/code/thunderbolt
 # and ~/code/some-test-dir/thunderbolt) don't share Postgres data. Defaults to "<parent>-<repo>";
 # override with `COMPOSE_PROJECT_NAME=foo make up` if you want a fixed name.
@@ -126,7 +135,11 @@ format:
 	@echo "$(BLUE)→ Formatting backend code...$(NC)"
 	cd backend && bun run format
 	@echo "$(BLUE)→ Formatting Rust code...$(NC)"
-	@if command -v cargo > /dev/null 2>&1; then bun run format:rust; else echo "$(YELLOW)⚠ cargo not found, skipping Rust formatting$(NC)"; fi
+ifdef CARGO
+	bun run format:rust
+else
+	@echo "$(YELLOW)⚠ cargo not found, skipping Rust formatting$(NC)"
+endif
 	@echo "$(GREEN)✓ Formatting complete!$(NC)"
 
 format-check:
@@ -135,7 +148,11 @@ format-check:
 	@echo "$(BLUE)→ Checking backend formatting...$(NC)"
 	cd backend && bun run format-check
 	@echo "$(BLUE)→ Checking Rust formatting...$(NC)"
-	@if command -v cargo > /dev/null 2>&1; then bun run format:rust-check; else echo "$(YELLOW)⚠ cargo not found, skipping Rust format check$(NC)"; fi
+ifdef CARGO
+	bun run format:rust-check
+else
+	@echo "$(YELLOW)⚠ cargo not found, skipping Rust format check$(NC)"
+endif
 	@echo "$(GREEN)✓ Format check complete!$(NC)"
 
 # Type checking
