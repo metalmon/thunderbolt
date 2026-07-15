@@ -240,11 +240,15 @@ export const useOnboardingState = () => {
       return
     }
 
-    uiLanguageAppliedRef.current = true
     void applyInitialUiLanguageIfNeeded({
       stored: uiLanguage.value,
       setValue: (v) => uiLanguage.setValue(v),
-    })
+    }).then(
+      () => {
+        uiLanguageAppliedRef.current = true
+      },
+      () => {},
+    )
   }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
 
   // Sync with saved step on mount
