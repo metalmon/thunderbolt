@@ -8,6 +8,7 @@ import { extractTextFromParts } from '@/lib/message-utils'
 import type { UIMessage } from 'ai'
 import { Copy } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MessageBubbles, type ResendAttachmentHandler } from './message-bubbles'
 
 type MobileUserMessageProps = {
@@ -19,6 +20,7 @@ export const MobileUserMessage = ({ message, onResendAttachment }: MobileUserMes
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const copyText = useMemo(() => extractTextFromParts(message.parts), [message.parts])
   const { copy } = useCopyToClipboard()
+  const { t } = useTranslation('chat')
 
   const longPressHandlers = useLongPress(() => setIsMenuOpen(true))
 
@@ -42,7 +44,7 @@ export const MobileUserMessage = ({ message, onResendAttachment }: MobileUserMes
                 className="flex items-center gap-3 px-3 py-2 text-sm w-full active:bg-accent"
               >
                 <Copy className="size-4 text-muted-foreground" />
-                Copy
+                {t('messages.copy')}
               </button>
             </div>
           </div>

@@ -30,6 +30,7 @@ import { messageBookkeepingThrottleMs } from '@/chats/chat-throttle'
 import { useDraftInput } from '@/hooks/use-draft-input'
 import { AnimatePresence, m } from 'framer-motion'
 import { AlertCircle, Loader2, Paperclip, Plus, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { type ClipboardEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { useLocation as useLocation_default, useNavigate as useNavigate_default } from 'react-router'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -105,9 +106,9 @@ const withClipboardFilename = (file: File, index: number): File => {
  * Handles JSON-RPC error messages (which have nested data.message),
  * plain strings, and generic Error objects.
  */
-const extractErrorDisplay = (error: Error | null | undefined): string => {
+const extractErrorDisplay = (error: Error | null | undefined, fallback: string): string => {
   if (!error?.message) {
-    return 'Connection failed'
+    return fallback
   }
 
   try {
@@ -158,6 +159,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
   ) => {
     const navigate = useNavigate()
     const location = useLocation()
+    const { t } = useTranslation('chat')
 
     const { isMobile } = useIsMobile()
 
@@ -415,15 +417,15 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
         let count = attachments.length
         for (const file of files) {
           if (count >= maxAttachmentCount) {
-            setAttachError(`You can attach up to ${maxAttachmentCount} files.`)
+            setAttachError(t('prompt.attachMaxFiles', { count: maxAttachmentCount }))
             break
           }
           if (!isAcceptedAttachment(file)) {
-            setAttachError(`"${file.name}" isn't a supported file type.`)
+            setAttachError(t('prompt.attachUnsupportedType', { name: file.name }))
             continue
           }
           if (file.size > maxAttachmentBytes) {
-            setAttachError(`"${file.name}" is too large (max ${maxAttachmentBytes / 1024 / 1024}MB).`)
+            setAttachError(t('prompt.attachTooLarge', { name: file.name, maxMb: maxAttachmentBytes / 1024 / 1024 }))
             continue
           }
           const localFileId = crypto.randomUUID()
@@ -442,14 +444,14 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             // promise reject silently — otherwise no chip appears and no banner
             // shows. Stop here: subsequent writes would hit the same failure.
             console.error('Failed to store attachment locally:', error)
-            setAttachError(`Couldn't attach "${file.name}" — your browser's storage is full or unavailable.`)
+            setAttachError(t('prompt.attachStorageFull', { name: file.name }))
             break
           }
           setAttachments((prev) => [...prev, { localFileId, filename: file.name, mimeType: file.type }])
           count++
         }
       },
-      [attachments.length],
+      [attachments.length, t],
     )
 
     // Intercept clipboard paste (Cmd/Ctrl+V) so copied files and pasted images
@@ -553,8 +555,8 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label="Add to chat"
-              title="Add to chat"
+              aria-label={t('prompt.addToChat')}
+              title={t('prompt.addToChat')}
               // `hover:bg-accent/50` / open `bg-accent` match the mode and
               // model picker triggers sitting in the same footer row.
               className="flex size-[var(--touch-height-control)] shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-muted-foreground hover:bg-accent/50 hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
@@ -566,7 +568,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           <DropdownMenuContent side={isMobile ? 'top' : 'bottom'} align="start" className="min-w-44">
             <DropdownMenuItem onSelect={() => fileInputRef.current?.click()} className="cursor-pointer">
               <Paperclip className="size-[var(--icon-size-sm)]" />
-              Upload file
+              {t('prompt.uploadFile')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -577,7 +579,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             className="flex items-center gap-2 px-3 h-[var(--touch-height-sm)] text-muted-foreground text-[length:var(--font-size-body)]"
           >
             <Loader2 className="size-[var(--icon-size-default)] shrink-0 animate-spin" />
-            <span>Connecting to {selectedAgent.name}...</span>
+            <span>{t('prompt.connecting', { name: selectedAgent.name })}</span>
           </div>
         ) : isConnectionError ? (
           <div
@@ -585,8 +587,8 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             className="flex items-center gap-2 px-3 h-[var(--touch-height-sm)] text-destructive text-[length:var(--font-size-body)]"
           >
             <AlertCircle className="size-[var(--icon-size-default)] shrink-0" />
-            <span className="truncate" title={extractErrorDisplay(connectionError)}>
-              Failed to connect to {selectedAgent.name}
+            <span className="truncate" title={extractErrorDisplay(connectionError, t('prompt.connectionFailed'))}>
+              {t('prompt.connectFailed', { name: selectedAgent.name })}
             </span>
           </div>
         ) : null}
@@ -660,7 +662,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           role="status"
           className="flex items-center justify-center px-4 py-3 text-muted-foreground text-[length:var(--font-size-sm)]"
         >
-          <span>This chat uses {selectedAgent.name}, which is not available on this platform.</span>
+          <span>{t('prompt.agentUnavailable', { name: selectedAgent.name })}</span>
         </div>
       )
     }
@@ -683,7 +685,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           {isDragging && (
             <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-3xl border-2 border-dashed border-ring bg-muted/80 backdrop-blur-sm">
               <span className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground">
-                Drop file to attach
+                {t('prompt.dropFile')}
               </span>
             </div>
           )}
@@ -737,7 +739,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
                     <button
                       type="button"
                       onClick={() => setAttachError(null)}
-                      aria-label="Dismiss"
+                      aria-label={t('prompt.dismiss')}
                       className="shrink-0 cursor-pointer rounded p-0.5 hover:bg-destructive/15"
                     >
                       <X className="size-3.5" />
@@ -781,7 +783,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             }
             value={input}
             onChange={(value: string) => setInput(value)}
-            placeholder="Ask me anything..."
+            placeholder={t('prompt.askAnything')}
             showSubmitButton
             onSubmit={handleSubmit}
             // Allow sending an attachment even with no typed text (matches the Enter behavior).

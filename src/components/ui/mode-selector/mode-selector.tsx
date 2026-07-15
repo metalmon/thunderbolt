@@ -42,7 +42,7 @@ type ModeItemData = {
 
 export const ModeSelector = ({ modes, selectedMode, onModeChange, iconOnly = false }: ModeSelectorProps) => {
   const { isMobile } = useIsMobile()
-  const { t } = useTranslation('defaults')
+  const { t } = useTranslation(['defaults', 'chat'])
   const chatFallback = translateDefaultField(t, 'modes', 'mode-chat', 'label', 'Chat')
   const groupedItems = useMemo(
     (): SearchableMenuGroup<ModeItemData>[] => [
@@ -84,7 +84,11 @@ export const ModeSelector = ({ modes, selectedMode, onModeChange, iconOnly = fal
       <div className={cn(searchableMenuRowClass, isSelected ? 'bg-accent' : 'hover:bg-accent/50')}>
         {item.icon}
         <span className="font-medium">{item.label}</span>
-        {isDefault && <span className="text-muted-foreground text-[length:var(--font-size-sm)]">Default</span>}
+        {isDefault && (
+          <span className="text-muted-foreground text-[length:var(--font-size-sm)]">
+            {t('mode.defaultBadge', { ns: 'chat' })}
+          </span>
+        )}
       </div>
     )
   }

@@ -15,6 +15,7 @@ import type { Agent } from '@/types/acp'
 import { iconForAgent } from '@/components/agent-icon'
 import { ChevronDown, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type AgentSelectorProps = {
   selectedAgent: Agent
@@ -82,6 +83,7 @@ export const AgentSelector = ({
   side,
   align,
 }: AgentSelectorProps) => {
+  const { t } = useTranslation('chat')
   const items = useMemo(() => buildAgentItems(agents), [agents])
   const [open, setOpen] = useState(false)
   const { triggerSelection } = useHaptics()
@@ -134,7 +136,7 @@ export const AgentSelector = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>{triggerInner}</TooltipTrigger>
-          <TooltipContent side="bottom">Cannot change agent during reply</TooltipContent>
+          <TooltipContent side="bottom">{t('agent.cannotChangeDuringReply')}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     )
@@ -150,7 +152,7 @@ export const AgentSelector = ({
       className={searchableMenuFooterActionClass}
     >
       <Plus className="size-4" />
-      Add agent
+      {t('agent.addAgent')}
     </button>
   ) : undefined
 
@@ -160,8 +162,8 @@ export const AgentSelector = ({
       value={selectedAgent.id}
       onValueChange={handleAgentChange}
       searchable={agents.length > 10}
-      searchPlaceholder="Search agents"
-      emptyMessage="No agents found"
+      searchPlaceholder={t('agent.searchPlaceholder')}
+      emptyMessage={t('agent.empty')}
       blurBackdrop
       trigger={renderTrigger}
       renderItem={renderAgentItem}
