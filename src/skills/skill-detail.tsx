@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Info } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { DetailActionsMenu, DetailEditDeleteMenuItems } from '@/components/settings/detail-actions-menu'
@@ -32,6 +33,7 @@ export const SkillDetail = ({
   /** Close (X) — dismisses the desktop slide-in panel or the mobile overlay. */
   onClose: () => void
 }) => {
+  const { t } = useTranslation('settings')
   const actionsMenu = !readOnly && (
     <DetailActionsMenu>
       <DetailEditDeleteMenuItems onEdit={onEdit} onDelete={onDelete} />
@@ -47,20 +49,18 @@ export const SkillDetail = ({
     >
       <div className="flex shrink-0 flex-col gap-2">
         <DetailSectionTitle>
-          Description
+          {t('skills.description')}
           <Tooltip>
             <TooltipTrigger asChild>
               <span
                 role="img"
-                aria-label="What is this for?"
+                aria-label={t('skills.descriptionHelpAria')}
                 className="inline-flex items-center text-muted-foreground hover:text-foreground"
               >
                 <Info size={13} strokeWidth={1.75} />
               </span>
             </TooltipTrigger>
-            <TooltipContent>
-              Helps the agent decide when to use this skill. Be specific about when it applies.
-            </TooltipContent>
+            <TooltipContent>{t('skills.descriptionHelp')}</TooltipContent>
           </Tooltip>
         </DetailSectionTitle>
         <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{description}</p>
@@ -69,7 +69,7 @@ export const SkillDetail = ({
       <DetailDivider />
 
       <div className="flex flex-col gap-2">
-        <DetailSectionTitle>Instructions</DetailSectionTitle>
+        <DetailSectionTitle>{t('skills.instructions')}</DetailSectionTitle>
         <div className="whitespace-pre-wrap pb-1 text-base leading-snug text-foreground">{instruction}</div>
       </div>
     </DetailPanel>

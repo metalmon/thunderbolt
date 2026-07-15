@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Check, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
@@ -107,6 +108,7 @@ export const AddCustomAgentForm = ({
   testAcpConnection = defaultTestAcpConnection,
   loadAppNodeId = irohClientNodeId,
 }: AddCustomAgentFormProps) => {
+  const { t } = useTranslation('settings')
   const [state, dispatch] = useReducer(agentFormReducer, emptyState)
 
   // The user just chose "Add Agent" — land ready to type a name (same idiom
@@ -177,10 +179,10 @@ export const AddCustomAgentForm = ({
   // which owns the "Add custom agent" header and close affordance.
   return (
     <div className="flex flex-1 flex-col">
-      <p className="text-sm text-muted-foreground">Connect a remote agent that speaks the Agent Client Protocol.</p>
+      <p className="text-sm text-muted-foreground">{t('agents.addCustomDescription')}</p>
       <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
         <div className="grid grid-cols-1 gap-2">
-          <Label htmlFor="agent-name">Name</Label>
+          <Label htmlFor="agent-name">{t('agents.name')}</Label>
           <Input
             id="agent-name"
             ref={nameInputRef}
@@ -191,7 +193,7 @@ export const AddCustomAgentForm = ({
           />
         </div>
         <div className="grid grid-cols-1 gap-2">
-          <Label htmlFor="agent-url">URL</Label>
+          <Label htmlFor="agent-url">{t('agents.url')}</Label>
           <Input
             id="agent-url"
             placeholder="wss://example.com/ws or paste an iroh ticket"
@@ -209,10 +211,10 @@ export const AddCustomAgentForm = ({
         </div>
         {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
         <div className="grid grid-cols-1 gap-2">
-          <Label htmlFor="agent-description">Description</Label>
+          <Label htmlFor="agent-description">{t('agents.description')}</Label>
           <Input
             id="agent-description"
-            placeholder="Optional"
+            placeholder={t('agents.optional')}
             value={state.description}
             onChange={(e) => dispatch({ type: 'DESCRIPTION_CHANGED', value: e.target.value })}
             autoComplete="off"
@@ -229,25 +231,25 @@ export const AddCustomAgentForm = ({
             {state.isTestingConnection ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Testing agent…
+                {t('agents.testingAgent')}
               </>
             ) : (
-              'Test connection'
+              t('agents.testConnection')
             )}
           </Button>
         )}
         {state.connectionStatus === 'success' && (
           <StatusCard
             icon={<Check className="h-4 w-4 text-success" />}
-            title="Connection successful!"
-            description="Successfully connected to the agent."
+            title={t('agents.connectionSuccessful')}
+            description={t('agents.connectionSuccessDescription')}
           />
         )}
         {state.connectionStatus === 'error' && (
           <StatusCard
             icon={<X className="h-4 w-4 text-destructive" />}
-            title="Connection failed"
-            description={state.connectionError || 'Could not connect to the agent.'}
+            title={t('agents.connectionFailed')}
+            description={state.connectionError || t('agents.connectionFailedDescription')}
           />
         )}
         {urlError && (
@@ -263,8 +265,8 @@ export const AddCustomAgentForm = ({
           </p>
         )}
         <ResponsiveModalCancel onClick={onClose} />
-        <Button onClick={handleSubmit} isLoading={state.submitting} loadingLabel="Adding…" disabled={!canSubmit}>
-          Add Agent
+        <Button onClick={handleSubmit} isLoading={state.submitting} loadingLabel={t('agents.adding')} disabled={!canSubmit}>
+          {t('agents.addAgent')}
         </Button>
       </FormFooter>
     </div>
