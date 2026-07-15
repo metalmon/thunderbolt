@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useTranslation } from 'react-i18next'
 
 type RevokeDeviceDialogProps = {
   open: boolean
@@ -21,25 +22,33 @@ type RevokeDeviceDialogProps = {
   variant: 'trusted' | 'pending'
 }
 
-const descriptions = {
-  trusted:
-    'The device will be signed out and its local data will be cleared on next sync. This device will need to sign in again to use sync.',
-  pending: 'This will deny the device access to your encrypted data. The device will need to set up sync again.',
-}
+export const RevokeDeviceDialog = ({ open, onOpenChange, onConfirm, isPending, variant }: RevokeDeviceDialogProps) => {
+  const { t } = useTranslation('common')
 
-export const RevokeDeviceDialog = ({ open, onOpenChange, onConfirm, isPending, variant }: RevokeDeviceDialogProps) => (
-  <AlertDialog open={open} onOpenChange={onOpenChange}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>{variant === 'pending' ? 'Deny this device?' : 'Revoke this device?'}</AlertDialogTitle>
-        <AlertDialogDescription>{descriptions[variant]}</AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm} disabled={isPending}>
-          {isPending ? (variant === 'pending' ? 'Denying…' : 'Revoking…') : variant === 'pending' ? 'Deny' : 'Revoke'}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {variant === 'pending' ? t('revokeDevice.denyTitle') : t('revokeDevice.revokeTitle')}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {variant === 'pending' ? t('revokeDevice.pendingDescription') : t('revokeDevice.trustedDescription')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>{t('cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} disabled={isPending}>
+            {isPending
+              ? variant === 'pending'
+                ? t('revokeDevice.denying')
+                : t('revokeDevice.revoking')
+              : variant === 'pending'
+                ? t('revokeDevice.deny')
+                : t('revokeDevice.revoke')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
