@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import dayjs from 'dayjs'
 import { lazy, Suspense, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useApproveDevice } from '@/hooks/use-approve-device'
@@ -235,6 +236,7 @@ const TrustedDeviceRow = ({
 }
 
 export default function DevicesSettingsPage() {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const currentDeviceId = getDeviceId()
   const { data: devices = [], isLoading } = useQuery({
@@ -289,7 +291,7 @@ export default function DevicesSettingsPage() {
 
   return (
     <SettingsPageShell className="gap-6 md:pb-12">
-      <PageHeader title="Devices" />
+      <PageHeader title={t('devices.title')} />
 
       {removeMutation.error && (
         <p className="text-sm text-destructive" role="alert">
@@ -298,8 +300,9 @@ export default function DevicesSettingsPage() {
       )}
 
       {hasPendingDevices && (
+<<<<<<< HEAD
         <section className="flex flex-col gap-2">
-          <SettingsSectionLabel>Pending approvals</SettingsSectionLabel>
+          <SettingsSectionLabel>{t('devices.pendingApprovalsTitle')}</SettingsSectionLabel>
           <ul className="flex flex-col gap-4">
             {pendingDevices.map((device) => (
               <li key={device.id}>
@@ -318,13 +321,14 @@ export default function DevicesSettingsPage() {
         </section>
       )}
 
+      {hasPendingDevices && <h3 className="text-lg font-semibold -mb-2">{t('devices.trustedDevicesTitle')}</h3>}
       {isLoading ? (
-        <p className="text-muted-foreground py-4">Loading devices…</p>
+        <p className="text-muted-foreground py-4">{t('devices.loading')}</p>
       ) : visibleDevices.length === 0 ? (
-        <p className="text-muted-foreground py-4">No devices yet. Sign in with sync to see devices here.</p>
+        <p className="text-muted-foreground py-4">{t('devices.emptyDescription')}</p>
       ) : (
         <section className="flex flex-col gap-2">
-          {hasPendingDevices && <SettingsSectionLabel>Trusted devices</SettingsSectionLabel>}
+          {hasPendingDevices && <SettingsSectionLabel>{t('devices.trustedDevicesTitle')}</SettingsSectionLabel>}
           <ul className="flex flex-col gap-4">
             {visibleDevices.map((device) => (
               <li key={device.id}>

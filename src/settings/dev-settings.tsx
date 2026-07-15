@@ -12,9 +12,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { getCapabilities, isTauri } from '@/lib/platform'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function DevSettingsPage() {
+  const { t } = useTranslation('settings')
   const settings = useLocalSettingsStore(
     useShallow((s) => ({
       cloudUrl: s.cloudUrl,
@@ -38,9 +40,9 @@ export default function DevSettingsPage() {
 
   return (
     <SettingsPageShell className="gap-6">
-      <PageHeader title="Developer Settings" />
+      <PageHeader title={t('developer.title')} />
 
-      <SectionCard title="Network">
+      <SectionCard title={t('network.title')}>
         <div className="flex flex-col gap-8">
           {/* Cloud URL Setting */}
           <div className="space-y-2">
@@ -50,7 +52,7 @@ export default function DevSettingsPage() {
               hasModifications={isModified('cloudUrl')}
               onReset={() => resetSetting('cloudUrl')}
             >
-              Cloud URL
+              {t('developer.cloudUrlLabel')}
             </ModificationIndicator>
             <Input
               type="url"
@@ -67,7 +69,7 @@ export default function DevSettingsPage() {
               }}
               placeholder="http://localhost:8000"
             />
-            <p className="text-sm text-muted-foreground">The URL of the Thunderbolt backend</p>
+            <p className="text-sm text-muted-foreground">{t('developer.cloudUrlDescription')}</p>
           </div>
 
           {/* Divider between settings */}
@@ -81,9 +83,9 @@ export default function DevSettingsPage() {
                 hasModifications={isModified('isNativeFetchEnabled')}
                 onReset={() => resetSetting('isNativeFetchEnabled')}
               >
-                Use Native Fetch
+                {t('developer.nativeFetchLabel')}
               </ModificationIndicator>
-              <p className="text-sm text-muted-foreground">Proxy HTTP requests through Tauri to bypass CORS</p>
+              <p className="text-sm text-muted-foreground">{t('developer.nativeFetchDescription')}</p>
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -96,10 +98,7 @@ export default function DevSettingsPage() {
                 </span>
               </TooltipTrigger>
               {!capabilities?.native_fetch && (
-                <TooltipContent sideOffset={4}>
-                  This feature is only available on some desktop versions of the app that were built with the
-                  native_fetch feature flag.
-                </TooltipContent>
+                <TooltipContent sideOffset={4}>{t('developer.nativeFetchUnavailableDescription')}</TooltipContent>
               )}
             </Tooltip>
           </div>
@@ -115,9 +114,9 @@ export default function DevSettingsPage() {
                 hasModifications={isModified('debugPosthog')}
                 onReset={() => resetSetting('debugPosthog')}
               >
-                Debug PostHog
+                {t('developer.debugPostHogLabel')}
               </ModificationIndicator>
-              <p className="text-sm text-muted-foreground">Enable verbose analytics logging in the console</p>
+              <p className="text-sm text-muted-foreground">{t('developer.debugPostHogDescription')}</p>
             </div>
             <Switch checked={debugPosthog} onCheckedChange={(value) => setLocalSetting('debugPosthog', value)} />
           </div>
