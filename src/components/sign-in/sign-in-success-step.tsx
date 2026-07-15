@@ -4,6 +4,7 @@
 
 import { Button } from '@/components/ui/button'
 import { GradientCircleCheck } from '@/components/ui/gradient-circle-check'
+import { useTranslation } from 'react-i18next'
 
 type SignInSuccessStepProps = {
   displayName?: string
@@ -16,19 +17,23 @@ type SignInSuccessStepProps = {
  * Shows a welcome message after successful authentication.
  */
 export const SignInSuccessStep = ({ displayName, onContinue, variant }: SignInSuccessStepProps) => {
+  const { t } = useTranslation(['auth', 'common'])
+
   return (
     <div className="flex w-full flex-col items-center text-center">
       {/* Success icon */}
       <GradientCircleCheck className="h-12 w-12" />
 
       {/* Welcome message */}
-      <h2 className="mt-4 text-xl font-semibold">{displayName ? `Welcome, ${displayName}!` : 'Welcome!'}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">You&apos;re now signed in.</p>
+      <h2 className="mt-4 text-xl font-semibold">
+        {displayName ? t('success.welcomeNamed', { name: displayName }) : t('success.welcome')}
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">{t('success.signedIn')}</p>
 
       {/* Continue button */}
       <div className={variant === 'modal' ? 'mt-6 w-full' : 'mt-8 w-full'}>
         <Button onClick={onContinue} className="w-full">
-          Continue
+          {t('continue', { ns: 'common' })}
         </Button>
       </div>
     </div>
