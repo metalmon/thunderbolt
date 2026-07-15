@@ -6,6 +6,7 @@ import type { AuthClient } from '@/contexts'
 import { challengeTokenHeader, otpLength } from '@/lib/constants'
 import { useAnonymousPromotionAnalytics } from '@/lib/analytics/use-anonymous-promotion-analytics'
 import { HttpError, type HttpClient } from '@/lib/http'
+import i18n from '@/i18n/i18n'
 import { getOtpErrorMessage } from '@/lib/otp-error-messages'
 import { updateSettings } from '@/dal'
 import { getDb, getDatabaseInstance } from '@/db/database'
@@ -194,10 +195,7 @@ export const useSignInFormState = ({
       dispatch({ type: 'SEND_SUCCESS', payload: challengeToken ?? '' })
     } catch (error) {
       console.error('Failed to send verification OTP:', error)
-      const message = await getServerErrorMessage(
-        error,
-        'Failed to send verification code. Please check your connection.',
-      )
+      const message = await getServerErrorMessage(error, i18n.t('signIn.failedToSend', { ns: 'auth' }))
       dispatch({ type: 'SEND_ERROR', payload: message })
       return
     }
@@ -242,7 +240,7 @@ export const useSignInFormState = ({
       dispatch({ type: 'VERIFY_SUCCESS' })
     } catch (error) {
       console.error('OTP verification error:', error)
-      dispatch({ type: 'VERIFY_ERROR', payload: 'Verification failed. Please try again.' })
+      dispatch({ type: 'VERIFY_ERROR', payload: i18n.t('otpErrors.fallback', { ns: 'auth' }) })
     }
   }
 
@@ -271,10 +269,7 @@ export const useSignInFormState = ({
       return true
     } catch (error) {
       console.error('Failed to resend verification OTP:', error)
-      const message = await getServerErrorMessage(
-        error,
-        'Failed to resend verification code. Please check your connection.',
-      )
+      const message = await getServerErrorMessage(error, i18n.t('signIn.failedToResend', { ns: 'auth' }))
       dispatch({ type: 'SET_ERROR', payload: message })
       return false
     }
