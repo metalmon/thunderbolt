@@ -49,9 +49,10 @@ export const SkillDetail = ({
 }) => {
   const { isMobile } = useIsMobile()
   const navigate = useNavigate()
-  const { t } = useTranslation('defaults')
-  const displayName = translateDefaultField(t, 'skills', id, 'name', name)
-  const displayDescription = translateDefaultField(t, 'skills', id, 'description', description)
+  const { t: translateDefault } = useTranslation('defaults')
+  const { t } = useTranslation('settings')
+  const displayName = translateDefaultField(translateDefault, 'skills', id, 'name', name)
+  const displayDescription = translateDefaultField(translateDefault, 'skills', id, 'description', description)
 
   const runInChat = () => {
     // Router state (not a URL param) by design: the entry point is internal
@@ -73,7 +74,7 @@ export const SkillDetail = ({
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                aria-label="Back to skills"
+                aria-label={t('skills.back')}
                 className="size-8 shrink-0 rounded-md border border-border text-muted-foreground hover:text-foreground"
               >
                 <ChevronLeft className="size-5 md:size-4" />
@@ -97,13 +98,11 @@ export const SkillDetail = ({
                     <Switch
                       checked={enabled}
                       onCheckedChange={onToggleEnabled}
-                      aria-label={enabled ? 'Disable skill' : 'Enable skill'}
+                      aria-label={enabled ? t('skills.disable') : t('skills.enable')}
                     />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {enabled ? "Disable skill. The AI won't use it, and it will be unpinned." : 'Enable skill'}
-                </TooltipContent>
+                <TooltipContent>{enabled ? t('skills.disableDescription') : t('skills.enable')}</TooltipContent>
               </Tooltip>
             )}
             <DropdownMenu>
@@ -111,7 +110,7 @@ export const SkillDetail = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="More"
+                  aria-label={t('skills.more')}
                   className="size-8 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground [&_svg:not([class*='size-'])]:size-5"
                 >
                   <MoreHorizontal />
@@ -128,22 +127,22 @@ export const SkillDetail = ({
                       className="cursor-pointer"
                     >
                       <Power />
-                      {enabled ? 'Disable skill' : 'Enable skill'}
+                      {enabled ? t('skills.disable') : t('skills.enable')}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
                 )}
                 <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
                   <SquarePen />
-                  Edit
+                  {t('skills.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={runInChat} className="cursor-pointer">
                   <Plus />
-                  Add to chat
+                  {t('skills.addToChat')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onDelete} className="cursor-pointer">
                   <Trash2 />
-                  Delete
+                  {t('skills.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -159,20 +158,18 @@ export const SkillDetail = ({
         <AccordionItem value="description" className="rounded-xl border-b-0 bg-secondary px-4 dark:bg-sidebar">
           <AccordionTrigger className="py-3 text-base leading-tight text-muted-foreground hover:no-underline">
             <div className="flex items-center gap-0.5">
-              <span>Description</span>
+              <span>{t('skills.description')}</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
                     role="img"
-                    aria-label="What is this for?"
+                    aria-label={t('skills.descriptionHelpAria')}
                     className="ml-1 inline-flex items-center text-muted-foreground hover:text-foreground"
                   >
                     <Info size={14} strokeWidth={1.75} />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>
-                  Helps the agent decide when to use this skill. Be specific about when it applies.
-                </TooltipContent>
+                <TooltipContent>{t('skills.descriptionHelp')}</TooltipContent>
               </Tooltip>
             </div>
           </AccordionTrigger>
@@ -191,7 +188,7 @@ export const SkillDetail = ({
         >
           <AccordionPrimitive.Header className="flex">
             <AccordionPrimitive.Trigger className="flex flex-1 items-center justify-between gap-4 py-3 text-base leading-tight text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&[data-state=open]>svg]:rotate-180">
-              Instructions
+              {t('skills.instructions')}
               <ChevronDown className="text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200" />
             </AccordionPrimitive.Trigger>
           </AccordionPrimitive.Header>

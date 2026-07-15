@@ -6,6 +6,7 @@ import { SearchInput } from '@/components/ui/search-input'
 import { useAgentRegistrySearch } from '@/hooks/use-agent-registry-search'
 import type { RegistryEntry } from '@/types/registry'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AgentCatalogCard } from './agent-catalog-card'
 
 type AgentCatalogViewProps = {
@@ -17,22 +18,25 @@ type AgentCatalogViewProps = {
  *  entries as a prop and owns no data fetching, so it renders purely from inputs
  *  and is unit-testable without react-query. */
 export const AgentCatalogView = ({ entries }: AgentCatalogViewProps) => {
+  const { t } = useTranslation('settings')
   const { query, setQuery, results, isEmpty } = useAgentRegistrySearch(entries)
   const showEmptyState = isEmpty && query.trim().length > 0
   const searchRef = useRef<HTMLInputElement>(null)
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-medium">Browse agents</h2>
+      <h2 className="text-lg font-medium">{t('agents.browse')}</h2>
       <SearchInput
         ref={searchRef}
         showIcon
-        placeholder="Search agents"
+        placeholder={t('agents.search')}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
       {showEmptyState ? (
-        <p className="text-[length:var(--font-size-sm)] text-muted-foreground py-6 text-center">No agents found</p>
+        <p className="text-[length:var(--font-size-sm)] text-muted-foreground py-6 text-center">
+          {t('agents.noneFound')}
+        </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {results.map((entry) => (

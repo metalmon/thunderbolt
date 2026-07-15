@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { validateSkillName } from '@/dal'
+import { useTranslation } from 'react-i18next'
 
 export type SkillFormMode = 'create' | 'edit'
 
@@ -47,6 +48,7 @@ export const SkillForm = ({
   /** Inline name-uniqueness error from the DAL pre-check. */
   nameError?: string | null
 }) => {
+  const { t } = useTranslation('settings')
   // Strip a leading `/` defensively — names are stored bare per the
   // AgentSkills spec, but legacy rows from before THU-534 landed may still
   // carry the prefix and we don't want the editor to show `//foo`.
@@ -135,11 +137,11 @@ export const SkillForm = ({
   return (
     <section className="flex h-full flex-1 flex-col bg-background text-foreground">
       <div className="flex min-h-0 flex-1 flex-col gap-5 px-6 py-5">
-        <h2 className="text-xl text-foreground">{mode === 'edit' ? 'Edit Skill' : 'Create Skill'}</h2>
+        <h2 className="text-xl text-foreground">{mode === 'edit' ? t('skills.edit') : t('skills.create')}</h2>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-name" className="text-base text-foreground">
-            Skill name
+            {t('skills.name')}
           </label>
           <div className="relative">
             {/* Stripe-style fixed `/` prefix. Sits inside the input visually
@@ -155,7 +157,7 @@ export const SkillForm = ({
             <Input
               id="skill-name"
               ref={nameInputRef}
-              placeholder="daily-brief"
+              placeholder={t('skills.namePlaceholder')}
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               className="h-9 pl-7"
@@ -167,26 +169,26 @@ export const SkillForm = ({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-description" className="flex items-center gap-1.5 text-base text-foreground">
-            Description
+            {t('skills.description')}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="What is this for?"
+                  aria-label={t('skills.descriptionHelpAria')}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Info size={14} strokeWidth={1.75} />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-[202px]">
-                Helps the agent decide when to use this skill. Be specific about when it applies.
+                {t('skills.descriptionHelp')}
               </TooltipContent>
             </Tooltip>
           </label>
           <Textarea
             id="skill-description"
             rows={3}
-            placeholder="When to use this skill…"
+            placeholder={t('skills.descriptionPlaceholder')}
             value={description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
           />
@@ -194,11 +196,11 @@ export const SkillForm = ({
 
         <div className="flex min-h-0 flex-1 flex-col gap-2">
           <label htmlFor="skill-instruction" className="text-base text-foreground">
-            Instructions
+            {t('skills.instructions')}
           </label>
           <Textarea
             id="skill-instruction"
-            placeholder="What the assistant should do…"
+            placeholder={t('skills.instructionsPlaceholder')}
             value={instruction}
             onChange={(e) => handleInstructionChange(e.target.value)}
             className="min-h-0 flex-1 resize-none"
@@ -208,10 +210,10 @@ export const SkillForm = ({
 
       <footer className="flex items-center justify-end gap-2 px-6 py-4">
         <Button variant="outline" size="lg" onClick={onCancel} className="text-sm">
-          Cancel
+          {t('skills.cancel')}
         </Button>
         <Button variant="default" size="lg" disabled={!canSubmit} className="text-sm" onClick={handleSubmit}>
-          {mode === 'edit' ? 'Save' : 'Create'}
+          {mode === 'edit' ? t('skills.save') : t('skills.create')}
         </Button>
       </footer>
     </section>

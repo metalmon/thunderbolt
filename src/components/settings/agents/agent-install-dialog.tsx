@@ -15,6 +15,7 @@ import {
 import type { AgentInstallMeta } from '@/defaults/agent-install-metadata'
 import { buildRunCommand } from '@/lib/agent-install-command'
 import type { RegistryEntry } from '@/types/registry'
+import { useTranslation } from 'react-i18next'
 
 type AgentInstallDialogProps = {
   entry: RegistryEntry
@@ -38,30 +39,33 @@ const CommandSection = ({ title, command, copyLabel }: { title: string; command:
  *  These agents run on the user's own machine — this is the "how to run it" panel,
  *  not an in-app installer. */
 export const AgentInstallDialog = ({ entry, meta, open, onOpenChange }: AgentInstallDialogProps) => {
+  const { t } = useTranslation('settings')
   const command = meta?.runCommand ?? buildRunCommand(entry)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ResponsiveModalContentComposable className="sm:max-w-[500px]">
         <ResponsiveModalHeader>
-          <ResponsiveModalTitle>Set up {entry.name}</ResponsiveModalTitle>
-          <ResponsiveModalDescription>
-            Run {entry.name} on your machine, then add it as a custom agent to connect.
-          </ResponsiveModalDescription>
+          <ResponsiveModalTitle>{t('agents.setUpAgent', { name: entry.name })}</ResponsiveModalTitle>
+          <ResponsiveModalDescription>{t('agents.setUpDescription', { name: entry.name })}</ResponsiveModalDescription>
         </ResponsiveModalHeader>
         <div className="flex flex-col gap-4 pt-4 pb-2">
           {meta?.installCommand && (
-            <CommandSection title="Install" command={meta.installCommand} copyLabel="Copy install command" />
+            <CommandSection
+              title={t('agents.install')}
+              command={meta.installCommand}
+              copyLabel={t('agents.copyInstallCommand')}
+            />
           )}
-          {command && <CommandSection title="Run this command" command={command} copyLabel="Copy run command" />}
+          {command && (
+            <CommandSection title={t('agents.runCommand')} command={command} copyLabel={t('agents.copyRunCommand')} />
+          )}
           {!command && !meta?.installCommand && (
-            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-              Check the agent's website for install instructions.
-            </p>
+            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.checkWebsite')}</p>
           )}
           {meta?.requiredEnv && meta.requiredEnv.length > 0 && (
             <div className="grid grid-cols-1 gap-2">
-              <p className="text-[length:var(--font-size-sm)] font-medium">Required setup</p>
+              <p className="text-[length:var(--font-size-sm)] font-medium">{t('agents.requiredSetup')}</p>
               <ul className="grid grid-cols-1 gap-2">
                 {meta.requiredEnv.map((env) => (
                   <li key={env.name} className="text-[length:var(--font-size-xs)] text-muted-foreground">
@@ -79,7 +83,7 @@ export const AgentInstallDialog = ({ entry, meta, open, onOpenChange }: AgentIns
             <Button asChild variant="outline" size="sm" className="self-start">
               <a href={meta.docsUrl} target="_blank" rel="noopener noreferrer">
                 <BookOpen />
-                Setup guide
+                {t('agents.setupGuide')}
               </a>
             </Button>
           )}

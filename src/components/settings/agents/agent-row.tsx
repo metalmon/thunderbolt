@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useState } from 'react'
 import { Globe, Pencil, Server, Trash2, Zap } from 'lucide-react'
 import type { Agent } from '@/types/acp'
+import { useTranslation } from 'react-i18next'
 
 /** Visual order: built-in (zap) → managed/system (server) → remote (globe). */
 const iconForAgent = (agent: Agent) => {
@@ -79,6 +80,7 @@ type AgentRowProps = {
 }
 
 export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: AgentRowProps) => {
+  const { t } = useTranslation('settings')
   const Icon = iconForAgent(agent)
   const badge = badgeForAgent(agent)
   const showEdit = canEditAgent(agent, currentUserId)
@@ -105,7 +107,11 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                   className="text-[length:var(--font-size-xs)] text-muted-foreground rounded-md border border-border px-2 py-0.5 shrink-0"
                   data-testid={`agent-badge-${agent.id}`}
                 >
-                  {badge}
+                  {badge === 'Built-in'
+                    ? t('agents.builtIn')
+                    : badge === 'System'
+                      ? t('agents.system')
+                      : t('agents.remote')}
                 </span>
               </div>
               {agent.description && (
@@ -126,7 +132,15 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                <p>{disabledTooltip ?? (isEnabled ? 'Disable agent' : 'Enable agent')}</p>
+                <p>
+                  {disabledTooltip === 'Built-in agent is always available'
+                    ? t('agents.builtInAlwaysAvailable')
+                    : disabledTooltip === 'System agent is always available'
+                      ? t('agents.systemAlwaysAvailable')
+                      : isEnabled
+                        ? t('agents.disableAgent')
+                        : t('agents.enableAgent')}
+                </p>
               </TooltipContent>
             </Tooltip>
             {showEdit && (
@@ -136,7 +150,7 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                     variant="ghost"
                     size="sm"
                     className="size-8 p-0"
-                    aria-label={`Edit ${agent.name}`}
+                    aria-label={t('agents.editAgent', { name: agent.name })}
                     data-testid={`agent-edit-${agent.id}`}
                     onClick={() => onEdit(agent)}
                   >
@@ -144,7 +158,7 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Edit agent</p>
+                  <p>{t('agents.editAgent', { name: agent.name })}</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -155,7 +169,7 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                     variant="ghost"
                     size="sm"
                     className="size-8 p-0"
-                    aria-label={`Remove ${agent.name}`}
+                    aria-label={t('agents.removeAgent', { name: agent.name })}
                     data-testid={`agent-delete-${agent.id}`}
                   >
                     <Trash2 className="size-4" />
@@ -164,17 +178,17 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                 <PopoverContent className="w-80" side="bottom" align="end">
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-medium">Remove Agent</h4>
+                      <h4 className="font-medium">{t('agents.removeAgentTitle')}</h4>
                       <p className="text-[length:var(--font-size-sm)] text-muted-foreground">
-                        Are you sure you want to remove {agent.name}?
+                        {t('agents.removeAgentDescription', { name: agent.name })}
                       </p>
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm" onClick={() => setDeleteOpen(false)}>
-                        Cancel
+                        {t('agents.cancel')}
                       </Button>
                       <Button variant="destructive" size="sm" onClick={handleDelete}>
-                        Remove
+                        {t('agents.remove')}
                       </Button>
                     </div>
                   </div>

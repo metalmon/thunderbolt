@@ -4,6 +4,7 @@
 
 import { Code2, ExternalLink, Terminal, Wrench } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { agentInstallMetadata } from '@/defaults/agent-install-metadata'
@@ -19,6 +20,7 @@ type AgentCatalogCardProps = {
  *  a "Set up" action opening run/setup instructions, and link-outs to its website
  *  and source. These CLIs run on the user's own machine, not inside Thunderbolt. */
 export const AgentCatalogCard = ({ entry }: AgentCatalogCardProps) => {
+  const { t } = useTranslation('settings')
   const [iconFailed, setIconFailed] = useState(false)
   const [installOpen, setInstallOpen] = useState(false)
 
@@ -62,14 +64,14 @@ export const AgentCatalogCard = ({ entry }: AgentCatalogCardProps) => {
           {distributionKind && (
             <Button variant="outline" size="sm" onClick={() => setInstallOpen(true)}>
               <Wrench />
-              Set up
+              {t('agents.setUp')}
             </Button>
           )}
           {websiteUrl && (
             <Button asChild variant="outline" size="sm">
               <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink />
-                Website
+                {t('agents.website')}
               </a>
             </Button>
           )}
@@ -77,7 +79,7 @@ export const AgentCatalogCard = ({ entry }: AgentCatalogCardProps) => {
             <Button asChild variant="outline" size="sm">
               <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
                 <Code2 />
-                Source
+                {t('agents.source')}
               </a>
             </Button>
           )}

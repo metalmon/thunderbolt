@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/components/ui/sidebar'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { Skill } from '@/types'
+import { useTranslation } from 'react-i18next'
 import { LibraryRow, skillRowTransition } from './library-row'
 
 /**
@@ -39,6 +40,7 @@ export const SkillsList = ({
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) => {
+  const { t } = useTranslation('settings')
   const [search, setSearch] = useState('')
   const { isMobile } = useIsMobile()
   const { toggleSidebar } = useSidebar()
@@ -65,23 +67,23 @@ export const SkillsList = ({
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              aria-label="Open menu"
+              aria-label={t('skills.openMenu')}
               className="size-8 -ml-1 rounded-md text-muted-foreground hover:text-foreground"
             >
               <Menu strokeWidth={1.5} />
             </Button>
           )}
-          {!isMobile && <h1 className="text-xl leading-tight text-foreground">Skills</h1>}
+          {!isMobile && <h1 className="text-xl leading-tight text-foreground">{t('skills.title')}</h1>}
         </div>
         {isMobile && (
           <h1 className="absolute left-1/2 -translate-x-1/2 text-xl leading-tight text-foreground pointer-events-none">
-            Skills
+            {t('skills.title')}
           </h1>
         )}
         <Button
           variant="outline"
           size="icon"
-          aria-label="Create skill"
+          aria-label={t('skills.createAria')}
           className="size-8 rounded-md"
           onClick={onCreate}
         >
@@ -93,7 +95,7 @@ export const SkillsList = ({
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search skills"
+          placeholder={t('skills.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-9 rounded-lg border-border pl-9 text-sm placeholder:text-muted-foreground"
@@ -133,7 +135,9 @@ export const SkillsList = ({
 
           {disabledRows.length > 0 && (
             <m.div layout="position" transition={skillRowTransition} className="flex flex-col gap-1">
-              <h2 className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Disabled</h2>
+              <h2 className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('skills.disabled')}
+              </h2>
               <m.ul layout="position" transition={skillRowTransition} className="flex flex-col gap-1.5">
                 {disabledRows.map((skill) => (
                   <LibraryRow
@@ -154,7 +158,9 @@ export const SkillsList = ({
           {enabledRows.length === 0 && disabledRows.length === 0 && (
             // Search-empty state. The user-deleted-everything empty state lives
             // a level up in SkillsView.
-            <p className="flex h-32 items-center justify-center text-sm text-muted-foreground">No matching skills.</p>
+            <p className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+              {t('skills.noMatches')}
+            </p>
           )}
         </div>
       </LayoutGroup>

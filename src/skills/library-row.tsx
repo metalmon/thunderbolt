@@ -51,8 +51,9 @@ export const LibraryRow = ({
   onDelete: (id: string) => void
 }) => {
   const navigate = useNavigate()
-  const { t } = useTranslation('defaults')
-  const displayName = translateDefaultField(t, 'skills', skill.id, 'name', skill.name)
+  const { t: translateDefault } = useTranslation('defaults')
+  const { t } = useTranslation('settings')
+  const displayName = translateDefaultField(translateDefault, 'skills', skill.id, 'name', skill.name)
 
   return (
     <m.li layout layoutId={skill.id} transition={skillRowTransition}>
@@ -82,7 +83,9 @@ export const LibraryRow = ({
             <Switch
               checked={enabled}
               onCheckedChange={(next) => onToggleEnabled(skill.id, next)}
-              aria-label={enabled ? `Disable /${skill.name}` : `Enable /${skill.name}`}
+              aria-label={
+                enabled ? t('skills.disableAria', { name: skill.name }) : t('skills.enableAria', { name: skill.name })
+              }
             />
           </span>
           <span className="truncate leading-none">/{displayName}</span>
@@ -91,7 +94,7 @@ export const LibraryRow = ({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label={`Open /${skill.name} menu`}
+              aria-label={t('skills.openMenuAria', { name: skill.name })}
               onClick={(e) => e.stopPropagation()}
               className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 aria-expanded:bg-foreground/10 aria-expanded:opacity-100"
             >
@@ -107,7 +110,7 @@ export const LibraryRow = ({
               className="cursor-pointer"
             >
               <SquarePen />
-              Edit
+              {t('skills.edit')}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
@@ -120,7 +123,7 @@ export const LibraryRow = ({
               className="cursor-pointer"
             >
               <Plus />
-              Add to chat
+              {t('skills.addToChat')}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
@@ -130,7 +133,7 @@ export const LibraryRow = ({
               className="cursor-pointer"
             >
               <Trash2 />
-              Delete
+              {t('skills.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

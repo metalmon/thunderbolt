@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
 export const DeleteSkillDialog = ({
   open,
@@ -23,21 +24,23 @@ export const DeleteSkillDialog = ({
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   skillName: string
-}) => (
-  <AlertDialog open={open} onOpenChange={onOpenChange}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete /{skillName}?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This will permanently delete the skill. Other skills that reference it may no longer resolve.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <Button variant="destructive" onClick={onConfirm}>
-          Delete skill
-        </Button>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)
+}) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('skills.deleteTitle', { name: skillName })}</AlertDialogTitle>
+          <AlertDialogDescription>{t('skills.deleteDescription')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('skills.cancel')}</AlertDialogCancel>
+          <Button variant="destructive" onClick={onConfirm}>
+            {t('skills.delete')}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
