@@ -33,6 +33,7 @@ import { useDraftInput } from '@/hooks/use-draft-input'
 import { AnimatePresence, m } from 'framer-motion'
 import { AlertCircle, Loader2, X } from 'lucide-react'
 import { type ClipboardEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation as useLocation_default, useNavigate as useNavigate_default } from 'react-router'
 import { ChatAddMenu } from './chat-add-menu'
 import { ChatSkillsBar } from './chat-skills-bar'
@@ -161,6 +162,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
     },
     ref,
   ) => {
+    const { t } = useTranslation('chat')
     const navigate = useNavigate()
     const location = useLocation()
     const { openCreateItem } = useCreateItem()
@@ -781,7 +783,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
               }
               setInput(value)
             }}
-            placeholder="Ask me anything..."
+            placeholder={t('prompt.askAnything')}
             showSubmitButton
             onSubmit={handleSubmit}
             // Allow sending an attachment even with no typed text (matches the Enter behavior).

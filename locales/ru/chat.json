@@ -1,1 +1,153 @@
-{}
+{
+  "nav": {
+    "newChat": "New Chat",
+    "tasks": "Tasks",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "collapse": "Collapse Sidebar",
+    "expand": "Expand Sidebar",
+    "toggle": "Toggle Sidebar",
+    "open": "Open Sidebar",
+    "recentChats": "Recent Chats",
+    "searchPlaceholder": "Search chats...",
+    "search": "Search chats",
+    "clearAll": "Clear all chats",
+    "noMatches": "No matches for \"{{query}}\"",
+    "rename": "Rename",
+    "renameTitle": "Rename chat",
+    "chatNamePlaceholder": "Chat name"
+  },
+  "deleteChat": {
+    "title": "Delete this chat?",
+    "description": "This will permanently delete this chat.",
+    "confirm": "Delete Chat"
+  },
+  "deleteAllChats": {
+    "title": "Delete all chats?",
+    "description": "This will permanently delete all your chats.",
+    "confirm": "Delete All Chats"
+  },
+  "prompt": {
+    "placeholder": "Say something...",
+    "askAnything": "Ask me anything...",
+    "stopGenerating": "Stop generating",
+    "sendMessage": "Send message",
+    "attachFile": "Attach a file",
+    "dropFile": "Drop file to attach",
+    "dismiss": "Dismiss",
+    "connecting": "Connecting to {{name}}...",
+    "connectFailed": "Failed to connect to {{name}}",
+    "agentUnavailable": "This chat uses {{name}}, which is not available on this platform.",
+    "connectionFailed": "Connection failed",
+    "attachMaxFiles": "You can attach up to {{count}} files.",
+    "attachUnsupportedType": "\"{{name}}\" isn't a supported file type.",
+    "attachTooLarge": "\"{{name}}\" is too large (max {{maxMb}}MB).",
+    "attachStorageFull": "Couldn't attach \"{{name}}\" — your browser's storage is full or unavailable."
+  },
+  "loading": {
+    "searchingWeb": "Searching the web…",
+    "researching": "Researching…"
+  },
+  "mode": {
+    "defaultBadge": "Default"
+  },
+  "model": {
+    "customModels": "Custom Models",
+    "standardModels": "Standard Models",
+    "standardDisabledSubtitle": "Not available in confidential chats.",
+    "confidentialModels": "Confidential Models",
+    "confidentialDisabledSubtitle": "Available only in confidential chats.",
+    "selectModel": "Select Model",
+    "apiKeyMissing": "API key not configured",
+    "addModels": "Add Models",
+    "searchPlaceholder": "Search Models",
+    "empty": "No models found"
+  },
+  "agent": {
+    "builtIn": "Built-in",
+    "system": "System",
+    "custom": "Custom",
+    "cannotChangeDuringReply": "Cannot change agent during reply",
+    "addAgent": "Add Agent",
+    "searchPlaceholder": "Search agents",
+    "empty": "No agents found"
+  },
+  "skills": {
+    "slashCommands": "Slash commands",
+    "pinLimitReached": "Pin limit reached ({{max}}). Unpin one first.",
+    "noMoreToPin": "No more skills to pin",
+    "pinASkill": "Pin a skill",
+    "dismiss": "Dismiss",
+    "pinnedSkill": "Pinned skill /{{label}}",
+    "addToChat": "Add to chat",
+    "addInstructionsToChat": "Add instructions to chat",
+    "reorder": "Reorder",
+    "unpin": "Unpin"
+  },
+  "messages": {
+    "scrollToBottom": "Scroll to bottom",
+    "copyMessage": "Copy message",
+    "copy": "Copy",
+    "reply": "Reply",
+    "retry": "Retry",
+    "viewQuote": "View quote",
+    "removeQuote": "Remove quote",
+    "thinking": "Thinking",
+    "thinkingEllipsis": "Thinking...",
+    "completedSteps": "Completed {{count}} steps in {{duration}}",
+    "thoughtFor": "Thought for {{duration}}"
+  },
+  "permission": {
+    "editFile": "Edit file",
+    "delete": "Delete",
+    "runCommand": "Run command",
+    "moveFile": "Move file",
+    "action": "Action",
+    "alwaysAllowKind": "Always allow all {{label}} actions",
+    "alwaysAllowKindGeneric": "Always allow all actions of this kind",
+    "title": "Permission Required",
+    "commandArgs": "Command / arguments",
+    "toolInput": "Tool input",
+    "alwaysAllowEverything": "Always allow everything from this agent"
+  },
+  "fileCard": {
+    "sentAsText": "Sent as text",
+    "sentAsImages": "Sent as images",
+    "pdf": "PDF",
+    "file": "FILE",
+    "remove": "Remove {{filename}}",
+    "resendAs": "Resend as {{mode}}",
+    "text": "text",
+    "images": "images"
+  },
+  "errors": {
+    "rateLimit": "Too many requests. Please try again in a moment.",
+    "contextOverflow": "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window.",
+    "retrying": "Something went wrong. Retrying ({{retryCount}}/{{maxRetries}})...",
+    "deliveryExhausted": "This model couldn't read the attached file. Try a different model.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "artifact": {
+    "fallbackTitle": "Artifact",
+    "shownInPanel": "{{title}} — shown in side panel",
+    "showInline": "Show inline",
+    "generating": "Generating…",
+    "openInSidePanel": "Open in side panel"
+  },
+  "sources": {
+    "source": "Source",
+    "sources": "Sources",
+    "noneAvailable": "No sources available",
+    "unknown": "Unknown",
+    "viewSource": "View source: {{name}}"
+  },
+  "externalLink": {
+    "title": "Open External Link",
+    "description": "Confirm opening an external link",
+    "openInSidebar": "Open in Sidebar",
+    "opening": "Opening…",
+    "openInBrowser": "Open in Browser",
+    "openLink": "Open Link"
+  }
+}

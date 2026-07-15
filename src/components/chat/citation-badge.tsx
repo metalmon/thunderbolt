@@ -7,6 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import type { CitationSource } from '@/types/citation'
 import { memo, useState } from 'react'
 import { CitationSourcesDrawer } from './citation-sources-drawer'
+import { useTranslation } from 'react-i18next'
 import { useCitationPopover } from './citation-popover'
 import { SourceList } from './source-list'
 
@@ -39,15 +40,13 @@ CitationBadge.displayName = 'CitationBadge'
 const badgeClass =
   'inline-flex max-w-48 items-center gap-1 px-2 pt-0.5 pb-1 text-xs font-normal rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1'
 
-const getBadgeLabel = (sources: CitationSource[]) => {
+const getBadgeLabel = (sources: CitationSource[], viewSourceLabel: (name: string) => string) => {
   const primary = sources.find((s) => s.isPrimary) || sources[0]
+  const name = primary.siteName || primary.title
   return {
-    displayName: primary.siteName || primary.title,
+    displayName: name,
     additionalCount: sources.length > 1 ? `+${sources.length - 1}` : null,
-    ariaLabel:
-      sources.length === 1
-        ? `View source: ${primary.siteName || primary.title}`
-        : `View ${sources.length} sources: ${primary.siteName || primary.title} and ${sources.length - 1} more`,
+    ariaLabel: viewSourceLabel(name),
   }
 }
 
@@ -58,7 +57,10 @@ type BadgeButtonProps = {
 }
 
 const BadgeButton = ({ sources, isOpen, onToggle }: BadgeButtonProps) => {
-  const { displayName, additionalCount, ariaLabel } = getBadgeLabel(sources)
+  const { t } = useTranslation('chat')
+  const { displayName, additionalCount, ariaLabel } = getBadgeLabel(sources, (name) =>
+    t('sources.viewSource', { name }),
+  )
   return (
     <button
       onClick={(e) => onToggle(e.currentTarget)}
@@ -104,6 +106,7 @@ ManagedBadge.displayName = 'ManagedBadge'
 const StandaloneBadge = memo(({ sources }: { sources: CitationSource[] }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation('chat')
   const close = () => setIsOpen(false)
   const badge = <BadgeButton sources={sources} isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
 
