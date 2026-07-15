@@ -21,6 +21,7 @@ import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { createAgent, deleteAgent, updateAgent, useAllAgents } from '@/dal'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { selfEnrollIrohNodeId } from '@/lib/iroh-enrollment'
+import { useTranslation } from 'react-i18next'
 
 type AgentsSettingsPageProps = {
   /** Test/DI override for reading this app's iroh NodeId. Forwarded to the add
@@ -41,6 +42,7 @@ type AgentsSettingsPageProps = {
  * is "+" → the Add custom agent dialog.
  */
 export default function AgentsSettingsPage({ loadAppNodeId, enrollIroh }: AgentsSettingsPageProps = {}) {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const agents = useAllAgents()
   const authClient = useAuth()
@@ -122,13 +124,13 @@ export default function AgentsSettingsPage({ loadAppNodeId, enrollIroh }: Agents
     <div className="relative flex h-full overflow-hidden">
       <div className="min-w-0 flex-1 overflow-hidden">
         <div className="mx-auto flex h-full w-full max-w-[760px] flex-col gap-6 overflow-y-auto p-4 md:px-5">
-          <PageHeader title="Agents">
+          <PageHeader title={t('agents.title')}>
             {allowCustomAgents && (
               <Button
                 variant="outline"
                 size="icon"
                 className="bg-card"
-                aria-label="Add custom agent"
+                aria-label={t('agents.addCustomAriaLabel')}
                 onClick={() => setDialogOpen(true)}
                 disabled={!currentUserId}
               >

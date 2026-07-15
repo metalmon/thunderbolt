@@ -1,11 +1,145 @@
 {
+  "preferences": {
+    "title": "Preferences",
+    "userExperienceTitle": "User Experience",
+    "themeLabel": "Theme",
+    "hapticFeedbackLabel": "Haptic Feedback",
+    "hapticFeedbackDescription": "Vibrate on tap",
+    "personalizationTitle": "Personalization",
+    "preferredNameLabel": "Preferred Name",
+    "preferredNamePlaceholder": "Your name",
+    "preferredNameDescription": "How Thunderbolt salutes you"
+  },
   "localization": {
     "title": "Локализация",
     "languageLabel": "Язык",
     "languageDescription": "Язык интерфейса",
+    "locationLabel": "Location",
+    "locationDescription": "Enables location-based responses",
+    "distanceLabel": "Distance",
+    "temperatureLabel": "Temperature",
+    "dateFormatLabel": "Date Format",
+    "timeFormatLabel": "Time Format",
+    "currencyLabel": "Currency",
+    "searchCurrenciesPlaceholder": "Search currencies...",
     "languages": {
       "en": "English",
       "ru": "Русский"
     }
+  },
+  "network": {
+    "title": "Network",
+    "proxyLabel": "Use Cloud Proxy",
+    "proxyDescription": "When enabled, requests are routed through Thunderbolt's cloud proxy.",
+    "proxyWebOnlyDescription": "Proxying is required in the web app to bypass browser CORS restrictions.",
+    "proxySignInDescription": "Sign in to enable cloud proxy."
+  },
+  "telemetry": {
+    "title": "Help Thunderbolt Improve",
+    "previewFeaturesLabel": "Preview Features",
+    "tasksLabel": "Tasks",
+    "anonymousUsageDataLabel": "Anonymous Usage Data",
+    "usageDataDescriptionPrefix": "Help us improve the app by sending anonymous usage info such as crashes, performance, and usage. Read more about our",
+    "privacyPolicyLink": "privacy policy",
+    "usageDataDescriptionSuffix": ".",
+    "unavailableDescription": "Telemetry isn't configured for this organization, so no usage data is being collected."
+  },
+  "data": {
+    "title": "Data",
+    "syncDeviceLabel": "Sync This Device With Cloud",
+    "signIn": "Sign In",
+    "exportLabel": "Export Your Data",
+    "exportDescription": "Export all of your data as JSON.",
+    "exporting": "Exporting...",
+    "exportButton": "Export My Data",
+    "importLabel": "Import Your Data",
+    "importDescription": "Import your data from previously exported JSON.",
+    "importing": "Importing...",
+    "importButton": "Import Data",
+    "import": "Import",
+    "importDialogTitle": "Import this backup?",
+    "deleteLocalDataLabel": "Delete All Local Data",
+    "resetting": "Resetting...",
+    "resetDatabase": "Reset Database",
+    "resetDatabaseDialogTitle": "Reset Local Database?",
+    "resetDatabaseDialogDescription": "This will permanently delete all of your local data including settings, chat history, and cached information. This action cannot be undone.",
+    "deleteAccountLabel": "Delete Your Account",
+    "deleteAccountDescription": "Permanently delete your account and all data on our servers and this device.",
+    "deleting": "Deleting...",
+    "deleteAccountButton": "Delete My Account",
+    "deleteAccountDialogTitle": "Delete your account?",
+    "deleteAccountDialogDescription": "This will permanently delete your account and all of your data on our servers and on this device, including settings, chat history, and cached information. This action cannot be undone."
+  },
+  "sidebar": {
+    "title": "Settings",
+    "backToChat": "Back to Chat"
+  },
+  "devices": {
+    "title": "Devices",
+    "pendingApprovalsTitle": "Pending Approvals",
+    "waitingForApproval": "Waiting for approval",
+    "deny": "Deny",
+    "approve": "Approve",
+    "trustedDevicesTitle": "Trusted Devices",
+    "loading": "Loading devices…",
+    "emptyDescription": "No devices yet. Sign in with sync to see devices here.",
+    "thisDevice": "This Device",
+    "revoked": "Revoked",
+    "lastSeen": "Last seen: {{value}}",
+    "revoke": "Revoke",
+    "noPairingIdentity": "No pairing identity",
+    "hide": "Hide",
+    "show": "Show",
+    "update": "Update",
+    "setNodeId": "Set node ID",
+    "loadingCode": "Loading code…"
+  },
+  "developer": {
+    "title": "Developer Settings",
+    "cloudUrlLabel": "Cloud URL",
+    "cloudUrlDescription": "The URL of the Thunderbolt backend",
+    "nativeFetchLabel": "Use Native Fetch",
+    "nativeFetchDescription": "Proxy HTTP requests through Tauri to bypass CORS",
+    "nativeFetchUnavailableDescription": "This feature is only available on some desktop versions of the app that were built with the native_fetch feature flag.",
+    "debugPostHogLabel": "Debug PostHog",
+    "debugPostHogDescription": "Enable verbose analytics logging in the console"
+  },
+  "integrations": {
+    "title": "Integrations",
+    "getPro": "Get Pro",
+    "connectGoogle": "Connect Google",
+    "connectMicrosoft": "Connect Microsoft",
+    "loading": "Loading integrations...",
+    "disconnect": "Disconnect",
+    "emptyTitle": "No integrations available",
+    "emptyDescription": "Check back later for new integrations"
+  },
+  "models": {
+    "title": "Models"
+  },
+  "mcpServers": {
+    "title": "MCP Servers"
+  },
+  "skills": {
+    "title": "Skills",
+    "emptyTitle": "No skills yet",
+    "emptyDescriptionPrefix": "Skills are reusable instruction templates you summon in chat with",
+    "createFirstButton": "Create your first skill",
+    "leaveWithoutSavingTitle": "Leave without saving?",
+    "leaveWithoutCreatingTitle": "Leave without creating?",
+    "unsavedChangesDescription": "Your changes won't be saved.",
+    "unsavedCreateDescription": "You'll lose what you've added so far."
+  },
+  "agents": {
+    "title": "Agents",
+    "addCustomAriaLabel": "Add Custom Agent"
+  },
+  "appVersion": {
+    "title": "App Version",
+    "currentVersionLabel": "Current version",
+    "updatesLabel": "Updates",
+    "mobileUpdateDescription": "Open the store to check for updates.",
+    "checking": "Checking...",
+    "checkForUpdates": "Check for updates"
   }
 }

@@ -16,6 +16,7 @@ import {
 import { Bot, Cpu, Plug, Server, SlidersHorizontal, Smartphone, Zap, type LucideIcon } from 'lucide-react'
 import { Fragment } from 'react'
 import { useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { SidebarNavToggle } from './nav-toggle'
 import { RailDivider } from './rail-divider'
 import { SidebarHeader } from './sidebar-header'
@@ -23,31 +24,32 @@ import type { SidebarSection } from './types'
 
 type NavItem = {
   path: string
-  label: string
+  /** i18n key in the `settings` namespace. */
+  labelKey: string
   icon: LucideIcon
   /** Match sub-routes too (e.g. /settings/models/:id). Default: exact match. */
   matchPrefix?: boolean
 }
 
-const navGroups: { label: string; items: NavItem[] }[] = [
+const navGroups: { labelKey: string; items: NavItem[] }[] = [
   {
-    label: 'Agents',
-    items: [{ path: '/settings/agents', label: 'All agents', icon: Bot }],
+    labelKey: 'sidebar.groupAgents',
+    items: [{ path: '/settings/agents', labelKey: 'sidebar.allAgents', icon: Bot }],
   },
   {
-    label: 'What agents use',
+    labelKey: 'sidebar.groupAgentTools',
     items: [
-      { path: '/settings/skills', label: 'Skills', icon: Zap },
-      { path: '/settings/models', label: 'Models', icon: Cpu, matchPrefix: true },
-      { path: '/settings/integrations', label: 'Integrations', icon: Plug },
-      { path: '/settings/mcp-servers', label: 'MCP servers', icon: Server },
+      { path: '/settings/skills', labelKey: 'skills.title', icon: Zap },
+      { path: '/settings/models', labelKey: 'models.title', icon: Cpu, matchPrefix: true },
+      { path: '/settings/integrations', labelKey: 'integrations.title', icon: Plug },
+      { path: '/settings/mcp-servers', labelKey: 'mcpServers.title', icon: Server },
     ],
   },
   {
-    label: 'Settings',
+    labelKey: 'sidebar.groupSettings',
     items: [
-      { path: '/settings/preferences', label: 'Preferences', icon: SlidersHorizontal },
-      { path: '/settings/devices', label: 'Devices', icon: Smartphone },
+      { path: '/settings/preferences', labelKey: 'preferences.title', icon: SlidersHorizontal },
+      { path: '/settings/devices', labelKey: 'devices.title', icon: Smartphone },
     ],
   },
 ]
@@ -63,6 +65,7 @@ export const SettingsSidebarContent = ({
   onSectionChange,
   onSettingsNavigate,
 }: SettingsSidebarContentProps) => {
+  const { t } = useTranslation('settings')
   const { toggleSidebar } = useSidebar()
   const location = useLocation()
 
@@ -88,7 +91,7 @@ export const SettingsSidebarContent = ({
       )}
 
       {navGroups.map((group, index) => (
-        <Fragment key={group.label}>
+        <Fragment key={group.labelKey}>
           {/* Collapsed rail: the group labels are hidden, so a hairline
               divider takes over as the section boundary. */}
           {index > 0 && isCollapsed && <RailDivider />}
@@ -96,19 +99,19 @@ export const SettingsSidebarContent = ({
               their dividers, so the groups' own vertical padding would double
               it. The last group keeps its bottom padding against the footer. */}
           <SidebarGroup className={isCollapsed ? (index === navGroups.length - 1 ? 'pt-0' : 'py-0') : undefined}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupLabel>{t(group.labelKey)}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       onClick={() => onSettingsNavigate(item.path)}
-                      tooltip={item.label}
+                      tooltip={t(item.labelKey)}
                       className="cursor-pointer"
                       isActive={isItemActive(item)}
                     >
                       <item.icon className="size-4" />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

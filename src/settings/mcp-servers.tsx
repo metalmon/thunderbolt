@@ -40,6 +40,7 @@ import { eq } from 'drizzle-orm'
 import { Check, Copy, Globe, LockKeyhole, Pencil, Plus, RefreshCw, Server, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { v7 as uuidv7 } from 'uuid'
 import { probeMcpServerTools } from '@/lib/mcp-connection-test'
 import { type MCPTransportType } from '@/lib/mcp-transport'
@@ -195,6 +196,7 @@ const testResultPanels: Record<
 }
 
 export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDeps } = {}) {
+  const { t } = useTranslation('settings')
   const probeTools = deps.probeMcpServerTools ?? probeMcpServerTools
   const classifyAuth = deps.classifyMcpServerAuth ?? classifyMcpServerAuth
   const db = useDatabase()
@@ -727,7 +729,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
 
   return (
     <div className="flex flex-col gap-6 p-4 w-full max-w-[760px] mx-auto">
-      <PageHeader title="MCP Servers">
+      <PageHeader title={t('mcpServers.title')}>
         <Dialog
           open={form.isAddDialogOpen}
           onOpenChange={(open) => {

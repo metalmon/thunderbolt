@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useCallback, useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailPanelSurface } from '@/components/detail-panel'
 import { SkillNameInvalidError, SkillNameTakenError } from '@/dal'
@@ -21,6 +22,7 @@ import { useSkillTelemetry } from './telemetry'
 import { useEnabledSkills, useLibrarySkills, usePinnedSkills } from './use-skills'
 
 export const SkillsView = () => {
+  const { t } = useTranslation('settings')
   const { isMobile } = useIsMobile()
   const { skills, createSkill, updateSkill, softDeleteSkill } = useLibrarySkills()
   // Pinning is managed entirely from the chat composer; we only read
@@ -333,8 +335,8 @@ export const SkillsView = () => {
           }
         }}
         onConfirm={onConfirmDiscard}
-        title={mode === 'edit' ? 'Leave without saving?' : 'Leave without creating?'}
-        description={mode === 'edit' ? "Your changes won't be saved." : "You'll lose what you've added so far."}
+        title={mode === 'edit' ? t('skills.leaveWithoutSavingTitle') : t('skills.leaveWithoutCreatingTitle')}
+        description={mode === 'edit' ? t('skills.unsavedChangesDescription') : t('skills.unsavedCreateDescription')}
       />
     </div>
   )

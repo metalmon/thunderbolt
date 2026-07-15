@@ -582,12 +582,12 @@ export default function PreferencesSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 pb-12 w-full max-w-[760px] mx-auto">
-      <PageHeader title="Preferences" />
+      <PageHeader title={t('preferences.title')} />
 
-      <SectionCard title="User Experience">
+      <SectionCard title={t('preferences.userExperienceTitle')}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Theme</label>
+            <label className="text-sm font-medium">{t('preferences.themeLabel')}</label>
             <ThemeToggleGroup />
           </div>
 
@@ -601,14 +601,14 @@ export default function PreferencesSettingsPage() {
                 hasModifications={hapticsEnabled !== initialLocalSettings.hapticsEnabled}
                 onReset={() => setLocalSetting('hapticsEnabled', initialLocalSettings.hapticsEnabled)}
               >
-                Haptic Feedback
+                {t('preferences.hapticFeedbackLabel')}
               </ModificationIndicator>
-              <p className="text-sm text-muted-foreground">Vibrate on tap</p>
+              <p className="text-sm text-muted-foreground">{t('preferences.hapticFeedbackDescription')}</p>
             </div>
             <Switch
               checked={hapticsEnabled}
               onCheckedChange={(value) => setLocalSetting('hapticsEnabled', value)}
-              aria-label="Haptic Feedback"
+              aria-label={t('preferences.hapticFeedbackLabel')}
             />
           </div>
         </div>
@@ -616,7 +616,7 @@ export default function PreferencesSettingsPage() {
 
       <div className="h-6" />
 
-      <SectionCard title="Personalization">
+      <SectionCard title={t('preferences.personalizationTitle')}>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <ModificationIndicator
@@ -628,10 +628,10 @@ export default function PreferencesSettingsPage() {
                 setNameInput('')
               }}
             >
-              Preferred Name
+              {t('preferences.preferredNameLabel')}
             </ModificationIndicator>
             <Input
-              placeholder="Your name"
+              placeholder={t('preferences.preferredNamePlaceholder')}
               className="rounded-lg"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
@@ -646,7 +646,7 @@ export default function PreferencesSettingsPage() {
                 }
               }}
             />
-            <p className="text-sm text-muted-foreground">How Thunderbolt salutes you</p>
+            <p className="text-sm text-muted-foreground">{t('preferences.preferredNameDescription')}</p>
           </div>
         </div>
       </SectionCard>
@@ -720,7 +720,7 @@ export default function PreferencesSettingsPage() {
               hasModifications={locationName.isModified || locationLat.isModified || locationLng.isModified}
               onReset={handleResetLocation}
             >
-              Location
+              {t('localization.locationLabel')}
             </ModificationIndicator>
             <LocationSearchCombobox
               value={locationName.value}
@@ -728,7 +728,7 @@ export default function PreferencesSettingsPage() {
               id="localization-location-trigger"
               aria-labelledby="localization-location-label localization-location-trigger"
             />
-            <p className="text-sm text-muted-foreground">Enables location-based responses</p>
+            <p className="text-sm text-muted-foreground">{t('localization.locationDescription')}</p>
           </div>
 
           <div className="h-px bg-border -mx-6" />
@@ -742,7 +742,7 @@ export default function PreferencesSettingsPage() {
                 hasModifications={distanceUnit.isModified}
                 onReset={() => handleResetLocalizationSetting('distance')}
               >
-                Distance
+                {t('localization.distanceLabel')}
               </ModificationIndicator>
             </div>
             <Select
@@ -753,8 +753,8 @@ export default function PreferencesSettingsPage() {
               }}
               disabled={unitsOptionsLoading}
             >
-              <SelectTrigger className="w-auto rounded-lg" aria-label="Distance unit">
-                <SelectValue placeholder="Loading..." />
+              <SelectTrigger className="w-auto rounded-lg" aria-label={t('localization.distanceLabel')}>
+                <SelectValue placeholder={t('common:loading')} />
               </SelectTrigger>
               <SelectContent>
                 {(unitsOptionsData?.units ?? []).map((u) => (
@@ -775,7 +775,7 @@ export default function PreferencesSettingsPage() {
                 hasModifications={temperatureUnit.isModified}
                 onReset={() => handleResetLocalizationSetting('temperature')}
               >
-                Temperature
+                {t('localization.temperatureLabel')}
               </ModificationIndicator>
             </div>
             <Select
@@ -786,8 +786,8 @@ export default function PreferencesSettingsPage() {
               }}
               disabled={unitsOptionsLoading}
             >
-              <SelectTrigger className="w-auto rounded-lg" aria-label="Temperature unit">
-                <SelectValue placeholder="Loading..." />
+              <SelectTrigger className="w-auto rounded-lg" aria-label={t('localization.temperatureLabel')}>
+                <SelectValue placeholder={t('common:loading')} />
               </SelectTrigger>
               <SelectContent>
                 {(unitsOptionsData?.temperature ?? []).map((t) => (
@@ -808,7 +808,7 @@ export default function PreferencesSettingsPage() {
                 hasModifications={dateFormat.isModified}
                 onReset={() => handleResetLocalizationSetting('date')}
               >
-                Date Format
+                {t('localization.dateFormatLabel')}
               </ModificationIndicator>
             </div>
             <Select
@@ -819,8 +819,8 @@ export default function PreferencesSettingsPage() {
               }}
               disabled={unitsOptionsLoading}
             >
-              <SelectTrigger className="w-auto rounded-lg" aria-label="Date format">
-                <SelectValue placeholder="Loading..." />
+              <SelectTrigger className="w-auto rounded-lg" aria-label={t('localization.dateFormatLabel')}>
+                <SelectValue placeholder={t('common:loading')} />
               </SelectTrigger>
               <SelectContent>
                 {(unitsOptionsData?.dateFormats ?? []).map((f) => (
@@ -841,7 +841,7 @@ export default function PreferencesSettingsPage() {
                 hasModifications={timeFormat.isModified}
                 onReset={() => handleResetLocalizationSetting('time')}
               >
-                Time Format
+                {t('localization.timeFormatLabel')}
               </ModificationIndicator>
             </div>
             <Select
@@ -852,8 +852,8 @@ export default function PreferencesSettingsPage() {
               }}
               disabled={unitsOptionsLoading}
             >
-              <SelectTrigger className="w-auto rounded-lg" aria-label="Time format">
-                <SelectValue placeholder="Loading..." />
+              <SelectTrigger className="w-auto rounded-lg" aria-label={t('localization.timeFormatLabel')}>
+                <SelectValue placeholder={t('common:loading')} />
               </SelectTrigger>
               <SelectContent>
                 {(unitsOptionsData?.timeFormat ?? []).map((f) => (
@@ -875,7 +875,7 @@ export default function PreferencesSettingsPage() {
                 hasModifications={currency.isModified}
                 onReset={() => handleResetLocalizationSetting('currency')}
               >
-                Currency
+                {t('localization.currencyLabel')}
               </ModificationIndicator>
             </div>
             <Combobox
@@ -888,8 +888,8 @@ export default function PreferencesSettingsPage() {
               displayValue={currencyDisplayValue || undefined}
               id="localization-currency-trigger"
               aria-labelledby="localization-currency-label localization-currency-trigger"
-              placeholder="Loading..."
-              searchPlaceholder="Search currencies..."
+              placeholder={t('common:loading')}
+              searchPlaceholder={t('localization.searchCurrenciesPlaceholder')}
               loading={unitsOptionsLoading}
               className="w-auto"
               contentClassName="w-[300px]"
@@ -902,10 +902,10 @@ export default function PreferencesSettingsPage() {
 
       <div className="h-6" />
 
-      <SectionCard title="Help Thunderbolt Improve">
+      <SectionCard title={t('telemetry.title')}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-4">
-            <label className="text-sm font-medium">Preview Features</label>
+            <label className="text-sm font-medium">{t('telemetry.previewFeaturesLabel')}</label>
 
             <div className="flex-row flex items-center gap-4">
               <div className="flex-1">
@@ -915,13 +915,13 @@ export default function PreferencesSettingsPage() {
                   hasModifications={experimentalFeatureTasks.isModified}
                   onReset={experimentalFeatureTasks.reset}
                 >
-                  Tasks
+                  {t('telemetry.tasksLabel')}
                 </ModificationIndicator>
               </div>
               <Switch
                 checked={experimentalFeatureTasks.value}
                 onCheckedChange={handleExperimentalFeaturesToggle}
-                aria-label="Tasks"
+                aria-label={t('telemetry.tasksLabel')}
               />
             </div>
           </div>
@@ -937,33 +937,30 @@ export default function PreferencesSettingsPage() {
                   hasModifications={dataCollection.isModified}
                   onReset={dataCollection.reset}
                 >
-                  Anonymous Usage Data
+                  {t('telemetry.anonymousUsageDataLabel')}
                 </ModificationIndicator>
               </div>
               {telemetryAvailable ? (
                 <p className="text-sm text-muted-foreground">
-                  Help us improve the app by sending anonymous usage info such as crashes, performance, and usage. Read
-                  more about our{' '}
+                  {t('telemetry.usageDataDescriptionPrefix')}{' '}
                   <a
                     className="text-primary underline-offset-4 hover:underline"
                     href={privacyPolicyUrl}
                     target="_blank"
                   >
-                    privacy policy
+                    {t('telemetry.privacyPolicyLink')}
                   </a>
-                  .
+                  {t('telemetry.usageDataDescriptionSuffix')}
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Telemetry isn't configured for this organization, so no usage data is being collected.
-                </p>
+                <p className="text-sm text-muted-foreground">{t('telemetry.unavailableDescription')}</p>
               )}
             </div>
             <Switch
               checked={telemetryAvailable && dataCollection.value}
               onCheckedChange={handleDataCollectionToggle}
               disabled={!telemetryAvailable}
-              aria-label="Anonymous Usage Data"
+              aria-label={t('telemetry.anonymousUsageDataLabel')}
             />
           </div>
         </div>
@@ -971,13 +968,11 @@ export default function PreferencesSettingsPage() {
 
       <div className="h-6" />
 
-      <SectionCard title="Network">
+      <SectionCard title={t('network.title')}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Use Cloud Proxy</label>
-            <p className="text-sm text-muted-foreground">
-              When enabled, requests are routed through Thunderbolt's cloud proxy.
-            </p>
+            <label className="text-sm font-medium">{t('network.proxyLabel')}</label>
+            <p className="text-sm text-muted-foreground">{t('network.proxyDescription')}</p>
           </div>
           {proxyDisabled ? (
             <Tooltip>
@@ -986,7 +981,7 @@ export default function PreferencesSettingsPage() {
                   <Switch
                     checked={proxyChecked}
                     disabled
-                    aria-label="Use Cloud Proxy"
+                    aria-label={t('network.proxyLabel')}
                     className="pointer-events-none"
                   />
                 </span>
@@ -999,7 +994,7 @@ export default function PreferencesSettingsPage() {
             <Switch
               checked={proxyChecked}
               onCheckedChange={(checked) => setProxyEnabledStr(checked ? 'true' : 'false')}
-              aria-label="Use Cloud Proxy"
+              aria-label={t('network.proxyLabel')}
             />
           )}
         </div>
@@ -1007,24 +1002,24 @@ export default function PreferencesSettingsPage() {
 
       <div className="h-6" />
 
-      <SectionCard title="Data">
+      <SectionCard title={t('data.title')}>
         <div className="flex flex-col gap-6">
           {isFullUser ? (
             <div className="flex-row flex items-center gap-4 justify-between">
               <div>
-                <label className="text-sm font-medium">Sync This Device With Cloud</label>
+                <label className="text-sm font-medium">{t('data.syncDeviceLabel')}</label>
               </div>
               <Switch
                 checked={syncEnabled}
                 onCheckedChange={handleSyncToggle}
                 disabled={isConnecting}
-                aria-label="Sync This Device With Cloud"
+                aria-label={t('data.syncDeviceLabel')}
               />
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Sync This Device With Cloud</label>
-              <Button onClick={openSignInModal}>Sign In</Button>
+              <label className="text-sm font-medium">{t('data.syncDeviceLabel')}</label>
+              <Button onClick={openSignInModal}>{t('data.signIn')}</Button>
             </div>
           )}
 
@@ -1034,10 +1029,10 @@ export default function PreferencesSettingsPage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="export-data-button" className="text-sm font-medium">
-                  Export Your Data
+                  {t('data.exportLabel')}
                 </label>
                 <p id="export-data-description" className="text-sm text-muted-foreground">
-                  Export all of your data as JSON.
+                  {t('data.exportDescription')}
                 </p>
                 {exportError && (
                   <p id="export-data-error" className="text-sm text-destructive" role="alert">
@@ -1052,7 +1047,7 @@ export default function PreferencesSettingsPage() {
                   aria-describedby={exportError ? 'export-data-error' : 'export-data-description'}
                   onClick={handleExportData}
                 >
-                  {isExporting ? 'Exporting...' : 'Export My Data'}
+                  {isExporting ? t('data.exporting') : t('data.exportButton')}
                 </Button>
               </div>
 
@@ -1060,10 +1055,10 @@ export default function PreferencesSettingsPage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="import-data-button" className="text-sm font-medium">
-                  Import Your Data
+                  {t('data.importLabel')}
                 </label>
                 <p id="import-data-description" className="text-sm text-muted-foreground">
-                  Import your data from previously exported JSON.
+                  {t('data.importDescription')}
                 </p>
                 {importError && (
                   <p id="import-data-error" className="text-sm text-destructive" role="alert">
@@ -1096,7 +1091,7 @@ export default function PreferencesSettingsPage() {
                   }
                   onClick={handleImportClick}
                 >
-                  {isImporting ? 'Importing...' : 'Import Data'}
+                  {isImporting ? t('data.importing') : t('data.importButton')}
                 </Button>
               </div>
             </>
@@ -1107,25 +1102,22 @@ export default function PreferencesSettingsPage() {
               <div className="h-px bg-border -mx-6" />
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Delete All Local Data</label>
+                <label className="text-sm font-medium">{t('data.deleteLocalDataLabel')}</label>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="secondary" disabled={isResetting}>
-                      {isResetting ? 'Resetting...' : 'Reset Database'}
+                      {isResetting ? t('data.resetting') : t('data.resetDatabase')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Reset Local Database?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete all of your local data including settings, chat history, and cached
-                        information. This action cannot be undone.
-                      </AlertDialogDescription>
+                      <AlertDialogTitle>{t('data.resetDatabaseDialogTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('data.resetDatabaseDialogDescription')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('common:cancel')}</AlertDialogCancel>
                       <AlertDialogAction onClick={handleResetDatabase} variant="destructive">
-                        Reset Database
+                        {t('data.resetDatabase')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -1139,10 +1131,8 @@ export default function PreferencesSettingsPage() {
               <div className="h-px bg-border -mx-6" />
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Delete Your Account</label>
-                <p className="text-sm text-muted-foreground">
-                  Permanently delete your account and all data on our servers and this device.
-                </p>
+                <label className="text-sm font-medium">{t('data.deleteAccountLabel')}</label>
+                <p className="text-sm text-muted-foreground">{t('data.deleteAccountDescription')}</p>
                 {deleteAccountError && (
                   <p className="text-sm text-destructive" role="alert">
                     {deleteAccountError}
@@ -1153,21 +1143,18 @@ export default function PreferencesSettingsPage() {
                     {/* Secondary on the page; the red danger styling lives on the
                         confirm button inside the dialog. */}
                     <Button variant="secondary" disabled={isDeletingAccount}>
-                      {isDeletingAccount ? 'Deleting...' : 'Delete My Account'}
+                      {isDeletingAccount ? t('data.deleting') : t('data.deleteAccountButton')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete your account and all of your data on our servers and on this
-                        device, including settings, chat history, and cached information. This action cannot be undone.
-                      </AlertDialogDescription>
+                      <AlertDialogTitle>{t('data.deleteAccountDialogTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('data.deleteAccountDialogDescription')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('common:cancel')}</AlertDialogCancel>
                       <AlertDialogAction onClick={handleDeleteAccount} variant="destructive">
-                        Delete account
+                        {t('common:delete')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -1191,7 +1178,7 @@ export default function PreferencesSettingsPage() {
       <AlertDialog open={pendingImport !== null} onOpenChange={(open) => !open && handleCancelImport()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Import this backup?</AlertDialogTitle>
+            <AlertDialogTitle>{t('data.importDialogTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
               {pendingImport && (
                 <>
@@ -1216,14 +1203,14 @@ export default function PreferencesSettingsPage() {
             </p>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isImporting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isImporting}>{t('common:cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmImport}
               disabled={isImporting}
               aria-busy={isImporting}
               variant="destructive"
             >
-              {isImporting ? 'Importing...' : 'Import'}
+              {isImporting ? t('data.importing') : t('data.import')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
