@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { applyInitialUiLanguageIfNeeded } from '@/i18n/apply-initial-ui-language'
 import { extractCountryFromLocation } from '@/lib/country-utils'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import { useCountryUnits } from './use-country-units'
 import { useIntegrationStatus } from './use-integration-status'
 import { useSettings } from './use-settings'
@@ -212,6 +213,7 @@ export const useOnboardingState = () => {
     dateFormat,
     timeFormat,
     currency,
+    uiLanguage,
   } = useSettings({
     preferred_name: '',
     location_name: '',
@@ -222,10 +224,28 @@ export const useOnboardingState = () => {
     date_format: 'MM/DD/YYYY',
     time_format: '12h',
     currency: 'USD',
+    ui_language: String,
   })
   const { data: integrationStatusData } = useIntegrationStatus()
 
   const { fetchCountryUnits } = useCountryUnits()
+  const uiLanguageAppliedRef = useRef(false)
+
+  // One-shot auto-detect ui_language from browser locale when unset
+  useEffect(() => {
+    if (uiLanguage.isLoading || uiLanguageAppliedRef.current) {
+      return
+    }
+    if (uiLanguage.value != null && uiLanguage.value !== '') {
+      return
+    }
+
+    uiLanguageAppliedRef.current = true
+    void applyInitialUiLanguageIfNeeded({
+      stored: uiLanguage.value,
+      setValue: (v) => uiLanguage.setValue(v),
+    })
+  }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
 
   // Sync with saved step on mount
   useEffect(() => {
