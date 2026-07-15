@@ -17,6 +17,7 @@ import { IconCircle } from '@/components/onboarding/icon-circle'
 import { showRevokedDeviceModalEvent } from '@/hooks/use-credential-events'
 import { ArrowLeft, Loader2, Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type SyncSetupModalProps = {
   open: boolean
@@ -30,6 +31,7 @@ type SyncSetupModalProps = {
  * Flow: intro → detecting (auto) → (first-device-setup → recovery-key-display | approval-waiting)
  */
 export const SyncSetupModal = ({ open, onOpenChange, onComplete }: SyncSetupModalProps) => {
+  const { t } = useTranslation('common')
   const setup = useSyncSetup()
   const httpClient = useHttpClient()
   const hasCompletedRef = useRef(false)
@@ -146,7 +148,7 @@ export const SyncSetupModal = ({ open, onOpenChange, onComplete }: SyncSetupModa
           className="absolute left-4 top-4 flex h-[var(--touch-height-sm)] w-[var(--touch-height-sm)] cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft className="size-[var(--icon-size-default)]" />
-          <span className="sr-only">Go back</span>
+          <span className="sr-only">{t('goBack')}</span>
         </button>
       )}
 
@@ -201,33 +203,34 @@ export const SyncSetupModal = ({ open, onOpenChange, onComplete }: SyncSetupModa
 // Intro step
 // =============================================================================
 
-const IntroStep = ({ onContinue, isLoading }: { onContinue: () => void; isLoading: boolean }) => (
-  <div className="w-full flex flex-col">
-    <div className="text-center space-y-4">
-      <IconCircle>
-        <ShieldCheck className="w-8 h-8 text-primary" />
-      </IconCircle>
-      <h2 className="text-2xl font-bold">Set up sync</h2>
-      <p className="text-muted-foreground">
-        Keep your data in sync across all your devices. Everything is encrypted end-to-end. Only your devices can read
-        your data.
-      </p>
-    </div>
+const IntroStep = ({ onContinue, isLoading }: { onContinue: () => void; isLoading: boolean }) => {
+  const { t } = useTranslation('common')
 
-    <div className="pt-5">
-      <Button className="w-full" onClick={onContinue} disabled={isLoading}>
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Setting up…
-          </>
-        ) : (
-          'Continue'
-        )}
-      </Button>
+  return (
+    <div className="w-full flex flex-col">
+      <div className="text-center space-y-4">
+        <IconCircle>
+          <ShieldCheck className="w-8 h-8 text-primary" />
+        </IconCircle>
+        <h2 className="text-2xl font-bold">{t('syncSetup.introTitle')}</h2>
+        <p className="text-muted-foreground">{t('syncSetup.introDescription')}</p>
+      </div>
+
+      <div className="pt-5">
+        <Button className="w-full" onClick={onContinue} disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('syncSetup.settingUp')}
+            </>
+          ) : (
+            t('continue')
+          )}
+        </Button>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // =============================================================================
 // Detecting step — auto-detects via server, shows spinner or error
@@ -239,28 +242,32 @@ type DetectingStepProps = {
   onRetry: () => void
 }
 
-const DetectingStep = ({ isLoading, error, onRetry }: DetectingStepProps) => (
-  <div className="w-full flex flex-col">
-    <div className="text-center space-y-4">
-      {isLoading && (
-        <>
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-          <h2 className="text-2xl font-bold">Setting up encryption…</h2>
-          <p className="text-muted-foreground">Registering this device and detecting your account status.</p>
-        </>
-      )}
-      {error && (
-        <>
-          <h2 className="text-2xl font-bold">Something went wrong</h2>
-          <p className="text-sm text-destructive">{error}</p>
-          <div className="pt-2">
-            <Button onClick={onRetry}>Try again</Button>
-          </div>
-        </>
-      )}
+const DetectingStep = ({ isLoading, error, onRetry }: DetectingStepProps) => {
+  const { t } = useTranslation('common')
+
+  return (
+    <div className="w-full flex flex-col">
+      <div className="text-center space-y-4">
+        {isLoading && (
+          <>
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+            <h2 className="text-2xl font-bold">{t('syncSetup.detectingTitle')}</h2>
+            <p className="text-muted-foreground">{t('syncSetup.detectingDescription')}</p>
+          </>
+        )}
+        {error && (
+          <>
+            <h2 className="text-2xl font-bold">{t('errorGeneric')}</h2>
+            <p className="text-sm text-destructive">{error}</p>
+            <div className="pt-2">
+              <Button onClick={onRetry}>{t('tryAgain')}</Button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // =============================================================================
 // First device setup step — explanation before key generation
@@ -272,81 +279,83 @@ type FirstDeviceSetupStepProps = {
   error: string | null
 }
 
-const FirstDeviceSetupStep = ({ onContinue, isLoading, error }: FirstDeviceSetupStepProps) => (
-  <div className="w-full flex flex-col">
-    <div className="text-center space-y-4">
-      <IconCircle>
-        <Lock className="w-8 h-8 text-primary" />
-      </IconCircle>
-      <h2 className="text-2xl font-bold">First device setup</h2>
-      <p className="text-muted-foreground">
-        This is the first device on your account. We&apos;ll create an encryption key to protect your data and give you
-        a recovery key to keep safe.
-      </p>
-      <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
-        Please store your recovery key somewhere safe. You&apos;ll need it to access your data if you ever lose all your
-        devices.
-      </p>
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
+const FirstDeviceSetupStep = ({ onContinue, isLoading, error }: FirstDeviceSetupStepProps) => {
+  const { t } = useTranslation('common')
 
-    <div className="pt-5">
-      <Button className="w-full" onClick={onContinue} disabled={isLoading}>
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating keys…
-          </>
-        ) : (
-          'Continue'
-        )}
-      </Button>
+  return (
+    <div className="w-full flex flex-col">
+      <div className="text-center space-y-4">
+        <IconCircle>
+          <Lock className="w-8 h-8 text-primary" />
+        </IconCircle>
+        <h2 className="text-2xl font-bold">{t('syncSetup.firstDeviceTitle')}</h2>
+        <p className="text-muted-foreground">{t('syncSetup.firstDeviceDescription')}</p>
+        <p className="text-sm font-medium text-amber-600 dark:text-amber-400">{t('syncSetup.firstDeviceWarning')}</p>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
+
+      <div className="pt-5">
+        <Button className="w-full" onClick={onContinue} disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('syncSetup.generatingKeys')}
+            </>
+          ) : (
+            t('continue')
+          )}
+        </Button>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // =============================================================================
 // Setup complete step — success confirmation for additional device flows
 // =============================================================================
 
-const DeniedStep = ({ onRetry }: { onRetry: () => void }) => (
-  <div className="w-full flex flex-col">
-    <div className="text-center space-y-4">
-      <IconCircle>
-        <ShieldAlert className="w-8 h-8 text-destructive" />
-      </IconCircle>
-      <h2 className="text-2xl font-bold">Request denied</h2>
-      <p className="text-muted-foreground">
-        Your request to sync this device was denied by another device. You can try again or close this dialog.
-      </p>
-    </div>
+const DeniedStep = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation('common')
 
-    <div className="pt-5">
-      <Button className="w-full" onClick={onRetry}>
-        Try again
-      </Button>
+  return (
+    <div className="w-full flex flex-col">
+      <div className="text-center space-y-4">
+        <IconCircle>
+          <ShieldAlert className="w-8 h-8 text-destructive" />
+        </IconCircle>
+        <h2 className="text-2xl font-bold">{t('syncSetup.deniedTitle')}</h2>
+        <p className="text-muted-foreground">{t('syncSetup.deniedDescription')}</p>
+      </div>
+
+      <div className="pt-5">
+        <Button className="w-full" onClick={onRetry}>
+          {t('tryAgain')}
+        </Button>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // =============================================================================
 // Setup complete step — success confirmation for additional device flows
 // =============================================================================
 
-const SetupCompleteStep = ({ onDone }: { onDone: () => void }) => (
-  <div className="w-full flex flex-col">
-    <div className="text-center space-y-4">
-      <GradientCircleCheck className="mx-auto h-12 w-12" />
-      <h2 className="text-2xl font-bold">You&apos;re all set!</h2>
-      <p className="text-muted-foreground">
-        This device has been approved and sync is now enabled across your devices.
-      </p>
-    </div>
+const SetupCompleteStep = ({ onDone }: { onDone: () => void }) => {
+  const { t } = useTranslation('common')
 
-    <div className="pt-5">
-      <Button className="w-full" onClick={onDone}>
-        Done
-      </Button>
+  return (
+    <div className="w-full flex flex-col">
+      <div className="text-center space-y-4">
+        <GradientCircleCheck className="mx-auto h-12 w-12" />
+        <h2 className="text-2xl font-bold">{t('syncSetup.completeTitle')}</h2>
+        <p className="text-muted-foreground">{t('syncSetup.completeDescription')}</p>
+      </div>
+
+      <div className="pt-5">
+        <Button className="w-full" onClick={onDone}>
+          {t('done')}
+        </Button>
+      </div>
     </div>
-  </div>
-)
+  )
+}
