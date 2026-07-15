@@ -5,6 +5,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type OnboardingActionButtonsProps = {
   onBack?: () => void
@@ -25,10 +26,13 @@ export const OnboardingActionButtons = ({
   showBack = true,
   showSkip = true,
   showContinue = true,
-  continueText = 'Continue',
+  continueText,
   continueDisabled = false,
   skipDisabled = false,
 }: OnboardingActionButtonsProps) => {
+  const { t } = useTranslation('onboarding')
+  const resolvedContinueText = continueText ?? t('actions.continue')
+
   return (
     <div className="flex flex-1 w-full justify-between">
       <div>
@@ -42,7 +46,7 @@ export const OnboardingActionButtons = ({
       <div className={`flex space-x-2 ${!showBack && !showSkip && 'w-full'}`}>
         {showSkip && onSkip && (
           <Button onClick={onSkip} variant="ghost" disabled={skipDisabled}>
-            Skip
+            {t('actions.skip')}
           </Button>
         )}
         {showContinue && onContinue && (
@@ -54,7 +58,7 @@ export const OnboardingActionButtons = ({
               'disabled:opacity-100 disabled:bg-secondary disabled:text-muted-foreground disabled:shadow-none disabled:[background-image:none]',
             )}
           >
-            {continueText}
+            {resolvedContinueText}
           </Button>
         )}
       </div>
