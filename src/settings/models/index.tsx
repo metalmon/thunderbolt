@@ -50,6 +50,7 @@ import { http } from '@/lib/http'
 import { AlertTriangle, Check, Cpu, Loader2, Lock, Pen, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { v7 as uuidv7 } from 'uuid'
 import { z } from 'zod'
 
@@ -480,6 +481,7 @@ export const modelRemoveTooltip = (isSystemModel: boolean): string =>
 export const modelAddTooltip = (): string => 'Add model'
 
 export default function ModelsPage() {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const [state, dispatch] = useReducer(modelReducer, initialState)
   const [editingModel, setEditingModel] = useState<Model | null>(null)
@@ -943,7 +945,7 @@ export default function ModelsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 pb-12 w-full max-w-[760px] mx-auto">
-      <PageHeader title="Models">
+      <PageHeader title={t('models.title')}>
         <Dialog open={isAddDialogOpen} onOpenChange={handleDialogOpenChange}>
           <Tooltip>
             <TooltipTrigger asChild>

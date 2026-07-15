@@ -17,6 +17,7 @@ import {
 import { useAgentsSettingsHidden } from '@/hooks/use-agents-settings-hidden'
 import { ArrowLeft, Bot, Cpu, Plug, Server, SlidersHorizontal, Smartphone, Zap } from 'lucide-react'
 import { useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { SidebarHeader } from './sidebar-header'
 
 type SettingsSidebarContentProps = {
@@ -34,6 +35,7 @@ export const SettingsSidebarContent = ({
   onSettingsNavigate,
   isStandalone,
 }: SettingsSidebarContentProps) => {
+  const { t } = useTranslation('settings')
   const { toggleSidebar } = useSidebar()
   const location = useLocation()
   const agentsHidden = useAgentsSettingsHidden({ isStandalone })
@@ -46,9 +48,9 @@ export const SettingsSidebarContent = ({
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={onBackClick} tooltip="Back to Chat" className="cursor-pointer">
+              <SidebarMenuButton onClick={onBackClick} tooltip={t('sidebar.backToChat')} className="cursor-pointer">
                 <ArrowLeft className="size-4" />
-                <span>Back</span>
+                <span>{t('common:back')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -58,85 +60,85 @@ export const SettingsSidebarContent = ({
       <SidebarSeparator className="m-0" />
 
       <SidebarGroup className="flex-1">
-        <SidebarGroupLabel>Settings</SidebarGroupLabel>
+        <SidebarGroupLabel>{t('sidebar.title')}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/preferences')}
-                tooltip="Preferences"
+                tooltip={t('preferences.title')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/settings/preferences'}
               >
                 <SlidersHorizontal className="size-4" />
-                <span>Preferences</span>
+                <span>{t('preferences.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/integrations')}
-                tooltip="Integrations"
+                tooltip={t('integrations.title')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/settings/integrations'}
               >
                 <Plug className="size-4" />
-                <span>Integrations</span>
+                <span>{t('integrations.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/devices')}
-                tooltip="Devices"
+                tooltip={t('devices.title')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/settings/devices'}
               >
                 <Smartphone className="size-4" />
-                <span>Devices</span>
+                <span>{t('devices.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/models')}
-                tooltip="Models"
+                tooltip={t('models.title')}
                 className="cursor-pointer"
                 isActive={location.pathname.startsWith('/settings/models')}
               >
                 <Cpu className="size-4" />
-                <span>Models</span>
+                <span>{t('models.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/mcp-servers')}
-                tooltip="MCP Servers"
+                tooltip={t('mcpServers.title')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/settings/mcp-servers'}
               >
                 <Server className="size-4" />
-                <span>MCP Servers</span>
+                <span>{t('mcpServers.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => onSettingsNavigate('/settings/skills')}
-                tooltip="Skills"
+                tooltip={t('skills.title')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/settings/skills'}
               >
                 <Zap className="size-4" />
-                <span>Skills</span>
+                <span>{t('skills.title')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {!agentsHidden && (
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => onSettingsNavigate('/settings/agents')}
-                  tooltip="Agents"
+                  tooltip={t('agents.title')}
                   className="cursor-pointer"
                   isActive={location.pathname === '/settings/agents'}
                 >
                   <Bot className="size-4" />
-                  <span>Agents</span>
+                  <span>{t('agents.title')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}

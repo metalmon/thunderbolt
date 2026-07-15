@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts'
 import { selectAllowCustomAgents, useConfigStore } from '@/api/config-store'
 import { useAgentsSettingsHidden } from '@/hooks/use-agents-settings-hidden'
 import type { Agent } from '@/types/acp'
+import { useTranslation } from 'react-i18next'
 
 type AgentsSettingsPageProps = {
   /** Test seam — production omits; the hidden-check hook falls back to
@@ -36,6 +37,7 @@ type AgentsSettingsPageProps = {
  * a thin orchestrator wiring DAL writes to UI events.
  */
 export default function AgentsSettingsPage({ isStandalone }: AgentsSettingsPageProps = {}) {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const agents = useAllAgents()
   const authClient = useAuth()
@@ -118,13 +120,13 @@ export default function AgentsSettingsPage({ isStandalone }: AgentsSettingsPageP
 
   return (
     <div className="flex flex-col gap-6 p-4 w-full max-w-[760px] mx-auto">
-      <PageHeader title="Agents">
+      <PageHeader title={t('agents.title')}>
         {allowCustomAgents && (
           <Button
             variant="outline"
             size="icon"
             className="rounded-lg"
-            aria-label="Add Custom Agent"
+            aria-label={t('agents.addCustomAriaLabel')}
             onClick={() => {
               setEditingAgent(null)
               setDialogOpen(true)

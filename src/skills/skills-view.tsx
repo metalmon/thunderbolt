@@ -6,6 +6,7 @@ import { AnimatePresence, m } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { useCallback, useReducer, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { SkillNameInvalidError, SkillNameTakenError } from '@/dal'
@@ -22,6 +23,7 @@ import { useSkillTelemetry } from './telemetry'
 import { useEnabledSkills, useLibrarySkills, usePinnedSkills } from './use-skills'
 
 export const SkillsView = () => {
+  const { t } = useTranslation('settings')
   const { isMobile } = useIsMobile()
   const { skills, createSkill, updateSkill, softDeleteSkill } = useLibrarySkills()
   // Pinning is managed entirely from the chat composer; we only read
@@ -211,14 +213,14 @@ export const SkillsView = () => {
   // list (and its + button) keep their normal position.
   const emptyPanel = (
     <section className="flex h-full flex-1 flex-col items-center justify-center gap-3 bg-background px-6 text-center text-foreground">
-      <h2 className="text-xl">No skills yet</h2>
+      <h2 className="text-xl">{t('skills.emptyTitle')}</h2>
       <p className="max-w-md text-sm text-muted-foreground">
-        Skills are reusable instruction templates you summon in chat with{' '}
+        {t('skills.emptyDescriptionPrefix')}{' '}
         <code className="rounded-sm bg-secondary px-1 font-mono text-xs">/name</code>.
       </p>
       <Button size="sm" onClick={() => dispatch({ type: 'START_CREATE' })}>
         <Plus />
-        Create your first skill
+        {t('skills.createFirstButton')}
       </Button>
     </section>
   )
@@ -346,8 +348,8 @@ export const SkillsView = () => {
           }
         }}
         onConfirm={onConfirmDiscard}
-        title={mode === 'edit' ? 'Leave without saving?' : 'Leave without creating?'}
-        description={mode === 'edit' ? "Your changes won't be saved." : "You'll lose what you've added so far."}
+        title={mode === 'edit' ? t('skills.leaveWithoutSavingTitle') : t('skills.leaveWithoutCreatingTitle')}
+        description={mode === 'edit' ? t('skills.unsavedChangesDescription') : t('skills.unsavedCreateDescription')}
       />
     </div>
   )
