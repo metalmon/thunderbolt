@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input'
 import { defaultChatTitle } from '@/lib/constants'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type RenameChatDialogProps = {
   open: boolean
@@ -16,6 +17,7 @@ type RenameChatDialogProps = {
 }
 
 const RenameChatForm = ({ title, onOpenChange, onRename }: Omit<RenameChatDialogProps, 'open'>) => {
+  const { t } = useTranslation(['chat', 'common'])
   const [value, setValue] = useState(title ?? defaultChatTitle)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -39,7 +41,7 @@ const RenameChatForm = ({ title, onOpenChange, onRename }: Omit<RenameChatDialog
       }}
     >
       <DialogHeader>
-        <DialogTitle>Rename chat</DialogTitle>
+        <DialogTitle>{t('sidebar.renameTitle')}</DialogTitle>
       </DialogHeader>
       <Input
         ref={inputRef}
@@ -50,13 +52,13 @@ const RenameChatForm = ({ title, onOpenChange, onRename }: Omit<RenameChatDialog
             handleSave()
           }
         }}
-        placeholder="Chat name"
+        placeholder={t('sidebar.chatNamePlaceholder')}
       />
       <DialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
+          {t('cancel', { ns: 'common' })}
         </Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave}>{t('save', { ns: 'common' })}</Button>
       </DialogFooter>
     </DialogContent>
   )

@@ -4,6 +4,7 @@
 
 import { FileText, X } from 'lucide-react'
 import { lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DocxThumbnail } from './docx-thumbnail'
 import { ImageThumbnail } from './image-thumbnail'
 import { MarkdownThumbnail } from './markdown-thumbnail'
@@ -28,25 +29,13 @@ type FileCardProps = {
   onResend?: (target: 'text' | 'images') => void
 }
 
-/** Human label for a non-native delivery mode. */
-const deliverAsLabel: Record<'text' | 'images', string> = {
-  text: 'Sent as text',
-  images: 'Sent as images',
-}
-
-/** Verb label for a resend control option. */
-const resendLabel: Record<'text' | 'images', string> = {
-  text: 'text',
-  images: 'images',
-}
-
 /** Short type badge from the file extension, falling back to the mime type. */
-const typeBadge = (filename: string, mimeType: string): string => {
+const typeBadge = (filename: string, mimeType: string, pdfLabel: string, fileLabel: string): string => {
   const ext = filename.includes('.') ? filename.split('.').pop()?.toUpperCase() : undefined
   if (ext && ext.length > 0 && ext.length <= 4) {
     return ext
   }
-  return mimeType === 'application/pdf' ? 'PDF' : 'FILE'
+  return mimeType === 'application/pdf' ? pdfLabel : fileLabel
 }
 
 /**
@@ -65,6 +54,15 @@ export const FileCard = ({
   resendTargets,
   onResend,
 }: FileCardProps) => {
+  const { t } = useTranslation('chat')
+  const deliverAsLabel = {
+    text: t('fileCard.sentAsText'),
+    images: t('fileCard.sentAsImages'),
+  } as const
+  const resendLabel = {
+    text: t('fileCard.text'),
+    images: t('fileCard.images'),
+  } as const
   const ext = filename.split('.').pop()?.toLowerCase()
   const isPdf = mimeType === 'application/pdf'
   const isImage = mimeType.startsWith('image/')
@@ -93,7 +91,7 @@ export const FileCard = ({
       )}
       <div className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/65 to-transparent px-2 pb-1.5 pt-5">
         <span className="shrink-0 rounded bg-white/90 px-1 py-px text-[length:var(--font-size-xs)] font-semibold text-black">
-          {typeBadge(filename, mimeType)}
+          {typeBadge(filename, mimeType, t('fileCard.pdf'), t('fileCard.file'))}
         </span>
         <span className="min-w-0 truncate text-[length:var(--font-size-xs)] text-white">{filename}</span>
       </div>
@@ -118,7 +116,7 @@ export const FileCard = ({
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`Remove ${filename}`}
+          aria-label={t('fileCard.remove', { filename })}
           className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full border bg-background p-0.5 text-muted-foreground shadow-sm hover:text-foreground"
         >
           <X className="size-3.5" />
@@ -133,7 +131,7 @@ export const FileCard = ({
               onClick={() => onResend(target)}
               className="cursor-pointer rounded-md px-1.5 py-0.5 text-[length:var(--font-size-xs)] text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Resend as {resendLabel[target]}
+              {t('fileCard.resendAs', { mode: resendLabel[target] })}
             </button>
           ))}
         </div>

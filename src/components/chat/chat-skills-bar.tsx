@@ -61,7 +61,7 @@ export const ChatSkillsBar = ({
   const { skills: library } = useLibrarySkills()
   const { isEnabled } = useEnabledSkills()
   const { isMobile } = useIsMobile()
-  const { t } = useTranslation('defaults')
+  const { t } = useTranslation(['defaults', 'chat'])
   const trackSkillEvent = useSkillTelemetry()
 
   const [openChipId, setOpenChipId] = useState<string | null>(null)
@@ -113,10 +113,10 @@ export const ChatSkillsBar = ({
   // click upstream with explicit copy.
   const addDisabled = pinnable.length === 0 || pinCapReached
   const addTooltip = pinCapReached
-    ? `Pin limit reached (${maxPinnedSkills}). Unpin one first.`
+    ? t('skills.pinLimitReached', { ns: 'chat', max: maxPinnedSkills })
     : pinnable.length === 0
-      ? 'No more skills to pin'
-      : 'Pin a skill'
+      ? t('skills.noMoreToPin', { ns: 'chat' })
+      : t('skills.pinASkill', { ns: 'chat' })
 
   // Hide the whole bar only when there's nothing to display *and* nothing
   // to add. If the user has zero pins but unpinned skills exist, we still
@@ -157,7 +157,7 @@ export const ChatSkillsBar = ({
                 <Button
                   variant="outline"
                   size="icon-sm"
-                  aria-label="Pin a skill"
+                  aria-label={t('skills.pinASkill', { ns: 'chat' })}
                   disabled={addDisabled}
                   className={`shrink-0 cursor-pointer rounded-full bg-card transition-opacity disabled:cursor-not-allowed disabled:opacity-40 ${
                     openChipId ? 'opacity-40' : ''
@@ -236,6 +236,7 @@ export const ChatSkillsBar = ({
  * screen readers and assistive tech.
  */
 const MobileOverlay = ({ onDismiss }: { onDismiss: () => void }) => {
+  const { t } = useTranslation('chat')
   // Document-level Escape so users don't have to focus the backdrop first.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -250,7 +251,7 @@ const MobileOverlay = ({ onDismiss }: { onDismiss: () => void }) => {
   return createPortal(
     <button
       type="button"
-      aria-label="Dismiss"
+      aria-label={t('skills.dismiss')}
       className="fixed inset-0 z-[5] cursor-default bg-black/30 backdrop-blur-sm"
       onClick={onDismiss}
     />,

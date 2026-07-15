@@ -20,6 +20,7 @@ import { useChat } from '@ai-sdk/react'
 import { statusOnlyThrottleMs } from '@/chats/chat-throttle'
 import type { Agent } from '@/types/acp'
 import { PowerSyncStatus } from '@/components/powersync-status'
+import { useTranslation } from 'react-i18next'
 
 /** Subscribes to the active chat instance's status to disable the agent
  *  selector while a reply is streaming. Pulled into its own component so
@@ -97,6 +98,7 @@ export const Header = () => {
   // has no agent.
   const effectiveAgent = selectedAgent ?? builtInAgent
 
+  const { t } = useTranslation('chat')
   const isChatRoute = location.pathname.startsWith('/chats')
   const showAgentSelector = isChatRoute && chatInstance !== undefined && allAgents.length > 0
 
@@ -147,7 +149,7 @@ export const Header = () => {
             onClick={toggleSidebar}
           >
             <ToggleIcon className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Toggle Sidebar</span>
+            <span className="sr-only">{t('sidebar.toggle')}</span>
           </Button>
         </div>
 
@@ -164,7 +166,7 @@ export const Header = () => {
               onClick={handleNewChat}
             >
               <MessageCirclePlus className="size-[var(--icon-size-default)]" />
-              <span className="sr-only">New Chat</span>
+              <span className="sr-only">{t('nav.newChat')}</span>
             </Button>
           )}
         </div>
@@ -190,7 +192,7 @@ export const Header = () => {
             onClick={toggleSidebar}
           >
             <PanelLeft className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Open Sidebar</span>
+            <span className="sr-only">{t('sidebar.open')}</span>
           </Button>
         )}
         {agentSelector}

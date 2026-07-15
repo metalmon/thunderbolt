@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -27,6 +28,7 @@ type DeleteChatDialogProps = {
 export const DeleteChatDialog = forwardRef<DeleteChatDialogRef, DeleteChatDialogProps>(
   ({ onCancel, onConfirm }, ref) => {
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation(['chat', 'common'])
 
     const handleCancel = () => {
       setOpen(false)
@@ -42,13 +44,13 @@ export const DeleteChatDialog = forwardRef<DeleteChatDialogRef, DeleteChatDialog
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete this chat.</AlertDialogDescription>
+            <AlertDialogTitle>{t('deleteChat.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deleteChat.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancel}>{t('cancel', { ns: 'common' })}</AlertDialogCancel>
             <Button variant="destructive" onClick={onConfirm}>
-              Delete Chat
+              {t('deleteChat.confirm')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

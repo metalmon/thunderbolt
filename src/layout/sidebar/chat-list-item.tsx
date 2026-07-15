@@ -7,6 +7,7 @@ import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { Loader2, MessageCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ChatListItemProps } from './types'
 import { useChatStore } from '@/chats/chat-store'
 import { useShallow } from 'zustand/react/shallow'
@@ -47,6 +48,7 @@ export const ChatListItem = memo(
     const { status } = useChat(
       chatInstance ? { chat: chatInstance, experimental_throttle: statusOnlyThrottleMs } : undefined,
     )
+    const { t } = useTranslation(['chat', 'common'])
     const [renameDialogOpen, setRenameDialogOpen] = useState(false)
     const [optimisticTitle, setOptimisticTitle] = useState<string | null>(null)
     const [prevTitle, setPrevTitle] = useState(thread.title)
@@ -122,7 +124,7 @@ export const ChatListItem = memo(
             <DropdownMenuContent side="right" align="start" className="min-w-56 rounded-lg">
               <DropdownMenuItem onClick={() => setRenameDialogOpen(true)} className="cursor-pointer">
                 <Pencil className="size-4 mr-2" />
-                Rename
+                {t('sidebar.rename')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -137,7 +139,7 @@ export const ChatListItem = memo(
                 ) : (
                   <>
                     <Trash2 className="size-4 mr-2" />
-                    Delete
+                    {t('delete', { ns: 'common' })}
                   </>
                 )}
               </DropdownMenuItem>

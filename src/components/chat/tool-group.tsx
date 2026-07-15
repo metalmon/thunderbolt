@@ -5,6 +5,7 @@
 import { useObjectView } from '@/content-view/context'
 import type { ToolUIPart } from 'ai'
 import { m } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { ToolIcon } from './tool-icon'
 import { ToolItem } from './tool-item'
@@ -43,6 +44,7 @@ type ToolGroupProps = {
 
 export const ToolGroup = ({ tools, isStreaming, isLastPartInMessage, hasTextInMessage }: ToolGroupProps) => {
   const { openObjectSidebar } = useObjectView()
+  const { t } = useTranslation('chat')
 
   const { showLoadingNext } = useToolGroupState({
     tools,
@@ -83,7 +85,7 @@ export const ToolGroup = ({ tools, isStreaming, isLastPartInMessage, hasTextInMe
             </m.div>
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
-            <p className="font-medium">Thinking...</p>
+            <p className="font-medium">{t('messages.thinkingEllipsis')}</p>
           </TooltipContent>
         </Tooltip>
       )}

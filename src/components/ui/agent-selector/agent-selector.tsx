@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button'
 import { SearchableMenu, type SearchableMenuGroup, type SearchableMenuItem } from '@/components/ui/searchable-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useHaptics } from '@/hooks/use-haptics'
+import i18n from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { Agent } from '@/types/acp'
 import { ChevronDown, Globe, Plus, Server, Zap } from 'lucide-react'
 import { useMemo, useState, type ComponentType } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type AgentSelectorProps = {
   selectedAgent: Agent
@@ -48,6 +50,8 @@ const toMenuItem = (agent: Agent): SearchableMenuItem<AgentItemData> => {
   }
 }
 
+const chatT = (key: string) => i18n.t(key, { ns: 'chat' })
+
 /** Bucket agents by flavor for the dropdown. Order mirrors `composeAllAgents`:
  *  Built-in → System → Custom. Empty buckets are dropped so the menu stays tight. */
 export const categorizeAgents = (agents: Agent[]): SearchableMenuGroup<AgentItemData>[] => {
@@ -68,13 +72,13 @@ export const categorizeAgents = (agents: Agent[]): SearchableMenuGroup<AgentItem
 
   const groups: SearchableMenuGroup<AgentItemData>[] = []
   if (builtIn.length > 0) {
-    groups.push({ id: 'built-in', label: 'Built-in', items: builtIn })
+    groups.push({ id: 'built-in', label: chatT('agent.builtIn'), items: builtIn })
   }
   if (system.length > 0) {
-    groups.push({ id: 'system', label: 'System', items: system })
+    groups.push({ id: 'system', label: chatT('agent.system'), items: system })
   }
   if (custom.length > 0) {
-    groups.push({ id: 'custom', label: 'Custom', items: custom })
+    groups.push({ id: 'custom', label: chatT('agent.custom'), items: custom })
   }
   return groups
 }
@@ -88,7 +92,8 @@ export const AgentSelector = ({
   side,
   align,
 }: AgentSelectorProps) => {
-  const groupedItems = useMemo(() => categorizeAgents(agents), [agents])
+  const { t, i18n: i18nInstance } = useTranslation('chat')
+  const groupedItems = useMemo(() => categorizeAgents(agents), [agents, i18nInstance.language])
   const [open, setOpen] = useState(false)
   const { triggerSelection } = useHaptics()
 
@@ -132,7 +137,7 @@ export const AgentSelector = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>{triggerInner}</TooltipTrigger>
-          <TooltipContent side="bottom">Cannot change agent during reply</TooltipContent>
+          <TooltipContent side="bottom">{t('agent.cannotChangeDuringReply')}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     )
@@ -148,7 +153,7 @@ export const AgentSelector = ({
       className="w-full justify-start gap-2 text-muted-foreground"
     >
       <Plus className="size-4" />
-      Add Agent
+      {t('agent.addAgent')}
     </Button>
   ) : undefined
 
@@ -158,8 +163,8 @@ export const AgentSelector = ({
       value={selectedAgent.id}
       onValueChange={handleAgentChange}
       searchable={agents.length > 10}
-      searchPlaceholder="Search agents"
-      emptyMessage="No agents found"
+      searchPlaceholder={t('agent.searchPlaceholder')}
+      emptyMessage={t('agent.empty')}
       blurBackdrop
       trigger={renderTrigger}
       footer={footer}

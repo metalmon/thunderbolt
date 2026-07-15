@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import '@/i18n/i18n'
 import type { ReasoningGroupItem } from '@/lib/assistant-message'
 import type { UIMessageMetadata } from '@/types'
 import '@testing-library/jest-dom'

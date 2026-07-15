@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button'
 import { SearchableMenu, type SearchableMenuGroup, type SearchableMenuItem } from '@/components/ui/searchable-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useHaptics } from '@/hooks/use-haptics'
+import i18n from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { ChatThread } from '@/layout/sidebar/types'
 import type { Model } from '@/types'
 import { AlertTriangle, ChevronDown, Lock, Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type ModelSelectorProps = {
   models: Model[]
@@ -61,6 +63,8 @@ const toMenuItem = (
   data: { model, disabledByEncryption },
 })
 
+const chatT = (key: string) => i18n.t(key, { ns: 'chat' })
+
 export const categorizeModels = (
   models: Model[],
   chatThread: ModelSelectorProps['chatThread'],
@@ -94,7 +98,7 @@ export const categorizeModels = (
     groups.push({ id: 'provided', items: provided })
   }
   if (custom.length > 0) {
-    groups.push({ id: 'custom', label: 'Custom Models', items: custom })
+    groups.push({ id: 'custom', label: chatT('model.customModels'), items: custom })
   }
   // A chat is locked to its confidentiality mode, so the opposite-mode models
   // are shown greyed out with a header explaining why. Only one of these
@@ -102,16 +106,16 @@ export const categorizeModels = (
   if (disabledStandard.length > 0) {
     groups.push({
       id: 'standard-disabled',
-      label: 'Standard Models',
-      subtitle: 'Not available in confidential chats.',
+      label: chatT('model.standardModels'),
+      subtitle: chatT('model.standardDisabledSubtitle'),
       items: disabledStandard,
     })
   }
   if (disabledConfidential.length > 0) {
     groups.push({
       id: 'confidential-disabled',
-      label: 'Confidential Models',
-      subtitle: 'Available only in confidential chats.',
+      label: chatT('model.confidentialModels'),
+      subtitle: chatT('model.confidentialDisabledSubtitle'),
       items: disabledConfidential,
     })
   }
@@ -129,7 +133,8 @@ export const ModelSelector = ({
   align,
   variant = 'pill',
 }: ModelSelectorProps) => {
-  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread])
+  const { t, i18n: i18nInstance } = useTranslation('chat')
+  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread, i18nInstance.language])
 
   const renderTrigger = (selected: SearchableMenuItem<ModelItemData> | undefined, isOpen: boolean) => (
     <div
@@ -152,7 +157,7 @@ export const ModelSelector = ({
         <Lock className="size-3.5 text-muted-foreground" />
       ) : null}
       <span className={cn('font-medium', variant === 'bordered' && 'text-muted-foreground')}>
-        {selected?.label ?? 'Select Model'}
+        {selected?.label ?? t('model.selectModel')}
       </span>
       <ChevronDown className={cn('size-3.5 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
     </div>
@@ -188,7 +193,7 @@ export const ModelSelector = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
-            <TooltipContent side="right">API key not configured</TooltipContent>
+            <TooltipContent side="right">{t('model.apiKeyMissing')}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       )
@@ -200,7 +205,7 @@ export const ModelSelector = ({
   const footer = onAddModels ? (
     <Button variant="ghost" onClick={onAddModels} className="w-full justify-start gap-2 text-muted-foreground">
       <Plus className="size-4" />
-      Add Models
+      {t('model.addModels')}
     </Button>
   ) : undefined
 
@@ -219,8 +224,8 @@ export const ModelSelector = ({
       value={selectedModel?.id}
       onValueChange={handleModelChange}
       searchable={models.length > 10}
-      searchPlaceholder="Search Models"
-      emptyMessage="No models found"
+      searchPlaceholder={t('model.searchPlaceholder')}
+      emptyMessage={t('model.empty')}
       blurBackdrop
       trigger={renderTrigger}
       renderItem={renderItem}

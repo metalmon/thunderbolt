@@ -4,6 +4,7 @@
 
 import { File, ListOrdered, Pin, Plus } from 'lucide-react'
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -35,6 +36,7 @@ export const SuggestionChip = ({
 }) => {
   const [open, setOpen] = useState(false)
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation('chat')
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next)
@@ -120,7 +122,7 @@ export const SuggestionChip = ({
           className={`h-[var(--touch-height-sm)] shrink-0 cursor-pointer select-none rounded-full bg-card px-3 text-sm font-normal transition-opacity [-webkit-touch-callout:none] ${
             dimmed ? 'opacity-40' : ''
           }`}
-          aria-label={`Pinned skill /${label}`}
+          aria-label={t('skills.pinnedSkill', { label })}
         >
           /{label}
         </Button>
@@ -150,7 +152,7 @@ export const SuggestionChip = ({
           className="min-h-[var(--min-touch-height)] cursor-pointer rounded-xl"
         >
           <Plus />
-          Add to chat
+          {t('skills.addToChat')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
@@ -160,7 +162,7 @@ export const SuggestionChip = ({
           className="min-h-[var(--min-touch-height)] cursor-pointer rounded-xl"
         >
           <File />
-          Add instructions to chat
+          {t('skills.addInstructionsToChat')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
@@ -174,7 +176,7 @@ export const SuggestionChip = ({
           className="min-h-[var(--min-touch-height)] cursor-pointer rounded-xl"
         >
           <ListOrdered />
-          Reorder
+          {t('skills.reorder')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
@@ -186,7 +188,7 @@ export const SuggestionChip = ({
           className="min-h-[var(--min-touch-height)] cursor-pointer rounded-xl"
         >
           <Pin />
-          Unpin
+          {t('skills.unpin')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

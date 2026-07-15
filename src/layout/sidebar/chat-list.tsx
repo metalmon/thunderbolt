@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { Flame, Loader2, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ChatActions } from './chat-actions'
 import { ChatListItem } from './chat-list-item'
 import type { ChatListProps } from './types'
@@ -36,12 +37,14 @@ export const ChatList = ({
   onSearchClick,
   onSearchQueryChange,
 }: ChatListProps) => {
+  const { t } = useTranslation('chat')
+
   return (
     <>
       <SidebarGroup className="flex-1 flex flex-col min-h-0">
         {!isCollapsed && (chatThreads.length > 0 || debouncedSearchQuery) && (
           <div className="flex items-center justify-between flex-shrink-0">
-            <SidebarGroupLabel>Recent Chats</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('sidebar.recentChats')}</SidebarGroupLabel>
             <ChatActions
               isCollapsed={isCollapsed}
               debouncedSearchQuery={debouncedSearchQuery}
@@ -61,7 +64,7 @@ export const ChatList = ({
           <SearchInput
             ref={searchInputRef}
             containerClassName="mb-1"
-            placeholder="Search chats..."
+            placeholder={t('sidebar.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => onSearchQueryChange(e.target.value)}
           />
@@ -70,7 +73,11 @@ export const ChatList = ({
           {isCollapsed && (chatThreads.length > 0 || debouncedSearchQuery) && (
             <>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={(e) => onSearchClick(e)} tooltip="Search chats" className="cursor-pointer">
+                <SidebarMenuButton
+                  onClick={(e) => onSearchClick(e)}
+                  tooltip={t('sidebar.search')}
+                  className="cursor-pointer"
+                >
                   <Search
                     className={`size-[var(--icon-size-default)] ${debouncedSearchQuery ? 'text-blue-500' : ''}`}
                   />
@@ -80,7 +87,7 @@ export const ChatList = ({
                 <SidebarMenuButton
                   onClick={() => deleteAllChatsDialogRef.current?.open()}
                   disabled={deleteAllChatsMutation.isPending}
-                  tooltip="Clear all chats"
+                  tooltip={t('sidebar.clearAll')}
                   className="cursor-pointer"
                 >
                   {deleteAllChatsMutation.isPending ? (
@@ -108,7 +115,7 @@ export const ChatList = ({
           ))}
           {chatThreads.length === 0 && debouncedSearchQuery && !isCollapsed && (
             <div className="text-center text-sm py-12 px-4 text-muted-foreground">
-              No matches for "{debouncedSearchQuery}"
+              {t('sidebar.noMatches', { query: debouncedSearchQuery })}
             </div>
           )}
         </SidebarMenu>

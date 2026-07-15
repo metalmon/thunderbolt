@@ -16,6 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { isDesktop, isTauri } from '@/lib/platform'
 import { PanelLeft } from 'lucide-react'
 import { AppLogo } from '@/components/app-logo'
+import { useTranslation } from 'react-i18next'
 
 type SidebarHeaderProps = {
   onToggle: () => void
@@ -24,6 +25,7 @@ type SidebarHeaderProps = {
 export const SidebarHeader = ({ onToggle }: SidebarHeaderProps) => {
   const { isMobile } = useIsMobile()
   const { state } = useSidebar()
+  const { t } = useTranslation(['chat', 'common'])
 
   // On mobile, always treat the sidebar as expanded when it's open
   const isExpanded = isMobile || state === 'expanded'
@@ -52,7 +54,7 @@ export const SidebarHeader = ({ onToggle }: SidebarHeaderProps) => {
             onClick={onToggle}
           >
             <PanelLeft className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Collapse Sidebar</span>
+            <span className="sr-only">{t('sidebar.collapse')}</span>
           </Button>
         </div>
       )}
@@ -64,9 +66,9 @@ export const SidebarHeader = ({ onToggle }: SidebarHeaderProps) => {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton onClick={onToggle} tooltip="Expand Sidebar" className="cursor-pointer">
+                      <SidebarMenuButton onClick={onToggle} tooltip={t('sidebar.expand')} className="cursor-pointer">
                         <PanelLeft className="size-[var(--icon-size-default)]" />
-                        <span className="sr-only">Expand Sidebar</span>
+                        <span className="sr-only">{t('sidebar.expand')}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -76,7 +78,7 @@ export const SidebarHeader = ({ onToggle }: SidebarHeaderProps) => {
             {isExpanded && showBranding && (
               <>
                 <AppLogo />
-                <span className="text-[length:var(--font-size-body)] truncate">Thunderbolt</span>
+                <span className="text-[length:var(--font-size-body)] truncate">{t('appName', { ns: 'common' })}</span>
               </>
             )}
           </div>
@@ -91,11 +93,11 @@ export const SidebarHeader = ({ onToggle }: SidebarHeaderProps) => {
                       <SidebarMenuItem className="w-auto">
                         <SidebarMenuButton
                           onClick={onToggle}
-                          tooltip="Toggle Sidebar"
+                          tooltip={t('sidebar.toggle')}
                           className="cursor-pointer size-8 justify-center"
                         >
                           <PanelLeft className="size-[var(--icon-size-default)]" />
-                          <span className="sr-only">Toggle Sidebar</span>
+                          <span className="sr-only">{t('sidebar.toggle')}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </SidebarMenu>

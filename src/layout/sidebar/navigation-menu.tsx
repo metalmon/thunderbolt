@@ -5,6 +5,7 @@
 import { NavLink } from '@/components/ui/nav-link'
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { CheckSquare, MessageCirclePlus, Settings } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type NavigationMenuProps = {
   isMobile: boolean
@@ -21,25 +22,27 @@ export const NavigationMenu = ({
   onCreateNewChat,
   onSettingsClick,
 }: NavigationMenuProps) => {
+  const { t } = useTranslation('chat')
+
   return (
     <>
       <SidebarMenuItem>
         <SidebarMenuButton
           onClick={onCreateNewChat}
-          tooltip="New Chat"
+          tooltip={t('nav.newChat')}
           className="cursor-pointer"
           isActive={currentPath === '/chats/new'}
         >
           <MessageCirclePlus className="size-[var(--icon-size-default)]" />
-          <span>New Chat</span>
+          <span>{t('nav.newChat')}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
       {showTasks && (
         <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Tasks" isActive={currentPath.startsWith('/tasks')}>
+          <SidebarMenuButton asChild tooltip={t('nav.tasks')} isActive={currentPath.startsWith('/tasks')}>
             <NavLink to="/tasks">
               <CheckSquare className="size-[var(--icon-size-default)]" />
-              <span>Tasks</span>
+              <span>{t('nav.tasks')}</span>
             </NavLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -52,13 +55,13 @@ export const NavigationMenu = ({
             className="cursor-pointer"
           >
             <Settings className="size-[var(--icon-size-default)]" />
-            <span>Settings</span>
+            <span>{t('nav.settings')}</span>
           </SidebarMenuButton>
         ) : (
-          <SidebarMenuButton asChild tooltip="Settings" isActive={currentPath.startsWith('/settings')}>
+          <SidebarMenuButton asChild tooltip={t('nav.settings')} isActive={currentPath.startsWith('/settings')}>
             <NavLink to="/settings/preferences">
               <Settings className="size-[var(--icon-size-default)]" />
-              <span>Settings</span>
+              <span>{t('nav.settings')}</span>
             </NavLink>
           </SidebarMenuButton>
         )}

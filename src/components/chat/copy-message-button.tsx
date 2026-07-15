@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { Check, Copy } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type CopyMessageButtonProps = {
   text: string
@@ -18,14 +19,15 @@ type CopyMessageButtonProps = {
  */
 export const CopyMessageButton = ({ text, className }: CopyMessageButtonProps) => {
   const { copy, isCopied } = useCopyToClipboard()
+  const { t } = useTranslation('chat')
 
   return (
     <Button
       variant="ghost"
       size="icon"
       className={cn('size-8 rounded-lg', className)}
-      title="Copy message"
-      aria-label="Copy message"
+      title={t('messages.copyMessage')}
+      aria-label={t('messages.copyMessage')}
       onClick={() => copy(text)}
     >
       {isCopied ? (

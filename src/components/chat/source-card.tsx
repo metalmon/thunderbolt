@@ -8,6 +8,7 @@ import { useOpenExternalLink } from '@/components/chat/markdown-utils'
 import { useContentView } from '@/content-view/context'
 import { deriveFaviconUrl, isSafeUrl } from '@/lib/url-utils'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 type SourceCardProps = {
   source: CitationSource
@@ -34,10 +35,11 @@ export const SourceCard = ({ source, className, onSelect }: SourceCardProps) => 
   const [faviconError, setFaviconError] = useState(false)
   const openExternalLink = useOpenExternalLink()
   const { showSideview } = useContentView()
+  const { t } = useTranslation('chat')
 
   const isDocument = isDocumentCitation(source)
   const displayTitle = source.title || source.url
-  const displaySiteName = source.siteName || 'Unknown'
+  const displaySiteName = source.siteName || t('sources.unknown')
   const safeUrl = !isDocument && isSafeUrl(source.url) ? source.url : '#'
   const explicitFavicon = source.favicon && isSafeUrl(source.favicon) ? source.favicon : null
   const faviconUrl = explicitFavicon || (!isDocument ? deriveFaviconUrl(source.url) : null)

@@ -19,6 +19,7 @@ import {
   type UIEvent,
   useRef,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModelSelector } from './model-selector'
 
 type PromptInputProps = {
@@ -78,7 +79,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
     {
       value = '',
       onChange,
-      placeholder = 'Say something...',
+      placeholder,
       showSubmitButton = true,
       onSubmit,
       canSubmit,
@@ -104,7 +105,9 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation('chat')
     const overlayRef = useRef<HTMLDivElement>(null)
+    const resolvedPlaceholder = placeholder ?? t('prompt.placeholder')
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
@@ -148,7 +151,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
         <Button
           type="button"
           variant="default"
-          aria-label="Stop generating"
+          aria-label={t('prompt.stopGenerating')}
           className="size-[var(--touch-height-control)] rounded-lg flex items-center justify-center flex-shrink-0"
           onClick={onStop}
         >
@@ -158,7 +161,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
         <Button
           type="submit"
           variant="default"
-          aria-label="Send message"
+          aria-label={t('prompt.sendMessage')}
           className="size-[var(--touch-height-control)] rounded-lg flex items-center justify-center flex-shrink-0"
           disabled={isLoading || !submittable}
         >
@@ -187,7 +190,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
             onSelect={onTextareaSelect}
             onScroll={hasTextareaHooks ? handleScroll : undefined}
             onPaste={onTextareaPaste}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             minHeight={42}
             maxHeight={240}
             autoFocus={autoFocus}

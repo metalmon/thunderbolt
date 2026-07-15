@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
+import '@/i18n/i18n'
 import { categorizeModels, needsApiKey } from './model-selector'
 import type { Model } from '@/types'
 import type { ChatThread } from '@/layout/sidebar/types'

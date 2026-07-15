@@ -5,6 +5,7 @@
 import { SidebarMenuButton } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Flame, Loader2, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { ChatActionsProps } from './types'
 
 export const ChatActions = ({
@@ -14,6 +15,8 @@ export const ChatActions = ({
   deleteAllChatsDialogRef,
   onSearchClick,
 }: ChatActionsProps) => {
+  const { t } = useTranslation('chat')
+
   if (isCollapsed) {
     return null
   }
@@ -30,7 +33,7 @@ export const ChatActions = ({
           </SidebarMenuButton>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>Search chats</p>
+          <p>{t('sidebar.search')}</p>
         </TooltipContent>
       </Tooltip>
       <Tooltip>
@@ -48,7 +51,7 @@ export const ChatActions = ({
           </SidebarMenuButton>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>Clear all chats</p>
+          <p>{t('sidebar.clearAll')}</p>
         </TooltipContent>
       </Tooltip>
     </div>

@@ -37,7 +37,7 @@ export const SlashPopup = ({
   onHover: (idx: number) => void
 }) => {
   const listRef = useRef<HTMLUListElement>(null)
-  const { t } = useTranslation('defaults')
+  const { t } = useTranslation(['defaults', 'chat'])
 
   // Scroll the highlighted row into view when the user arrow-keys past the
   // visible window. Legitimate effect — DOM measurement / scroll cannot be
@@ -50,7 +50,7 @@ export const SlashPopup = ({
   return (
     <div
       role="listbox"
-      aria-label="Slash commands"
+      aria-label={t('skills.slashCommands', { ns: 'chat' })}
       // `rounded-2xl` to match the ModeSelector + chip dropdown across the
       // chat screen. The row highlight below uses `rounded-xl` (one notch
       // tighter) so the bg-accent fill sits concentrically inside the
