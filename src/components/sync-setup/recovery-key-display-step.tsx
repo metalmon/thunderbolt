@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type RecoveryKeyDisplayStepProps = {
   recoveryKey: string
@@ -14,6 +15,7 @@ type RecoveryKeyDisplayStepProps = {
 }
 
 export const RecoveryKeyDisplayStep = ({ recoveryKey, onDone, onConfirmedChange }: RecoveryKeyDisplayStepProps) => {
+  const { t } = useTranslation('common')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
   const [confirmed, setConfirmed] = useState(false)
 
@@ -35,15 +37,12 @@ export const RecoveryKeyDisplayStep = ({ recoveryKey, onDone, onConfirmedChange 
   return (
     <div className="w-full flex flex-col">
       <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold">Save your recovery phrase</h2>
-        <p className="text-muted-foreground">
-          Write down these 24 words in order and store them somewhere safe. You&apos;ll need them to recover your data
-          if you lose access to all your devices. This phrase won&apos;t be shown again.
-        </p>
+        <h2 className="text-2xl font-bold">{t('syncSetup.recoveryDisplayTitle')}</h2>
+        <p className="text-muted-foreground">{t('syncSetup.recoveryDisplayDescription')}</p>
       </div>
 
       <div className="pt-5 space-y-4">
-        <div role="region" aria-label="Recovery phrase" className="rounded-xl bg-muted p-4">
+        <div role="region" aria-label={t('syncSetup.recoveryPhraseLabel')} className="rounded-xl bg-muted p-4">
           <p className="text-sm font-medium leading-relaxed">{recoveryKey}</p>
         </div>
 
@@ -51,25 +50,23 @@ export const RecoveryKeyDisplayStep = ({ recoveryKey, onDone, onConfirmedChange 
           {copyState === 'copied' ? (
             <>
               <Check className="size-4 mr-2" />
-              Copied
+              {t('syncSetup.copied')}
             </>
           ) : (
             <>
               <Copy className="size-4 mr-2" />
-              Copy to clipboard
+              {t('syncSetup.copyToClipboard')}
             </>
           )}
         </Button>
 
         {copyState === 'failed' && (
-          <p className="text-sm text-destructive text-center">
-            Clipboard unavailable. Please select the phrase above and copy it manually.
-          </p>
+          <p className="text-sm text-destructive text-center">{t('syncSetup.clipboardUnavailable')}</p>
         )}
 
         <label className="flex items-start gap-3 cursor-pointer">
           <Checkbox checked={confirmed} onCheckedChange={(v) => handleConfirmedChange(v === true)} className="mt-0.5" />
-          <span className="text-sm">I have saved my recovery phrase</span>
+          <span className="text-sm">{t('syncSetup.confirmSaved')}</span>
         </label>
 
         <Button
@@ -84,7 +81,7 @@ export const RecoveryKeyDisplayStep = ({ recoveryKey, onDone, onConfirmedChange 
           }}
           disabled={!confirmed}
         >
-          Done
+          {t('done')}
         </Button>
       </div>
     </div>
