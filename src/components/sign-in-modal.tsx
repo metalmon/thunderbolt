@@ -11,6 +11,7 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SignInForm } from './sign-in'
 
 type SignInModalProps = {
@@ -24,6 +25,7 @@ type SignInModalProps = {
  * Provides the modal chrome and delegates to SignInForm for all form logic.
  */
 export const SignInModal = ({ open, onOpenChange, onSuccess }: SignInModalProps) => {
+  const { t } = useTranslation('auth')
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const goBackRef = useRef<(() => void) | null>(null)
 
@@ -59,11 +61,9 @@ export const SignInModal = ({ open, onOpenChange, onSuccess }: SignInModalProps)
       <ResponsiveModalHeader className={step === 'email' ? 'text-center' : ''}>
         {step === 'otp' && <BackButton onClick={handleGoBack} className="absolute left-4 top-4" />}
         <ResponsiveModalTitle className={step === 'email' ? 'text-2xl font-semibold' : 'sr-only'}>
-          {step === 'email' ? 'Sign In' : 'Enter your code'}
+          {step === 'email' ? t('signIn.title') : t('signIn.enterCodeTitle')}
         </ResponsiveModalTitle>
-        {step === 'email' && (
-          <ResponsiveModalDescription>Sign in to get more out of Thunderbolt</ResponsiveModalDescription>
-        )}
+        {step === 'email' && <ResponsiveModalDescription>{t('signIn.modalDescription')}</ResponsiveModalDescription>}
       </ResponsiveModalHeader>
 
       <ResponsiveModalContent centered={step === 'otp'} className="flex flex-col gap-4">

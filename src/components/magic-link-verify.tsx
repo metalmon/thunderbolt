@@ -4,6 +4,7 @@
 
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ type VerifyState = { status: 'verifying' } | { status: 'success' } | { status: '
  * The URL contains email and otp params which we use to verify via the emailOtp sign-in endpoint
  */
 export const MagicLinkVerify = () => {
+  const { t } = useTranslation(['auth', 'common'])
   const authClient = useAuth()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -50,7 +52,7 @@ export const MagicLinkVerify = () => {
 
     const verify = async () => {
       if (!email || !otp) {
-        setState({ status: 'error', message: 'Invalid verification link. Please request a new one.' })
+        setState({ status: 'error', message: t('magicLink.invalidLink') })
         return
       }
 
@@ -74,12 +76,12 @@ export const MagicLinkVerify = () => {
 
         setState({ status: 'success' })
       } catch {
-        setState({ status: 'error', message: 'Something went wrong. Please try again.' })
+        setState({ status: 'error', message: t('signIn.genericError') })
       }
     }
 
     verify()
-  }, [email, otp, challengeToken, authClient, refetchSession])
+  }, [email, otp, challengeToken, authClient, refetchSession, t])
 
   const handleContinue = () => {
     navigate('/', { replace: true })
@@ -121,8 +123,8 @@ export const MagicLinkVerify = () => {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500">
                 <Loader2 className="h-6 w-6 animate-spin text-white" />
               </div>
-              <DialogTitle className="text-center text-xl">Signing you in...</DialogTitle>
-              <DialogDescription className="text-center">Please wait while we verify your link.</DialogDescription>
+              <DialogTitle className="text-center text-xl">{t('magicLink.signingIn')}</DialogTitle>
+              <DialogDescription className="text-center">{t('magicLink.pleaseWait')}</DialogDescription>
             </DialogHeader>
           </>
         )}
@@ -134,13 +136,13 @@ export const MagicLinkVerify = () => {
                 <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <DialogTitle className="text-center text-xl">
-                {displayName ? `Welcome, ${displayName}` : 'Welcome!'}
+                {displayName ? t('success.welcomeNamed', { name: displayName }) : t('success.welcome')}
               </DialogTitle>
-              <DialogDescription className="text-center">You're now signed in.</DialogDescription>
+              <DialogDescription className="text-center">{t('success.signedIn')}</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center py-4">
               <Button onClick={handleContinue} className="w-full">
-                Continue
+                {t('continue', { ns: 'common' })}
               </Button>
             </div>
           </>
@@ -152,12 +154,12 @@ export const MagicLinkVerify = () => {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
                 <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
-              <DialogTitle className="text-center text-xl">Verification Failed</DialogTitle>
+              <DialogTitle className="text-center text-xl">{t('magicLink.verificationFailed')}</DialogTitle>
               <DialogDescription className="text-center">{state.message}</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center py-4">
               <Button variant="outline" onClick={handleClose} className="w-full">
-                Close
+                {t('close', { ns: 'common' })}
               </Button>
             </div>
           </>

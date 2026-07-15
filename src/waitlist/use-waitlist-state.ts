@@ -8,6 +8,7 @@ import type { AuthClient } from '@/contexts'
 import { useHttpClient } from '@/contexts'
 import { challengeTokenHeader, otpLength } from '@/lib/constants'
 import { useAnonymousPromotionAnalytics } from '@/lib/analytics/use-anonymous-promotion-analytics'
+import i18n from '@/i18n/i18n'
 import { getOtpErrorMessage } from '@/lib/otp-error-messages'
 import { isValidEmailFormat } from '@/lib/utils'
 import { useReducer, type FormEvent } from 'react'
@@ -101,7 +102,7 @@ export const useWaitlistState = ({ authClient, onVerified }: UseWaitlistStateOpt
       dispatch({ type: 'JOIN_SUCCESS', payload: challengeToken ?? '' })
     } catch (error) {
       console.error('Waitlist join error:', error)
-      dispatch({ type: 'JOIN_ERROR', payload: 'Something went wrong. Please try again.' })
+      dispatch({ type: 'JOIN_ERROR', payload: i18n.t('waitlist.genericError', { ns: 'auth' }) })
     }
   }
 
@@ -142,7 +143,7 @@ export const useWaitlistState = ({ authClient, onVerified }: UseWaitlistStateOpt
       onVerified?.()
     } catch (error) {
       console.error('OTP verification error:', error)
-      dispatch({ type: 'VERIFY_ERROR', payload: 'Verification failed. Please try again.' })
+      dispatch({ type: 'VERIFY_ERROR', payload: i18n.t('otpErrors.fallback', { ns: 'auth' }) })
     }
   }
 

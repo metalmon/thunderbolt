@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts'
 import { otpLength, privacyPolicyUrl, termsOfServiceUrl } from '@/lib/constants'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useWaitlistState } from './use-waitlist-state'
 import { WaitlistCard } from './waitlist-card'
@@ -23,6 +24,7 @@ import { WaitlistHeader } from './waitlist-header'
  * The backend sends different emails based on whether they're approved, pending, or new.
  */
 export const WaitlistPage = () => {
+  const { t } = useTranslation(['auth', 'common'])
   const authClient = useAuth()
   const navigate = useNavigate()
   const { state, isValidEmail, actions } = useWaitlistState({
@@ -41,15 +43,17 @@ export const WaitlistPage = () => {
           <WaitlistHeader />
 
           <div className="my-auto flex flex-col items-center text-center">
-            <p className="font-sans text-[28px] font-medium leading-normal text-foreground">Check your email</p>
+            <p className="font-sans text-[28px] font-medium leading-normal text-foreground">
+              {t('waitlist.checkEmail')}
+            </p>
             <p className="mt-2 text-base text-muted-foreground">
-              We&apos;ve sent an email to <span className="font-medium text-foreground">{state.email}</span> with your
-              next steps.
+              {t('waitlist.sentEmailPrefix')} <span className="font-medium text-foreground">{state.email}</span>{' '}
+              {t('waitlist.sentEmailSuffix')}
             </p>
           </div>
 
           <div className="flex w-full flex-col items-center gap-4">
-            <p className="text-sm text-muted-foreground">If you received a code to log in, enter it here:</p>
+            <p className="text-sm text-muted-foreground">{t('waitlist.enterCodeHint')}</p>
             <InputOTP
               maxLength={otpLength}
               pattern={REGEXP_ONLY_DIGITS}
@@ -82,10 +86,10 @@ export const WaitlistPage = () => {
               {isVerifying ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verifying...
+                  {t('waitlist.verifying')}
                 </>
               ) : (
-                'Continue'
+                t('continue', { ns: 'common' })
               )}
             </Button>
           </div>
@@ -101,14 +105,14 @@ export const WaitlistPage = () => {
 
         <div className="flex w-full flex-col items-center gap-8">
           <div className="text-center font-sans">
-            <p className="text-[28px] font-medium leading-normal text-foreground">Wanna try the beta?</p>
+            <p className="text-[28px] font-medium leading-normal text-foreground">{t('waitlist.wannaTryBeta')}</p>
           </div>
 
           <form onSubmit={actions.handleSubmit} className="flex w-full flex-col gap-4">
             <Input
               type="email"
               inputMode="email"
-              placeholder="Email"
+              placeholder={t('waitlist.emailPlaceholder')}
               value={state.email}
               onChange={(e) => actions.setEmail(e.target.value)}
               disabled={state.status === 'joining'}
@@ -128,30 +132,30 @@ export const WaitlistPage = () => {
               {state.status === 'joining' ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
+                  {t('waitlist.sending')}
                 </>
               ) : (
-                'Continue'
+                t('continue', { ns: 'common' })
               )}
             </Button>
           </form>
         </div>
 
         <p className="text-center text-xs text-muted-foreground">
-          By continuing, you agree to our{' '}
+          {t('waitlist.legalPrefix')}{' '}
           <a
             href={termsOfServiceUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:no-underline"
           >
-            Terms of Service
+            {t('waitlist.termsOfService')}
           </a>{' '}
-          and{' '}
+          {t('waitlist.legalAnd')}{' '}
           <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">
-            Privacy Policy
+            {t('waitlist.privacyPolicy')}
           </a>
-          .
+          {t('waitlist.legalSuffix')}
         </p>
       </div>
     </WaitlistCard>

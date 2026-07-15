@@ -4,21 +4,26 @@
 
 import { AppLogo } from '@/components/app-logo'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
-export const SignedOut = () => (
-  <div className="flex flex-col items-center justify-center w-full h-dvh">
-    <div className="flex flex-col items-center gap-8 text-center">
-      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <AppLogo size={16} />
-        <span>Thunderbolt</span>
+export const SignedOut = () => {
+  const { t } = useTranslation(['auth', 'common'])
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-dvh">
+      <div className="flex flex-col items-center gap-8 text-center">
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <AppLogo size={16} />
+          <span>{t('appName', { ns: 'common' })}</span>
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="text-4xl font-semibold tracking-tight">{t('signedOut.title')}</h1>
+          <p className="text-muted-foreground">{t('signedOut.description')}</p>
+        </div>
+
+        <Button onClick={() => window.location.replace('/')}>{t('signedOut.signBackIn')}</Button>
       </div>
-
-      <div className="flex flex-col items-center gap-2">
-        <h1 className="text-4xl font-semibold tracking-tight">Signed Out</h1>
-        <p className="text-muted-foreground">You have been signed out successfully.</p>
-      </div>
-
-      <Button onClick={() => window.location.replace('/')}>Sign back in</Button>
     </div>
-  </div>
-)
+  )
+}

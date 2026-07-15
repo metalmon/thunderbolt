@@ -12,6 +12,7 @@ import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { useAnonymousPromotionAnalytics } from '@/lib/analytics/use-anonymous-promotion-analytics'
 import { useAuth } from '@/contexts'
 import Loading from '@/loading'
+import { useTranslation } from 'react-i18next'
 
 /**
  * In SSO mode (OIDC or SAML), redirects unauthenticated users to the backend's
@@ -21,6 +22,7 @@ import Loading from '@/loading'
  * of navigating the webview (WKWebView drops cookies during cross-origin redirects).
  */
 const SsoRedirect = () => {
+  const { t } = useTranslation('auth')
   const cloudUrl = useLocalSettingsStore((s) => s.cloudUrl)
   const authClient = useAuth()
   const analytics = useAnonymousPromotionAnalytics()
@@ -85,15 +87,13 @@ const SsoRedirect = () => {
   if (error) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-[length:var(--font-size-body)] text-muted-foreground">
-          Unable to connect to the identity provider. Check your network connection and SSO configuration.
-        </p>
+        <p className="text-[length:var(--font-size-body)] text-muted-foreground">{t('sso.unableToConnect')}</p>
         <button
           type="button"
           onClick={() => setRetryKey((k) => k + 1)}
           className="h-[var(--touch-height-default)] rounded-lg bg-primary px-4 text-[length:var(--font-size-body)] text-primary-foreground"
         >
-          Try again
+          {t('sso.tryAgain')}
         </button>
       </div>
     )
