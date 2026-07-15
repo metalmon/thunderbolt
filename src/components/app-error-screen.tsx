@@ -15,13 +15,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import type { HandleError } from '@/types/handle-errors'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Generates a support email with error details and stack traces
  */
-const generateSupportEmail = (error: HandleError) => {
-  const subject = 'App Initialization Error'
-  let body = `Error Code: ${error.code}\nError Message: ${error.message}`
+const generateSupportEmail = (error: HandleError, subject: string, bodyPrefix: string) => {
+  let body = bodyPrefix
 
   if (error.stackTrace) {
     body += `\n\nStack Trace:\n${error.stackTrace}`
@@ -44,11 +44,12 @@ type AppErrorScreenProps = {
 }
 
 export const AppErrorScreen = ({ error, isClearingDatabase, onClearDatabase }: AppErrorScreenProps) => {
+  const { t } = useTranslation('common')
   const isDatabaseError = error.code === 'MIGRATION_FAILED' || error.code === 'DATABASE_INIT_FAILED'
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-[100vh] p-4">
-      <div className="text-red-500 text-center mb-4">Failed to initialize app</div>
+      <div className="text-red-500 text-center mb-4">{t('appError.title')}</div>
       <div className="text-sm text-gray-500 text-center mb-6">{error.message}</div>
 
       <div className="flex flex-col gap-3">
@@ -56,25 +57,21 @@ export const AppErrorScreen = ({ error, isClearingDatabase, onClearDatabase }: A
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={isClearingDatabase}>
-                {isClearingDatabase ? 'Clearing Database...' : 'Clear Local Database'}
+                {isClearingDatabase ? t('appError.clearingDatabase') : t('appError.clearDatabase')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Clear Local Database?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Unfortunately, the local database encountered an error while being migrated to the latest version of
-                  this app. Deleting your local data will resolve the issue but you will permanently lose your settings
-                  and chat history. This action cannot be undone.
-                </AlertDialogDescription>
+                <AlertDialogTitle>{t('appError.clearDatabaseTitle')}</AlertDialogTitle>
+                <AlertDialogDescription>{t('appError.clearDatabaseDescription')}</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={onClearDatabase}
                   className="bg-destructive text-white hover:bg-destructive/90"
                 >
-                  Clear Database
+                  {t('appError.clearDatabaseConfirm')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -84,11 +81,15 @@ export const AppErrorScreen = ({ error, isClearingDatabase, onClearDatabase }: A
         <Button
           variant="outline"
           onClick={() => {
-            const { subject, body } = generateSupportEmail(error)
+            const { subject, body } = generateSupportEmail(
+              error,
+              t('appError.supportEmailSubject'),
+              t('appError.supportEmailBody', { code: error.code, message: error.message }),
+            )
             window.open(`mailto:support@thunderbird.net?subject=${subject}&body=${body}`)
           }}
         >
-          Contact Support
+          {t('appError.contactSupport')}
         </Button>
       </div>
     </div>

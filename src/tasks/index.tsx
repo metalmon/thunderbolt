@@ -200,6 +200,7 @@ type NewTaskInputProps = {
 }
 
 const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
+  const { t } = useTranslation('tasks')
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -237,7 +238,7 @@ const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleSubmit}
           onKeyDown={handleKeyDown}
-          placeholder="Add a new task..."
+          placeholder={t('newTaskPlaceholder')}
           className="w-full bg-transparent text-sm leading-5 p-0 m-0 focus:outline-none"
           style={{ height: '20px' }}
         />
@@ -252,7 +253,8 @@ const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
 // Main Tasks Page Component
 export default function TasksPage() {
   const db = useDatabase()
-  const { t } = useTranslation('defaults')
+  const { t: tDefaults } = useTranslation('defaults')
+  const { t } = useTranslation('tasks')
 
   // State
   const [isAddingNew, setIsAddingNew] = useState(false)
@@ -477,10 +479,10 @@ export default function TasksPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-6 p-4 w-full max-w-[1200px] mx-auto">
           <PageSearch onSearch={handleSearch}>
-            <PageHeader title="Tasks">
+            <PageHeader title={t('pageTitle')}>
               {!showEmptyState && (
                 <>
-                  <PageSearch.Button tooltip="Search" />
+                  <PageSearch.Button tooltip={t('searchTooltip')} />
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -495,7 +497,7 @@ export default function TasksPage() {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Add Task</p>
+                        <p>{t('addTaskTooltip')}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -503,7 +505,7 @@ export default function TasksPage() {
               )}
             </PageHeader>
 
-            <PageSearch.Input placeholder="Search tasks..." onSearch={handleSearch} />
+            <PageSearch.Input placeholder={t('searchPlaceholder')} onSearch={handleSearch} />
           </PageSearch>
 
           {showEmptyState ? (
@@ -512,10 +514,10 @@ export default function TasksPage() {
                 <div className="bg-primary/10 p-4 rounded-full mb-4 inline-block">
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-6">No tasks yet</h3>
+                <h3 className="text-xl font-semibold mb-6">{t('emptyTitle')}</h3>
                 <Button onClick={() => setIsAddingNew(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Your First Task
+                  {t('emptyAddFirst')}
                 </Button>
               </div>
             </div>
@@ -555,13 +557,13 @@ export default function TasksPage() {
 
                       {tasks.length === 0 && debouncedSearchQuery && (
                         <div className="text-center py-12 text-muted-foreground">
-                          No tasks found matching "{debouncedSearchQuery}"
+                          {t('noSearchResults', { query: debouncedSearchQuery })}
                         </div>
                       )}
 
                       {totalCount > 50 && (
                         <div className="text-center py-4 text-sm text-muted-foreground">
-                          Showing 50 of {totalCount} tasks
+                          {t('showingLimited', { count: totalCount })}
                         </div>
                       )}
                     </div>
@@ -572,7 +574,7 @@ export default function TasksPage() {
                       <div className="flex items-center gap-3 rounded-lg bg-background px-3 py-2 shadow-lg border">
                         <GripVertical className="h-4 w-4 text-muted-foreground" />
                         <span className="flex-1 text-sm">
-                          {translateDefaultField(t, 'tasks', activeTask.id, 'item', activeTask.item)}
+                          {translateDefaultField(tDefaults, 'tasks', activeTask.id, 'item', activeTask.item)}
                         </span>
                         <Square className="h-5 w-5 text-muted-foreground" />
                       </div>
