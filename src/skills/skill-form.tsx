@@ -4,6 +4,7 @@
 
 import { Info } from 'lucide-react'
 import { useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
@@ -57,6 +58,7 @@ export const SkillForm = ({
   /** Generic save-failure message shown next to the submit button. */
   submitError?: string | null
 }) => {
+  const { t } = useTranslation('settings')
   const {
     label,
     slug,
@@ -113,23 +115,23 @@ export const SkillForm = ({
       <div className="flex flex-col gap-5 md:min-h-0 md:flex-1">
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-label" className="text-base text-foreground">
-            Name
+            {t('skills.nameLabel')}
           </label>
           <Input
             id="skill-label"
             ref={nameInputRef}
-            placeholder="Daily Brief"
+            placeholder={t('skills.nameLabelPlaceholder')}
             value={label}
             onChange={(e) => handleLabelChange(e.target.value)}
             className="md:h-9"
           />
           <div className="mt-1 flex flex-col gap-2">
             <label htmlFor="skill-slug" className="text-base text-foreground">
-              Slug
+              {t('skills.slugLabel')}
             </label>
             <Input
               id="skill-slug"
-              placeholder="daily-brief"
+              placeholder={t('skills.namePlaceholder')}
               value={slug}
               onChange={(event) => handleSlugChange(event.target.value)}
               aria-invalid={localSlugError || slugError ? true : undefined}
@@ -141,26 +143,26 @@ export const SkillForm = ({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-description" className="flex items-center gap-1.5 text-base text-foreground">
-            Description
+            {t('skills.description')}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="What is this for?"
+                  aria-label={t('skills.descriptionHelpAria')}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Info size={14} strokeWidth={1.75} />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-[202px]">
-                Helps the agent decide when to use this skill. Be specific about when it applies.
+                {t('skills.descriptionHelp')}
               </TooltipContent>
             </Tooltip>
           </label>
           <Textarea
             id="skill-description"
             rows={3}
-            placeholder="When to use this skill…"
+            placeholder={t('skills.descriptionPlaceholder')}
             value={description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
           />
@@ -168,11 +170,11 @@ export const SkillForm = ({
 
         <div className="flex flex-col gap-2 md:min-h-0 md:flex-1">
           <label htmlFor="skill-instruction" className="text-base text-foreground">
-            Instructions
+            {t('skills.instructions')}
           </label>
           <Textarea
             id="skill-instruction"
-            placeholder="What the assistant should do…"
+            placeholder={t('skills.instructionsPlaceholder')}
             value={instruction}
             onChange={(e) => handleInstructionChange(e.target.value)}
             className="min-h-48 resize-y md:min-h-0 md:flex-1 md:resize-none"
@@ -189,11 +191,11 @@ export const SkillForm = ({
         <ResponsiveModalCancel onClick={onCancel} className="dark:hover:bg-accent" />
         <Button
           isLoading={isPending}
-          loadingLabel={mode === 'edit' ? 'Saving…' : 'Creating…'}
+          loadingLabel={mode === 'edit' ? t('skills.saving') : t('skills.creating')}
           disabled={!canSave}
           onClick={handleSubmit}
         >
-          {mode === 'edit' ? 'Save' : 'Create'}
+          {mode === 'edit' ? t('skills.save') : t('skills.create')}
         </Button>
       </FormFooter>
     </section>

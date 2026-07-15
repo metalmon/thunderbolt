@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ConfirmActionDialog } from '@/components/ui/confirm-action-dialog'
+import { useTranslation } from 'react-i18next'
 
 export const DeleteSkillDialog = ({
   open,
@@ -15,13 +16,17 @@ export const DeleteSkillDialog = ({
   onConfirm: () => void
   /** Human display name of the skill being deleted. */
   skillName: string
-}) => (
-  <ConfirmActionDialog
-    open={open}
-    title={`Delete ${skillName}?`}
-    description="This will permanently delete the skill. Other skills that reference it may no longer resolve."
-    confirmLabel="Delete skill"
-    onConfirm={onConfirm}
-    onCancel={() => onOpenChange(false)}
-  />
-)
+}) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <ConfirmActionDialog
+      open={open}
+      title={t('skills.deleteTitle', { name: skillName })}
+      description={t('skills.deleteDescription')}
+      confirmLabel={t('skills.delete')}
+      onConfirm={onConfirm}
+      onCancel={() => onOpenChange(false)}
+    />
+  )
+}
