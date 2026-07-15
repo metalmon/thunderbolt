@@ -19,6 +19,7 @@ import {
   type UIEvent,
   useRef,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModelSelector } from './model-selector'
 
 type PromptInputProps = {
@@ -116,6 +117,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation('chat')
     const overlayRef = useRef<HTMLDivElement>(null)
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -172,7 +174,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
         <Button
           type="submit"
           variant="default"
-          aria-label="Send message"
+          aria-label={t('prompt.sendMessage')}
           className="size-[var(--touch-height-control)] rounded-[var(--radius-control)] flex items-center justify-center flex-shrink-0"
           disabled={isLoading || !submittable}
         >

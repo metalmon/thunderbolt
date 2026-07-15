@@ -6,6 +6,7 @@ import type { CitationSource } from '@/types/citation'
 import { SourceCard } from './source-card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 type SourceListProps = {
   sources: CitationSource[]
@@ -19,8 +20,10 @@ type SourceListProps = {
  * Matches Figma design: dark background with border and dividers between items
  */
 export const SourceList = ({ sources, className, onSelect }: SourceListProps) => {
+  const { t } = useTranslation('chat')
+
   if (sources.length === 0) {
-    return <div className="text-muted-foreground text-sm text-center py-4">No sources available</div>
+    return <div className="text-muted-foreground text-sm text-center py-4">{t('sources.noneAvailable')}</div>
   }
 
   // Sort: primary source first, then others in original order

@@ -7,12 +7,12 @@ import {
   type ChatErrorKind,
   getChatErrorKind,
   getInferenceQuotaWindow,
-  type InferenceQuotaWindow,
   isContextOverflowError,
   isRateLimitError,
 } from '@/lib/error-utils'
 import { Loader2 } from 'lucide-react'
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const defaultChatErrorMessage = 'Something went wrong. Please try again.'
 const causeSpecificErrorMessages: Partial<Record<ChatErrorKind, string>> = {
@@ -23,10 +23,6 @@ const causeSpecificErrorMessages: Partial<Record<ChatErrorKind, string>> = {
   'connection-lost':
     'The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed.',
 }
-const inferenceQuotaMessages = {
-  '5h': "You've reached your AI usage limit for the current 5-hour window. Try again later.",
-  '7d': "You've reached your AI usage limit for the current 7-day window. Try again later.",
-} satisfies Record<InferenceQuotaWindow, string>
 
 /** Resolve final chat error copy after automatic retries stop. */
 const getFinalChatErrorMessage = (error?: Error | null): string => {
@@ -46,6 +42,7 @@ type ErrorMessageProps = {
 
 export const ErrorMessage = memo(
   ({ retryCount, retriesExhausted, error, onRetry, deliveryExhausted }: ErrorMessageProps) => {
+    const { t } = useTranslation('chat')
     const rateLimited = isRateLimitError(error)
     const inferenceQuotaWindow = getInferenceQuotaWindow(error)
 
@@ -55,15 +52,15 @@ export const ErrorMessage = memo(
         <div className="px-4 py-3 rounded-2xl bg-amber-500/10 mr-auto w-full mt-2">
           {inferenceQuotaWindow ? (
             <div className="space-y-1">
-              <p className="font-medium text-foreground text-[length:var(--font-size-body)]">AI usage limit reached</p>
+              <p className="font-medium text-foreground text-[length:var(--font-size-body)]">
+                {t('errors.inferenceQuotaTitle')}
+              </p>
               <p className="text-foreground text-[length:var(--font-size-body)]">
-                {inferenceQuotaMessages[inferenceQuotaWindow]}
+                {t(`errors.inferenceQuota_${inferenceQuotaWindow}`)}
               </p>
             </div>
           ) : (
-            <p className="text-amber-500/80 text-[length:var(--font-size-body)]">
-              Too many requests. Please try again in a moment.
-            </p>
+            <p className="text-amber-500/80 text-[length:var(--font-size-body)]">{t('errors.rateLimit')}</p>
           )}
         </div>
       )
@@ -73,11 +70,8 @@ export const ErrorMessage = memo(
     // request rather than show a generic error.
     if (isContextOverflowError(error)) {
       return (
-        <div className="px-4 py-3 rounded-2xl bg-amber-500/10 mr-auto w-full mt-2">
-          <p className="text-amber-500/80 text-[length:var(--font-size-body)]">
-            This conversation is too large for the model&apos;s context window. Start a new chat, remove some
-            attachments, or switch to a model with a larger context window.
-          </p>
+        <div className="px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 mr-auto w-full mt-2">
+          <p className="text-amber-500/80 text-[length:var(--font-size-body)]">{t('errors.contextOverflow')}</p>
         </div>
       )
     }
@@ -91,7 +85,7 @@ export const ErrorMessage = memo(
           <div className="flex items-center gap-2">
             <Loader2 className="size-[var(--icon-size-sm)] text-amber-500 animate-spin" />
             <p className="text-amber-500/80 text-[length:var(--font-size-body)]">
-              Something went wrong. Retrying ({retryCount}/{maxRetries})...
+              {t('errors.retrying', { retryCount, maxRetries })}
             </p>
           </div>
         </div>
@@ -102,9 +96,7 @@ export const ErrorMessage = memo(
       <div className="px-4 py-3 rounded-2xl bg-destructive/10 mr-auto w-full mt-2">
         <div className="flex items-center justify-between gap-2 min-h-[var(--touch-height-sm)]">
           <p className="text-destructive/80 text-[length:var(--font-size-body)]">
-            {deliveryExhausted
-              ? "This model couldn't read the attached file. Try a different model."
-              : getFinalChatErrorMessage(error)}
+            {deliveryExhausted ? t('errors.deliveryExhausted') : t('errors.generic')}
           </p>
           <div className="flex shrink-0 items-center gap-2">
             {/* No Retry when delivery is exhausted — re-running identical input fails
@@ -115,7 +107,7 @@ export const ErrorMessage = memo(
                 onClick={onRetry}
                 className="cursor-pointer text-[length:var(--font-size-body)] font-medium text-destructive/90 bg-destructive/10 hover:bg-destructive/15 px-3 py-1 rounded-xl"
               >
-                Retry
+                {t('messages.retry')}
               </button>
             )}
           </div>

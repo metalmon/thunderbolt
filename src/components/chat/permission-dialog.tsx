@@ -5,8 +5,10 @@
 import type { PermissionOption, RequestPermissionRequest, RequestPermissionResponse } from '@agentclientprotocol/sdk'
 import { findAllowOption } from '@/chats/chat-store'
 import { Button } from '@/components/ui/button'
+import type { TFunction } from 'i18next'
 import { ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type PermissionDialogProps = {
   onAlwaysAllowAgent: () => void
@@ -15,27 +17,29 @@ type PermissionDialogProps = {
   request: RequestPermissionRequest
 }
 
-const toolKindLabel = (kind?: string | null) => {
+const toolKindLabel = (t: TFunction, kind?: string | null) => {
   switch (kind) {
     case 'edit':
-      return 'Edit file'
+      return t('permission.editFile')
     case 'delete':
-      return 'Delete'
+      return t('permission.delete')
     case 'execute':
-      return 'Run command'
+      return t('permission.runCommand')
     case 'move':
-      return 'Move file'
+      return t('permission.moveFile')
     default:
-      return 'Action'
+      return t('permission.action')
   }
 }
 
 /** Label for the kind-scoped always-allow button. Names the breadth granted so
  *  the user sees they're allowing every action of this kind, not just the one
  *  command shown. */
-const alwaysAllowKindLabel = (kind?: string | null): string => {
-  const label = toolKindLabel(kind)
-  return label === 'Action' ? 'Always allow all actions of this kind' : `Always allow all ${label} actions`
+const alwaysAllowKindLabel = (t: TFunction, kind?: string | null): string => {
+  const label = toolKindLabel(t, kind)
+  return label === t('permission.action')
+    ? t('permission.alwaysAllowKindGeneric')
+    : t('permission.alwaysAllowKind', { label })
 }
 
 const optionVariant = (kind: PermissionOption['kind']): 'default' | 'destructive' | 'outline' | 'secondary' => {
@@ -66,11 +70,12 @@ export const PermissionDialog = ({
   onAlwaysAllowTool,
   onAlwaysAllowAgent,
 }: PermissionDialogProps) => {
+  const { t } = useTranslation('chat')
   const [responded, setResponded] = useState(false)
 
   const allowOption = findAllowOption(request.options)
   const toolCall = request.toolCall
-  const title = toolCall?.title ?? 'Permission Required'
+  const title = toolCall?.title ?? t('permission.title')
   const kind = toolCall?.kind
   const toolInput = toolCall?.rawInput === undefined ? undefined : formatToolInput(toolCall.rawInput)
 
@@ -93,16 +98,16 @@ export const PermissionDialog = ({
     <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 my-2" role="dialog">
       <div className="flex items-center gap-2">
         <ShieldAlert className="size-4 text-amber-500" />
-        <span className="font-medium text-[length:var(--font-size-body)]">{toolKindLabel(kind)}</span>
+        <span className="font-medium text-[length:var(--font-size-body)]">{toolKindLabel(t, kind)}</span>
       </div>
 
       <p className="text-[length:var(--font-size-sm)] text-muted-foreground">{title}</p>
 
       {toolInput !== undefined && (
         <div className="flex flex-col gap-1">
-          <p className="text-[length:var(--font-size-xs)] text-muted-foreground">Command / arguments</p>
+          <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('permission.commandArgs')}</p>
           <pre
-            aria-label="Tool input"
+            aria-label={t('permission.toolInput')}
             className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-mono text-[length:var(--font-size-xs)]"
           >
             {toolInput}
@@ -138,10 +143,10 @@ export const PermissionDialog = ({
       {allowOption && (
         <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <Button variant="ghost" size="sm" disabled={responded} onClick={() => respondOnce(onAlwaysAllowTool)}>
-            {alwaysAllowKindLabel(kind)}
+            {alwaysAllowKindLabel(t, kind)}
           </Button>
           <Button variant="ghost" size="sm" disabled={responded} onClick={() => respondOnce(onAlwaysAllowAgent)}>
-            Always allow everything from this agent
+            {t('permission.alwaysAllowEverything')}
           </Button>
         </div>
       )}

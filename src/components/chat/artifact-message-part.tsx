@@ -8,6 +8,7 @@ import { useContentView } from '@/content-view/context'
 import { useThrottle } from '@/hooks/use-throttle'
 import type { ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
 import { PanelRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { InlineArtifactCard } from './inline-artifact-card'
 
 /** How often the live streaming preview refreshes, so rapid token updates don't thrash the iframe. */
@@ -26,9 +27,10 @@ type ArtifactMessagePartProps = {
  * call renders nothing here (it stays an ordinary tool call in the group).
  */
 export const ArtifactMessagePart = ({ part }: ArtifactMessagePartProps) => {
+  const { t } = useTranslation('chat')
   const artifactId = part.toolCallId
   const input = renderHtmlInput(part as RenderHtmlPart)
-  const title = input.title?.trim() || 'Artifact'
+  const title = input.title?.trim() || t('artifact.fallbackTitle')
 
   const streaming = part.state === 'input-streaming' || part.state === 'input-available'
   const verified = part.state === 'output-available' && renderHtmlOutput(part as RenderHtmlPart)?.ok === true
@@ -63,12 +65,18 @@ type ArtifactPanelBarProps = {
 }
 
 /** Slim placeholder shown in the transcript while the artifact is open in the side panel. */
-const ArtifactPanelBar = ({ title, onShowInline }: ArtifactPanelBarProps) => (
-  <div className="my-2 flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
-    <PanelRight className="size-4 shrink-0 text-muted-foreground" />
-    <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{title} — shown in side panel</span>
-    <Button variant="ghost" size="sm" className="h-7 shrink-0" onClick={onShowInline}>
-      Show inline
-    </Button>
-  </div>
-)
+const ArtifactPanelBar = ({ title, onShowInline }: ArtifactPanelBarProps) => {
+  const { t } = useTranslation('chat')
+
+  return (
+    <div className="my-2 flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
+      <PanelRight className="size-4 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+        {t('artifact.shownInPanel', { title })}
+      </span>
+      <Button variant="ghost" size="sm" className="h-7 shrink-0" onClick={onShowInline}>
+        {t('artifact.showInline')}
+      </Button>
+    </div>
+  )
+}

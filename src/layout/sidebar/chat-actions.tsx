@@ -4,6 +4,7 @@
 
 import { SidebarMenuButton } from '@/components/ui/sidebar'
 import { Flame, Loader2, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { ChatActionsProps } from './types'
 
 const actionButtonClass =
@@ -16,19 +17,21 @@ export const ChatActions = ({
   deleteAllChatsDialogRef,
   onSearchClick,
 }: ChatActionsProps) => {
+  const { t } = useTranslation('chat')
+
   if (isCollapsed) {
     return null
   }
 
   return (
     <div className="flex shrink-0 items-center gap-0.5">
-      <SidebarMenuButton onClick={onSearchClick} aria-label="Search" className={actionButtonClass}>
+      <SidebarMenuButton onClick={onSearchClick} aria-label={t('sidebar.search')} className={actionButtonClass}>
         <Search className="size-[var(--icon-size-default)]" />
       </SidebarMenuButton>
       {showClearAll && (
         <SidebarMenuButton
           onClick={() => deleteAllChatsDialogRef.current?.open()}
-          aria-label="Clear all chats"
+          aria-label={t('sidebar.clearAll')}
           className={actionButtonClass}
           disabled={deleteAllChatsMutation.isPending}
         >

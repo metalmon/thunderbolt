@@ -4,6 +4,7 @@
 
 import { File, ListOrdered, Pin, Plus, SquarePen } from 'lucide-react'
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { ResponsiveActionMenu, type ResponsiveActionMenuAction } from '@/components/ui/responsive-action-menu'
@@ -45,6 +46,7 @@ export const SuggestionChip = ({
   onUnpin?: () => void
 }) => {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation('chat')
 
   // Long-press detection for touch — opens the action menu without firing
   // the chip-insertion onClick. Mouse left-clicks fall through to onClick.
@@ -111,27 +113,32 @@ export const SuggestionChip = ({
         clearLongPress()
         setOpen(true)
       }}
-      className={cn(chipSurfaceClass, 'h-[var(--touch-height-sm)] px-3 text-sm font-normal')}
-      aria-label={`Pinned skill ${label}`}
+      className={cn(
+        chipSurfaceClass,
+        // select-none + touch-callout:none suppress iOS's text-selection and
+        // share-sheet callout during the long-press that opens the menu.
+        'h-[var(--touch-height-sm)] select-none px-3 text-sm font-normal [-webkit-touch-callout:none]',
+      )}
+      aria-label={t('skills.pinnedSkill', { label })}
     >
       {label}
     </Button>
   )
 
   const actions: ResponsiveActionMenuAction[] = [
-    { label: 'Add to chat', icon: <Plus className="size-[var(--icon-size-sm)]" />, onSelect: onClick },
+    { label: t('skills.addToChat'), icon: <Plus className="size-[var(--icon-size-sm)]" />, onSelect: onClick },
     {
-      label: 'Add instructions to chat',
+      label: t('skills.addInstructionsToChat'),
       icon: <File className="size-[var(--icon-size-sm)]" />,
       onSelect: onAddInstruction,
     },
     ...(onEdit
-      ? [{ label: 'Edit skill', icon: <SquarePen className="size-[var(--icon-size-sm)]" />, onSelect: onEdit }]
+      ? [{ label: t('skills.edit'), icon: <SquarePen className="size-[var(--icon-size-sm)]" />, onSelect: onEdit }]
       : []),
     ...(onReorder
-      ? [{ label: 'Reorder', icon: <ListOrdered className="size-[var(--icon-size-sm)]" />, onSelect: onReorder }]
+      ? [{ label: t('skills.reorder'), icon: <ListOrdered className="size-[var(--icon-size-sm)]" />, onSelect: onReorder }]
       : []),
-    ...(onUnpin ? [{ label: 'Unpin', icon: <Pin className="size-[var(--icon-size-sm)]" />, onSelect: onUnpin }] : []),
+    ...(onUnpin ? [{ label: t('skills.unpin'), icon: <Pin className="size-[var(--icon-size-sm)]" />, onSelect: onUnpin }] : []),
   ]
 
   return (
