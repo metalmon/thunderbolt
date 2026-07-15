@@ -67,6 +67,9 @@ import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { type ComponentProps, Suspense, lazy, useEffect, useState } from 'react'
 import { markAppMounted } from '@/lib/init-timing'
 import { LazyMotion } from 'framer-motion'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '@/i18n/i18n'
+import { UiLanguageSync } from '@/i18n/UiLanguageSync'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -262,6 +265,7 @@ export const App = () => {
       >
         <QueryClientProvider client={queryClient}>
           <DatabaseProvider db={initData.db}>
+            <UiLanguageSync />
             <HttpClientProvider httpClient={initData.httpClient}>
               <AuthProvider cloudUrl={initData.cloudUrl}>
                 <SignInModalProvider>
@@ -292,11 +296,13 @@ export const App = () => {
   }
 
   return (
-    <ThemeProvider>
-      <LazyMotion features={loadMotionFeatures} strict>
-        <WindowChrome>{renderAppContent()}</WindowChrome>
-        <RevokedDeviceModal open={revokedDeviceOpen} />
-      </LazyMotion>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider>
+        <LazyMotion features={loadMotionFeatures} strict>
+          <WindowChrome>{renderAppContent()}</WindowChrome>
+          <RevokedDeviceModal open={revokedDeviceOpen} />
+        </LazyMotion>
+      </ThemeProvider>
+    </I18nextProvider>
   )
 }
