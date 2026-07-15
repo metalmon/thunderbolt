@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useDatabase } from '@/contexts'
 import { deleteIntegrationCredentials } from '@/dal'
@@ -21,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 export const OnboardingDialog = () => {
+  const { t } = useTranslation('onboarding')
   const { isMobile } = useIsMobile()
   const db = useDatabase()
   const queryClient = useQueryClient()
@@ -108,10 +110,8 @@ export const OnboardingDialog = () => {
         useTransparentOverlay={!isMobile}
         fullScreen={isMobile}
       >
-        <DialogTitle className="sr-only">Onboarding Wizard</DialogTitle>
-        <DialogDescription className="sr-only">
-          Complete the setup process to get started with Thunderbolt
-        </DialogDescription>
+        <DialogTitle className="sr-only">{t('dialog.title')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('dialog.description')}</DialogDescription>
         <div
           className={cn('flex flex-col items-center', isMobile && 'h-dvh')}
           style={{
@@ -166,7 +166,11 @@ export const OnboardingDialog = () => {
                           : true
               }
               continueText={
-                state.currentStep === 5 ? (isCompleting ? 'Completing...' : 'Start Using Thunderbolt') : 'Continue'
+                state.currentStep === 5
+                  ? isCompleting
+                    ? t('actions.completing')
+                    : t('actions.startUsing')
+                  : t('actions.continue')
               }
             />
           </div>

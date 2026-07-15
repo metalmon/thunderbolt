@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import type { OnboardingState } from '@/hooks/use-onboarding-state'
 import { privacyPolicyUrl, termsOfServiceUrl } from '@/lib/constants'
 import { Database, EyeOff, ServerOff } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 import { OnboardingFeatureCard } from './onboarding-feature-card'
 import { OnboardingStepHeader } from './onboarding-step-header'
 
@@ -21,6 +22,8 @@ type OnboardingPrivacyStepProps = {
 }
 
 export const OnboardingPrivacyStep = ({ state, actions }: OnboardingPrivacyStepProps) => {
+  const { t } = useTranslation('onboarding')
+
   const handleAgreementChange = (checked: boolean) => {
     actions.setPrivacyAgreed(checked)
   }
@@ -30,27 +33,27 @@ export const OnboardingPrivacyStep = ({ state, actions }: OnboardingPrivacyStepP
       <div className="flex flex-1 flex-col justify-center">
         <OnboardingStepHeader
           icon={<AppLogo size={72} />}
-          title="Welcome to Thunderbolt!"
-          description="Your private AI assistant"
+          title={<Trans i18nKey="privacy.title" ns="onboarding" components={{ bold: <b /> }} />}
+          description={t('privacy.subtitle')}
         />
 
         <div className="mt-10 rounded-xl bg-muted">
           <OnboardingFeatureCard
             icon={ServerOff}
-            title="Zero Logs"
-            description="We don't keep logs of your conversations."
+            title={t('privacy.zeroLogsTitle')}
+            description={t('privacy.zeroLogsDescription')}
           />
 
           <OnboardingFeatureCard
             icon={EyeOff}
-            title="Zero Training"
-            description="We don't train models on your data."
+            title={t('privacy.zeroTrainingTitle')}
+            description={t('privacy.zeroTrainingDescription')}
           />
 
           <OnboardingFeatureCard
             icon={Database}
-            title="Local Storage"
-            description="Data is stored securely on your device."
+            title={t('privacy.localStorageTitle')}
+            description={t('privacy.localStorageDescription')}
           />
         </div>
       </div>
@@ -64,25 +67,28 @@ export const OnboardingPrivacyStep = ({ state, actions }: OnboardingPrivacyStepP
             className="scale-130 cursor-pointer"
           />
           <label htmlFor="terms-agreement" className="text-base text-muted-foreground leading-relaxed cursor-pointer">
-            I agree to the{' '}
-            <a
-              href={privacyPolicyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline hover:no-underline font-medium"
-            >
-              Privacy Policy
-            </a>{' '}
-            and{' '}
-            <a
-              href={termsOfServiceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline hover:no-underline font-medium"
-            >
-              Terms of Service
-            </a>
-            .
+            <Trans
+              i18nKey="privacy.agreement"
+              ns="onboarding"
+              components={{
+                privacyLink: (
+                  <a
+                    href={privacyPolicyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline font-medium"
+                  />
+                ),
+                termsLink: (
+                  <a
+                    href={termsOfServiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline font-medium"
+                  />
+                ),
+              }}
+            />
           </label>
         </div>
       </div>
