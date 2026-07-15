@@ -7,32 +7,18 @@ import type { LocationData } from '@/hooks/use-location-search'
 import type { OnboardingState } from '@/hooks/use-onboarding-state'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MapPin } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { LocationSearchCombobox } from '../location-search-combobox'
 import { OnboardingStepHeader } from './onboarding-step-header'
 
-const locationFormSchema = z
-  .object({
-    locationName: z.string().min(1, { message: 'Location is required.' }),
-    locationLat: z.number().optional(),
-    locationLng: z.number().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.locationName && data.locationName.length > 0) {
-        return data.locationLat !== undefined && data.locationLng !== undefined
-      }
-      return true
-    },
-    {
-      message: 'Please select a location from the dropdown to get coordinates.',
-      path: ['locationName'],
-    },
-  )
-
-type LocationFormData = z.infer<typeof locationFormSchema>
+type LocationFormData = {
+  locationName: string
+  locationLat?: number
+  locationLng?: number
+}
 
 type OnboardingLocationStepProps = {
   state: OnboardingState
@@ -49,7 +35,31 @@ type OnboardingLocationStepProps = {
 }
 
 export const OnboardingLocationStep = ({ actions, onFormDirtyChange }: OnboardingLocationStepProps) => {
+  const { t } = useTranslation('onboarding')
   const [isInitialized, setIsInitialized] = useState(false)
+
+  const locationFormSchema = useMemo(
+    () =>
+      z
+        .object({
+          locationName: z.string().min(1, { message: t('location.required') }),
+          locationLat: z.number().optional(),
+          locationLng: z.number().optional(),
+        })
+        .refine(
+          (data) => {
+            if (data.locationName && data.locationName.length > 0) {
+              return data.locationLat !== undefined && data.locationLng !== undefined
+            }
+            return true
+          },
+          {
+            message: t('location.selectFromDropdown'),
+            path: ['locationName'],
+          },
+        ),
+    [t],
+  )
 
   const form = useForm<LocationFormData>({
     resolver: zodResolver(locationFormSchema),
@@ -130,8 +140,8 @@ export const OnboardingLocationStep = ({ actions, onFormDirtyChange }: Onboardin
     <div className="flex w-full flex-1 flex-col justify-center">
       <OnboardingStepHeader
         icon={<MapPin className="size-10 text-primary" />}
-        title="Where are you located?"
-        description="This helps us personalize your experience with local settings and features."
+        title={t('location.title')}
+        description={t('location.description')}
       />
 
       <Form {...form}>

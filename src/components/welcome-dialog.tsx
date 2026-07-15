@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { create } from 'zustand'
 
 import { SignInSuccessStep } from '@/components/sign-in/sign-in-success-step'
@@ -29,14 +30,15 @@ export const useWelcomeStore = create<{
  * Shows a welcome dialog after successful sign-in from the waitlist page.
  */
 export const WelcomeDialog = () => {
+  const { t } = useTranslation('onboarding')
   const { preferredName } = useSettings({ preferred_name: '' })
   const [isOpen, setIsOpen] = useState(() => useWelcomeStore.getState().consume())
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
-        <DialogTitle className="sr-only">Welcome</DialogTitle>
-        <DialogDescription className="sr-only">Sign-in successful</DialogDescription>
+        <DialogTitle className="sr-only">{t('welcome.title')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('welcome.description')}</DialogDescription>
         <SignInSuccessStep
           displayName={preferredName.value as string}
           onContinue={() => setIsOpen(false)}

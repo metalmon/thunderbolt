@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { ResponsiveModalContentComposable } from '@/components/ui/responsive-modal'
 import { useDatabase } from '@/contexts'
@@ -22,6 +23,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 export const OnboardingDialog = () => {
+  const { t } = useTranslation('onboarding')
   const { isMobile } = useIsMobile()
   const db = useDatabase()
   const queryClient = useQueryClient()
@@ -107,10 +109,8 @@ export const OnboardingDialog = () => {
         className={cn('overflow-hidden p-0', !isMobile && 'h-[650px] max-h-[calc(100dvh-2rem)]')}
         showCloseButton={false}
       >
-        <DialogTitle className="sr-only">Onboarding Wizard</DialogTitle>
-        <DialogDescription className="sr-only">
-          Complete the setup process to get started with Thunderbolt
-        </DialogDescription>
+        <DialogTitle className="sr-only">{t('dialog.title')}</DialogTitle>
+        <DialogDescription className="sr-only">{t('dialog.description')}</DialogDescription>
         <div
           className={cn('flex h-full flex-col items-center', !isMobile && 'pb-6 pt-8')}
           style={isMobile ? { paddingBottom: 'var(--kb, 0px)' } : undefined}
@@ -162,7 +162,11 @@ export const OnboardingDialog = () => {
                           : true
               }
               continueText={
-                state.currentStep === 5 ? (isCompleting ? 'Completing...' : 'Start Using Thunderbolt') : 'Continue'
+                state.currentStep === 5
+                  ? isCompleting
+                    ? t('actions.completing')
+                    : t('actions.startUsing')
+                  : t('actions.continue')
               }
             />
           </div>
