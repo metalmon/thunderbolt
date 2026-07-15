@@ -21,13 +21,17 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import type { Skill } from '@/types'
+import { translateDefaultField } from '@/i18n/translate-default'
 import { verticalAxisModifiers } from '@/lib/dnd'
 import { cn } from '@/lib/utils'
+import type { Skill } from '@/types'
 import { skillDisplayName } from './display'
 
 const SortableRow = ({ skill, locked }: { skill: Skill; locked: boolean }) => {
+  const { t } = useTranslation('defaults')
+  const displayName = translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: skill.id,
     disabled: locked,
@@ -47,7 +51,7 @@ const SortableRow = ({ skill, locked }: { skill: Skill; locked: boolean }) => {
       } ${isDragging ? 'opacity-40' : 'hover:bg-accent'}`}
     >
       <GripVertical size={16} className={`shrink-0 text-muted-foreground ${locked ? 'invisible' : ''}`} />
-      <span className="truncate text-[length:var(--font-size-body)] text-foreground">{skillDisplayName(skill)}</span>
+      <span className="truncate text-[length:var(--font-size-body)] text-foreground">{displayName}</span>
     </div>
   )
 }
