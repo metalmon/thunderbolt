@@ -24,6 +24,7 @@ import { useHttpClient } from '@/contexts'
 import { useEffect, useMemo, useReducer, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { applyInitialUiLanguageIfNeeded } from '@/i18n/apply-initial-ui-language'
 import { setUiLanguage } from '@/i18n/i18n'
 import { normalizeUiLanguage } from '@/i18n/languages'
 
@@ -235,6 +236,24 @@ export default function PreferencesSettingsPage() {
     prevPreferredNameRef.current = preferredName.value
     setNameInput(preferredName.value || '')
   }
+
+  const uiLanguageAppliedRef = useRef(false)
+
+  // One-shot auto-detect ui_language from browser locale when unset
+  useEffect(() => {
+    if (uiLanguage.isLoading || uiLanguageAppliedRef.current) {
+      return
+    }
+    if (uiLanguage.value != null && uiLanguage.value !== '') {
+      return
+    }
+
+    uiLanguageAppliedRef.current = true
+    void applyInitialUiLanguageIfNeeded({
+      stored: uiLanguage.value,
+      setValue: (v) => uiLanguage.setValue(v),
+    })
+  }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
 
   // Auto-populate localization settings from country data if not set
   useEffect(() => {
