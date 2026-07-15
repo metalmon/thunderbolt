@@ -51,8 +51,9 @@ export const LibraryRow = ({
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) => {
-  const { t } = useTranslation('defaults')
-  const displayName = translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))
+  const { t: translateDefault } = useTranslation('defaults')
+  const { t } = useTranslation('settings')
+  const displayName = translateDefaultField(translateDefault, 'skills', skill.id, 'name', skillDisplayName(skill))
 
   return (
     <m.li layout layoutId={skill.id} transition={skillRowTransition}>
@@ -84,7 +85,9 @@ export const LibraryRow = ({
               <Switch
                 checked={enabled}
                 onCheckedChange={(next) => onToggleEnabled(skill.id, next)}
-                aria-label={`${enabled ? 'Disable' : 'Enable'} ${skillDisplayName(skill)}`}
+                aria-label={
+                  enabled ? t('skills.disableAria', { name: skill.name }) : t('skills.enableAria', { name: skill.name })
+                }
               />
             </span>
           </div>
@@ -92,11 +95,11 @@ export const LibraryRow = ({
         <ContextMenuContent className="min-w-56">
           <ContextMenuItem onClick={() => onEdit(skill.id)} className="cursor-pointer">
             <SquarePen className="size-4 mr-2" />
-            Edit
+            {t('skills.edit')}
           </ContextMenuItem>
           <ContextMenuItem onClick={() => onDelete(skill.id)} className="cursor-pointer">
             <Trash2 className="size-4 mr-2" />
-            Delete
+            {t('skills.delete')}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

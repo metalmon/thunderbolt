@@ -74,6 +74,7 @@ export const ReorderPanel = ({
   onReorder: (ids: string[], move: ReorderMove) => void
   onClose: () => void
 }) => {
+  const { t } = useTranslation('settings')
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 5 } }),
@@ -100,11 +101,11 @@ export const ReorderPanel = ({
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-2 shadow-md">
       <div className="flex h-8 items-center gap-2 px-2">
-        <span className="flex-1 text-[length:var(--font-size-sm)] text-muted-foreground">Reorder skills</span>
+        <span className="flex-1 text-[length:var(--font-size-sm)] text-muted-foreground">{t('skills.reorder')}</span>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close reorder"
+          aria-label={t('skills.closeReorder')}
           className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
         >
           <X size={16} />

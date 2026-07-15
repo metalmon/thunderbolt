@@ -193,6 +193,7 @@ const ConnectionTestSection = ({
   status,
   error,
 }: ConnectionTestSectionProps) => {
+  const { t } = useTranslation('settings')
   const canTest = canTestModelConnection(provider, model, apiKey)
   const showApiKeyHint = !canTest && !!model && providerRequiresApiKey(provider)
 
@@ -203,29 +204,25 @@ const ConnectionTestSection = ({
           {isTesting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Testing Model...
+              {t('models.testingModel')}
             </>
           ) : (
-            'Test Model'
+            t('models.testModel')
           )}
         </Button>
       )}
 
-      {showApiKeyHint && (
-        <p className="text-sm text-muted-foreground text-center">
-          Enter an API key to test the connection before saving.
-        </p>
-      )}
+      {showApiKeyHint && <p className="text-sm text-muted-foreground text-center">{t('models.enterApiKey')}</p>}
 
       {status === 'success' && (
         <StatusCard
           title={
             <>
               <Check className="h-5 w-5 text-green-600" />
-              Test successful!
+              {t('models.testSuccessful')}
             </>
           }
-          description="Successfully got a response from the model."
+          description={t('models.testSuccessDescription')}
           className="border-green-200/50 dark:border-green-500/20"
         />
       )}
@@ -235,10 +232,10 @@ const ConnectionTestSection = ({
           title={
             <>
               <X className="h-5 w-5 text-red-600" />
-              Test failed
+              {t('models.testFailed')}
             </>
           }
-          description={error || 'Received an error while testing the model.'}
+          description={error || t('models.testFailureDescription')}
           className="bg-red-50/50 dark:bg-red-500/10 border-red-200/50 dark:border-red-500/20"
         />
       )}
@@ -307,6 +304,7 @@ const EditModelForm = ({
   onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
   isPending: boolean
 }) => {
+  const { t } = useTranslation('settings')
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(buildEditFormSchema(model.provider)),
     defaultValues: {
@@ -355,7 +353,7 @@ const EditModelForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t('agents.name')}</FormLabel>
               <FormControl>
                 <Input {...field} className="rounded-lg" />
               </FormControl>
@@ -369,7 +367,7 @@ const EditModelForm = ({
           name="model"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Model</FormLabel>
+              <FormLabel>{t('models.model')}</FormLabel>
               <FormControl>
                 <Input {...field} className="rounded-lg" />
               </FormControl>
@@ -384,7 +382,7 @@ const EditModelForm = ({
             name="url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL</FormLabel>
+                <FormLabel>{t('models.url')}</FormLabel>
                 <FormControl>
                   <Input {...field} className="rounded-lg" />
                 </FormControl>
@@ -400,7 +398,7 @@ const EditModelForm = ({
             name="apiKey"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>API Key</FormLabel>
+                <FormLabel>{t('models.apiKey')}</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} placeholder="sk-..." className="rounded-lg" />
                 </FormControl>
@@ -422,7 +420,7 @@ const EditModelForm = ({
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('models.cancel')}
           </Button>
           <Button
             type="submit"
@@ -432,7 +430,7 @@ const EditModelForm = ({
               (providerRequiresConnectionTest(model.provider) && connectionStatus !== 'success')
             }
           >
-            Save
+            {t('models.save')}
           </Button>
         </div>
       </form>
@@ -450,25 +448,31 @@ const EditModelModal = ({
   onOpenChange: (open: boolean) => void
   onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
   isPending: boolean
-}) => (
-  <Dialog open={!!model} onOpenChange={onOpenChange}>
-    <ResponsiveModalContentComposable className="sm:max-w-[500px]">
-      <ResponsiveModalHeader>
-        <ResponsiveModalTitle>Edit Model</ResponsiveModalTitle>
-        <ResponsiveModalDescription className="sr-only">Edit model configuration</ResponsiveModalDescription>
-      </ResponsiveModalHeader>
-      {model && (
-        <EditModelForm
-          key={model.id}
-          model={model}
-          onCancel={() => onOpenChange(false)}
-          onSubmit={onSubmit}
-          isPending={isPending}
-        />
-      )}
-    </ResponsiveModalContentComposable>
-  </Dialog>
-)
+}) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <Dialog open={!!model} onOpenChange={onOpenChange}>
+      <ResponsiveModalContentComposable className="sm:max-w-[500px]">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>{t('models.editModel')}</ResponsiveModalTitle>
+          <ResponsiveModalDescription className="sr-only">
+            {t('models.editModelDescription')}
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
+        {model && (
+          <EditModelForm
+            key={model.id}
+            model={model}
+            onCancel={() => onOpenChange(false)}
+            onSubmit={onSubmit}
+            isPending={isPending}
+          />
+        )}
+      </ResponsiveModalContentComposable>
+    </Dialog>
+  )
+}
 
 /** Copy shown in the actions menu for built-in models. Exported for unit tests. */
 export const systemModelMenuMessage = "Built-in models can't be edited or removed"
@@ -944,8 +948,10 @@ export default function ModelsPage() {
           </DialogTrigger>
           <ResponsiveModalContentComposable className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <ResponsiveModalHeader>
-              <ResponsiveModalTitle>Add Model</ResponsiveModalTitle>
-              <ResponsiveModalDescription className="sr-only">Add a new AI model</ResponsiveModalDescription>
+              <ResponsiveModalTitle>{t('models.addModel')}</ResponsiveModalTitle>
+              <ResponsiveModalDescription className="sr-only">
+                {t('models.addModelDescription')}
+              </ResponsiveModalDescription>
             </ResponsiveModalHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 pt-4 pb-2">
@@ -954,11 +960,11 @@ export default function ModelsPage() {
                   name="provider"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Provider</FormLabel>
+                      <FormLabel>{t('models.provider')}</FormLabel>
                       <FormControl>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <SelectTrigger className="w-full rounded-lg">
-                            <SelectValue placeholder="Select provider" />
+                            <SelectValue placeholder={t('models.selectProvider')} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="thunderbolt">Thunderbolt</SelectItem>
@@ -982,7 +988,7 @@ export default function ModelsPage() {
                     name="url"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL</FormLabel>
+                        <FormLabel>{t('models.url')}</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Input {...field} placeholder="http://localhost:11434/v1" className="pr-10 rounded-lg" />
@@ -1007,7 +1013,10 @@ export default function ModelsPage() {
                     name="apiKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>API Key{form.watch('provider') === 'custom' ? ' (Optional)' : ''}</FormLabel>
+                        <FormLabel>
+                          {t('models.apiKey')}
+                          {form.watch('provider') === 'custom' ? ` (${t('models.optional')})` : ''}
+                        </FormLabel>
                         <FormControl>
                           <Input type="password" {...field} placeholder="sk-..." className="rounded-lg" />
                         </FormControl>
@@ -1047,15 +1056,15 @@ export default function ModelsPage() {
                       name="model"
                       render={() => (
                         <FormItem className="flex flex-col">
-                          <FormLabel>Model</FormLabel>
+                          <FormLabel>{t('models.model')}</FormLabel>
                           <FormControl>
                             <Combobox
                               items={comboboxItems}
                               value={selectedModelId || undefined}
                               onValueChange={(id) => handleSelectModel(id)}
-                              placeholder="Select model..."
-                              searchPlaceholder="Search models..."
-                              emptyMessage="No models found."
+                              placeholder={t('models.selectModel')}
+                              searchPlaceholder={t('models.searchModels')}
+                              emptyMessage={t('models.noModelsFound')}
                               loading={isLoadingModels}
                             />
                           </FormControl>
@@ -1073,7 +1082,7 @@ export default function ModelsPage() {
                     name="customModel"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model</FormLabel>
+                        <FormLabel>{t('models.model')}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -1098,7 +1107,7 @@ export default function ModelsPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Display Name</FormLabel>
+                        <FormLabel>{t('models.displayName')}</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="e.g., GPT-4 Turbo" className="rounded-lg" />
                         </FormControl>
@@ -1114,10 +1123,10 @@ export default function ModelsPage() {
                     title={
                       <>
                         <X className="h-5 w-5 text-red-600" />
-                        Model may not be compatible
+                        {t('models.modelMayNotBeCompatible')}
                       </>
                     }
-                    description="This model does not seem to support tool usage."
+                    description={t('models.modelNoToolSupport')}
                   />
                 )}
 
@@ -1133,7 +1142,7 @@ export default function ModelsPage() {
 
                 <div className="flex justify-end gap-3 pt-2">
                   <Button type="button" variant="ghost" onClick={() => handleDialogOpenChange(false)}>
-                    Cancel
+                    {t('models.cancel')}
                   </Button>
                   <Button
                     type="submit"
@@ -1142,7 +1151,7 @@ export default function ModelsPage() {
                       (providerRequiresConnectionTest(watchedProvider) && connectionStatus !== 'success')
                     }
                   >
-                    {addModelMutation.isPending ? 'Adding...' : 'Add Model'}
+                    {addModelMutation.isPending ? t('models.adding') : t('models.addModel')}
                   </Button>
                 </div>
               </form>
@@ -1173,7 +1182,7 @@ export default function ModelsPage() {
                                 <AlertTriangle className="size-3.5 text-amber-500" />
                               </TooltipTrigger>
                               <TooltipContent side="bottom">
-                                <p>API key not configured</p>
+                                <p>{t('models.apiKeyNotConfigured')}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -1236,7 +1245,7 @@ export default function ModelsPage() {
                 <CardContent className="pt-0 border-t">
                   <div className="space-y-3 pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">URL</span>
+                      <span className="text-sm text-muted-foreground">{t('models.url')}</span>
                       <span className="text-sm font-mono truncate max-w-[300px]">{model.url}</span>
                     </div>
                   </div>
@@ -1250,11 +1259,11 @@ export default function ModelsPage() {
           <Card className="border-dashed border-2 border-muted-foreground/25">
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Cpu className="size-10 text-muted-foreground mb-4" />
-              <h3 className="font-medium text-foreground mb-1">No models configured</h3>
-              <p className="text-sm text-muted-foreground mb-4">Get started by adding your first AI model.</p>
+              <h3 className="font-medium text-foreground mb-1">{t('models.emptyTitle')}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{t('models.emptyDescription')}</p>
               <Button onClick={() => handleDialogOpenChange(true)} variant="outline">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Model
+                {t('models.addModel')}
               </Button>
             </CardContent>
           </Card>
@@ -1276,13 +1285,11 @@ export default function ModelsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Model</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to remove this model? This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('models.removeModel')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('models.removeModelDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteModelMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteModelMutation.isPending}>{t('models.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (deleteConfirmOpen) {
@@ -1292,7 +1299,7 @@ export default function ModelsPage() {
               disabled={deleteModelMutation.isPending}
               variant="destructive"
             >
-              {deleteModelMutation.isPending ? 'Removing...' : 'Remove'}
+              {deleteModelMutation.isPending ? t('models.removing') : t('models.remove')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

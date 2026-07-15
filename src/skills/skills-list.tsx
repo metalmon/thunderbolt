@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { PageSearch } from '@/components/ui/page-search'
 import type { Skill } from '@/types'
+import { useTranslation } from 'react-i18next'
+
 import { skillMatchesQuery } from './display'
 import { LibraryRow, skillRowTransition } from './library-row'
 
@@ -39,6 +41,7 @@ export const SkillsList = ({
   onEditSkill: (id: string) => void
   onDeleteSkill: (id: string) => void
 }) => {
+  const { t } = useTranslation('settings')
   const [search, setSearch] = useState('')
 
   const isLibraryEmpty = skills.length === 0
@@ -59,15 +62,21 @@ export const SkillsList = ({
   return (
     <section className="mx-auto flex h-full w-full max-w-[760px] flex-col gap-3 bg-background p-4 md:px-5 text-foreground">
       <PageSearch onSearch={setSearch}>
-        <PageHeader title="Skills">
+        <PageHeader title={t('skills.title')}>
           <PageSearch.Button />
-          <Button variant="outline" size="icon" aria-label="Create skill" className="bg-card" onClick={onCreate}>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={t('skills.createAria')}
+            className="bg-card"
+            onClick={onCreate}
+          >
             <Plus />
           </Button>
         </PageHeader>
 
         <PageSearch.Input
-          placeholder="Search skills"
+          placeholder={t('skills.searchPlaceholder')}
           onSearch={setSearch}
           className="h-9 rounded-lg border-border bg-card text-sm placeholder:text-muted-foreground"
         />
@@ -106,7 +115,9 @@ export const SkillsList = ({
 
           {disabledRows.length > 0 && (
             <m.div layout="position" transition={skillRowTransition} className="flex flex-col gap-1">
-              <h2 className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Disabled</h2>
+              <h2 className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t('skills.disabled')}
+              </h2>
               <m.ul layout="position" transition={skillRowTransition} className="flex flex-col gap-1.5">
                 {disabledRows.map((skill) => (
                   <LibraryRow
@@ -128,20 +139,22 @@ export const SkillsList = ({
             // The "I deleted everything" empty state — the list is the page's
             // main surface now, so the create CTA lives here.
             <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-              <h2 className="text-xl">No skills yet</h2>
+              <h2 className="text-xl">{t('skills.emptyTitle')}</h2>
               <p className="max-w-md text-sm text-muted-foreground">
-                Skills are reusable instruction templates you summon in chat with{' '}
+                {t('skills.emptyDescriptionPrefix')}{' '}
                 <code className="rounded-sm bg-secondary px-1 font-mono text-xs">/name</code>.
               </p>
               <Button size="sm" onClick={onCreate}>
                 <Plus />
-                Create your first skill
+                {t('skills.createFirstButton')}
               </Button>
             </div>
           )}
           {!isLibraryEmpty && enabledRows.length === 0 && disabledRows.length === 0 && (
             // Search-empty state: the library has skills but none match.
-            <p className="flex h-32 items-center justify-center text-sm text-muted-foreground">No matching skills.</p>
+            <p className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+              {t('skills.noMatches')}
+            </p>
           )}
         </div>
       </LayoutGroup>

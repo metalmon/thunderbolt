@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { validateSkillName } from '@/dal'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
+
 import { useSkillFormState, type SkillFormMode, type SkillFormValues } from './use-skill-form-state'
 
 export type { SkillFormMode, SkillFormValues }
@@ -51,6 +53,7 @@ export const SkillForm = ({
   /** Generic save-failure message shown next to the submit button. */
   submitError?: string | null
 }) => {
+  const { t } = useTranslation('settings')
   const {
     label,
     slug,
@@ -119,11 +122,11 @@ export const SkillForm = ({
         <X className="size-4" />
       </Button>
       <div className="flex min-h-0 flex-1 flex-col gap-5 px-6 py-5">
-        <h2 className="text-xl text-foreground">{mode === 'edit' ? 'Edit skill' : 'Create skill'}</h2>
+        <h2 className="text-xl text-foreground">{mode === 'edit' ? t('skills.edit') : t('skills.create')}</h2>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-label" className="text-base text-foreground">
-            Name
+            {t('skills.name')}
           </label>
           <Input
             id="skill-label"
@@ -151,7 +154,7 @@ export const SkillForm = ({
               </span>
               <Input
                 id="skill-slug"
-                placeholder="daily-brief"
+                placeholder={t('skills.namePlaceholder')}
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 aria-invalid={localSlugError || slugError ? true : undefined}
@@ -168,26 +171,26 @@ export const SkillForm = ({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="skill-description" className="flex items-center gap-1.5 text-base text-foreground">
-            Description
+            {t('skills.description')}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="What is this for?"
+                  aria-label={t('skills.descriptionHelpAria')}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Info size={14} strokeWidth={1.75} />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-[202px]">
-                Helps the agent decide when to use this skill. Be specific about when it applies.
+                {t('skills.descriptionHelp')}
               </TooltipContent>
             </Tooltip>
           </label>
           <Textarea
             id="skill-description"
             rows={3}
-            placeholder="When to use this skill…"
+            placeholder={t('skills.descriptionPlaceholder')}
             value={description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
           />
@@ -195,11 +198,11 @@ export const SkillForm = ({
 
         <div className="flex min-h-0 flex-1 flex-col gap-2">
           <label htmlFor="skill-instruction" className="text-base text-foreground">
-            Instructions
+            {t('skills.instructions')}
           </label>
           <Textarea
             id="skill-instruction"
-            placeholder="What the assistant should do…"
+            placeholder={t('skills.instructionsPlaceholder')}
             value={instruction}
             onChange={(e) => handleInstructionChange(e.target.value)}
             className="min-h-0 flex-1 resize-none"
@@ -216,10 +219,10 @@ export const SkillForm = ({
         {/* The outline variant's dark hover (bg-input/50) is invisible on the
             sidebar-surface card; use the accent hover so it reads. */}
         <Button variant="outline" size="lg" onClick={onCancel} className="text-sm dark:hover:bg-accent">
-          Cancel
+          {t('skills.cancel')}
         </Button>
         <Button variant="default" size="lg" disabled={!canSubmit} className="text-sm" onClick={handleSubmit}>
-          {mode === 'edit' ? 'Save' : 'Create'}
+          {mode === 'edit' ? t('skills.save') : t('skills.create')}
         </Button>
       </footer>
     </section>
