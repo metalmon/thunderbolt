@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import i18n from '@/i18n/i18n'
+
 /**
  * Maps a chat mode name to the status label shown in the "submitted" window —
  * after the user sends a message but before the model emits its first token.
@@ -20,10 +22,10 @@
  */
 export const getLoadingLabel = (modeName: string): string | undefined => {
   if (modeName === 'search') {
-    return 'Searching the web…'
+    return i18n.t('loading.searchingWeb', { ns: 'chat' })
   }
   if (modeName === 'research') {
-    return 'Researching…'
+    return i18n.t('loading.researching', { ns: 'chat' })
   }
   return undefined
 }

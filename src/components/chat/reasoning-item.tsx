@@ -10,6 +10,7 @@ import type { UIMessageMetadata } from '@/types'
 import { getToolName, type ReasoningUIPart } from 'ai'
 import { Brain, DotIcon, Loader2, type LucideIcon } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type ReasoningItemProps = {
   part: ReasoningGroupItem
@@ -57,13 +58,14 @@ const getToolItemData = (
 const getItemData = (
   part: ReasoningGroupItem,
   isGroupReasoning: boolean,
+  thinkingLabel: string,
   mcpTools?: UIMessageMetadata['mcpTools'],
 ): ItemData | null => {
   if (part.type === 'reasoning') {
     const reasoningPart = part.content as ReasoningUIPart
     return {
       Icon: Brain,
-      displayName: 'Thinking',
+      displayName: thinkingLabel,
       isLoading: isGroupReasoning && reasoningPart.state === 'streaming',
     }
   }
@@ -76,7 +78,8 @@ const getItemData = (
 }
 
 export const ReasoningItem = ({ part, onClick, reasoningTime, isGroupReasoning, mcpTools }: ReasoningItemProps) => {
-  const itemData = getItemData(part, isGroupReasoning, mcpTools)
+  const { t } = useTranslation('chat')
+  const itemData = getItemData(part, isGroupReasoning, t('messages.thinking'), mcpTools)
 
   if (!itemData) {
     return null

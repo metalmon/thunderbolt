@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -26,6 +27,7 @@ type DeleteAllChatsDialogProps = {
 export const DeleteAllChatsDialog = forwardRef<DeleteAllChatsDialogRef, DeleteAllChatsDialogProps>(
   ({ onConfirm }, ref) => {
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation(['chat', 'common'])
 
     const handleCancel = () => {
       setOpen(false)
@@ -40,13 +42,13 @@ export const DeleteAllChatsDialog = forwardRef<DeleteAllChatsDialogRef, DeleteAl
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete all your chats.</AlertDialogDescription>
+            <AlertDialogTitle>{t('deleteAllChats.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deleteAllChats.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancel}>{t('cancel', { ns: 'common' })}</AlertDialogCancel>
             <Button variant="destructive" onClick={onConfirm}>
-              Delete All Chats
+              {t('deleteAllChats.confirm')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

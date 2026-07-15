@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it } from 'bun:test'
+import '@/i18n/i18n'
 import { getLoadingLabel } from './loading-labels'
 
 describe('getLoadingLabel', () => {

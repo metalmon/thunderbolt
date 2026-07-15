@@ -16,6 +16,7 @@ import { isMacDesktop, isTauriDesktop } from '@/lib/platform'
 import { cn } from '@/lib/utils'
 import { PanelLeftRounded } from '@/components/icons/panel-left-rounded'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type SidebarHeaderProps = {
   onToggle: () => void
@@ -27,6 +28,7 @@ type SidebarHeaderProps = {
 export const SidebarHeader = ({ onToggle, navToggle }: SidebarHeaderProps) => {
   const { isMobile } = useIsMobile()
   const { state } = useSidebar()
+  const { t } = useTranslation(['chat', 'common'])
 
   // On mobile, always treat the sidebar as expanded when it's open
   const isExpanded = isMobile || state === 'expanded'
@@ -61,7 +63,7 @@ export const SidebarHeader = ({ onToggle, navToggle }: SidebarHeaderProps) => {
             onClick={onToggle}
           >
             <PanelLeftRounded className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Collapse Sidebar</span>
+            <span className="sr-only">{t('sidebar.collapse')}</span>
           </Button>
           {navToggle && (
             <div data-tauri-drag-region className="flex flex-1 items-center justify-end">

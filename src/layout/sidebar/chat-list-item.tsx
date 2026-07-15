@@ -8,6 +8,7 @@ import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { Loader2, MessageCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { memo, useState, type ComponentType, type MouseEventHandler, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ChatListItemProps } from './types'
 import { useChatStore } from '@/chats/chat-store'
 import { useChat as useChat_default } from '@ai-sdk/react'
@@ -42,17 +43,20 @@ const ChatItemActions = ({
   onDelete: () => void
   deleteLabel: ReactNode
   isDeletePending: boolean
-}) => (
-  <>
-    <Item onClick={onRename} className="cursor-pointer">
-      <Pencil className="size-4 mr-2" />
-      Rename
-    </Item>
-    <Item onClick={onDelete} disabled={isDeletePending} className="cursor-pointer">
-      {deleteLabel}
-    </Item>
-  </>
-)
+}) => {
+  const { t } = useTranslation('chat')
+  return (
+    <>
+      <Item onClick={onRename} className="cursor-pointer">
+        <Pencil className="size-4 mr-2" />
+        {t('sidebar.rename')}
+      </Item>
+      <Item onClick={onDelete} disabled={isDeletePending} className="cursor-pointer">
+        {deleteLabel}
+      </Item>
+    </>
+  )
+}
 
 export const ChatListItem = memo(
   ({
@@ -72,6 +76,7 @@ export const ChatListItem = memo(
     const { status } = useChat(
       chatInstance ? { chat: chatInstance, experimental_throttle: statusOnlyThrottleMs } : undefined,
     )
+    const { t } = useTranslation(['chat', 'common'])
     const [renameDialogOpen, setRenameDialogOpen] = useState(false)
     // One value for both action surfaces — they're mutually exclusive (Radix
     // closes one before the other opens), and the row highlight just needs
@@ -124,7 +129,7 @@ export const ChatListItem = memo(
     ) : (
       <>
         <Trash2 className="size-4 mr-2" />
-        Delete
+        {t('delete', { ns: 'common' })}
       </>
     )
 

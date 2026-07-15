@@ -6,6 +6,7 @@ import { SidebarMenuButton } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { Flame, Loader2, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { ChatActionsProps } from './types'
 
 export const ChatActions = ({
@@ -16,6 +17,8 @@ export const ChatActions = ({
   deleteAllChatsDialogRef,
   onSearchClick,
 }: ChatActionsProps) => {
+  const { t } = useTranslation('chat')
+
   if (isCollapsed) {
     return null
   }
@@ -28,7 +31,7 @@ export const ChatActions = ({
           review passes have re-introduced it before. */}
       <SidebarMenuButton
         onClick={(e) => onSearchClick(e)}
-        aria-label="Search chats"
+        aria-label={t('sidebar.search')}
         className={cn(
           'w-fit pr-0 pl-0 aspect-square items-center justify-center cursor-pointer',
           showSearch && 'bg-sidebar-accent',
@@ -53,7 +56,7 @@ export const ChatActions = ({
           </SidebarMenuButton>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>Clear all chats</p>
+          <p>{t('sidebar.clearAll')}</p>
         </TooltipContent>
       </Tooltip>
     </div>

@@ -102,7 +102,7 @@ export const ChatSkillsBar = ({
   const { skills: library } = useLibrarySkills()
   const { isEnabled } = useEnabledSkills()
   const { isMobile } = useIsMobile()
-  const { t } = useTranslation('defaults')
+  const { t } = useTranslation(['defaults', 'chat'])
   const trackSkillEvent = useSkillTelemetry()
   const navigate = useNavigate()
 
@@ -183,7 +183,7 @@ export const ChatSkillsBar = ({
       <Button
         variant="outline"
         size="icon-sm"
-        aria-label="Add a skill"
+        aria-label={t('skills.pinASkill', { ns: 'chat' })}
         disabled={addDisabled}
         className={cn(chipSurfaceClass, 'disabled:cursor-not-allowed disabled:opacity-40')}
       >
@@ -215,7 +215,7 @@ export const ChatSkillsBar = ({
           {pinCapReached ? (
             <Tooltip>
               <TooltipTrigger asChild>{addButton}</TooltipTrigger>
-              <TooltipContent>{`Pin limit reached (${maxPinnedSkills}). Unpin one first.`}</TooltipContent>
+              <TooltipContent>{t('skills.pinLimitReached', { ns: 'chat', max: maxPinnedSkills })}</TooltipContent>
             </Tooltip>
           ) : (
             addButton
@@ -326,6 +326,7 @@ export const ChatSkillsBar = ({
  * screen readers and assistive tech.
  */
 const MobileOverlay = ({ onDismiss }: { onDismiss: () => void }) => {
+  const { t } = useTranslation('chat')
   // Document-level Escape so users don't have to focus the backdrop first.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -340,7 +341,7 @@ const MobileOverlay = ({ onDismiss }: { onDismiss: () => void }) => {
   return createPortal(
     <button
       type="button"
-      aria-label="Dismiss"
+      aria-label={t('skills.dismiss')}
       className="fixed inset-0 z-[5] cursor-default bg-black/30 backdrop-blur-sm"
       onClick={onDismiss}
     />,

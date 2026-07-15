@@ -21,6 +21,7 @@ import { useHistoryCeiling } from '@/hooks/use-history-ceiling'
 import { useChat } from '@ai-sdk/react'
 import { statusOnlyThrottleMs } from '@/chats/chat-throttle'
 import type { Agent } from '@/types/acp'
+import { useTranslation } from 'react-i18next'
 
 /** Subscribes to the active chat instance's status to disable the agent
  *  selector while a reply is streaming. Pulled into its own component so
@@ -142,6 +143,7 @@ export const Header = () => {
   // has no agent.
   const effectiveAgent = selectedAgent ?? builtInAgent
 
+  const { t } = useTranslation('chat')
   const isChatRoute = location.pathname.startsWith('/chats')
   const showAgentSelector = isChatRoute && chatInstance !== undefined && allAgents.length > 0
 
@@ -185,7 +187,7 @@ export const Header = () => {
               lights via the pl-20 above. */}
           <Button variant="ghost" size="icon" className={headerIconButtonClass} onClick={toggleSidebar}>
             <Menu strokeWidth={1.5} className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Toggle Sidebar</span>
+            <span className="sr-only">{t('sidebar.toggle')}</span>
           </Button>
         </div>
 
@@ -204,7 +206,7 @@ export const Header = () => {
           {showNewChatButton && (
             <Button variant="ghost" size="icon" className={headerIconButtonClass} onClick={handleNewChat}>
               <MessageCirclePlus className="size-[var(--icon-size-default)]" />
-              <span className="sr-only">New Chat</span>
+              <span className="sr-only">{t('nav.newChat')}</span>
             </Button>
           )}
         </div>
@@ -232,7 +234,7 @@ export const Header = () => {
         {showSidebarToggle && (
           <Button variant="ghost" size="icon" className={headerIconButtonClass} onClick={toggleSidebar}>
             <PanelLeftRounded className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Expand Sidebar</span>
+            <span className="sr-only">{t('sidebar.open')}</span>
           </Button>
         )}
         {isTauriDesktop() && <HistoryNavButtons />}

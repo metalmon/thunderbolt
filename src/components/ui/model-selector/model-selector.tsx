@@ -13,11 +13,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { GradientLock } from '@/components/ui/gradient-lock'
 import { PrivateBadge } from '@/components/ui/private-badge'
 import { useHaptics } from '@/hooks/use-haptics'
+import i18n from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { ChatThread } from '@/layout/sidebar/types'
 import type { Model } from '@/types'
 import { AlertTriangle, ChevronDown, Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type ModelSelectorProps = {
   models: Model[]
@@ -68,6 +70,8 @@ const toMenuItem = (
   data: { model, disabledByEncryption },
 })
 
+const chatT = (key: string) => i18n.t(key, { ns: 'chat' })
+
 export const categorizeModels = (
   models: Model[],
   chatThread: ModelSelectorProps['chatThread'],
@@ -105,16 +109,16 @@ export const categorizeModels = (
   if (disabledStandard.length > 0) {
     groups.push({
       id: 'standard-disabled',
-      label: 'Standard Models',
-      subtitle: 'Not available in confidential chats.',
+      label: chatT('model.standardModels'),
+      subtitle: chatT('model.standardDisabledSubtitle'),
       items: disabledStandard,
     })
   }
   if (disabledConfidential.length > 0) {
     groups.push({
       id: 'confidential-disabled',
-      label: 'Confidential Models',
-      subtitle: 'Available only in confidential chats.',
+      label: chatT('model.confidentialModels'),
+      subtitle: chatT('model.confidentialDisabledSubtitle'),
       items: disabledConfidential,
     })
   }
@@ -132,7 +136,8 @@ export const ModelSelector = ({
   align,
   variant = 'pill',
 }: ModelSelectorProps) => {
-  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread])
+  const { t, i18n: i18nInstance } = useTranslation('chat')
+  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread, i18nInstance.language])
 
   const renderTrigger = (selected: SearchableMenuItem<ModelItemData> | undefined, isOpen: boolean) => (
     <div
@@ -155,7 +160,7 @@ export const ModelSelector = ({
         <GradientLock className="size-3.5" />
       ) : null}
       {/* Muted in both variants — trigger labels are chrome, not content. */}
-      <span className="font-medium text-muted-foreground">{selected?.label ?? 'Select model'}</span>
+      <span className="font-medium text-muted-foreground">{selected?.label ?? t('model.selectModel')}</span>
       <ChevronDown className={cn('size-3.5 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
     </div>
   )
@@ -191,7 +196,7 @@ export const ModelSelector = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
-            <TooltipContent side="right">API key not configured</TooltipContent>
+            <TooltipContent side="right">{t('model.apiKeyMissing')}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       )
@@ -203,7 +208,7 @@ export const ModelSelector = ({
   const footer = onAddModels ? (
     <button type="button" onClick={onAddModels} className={searchableMenuFooterActionClass}>
       <Plus className="size-4" />
-      Add models
+      {t('model.addModels')}
     </button>
   ) : undefined
 
@@ -222,8 +227,8 @@ export const ModelSelector = ({
       value={selectedModel?.id}
       onValueChange={handleModelChange}
       searchable={models.length > 10}
-      searchPlaceholder="Search Models"
-      emptyMessage="No models found"
+      searchPlaceholder={t('model.searchPlaceholder')}
+      emptyMessage={t('model.empty')}
       blurBackdrop
       trigger={renderTrigger}
       renderItem={renderItem}

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { ExternalLink, PanelRight, X } from 'lucide-react'
 import { memo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type ExternalLinkDialogProps = {
   open: boolean
@@ -37,6 +38,8 @@ export const ExternalLinkDialog = memo(
     openError = null,
     isOpening = false,
   }: ExternalLinkDialogProps) => {
+    const { t } = useTranslation(['chat', 'common'])
+
     const handleConfirmClick = useCallback(async () => {
       try {
         await onConfirm()
@@ -53,14 +56,14 @@ export const ExternalLinkDialog = memo(
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Open External Link</AlertDialogTitle>
-            <AlertDialogDescription className="sr-only">Confirm opening an external link</AlertDialogDescription>
+            <AlertDialogTitle>{t('externalLink.title')}</AlertDialogTitle>
+            <AlertDialogDescription className="sr-only">{t('externalLink.description')}</AlertDialogDescription>
             <button
               onClick={() => onOpenChange(false)}
               className="absolute right-4 top-4 flex size-[var(--touch-height-sm)] cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="size-[var(--icon-size-default)]" />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t('close', { ns: 'common' })}</span>
             </button>
           </AlertDialogHeader>
 
@@ -72,17 +75,21 @@ export const ExternalLinkDialog = memo(
 
           <AlertDialogFooter>
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('cancel', { ns: 'common' })}
             </Button>
             {onOpenInApp && (
               <Button onClick={onOpenInApp} variant="outline" disabled={isOpening}>
                 <PanelRight className="size-4" />
-                Open in Sidebar
+                {t('externalLink.openInSidebar')}
               </Button>
             )}
             <Button onClick={handleConfirmClick} disabled={isOpening}>
               {onOpenInApp && <ExternalLink className="size-4" />}
-              {isOpening ? 'Opening…' : onOpenInApp ? 'Open in Browser' : 'Open Link'}
+              {isOpening
+                ? t('externalLink.opening')
+                : onOpenInApp
+                  ? t('externalLink.openInBrowser')
+                  : t('externalLink.openLink')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
