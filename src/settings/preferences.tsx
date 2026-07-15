@@ -255,11 +255,15 @@ export default function PreferencesSettingsPage() {
       return
     }
 
-    uiLanguageAppliedRef.current = true
     void applyInitialUiLanguageIfNeeded({
       stored: uiLanguage.value,
       setValue: (v) => uiLanguage.setValue(v),
-    })
+    }).then(
+      () => {
+        uiLanguageAppliedRef.current = true
+      },
+      () => {},
+    )
   }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
 
   // Auto-populate localization settings from country data if not set
