@@ -16,6 +16,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Branches = @(
+    "fix/make-format-windows",
     "feat/i18n-infra",
     "feat/i18n-wrap-settings",
     "feat/i18n-wrap-chat",
