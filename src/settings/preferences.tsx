@@ -22,6 +22,10 @@ import { trackEvent, useTelemetryAvailable } from '@/lib/posthog'
 import type { CountryUnitsData } from '@/types'
 import { useHttpClient } from '@/contexts'
 import { useEffect, useMemo, useReducer, useRef, useState, type ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { setUiLanguage } from '@/i18n/i18n'
+import { normalizeUiLanguage } from '@/i18n/languages'
 
 import { LocationSearchCombobox } from '@/components/location-search-combobox'
 import { ModificationIndicator } from '@/components/modification-indicator'
@@ -127,6 +131,7 @@ const preferencesReducer = (state: PreferencesState, action: PreferencesAction):
 }
 
 export default function PreferencesSettingsPage() {
+  const { t } = useTranslation('settings')
   const [state, dispatch] = useReducer(preferencesReducer, initialState)
   const {
     isResetting,
@@ -193,6 +198,7 @@ export default function PreferencesSettingsPage() {
     dateFormat,
     timeFormat,
     currency,
+    uiLanguage,
   } = useSettings({
     preferred_name: '',
     location_name: '',
@@ -205,6 +211,7 @@ export default function PreferencesSettingsPage() {
     date_format: 'MM/DD/YYYY',
     time_format: '12h',
     currency: 'USD',
+    ui_language: String,
   })
 
   const hapticsEnabled = useLocalSettingsStore((s) => s.hapticsEnabled)
@@ -586,8 +593,46 @@ export default function PreferencesSettingsPage() {
 
       <div className="h-6" />
 
-      <SectionCard title="Localization">
+      <SectionCard title={t('localization.title')}>
         <div className="flex flex-col gap-6">
+          {/* Language */}
+          <div className="flex flex-row items-center gap-4">
+            <div className="flex-1">
+              <ModificationIndicator
+                as="label"
+                className="text-sm font-medium"
+                hasModifications={uiLanguage.isModified}
+                onReset={async () => {
+                  await uiLanguage.reset()
+                  setUiLanguage('en')
+                  trackEvent('settings_localization_reset')
+                }}
+              >
+                {t('localization.languageLabel')}
+              </ModificationIndicator>
+              <p className="text-sm text-muted-foreground">{t('localization.languageDescription')}</p>
+            </div>
+            <Select
+              value={normalizeUiLanguage(uiLanguage.value)}
+              onValueChange={async (v) => {
+                const language = normalizeUiLanguage(v)
+                await uiLanguage.setValue(language)
+                setUiLanguage(language)
+                trackEvent('settings_localization_update', { ui_language: language })
+              }}
+            >
+              <SelectTrigger className="w-auto rounded-lg" aria-label={t('localization.languageLabel')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('localization.languages.en')}</SelectItem>
+                <SelectItem value="ru">{t('localization.languages.ru')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="h-px bg-border -mx-6" />
+
           <div className="flex flex-col gap-2">
             <ModificationIndicator
               as="label"
