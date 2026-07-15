@@ -21,6 +21,7 @@ git remote add fork   https://github.com/metalmon/thunderbolt.git
 | Branch | Purpose |
 |---|---|
 | `master` | Pristine mirror of `origin/main`. Fast-forward only. **Never commit product work here.** |
+| `fix/make-format-windows` | Windows `make format` cargo detection fix; first stack entry, independent of i18n. |
 | `feat/i18n-infra` | Core i18n plumbing: helpers, i18next init, `ui_language` setting, provider, rebuild script, docs. |
 | `feat/i18n-wrap-*` | One branch per UI surface; each replaces hardcoded English with `t()` calls and grows `locales/en/*.json`. |
 | `local/i18n-locales` | Russian (`ru`) catalog completion only — no wrap or infra code changes. |
@@ -28,15 +29,16 @@ git remote add fork   https://github.com/metalmon/thunderbolt.git
 
 Wrap branches are intentionally **narrow**: each should contain only the string-wrapping work for its namespace (settings, chat, auth, onboarding, tasks). Infra stays on `feat/i18n-infra`; translations stay on `local/i18n-locales`.
 
-Current stack (order matters — listed in `dev-local/rebuild-main.ps1`):
+Current stack (order matters - listed in `dev-local/rebuild-main.ps1`):
 
-1. `feat/i18n-infra`
-2. `feat/i18n-wrap-settings`
-3. `feat/i18n-wrap-chat`
-4. `feat/i18n-wrap-auth`
-5. `feat/i18n-wrap-onboarding`
-6. `feat/i18n-wrap-tasks`
-7. `local/i18n-locales`
+1. `fix/make-format-windows` (cherry-pick `master..branch`)
+2. `feat/i18n-infra` (cherry-pick `master..branch`)
+3. `feat/i18n-wrap-settings` (cherry-pick `feat/i18n-infra..branch` — wrap delta only)
+4. `feat/i18n-wrap-chat` (same infra-tip range)
+5. `feat/i18n-wrap-auth`
+6. `feat/i18n-wrap-onboarding`
+7. `feat/i18n-wrap-tasks`
+8. `local/i18n-locales` (same infra-tip range — locale commit(s) only)
 
 ## Rebuilding `main`
 
@@ -51,7 +53,9 @@ What it does:
 1. Fetches `origin` and `fork`.
 2. Fast-forwards local `master` to `origin/main`.
 3. Resets `main` to `master`.
-4. Cherry-picks `master..<branch>` for each entry in `$Branches`, in order.
+4. Cherry-picks each entry in `$Branches`, in order:
+   - `fix/make-format-windows` and `feat/i18n-infra`: `master..<branch>`
+   - each `feat/i18n-wrap-*` and `local/i18n-locales`: `feat/i18n-infra..<branch>` (avoids re-applying infra commits already picked)
 
 On conflict, resolve files, run `git cherry-pick --continue`, then re-run the script.
 
@@ -127,3 +131,4 @@ Once Thunderbolt upstream merges equivalent i18n infrastructure and UI wrapping:
 
 - [UI i18n implementation plan](../superpowers/plans/2026-07-15-ui-i18n.md) — task breakdown, wrap file lists, DoD checklist.
 - [UI i18n design spec](../superpowers/specs/2026-07-15-ui-i18n-design.md) — architecture and locked decisions.
+
