@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import { SectionCard } from '@/components/ui/section-card'
 import { CheckCircle2, Link2, Loader2, QrCode, Smartphone, Trash2, Waypoints } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useApproveDevice } from '@/hooks/use-approve-device'
@@ -44,6 +45,7 @@ const formatLastSeen = (ts: string | null): string => {
 }
 
 export default function DevicesSettingsPage() {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const currentDeviceId = getDeviceId()
   const { data: devices = [], isLoading } = useQuery({
@@ -120,7 +122,7 @@ export default function DevicesSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 pb-12 w-full max-w-[760px] mx-auto">
-      <PageHeader title="Devices" />
+      <PageHeader title={t('devices.title')} />
 
       {removeMutation.error && (
         <p className="text-sm text-destructive" role="alert">
@@ -130,7 +132,7 @@ export default function DevicesSettingsPage() {
 
       {hasPendingDevices && (
         <>
-          <SectionCard title="Pending Approvals">
+          <SectionCard title={t('devices.pendingApprovalsTitle')}>
             <div className="flex flex-col gap-3">
               {pendingDevices.map((device) => (
                 <Card key={device.id} className="bg-secondary/50">
@@ -140,7 +142,7 @@ export default function DevicesSettingsPage() {
                         <Smartphone className="size-5 shrink-0 text-muted-foreground" />
                         <div className="min-w-0 flex-1">
                           <span className="font-medium truncate">{device.name}</span>
-                          <p className="text-sm text-muted-foreground">Waiting for approval</p>
+                          <p className="text-sm text-muted-foreground">{t('devices.waitingForApproval')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -151,7 +153,7 @@ export default function DevicesSettingsPage() {
                           disabled={denyMutation.isPending}
                         >
                           <Trash2 className="size-4 mr-1" />
-                          Deny
+                          {t('devices.deny')}
                         </Button>
                         <Button
                           variant="default"
@@ -164,7 +166,7 @@ export default function DevicesSettingsPage() {
                           ) : (
                             <CheckCircle2 className="size-4 mr-1" />
                           )}
-                          Approve
+                          {t('devices.approve')}
                         </Button>
                       </div>
                     </div>
@@ -178,12 +180,12 @@ export default function DevicesSettingsPage() {
         </>
       )}
 
-      {hasPendingDevices && <h3 className="text-lg font-semibold -mb-2">Trusted Devices</h3>}
+      {hasPendingDevices && <h3 className="text-lg font-semibold -mb-2">{t('devices.trustedDevicesTitle')}</h3>}
 
       {isLoading ? (
-        <p className="text-muted-foreground py-4">Loading devices…</p>
+        <p className="text-muted-foreground py-4">{t('devices.loading')}</p>
       ) : visibleDevices.length === 0 ? (
-        <p className="text-muted-foreground py-4">No devices yet. Sign in with sync to see devices here.</p>
+        <p className="text-muted-foreground py-4">{t('devices.emptyDescription')}</p>
       ) : (
         <div className="flex flex-col gap-4">
           {visibleDevices.map((device) => {
@@ -210,19 +212,19 @@ export default function DevicesSettingsPage() {
                           )}
                           {isCurrent && (
                             <span className="shrink-0 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
-                              This Device
+                              {t('devices.thisDevice')}
                             </span>
                           )}
                           {isRevoked && (
                             <span className="shrink-0 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
-                              Revoked
+                              {t('devices.revoked')}
                             </span>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {isBridge
-                            ? 'Accepts connections from your devices'
-                            : `Last seen: ${formatLastSeen(device.lastSeen)}`}
+                            ? t('devices.bridgeAcceptsConnections')
+                            : t('devices.lastSeen', { value: formatLastSeen(device.lastSeen) })}
                         </p>
                       </div>
                     </div>
@@ -234,7 +236,7 @@ export default function DevicesSettingsPage() {
                         disabled={revokeMutation.isPending}
                       >
                         <Trash2 className="size-4 mr-1" />
-                        Revoke
+                        {t('devices.revoke')}
                       </Button>
                     )}
                     {isRevoked && isBridge && (
@@ -256,25 +258,27 @@ export default function DevicesSettingsPage() {
                         <div className="flex min-w-0 items-center gap-2">
                           <Link2 className="size-4 shrink-0 text-muted-foreground" />
                           <span className="truncate font-mono text-[length:var(--font-size-xs)] text-muted-foreground">
-                            {device.nodeId ? device.nodeId : 'No pairing identity'}
+                            {device.nodeId ? device.nodeId : t('devices.noPairingIdentity')}
                           </span>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           {device.nodeId && (
                             <Button variant="ghost" size="sm" onClick={() => pairing.toggleQr(device.id)}>
                               <QrCode className="size-4 mr-1" />
-                              {pairing.qrFor === device.id ? 'Hide' : 'Show'}
+                              {pairing.qrFor === device.id ? t('devices.hide') : t('devices.show')}
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => pairing.openDialog(device.id)}>
-                            {device.nodeId ? 'Update' : 'Set node ID'}
+                            {device.nodeId ? t('devices.update') : t('devices.setNodeId')}
                           </Button>
                         </div>
                       </div>
                       {device.nodeId && pairing.qrFor === device.id && (
                         <Suspense
                           fallback={
-                            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">Loading code…</p>
+                            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                              {t('devices.loadingCode')}
+                            </p>
                           }
                         >
                           <DeviceQrCode value={encodePairingTicket({ nodeId: device.nodeId, name: device.name })} />

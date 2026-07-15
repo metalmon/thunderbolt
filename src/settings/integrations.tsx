@@ -23,6 +23,7 @@ import { useSettings } from '@/hooks/use-settings'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 
 type Integration = {
   id: string
@@ -42,6 +43,7 @@ const ThunderboltProIcon = () => (
 )
 
 export default function IntegrationsPage() {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const location = useLocation()
   const navigate = useNavigate()
@@ -72,7 +74,7 @@ export default function IntegrationsPage() {
         id: 'thunderbolt-pro',
         name: 'Thunderbolt Pro',
         provider: 'thunderbolt-pro',
-        connectLabel: 'Get Pro',
+        connectLabel: t('integrations.getPro'),
         icon: <ThunderboltProIcon />,
         isEnabled: isProUser && proEnabled,
         isConnected: isProUser,
@@ -82,7 +84,7 @@ export default function IntegrationsPage() {
         id: 'google',
         name: 'Google',
         provider: 'google',
-        connectLabel: 'Connect Google',
+        connectLabel: t('integrations.connectGoogle'),
         icon: <GoogleIcon />,
         isEnabled: integrationStatusData?.googleEnabled ?? false,
         isConnected: integrationStatusData?.googleConnected ?? false,
@@ -92,14 +94,14 @@ export default function IntegrationsPage() {
         id: 'microsoft',
         name: 'Microsoft',
         provider: 'microsoft',
-        connectLabel: 'Connect Microsoft',
+        connectLabel: t('integrations.connectMicrosoft'),
         icon: <MicrosoftIcon />,
         isEnabled: integrationStatusData?.microsoftEnabled ?? false,
         isConnected: integrationStatusData?.microsoftConnected ?? false,
         userEmail: integrationStatusData?.microsoftEmail ?? undefined,
       },
     ]
-  }, [integrationSettings.integrationsProIsEnabled.value, integrationStatusData, proStatus?.isProUser])
+  }, [integrationSettings.integrationsProIsEnabled.value, integrationStatusData, proStatus?.isProUser, t])
 
   const { processCallback } = useOAuthConnect({
     onError: (err) => {
@@ -166,14 +168,14 @@ export default function IntegrationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-muted-foreground">Loading integrations...</div>
+        <div className="text-muted-foreground">{t('integrations.loading')}</div>
       </div>
     )
   }
 
   return (
     <div className="max-w-[760px] mx-auto p-4 pb-12 flex flex-col gap-6">
-      <PageHeader title="Integrations" />
+      <PageHeader title={t('integrations.title')} />
 
       {error && (
         <Alert variant="destructive" className="mb-4">
@@ -267,7 +269,7 @@ export default function IntegrationsPage() {
             {integration.isConnected && integration.provider !== 'thunderbolt-pro' && (
               <CardFooter>
                 <Button variant="outline" size="sm" onClick={() => handleDisconnect(integration)} className="ml-auto">
-                  Disconnect
+                  {t('integrations.disconnect')}
                 </Button>
               </CardFooter>
             )}
@@ -278,8 +280,8 @@ export default function IntegrationsPage() {
           <Card className="border-dashed border-2 border-muted-foreground/25 shadow-none">
             <CardContent className="flex flex-col items-center justify-center py-8">
               <div className="text-muted-foreground text-center">
-                <p className="mb-2">No integrations available</p>
-                <p className="text-sm">Check back later for new integrations</p>
+                <p className="mb-2">{t('integrations.emptyTitle')}</p>
+                <p className="text-sm">{t('integrations.emptyDescription')}</p>
               </div>
             </CardContent>
           </Card>
