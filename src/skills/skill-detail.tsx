@@ -36,25 +36,26 @@ export const SkillDetail = ({
    *  panel or the mobile overlay. */
   onClose: () => void
 }) => {
-  const { t } = useTranslation('defaults')
-  const displayName = translateDefaultField(t, 'skills', id, 'name', name)
-  const displayDescription = translateDefaultField(t, 'skills', id, 'description', description)
+  const { t: translateDefault } = useTranslation('defaults')
+  const { t } = useTranslation('settings')
+  const displayName = translateDefaultField(translateDefault, 'skills', id, 'name', name)
+  const displayDescription = translateDefaultField(translateDefault, 'skills', id, 'description', description)
 
   const actionsMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="More" className={mutedIconButtonClass}>
+        <Button variant="ghost" size="icon" aria-label={t('skills.more')} className={mutedIconButtonClass}>
           <MoreVertical />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56">
         <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
           <SquarePen />
-          Edit
+          {t('skills.edit')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onDelete} className="cursor-pointer">
           <Trash2 />
-          Delete
+          {t('skills.delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -64,20 +65,18 @@ export const SkillDetail = ({
     <DetailPanel title={displayName} actions={actionsMenu} onClose={onClose}>
       <div className="flex shrink-0 flex-col gap-2">
         <DetailSectionTitle>
-          Description
+          {t('skills.description')}
           <Tooltip>
             <TooltipTrigger asChild>
               <span
                 role="img"
-                aria-label="What is this for?"
+                aria-label={t('skills.descriptionHelpAria')}
                 className="inline-flex items-center text-muted-foreground hover:text-foreground"
               >
                 <Info size={13} strokeWidth={1.75} />
               </span>
             </TooltipTrigger>
-            <TooltipContent>
-              Helps the agent decide when to use this skill. Be specific about when it applies.
-            </TooltipContent>
+            <TooltipContent>{t('skills.descriptionHelp')}</TooltipContent>
           </Tooltip>
         </DetailSectionTitle>
         <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{displayDescription}</p>
@@ -86,7 +85,7 @@ export const SkillDetail = ({
       <DetailDivider />
 
       <div className="flex flex-col gap-2">
-        <DetailSectionTitle>Instructions</DetailSectionTitle>
+        <DetailSectionTitle>{t('skills.instructions')}</DetailSectionTitle>
         <div className="whitespace-pre-wrap pb-1 text-base leading-snug text-foreground">{instruction}</div>
       </div>
     </DetailPanel>

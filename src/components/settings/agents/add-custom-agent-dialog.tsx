@@ -20,6 +20,7 @@ import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { IrohPairingPanel, useAppNodeId } from '@/components/settings/iroh-pairing-panel'
 import { validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import type { CustomAgentTransport } from '@/dal/agents'
+import { useTranslation } from 'react-i18next'
 
 export type AddCustomAgentPayload = {
   name: string
@@ -116,6 +117,7 @@ export const AddCustomAgentDialog = ({
   testAcpConnection = defaultTestAcpConnection,
   loadAppNodeId = irohClientNodeId,
 }: AddCustomAgentDialogProps) => {
+  const { t } = useTranslation('settings')
   const [state, dispatch] = useReducer(agentDialogReducer, emptyState)
 
   const trimmedName = state.name.trim()
@@ -190,14 +192,14 @@ export const AddCustomAgentDialog = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <ResponsiveModalContentComposable className="sm:max-w-[500px]">
         <ResponsiveModalHeader>
-          <ResponsiveModalTitle>Add custom agent</ResponsiveModalTitle>
+          <ResponsiveModalTitle>{t('agents.addCustom')}</ResponsiveModalTitle>
           <ResponsiveModalDescription>
-            Connect a remote agent that speaks the Agent Client Protocol.
+            {t('agents.addCustomDescription')}
           </ResponsiveModalDescription>
         </ResponsiveModalHeader>
         <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
           <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="agent-name">Name</Label>
+            <Label htmlFor="agent-name">{t('agents.name')}</Label>
             <Input
               id="agent-name"
               placeholder="My Agent"
@@ -207,7 +209,7 @@ export const AddCustomAgentDialog = ({
             />
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="agent-url">URL</Label>
+            <Label htmlFor="agent-url">{t('agents.url')}</Label>
             <Input
               id="agent-url"
               placeholder="wss://example.com/ws or paste an iroh ticket"
@@ -225,10 +227,10 @@ export const AddCustomAgentDialog = ({
           </div>
           {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
           <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="agent-description">Description</Label>
+            <Label htmlFor="agent-description">{t('agents.description')}</Label>
             <Input
               id="agent-description"
-              placeholder="Optional"
+              placeholder={t('agents.optional')}
               value={state.description}
               onChange={(e) => dispatch({ type: 'DESCRIPTION_CHANGED', value: e.target.value })}
               autoComplete="off"
@@ -245,10 +247,10 @@ export const AddCustomAgentDialog = ({
               {state.isTestingConnection ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Testing agent…
+                  {t('agents.testingAgent')}
                 </>
               ) : (
-                'Test connection'
+                t('agents.testConnection')
               )}
             </Button>
           )}
@@ -257,10 +259,10 @@ export const AddCustomAgentDialog = ({
               title={
                 <>
                   <Check className="h-5 w-5 text-green-600" />
-                  Connection successful!
+                  {t('agents.connectionSuccessful')}
                 </>
               }
-              description="Successfully connected to the agent."
+              description={t('agents.connectionSuccessDescription')}
               className="border-green-200/50 dark:border-green-500/20"
             />
           )}
@@ -269,10 +271,10 @@ export const AddCustomAgentDialog = ({
               title={
                 <>
                   <X className="h-5 w-5 text-red-600" />
-                  Connection failed
+                  {t('agents.connectionFailed')}
                 </>
               }
-              description={state.connectionError || 'Could not connect to the agent.'}
+              description={state.connectionError || t('agents.connectionFailedDescription')}
               className="bg-red-50/50 dark:bg-red-500/10 border-red-200/50 dark:border-red-500/20"
             />
           )}
@@ -289,10 +291,10 @@ export const AddCustomAgentDialog = ({
             </p>
           )}
           <Button variant="ghost" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {t('agents.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            Add agent
+            {t('agents.addAgent')}
           </Button>
         </div>
       </ResponsiveModalContentComposable>

@@ -12,32 +12,37 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
 export const DiscardCreateDialog = ({
   open,
   onOpenChange,
   onConfirm,
-  title = 'Leave without creating?',
-  description = "You'll lose what you've added so far.",
+  title,
+  description,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   title?: string
   description?: string
-}) => (
-  <AlertDialog open={open} onOpenChange={onOpenChange}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>{title}</AlertDialogTitle>
-        <AlertDialogDescription>{description}</AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Keep editing</AlertDialogCancel>
-        <Button variant="destructive" onClick={onConfirm}>
-          Discard
-        </Button>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)
+}) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title ?? t('skills.leaveWithoutCreatingTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>{description ?? t('skills.unsavedCreateDescription')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('skills.keepEditing')}</AlertDialogCancel>
+          <Button variant="destructive" onClick={onConfirm}>
+            {t('skills.discard')}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
