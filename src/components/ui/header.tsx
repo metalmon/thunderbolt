@@ -26,6 +26,7 @@ import { useHistoryCeiling } from '@/hooks/use-history-ceiling'
 import { useChat } from '@ai-sdk/react'
 import { statusOnlyThrottleMs } from '@/chats/chat-throttle'
 import type { Agent } from '@/types/acp'
+import { useTranslation } from 'react-i18next'
 
 /** Marks an element as part of the Tauri desktop window's drag surface (empty
  *  on web/mobile where no custom title bar exists). */
@@ -205,6 +206,7 @@ export const Header = () => {
   // has no agent.
   const effectiveAgent = selectedAgent ?? builtInAgent
 
+  const { t } = useTranslation('chat')
   const isChatRoute = location.pathname.startsWith('/chats')
   const showAgentSelector = isChatRoute && chatInstance !== undefined && allAgents.length > 0
 
@@ -255,7 +257,7 @@ export const Header = () => {
             onClick={toggleSidebar}
           >
             <PanelLeftRounded className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Toggle Sidebar</span>
+            <span className="sr-only">{t('sidebar.toggle')}</span>
           </Button>
         </div>
 
@@ -289,7 +291,7 @@ export const Header = () => {
         {showSidebarToggle && (
           <Button variant="ghost" size="icon" className={headerIconButtonClass} onClick={toggleSidebar}>
             <PanelLeftRounded className="size-[var(--icon-size-default)]" />
-            <span className="sr-only">Expand Sidebar</span>
+            <span className="sr-only">{t('sidebar.open')}</span>
           </Button>
         )}
         {isTauriDesktop() && <HistoryNavButtons />}

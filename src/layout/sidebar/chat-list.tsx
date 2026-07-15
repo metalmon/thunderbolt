@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Flame, Loader2, Search } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type Ref } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Virtualizer, type CustomContainerComponentProps, type CustomItemComponentProps } from 'virtua'
 import { ChatActions } from './chat-actions'
 import { ChatListItem } from './chat-list-item'
@@ -97,6 +98,7 @@ export const ChatList = ({
   onMoveToProject,
   onSearchClick,
 }: ChatListProps) => {
+  const { t } = useTranslation('chat')
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const {
     headerRef: mobileHeaderRef,

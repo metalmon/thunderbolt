@@ -9,6 +9,7 @@ import { MobileActionSheet, MobileActionSheetFooter } from '@/components/ui/mobi
 import { useIsMobile } from '@/hooks/use-mobile'
 import { defaultChatTitle } from '@/lib/constants'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type RenameChatDialogProps = {
   open: boolean
@@ -19,6 +20,7 @@ type RenameChatDialogProps = {
 
 export const RenameChatDialog = ({ open, title, onOpenChange, onRename }: RenameChatDialogProps) => {
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation(['chat', 'common'])
   const initialTitle = title ?? defaultChatTitle
   const [value, setValue] = useState(initialTitle)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -63,8 +65,8 @@ export const RenameChatDialog = ({ open, title, onOpenChange, onRename }: Rename
           handleSave()
         }
       }}
-      aria-label="Chat name"
-      placeholder="Chat name"
+      aria-label={t('sidebar.chatNamePlaceholder')}
+      placeholder={t('sidebar.chatNamePlaceholder')}
     />
   )
 
@@ -80,9 +82,9 @@ export const RenameChatDialog = ({ open, title, onOpenChange, onRename }: Rename
         }}
         onClick={handleCancel}
       >
-        Cancel
+        {t('cancel', { ns: 'common' })}
       </Button>
-      <Button onClick={handleSave}>Save</Button>
+      <Button onClick={handleSave}>{t('save', { ns: 'common' })}</Button>
     </>
   )
 
@@ -91,7 +93,7 @@ export const RenameChatDialog = ({ open, title, onOpenChange, onRename }: Rename
       <MobileActionSheet
         open={open}
         onOpenChange={onOpenChange}
-        title="Rename chat"
+        title={t('sidebar.renameTitle')}
         initialFocus={() => {
           const input = inputRef.current
           requestAnimationFrame(() => input?.select())
@@ -116,7 +118,7 @@ export const RenameChatDialog = ({ open, title, onOpenChange, onRename }: Rename
         }}
       >
         <DialogHeader>
-          <DialogTitle>Rename chat</DialogTitle>
+          <DialogTitle>{t('sidebar.renameTitle')}</DialogTitle>
         </DialogHeader>
         {input}
         <DialogFooter>{actions}</DialogFooter>

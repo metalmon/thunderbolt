@@ -12,12 +12,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { GradientLock } from '@/components/ui/gradient-lock'
 import { PrivateBadge } from '@/components/ui/private-badge'
 import { useHaptics } from '@/hooks/use-haptics'
+import i18n from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { needsApiKey } from '@/settings/models/model-policy'
 import type { ChatThread } from '@/layout/sidebar/types'
 import type { Model } from '@/types'
 import { AlertTriangle, ChevronDown } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type ModelSelectorProps = {
   models: Model[]
@@ -51,6 +53,8 @@ const toMenuItem = (
   disabled: isDisabled,
   data: { model, disabledByEncryption },
 })
+
+const chatT = (key: string) => i18n.t(key, { ns: 'chat' })
 
 export const categorizeModels = (
   models: Model[],
@@ -89,14 +93,14 @@ export const categorizeModels = (
   if (disabledStandard.length > 0) {
     groups.push({
       id: 'standard-disabled',
-      label: 'Not available in private chats.',
+      label: chatT('model.standardDisabledSubtitle'),
       items: disabledStandard,
     })
   }
   if (disabledConfidential.length > 0) {
     groups.push({
       id: 'confidential-disabled',
-      label: 'Only available in private chats.',
+      label: chatT('model.confidentialDisabledSubtitle'),
       items: disabledConfidential,
     })
   }
@@ -114,7 +118,8 @@ export const ModelSelector = ({
   align,
   variant = 'pill',
 }: ModelSelectorProps) => {
-  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread])
+  const { t, i18n: i18nInstance } = useTranslation('chat')
+  const groupedItems = useMemo(() => categorizeModels(models, chatThread), [models, chatThread, i18nInstance.language])
 
   const renderTrigger = (selected: SearchableMenuItem<ModelItemData> | undefined, isOpen: boolean) => (
     <div
@@ -138,7 +143,7 @@ export const ModelSelector = ({
       ) : null}
       {/* Muted in both variants — trigger labels are chrome, not content.
           Truncates instead of wrapping when the composer gets narrow. */}
-      <span className="min-w-0 truncate font-medium text-muted-foreground">{selected?.label ?? 'Select model'}</span>
+      <span className="min-w-0 truncate font-medium text-muted-foreground">{selected?.label ?? t('model.selectModel')}</span>
       <ChevronDown
         className={cn('size-3.5 shrink-0 text-muted-foreground transition-transform', isOpen && 'rotate-180')}
       />
@@ -176,7 +181,7 @@ export const ModelSelector = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
-            <TooltipContent side="right">API key not configured</TooltipContent>
+            <TooltipContent side="right">{t('model.apiKeyMissing')}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       )
@@ -185,7 +190,7 @@ export const ModelSelector = ({
     return content
   }
 
-  const footerAction = onAddModels ? { label: 'Add Model', onAction: onAddModels } : undefined
+  const footerAction = onAddModels ? { label: t('model.addModels'), onAction: onAddModels } : undefined
 
   const { triggerSelection } = useHaptics()
   const handleModelChange = useCallback(
@@ -202,9 +207,9 @@ export const ModelSelector = ({
       value={selectedModel?.id}
       onValueChange={handleModelChange}
       searchable={models.length > 10}
-      searchPlaceholder="Search Models"
-      emptyMessage="No models found"
-      mobileTitle="Choose model"
+      searchPlaceholder={t('model.searchPlaceholder')}
+      emptyMessage={t('model.empty')}
+      mobileTitle={t('model.mobileTitle')}
       mobileSide="bottom"
       trigger={renderTrigger}
       renderItem={renderItem}

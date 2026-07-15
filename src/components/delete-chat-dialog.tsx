@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { ImperativeConfirmActionDialog, type ConfirmActionDialogRef } from '@/components/ui/confirm-action-dialog'
 
@@ -14,14 +15,18 @@ type DeleteChatDialogProps = {
   onConfirm: () => void
 }
 
-export const DeleteChatDialog = forwardRef<DeleteChatDialogRef, DeleteChatDialogProps>((props, ref) => (
-  <ImperativeConfirmActionDialog
-    ref={ref}
-    title="Delete this chat?"
-    description="This will permanently delete this chat."
-    confirmLabel="Delete Chat"
-    {...props}
-  />
-))
+export const DeleteChatDialog = forwardRef<DeleteChatDialogRef, DeleteChatDialogProps>((props, ref) => {
+  const { t } = useTranslation(['chat', 'common'])
+
+  return (
+    <ImperativeConfirmActionDialog
+      ref={ref}
+      title={t('deleteChat.title')}
+      description={t('deleteChat.description')}
+      confirmLabel={t('deleteChat.confirm')}
+      {...props}
+    />
+  )
+})
 
 DeleteChatDialog.displayName = 'DeleteChatDialog'

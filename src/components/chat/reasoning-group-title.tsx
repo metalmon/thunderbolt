@@ -9,6 +9,7 @@ import { formatDuration } from '@/lib/utils'
 import type { UIMessageMetadata } from '@/types'
 import { getToolName } from 'ai'
 import { AnimatePresence, m } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 type ReasoningGroupTitleProps = {
   totalDuration: number
@@ -32,6 +33,7 @@ const activeToolLabel = (tool: ToolOrDynamicToolUIPart, mcpTools?: UIMessageMeta
 }
 
 export const ReasoningGroupTitle = ({ totalDuration, isGroupReasoning, tools, mcpTools }: ReasoningGroupTitleProps) => {
+  const { t } = useTranslation('chat')
   const activeIndex = tools.length - 1
   const activeTool = tools[activeIndex]
   const loadingLabel = activeTool ? activeToolLabel(activeTool, mcpTools) : null
@@ -67,8 +69,8 @@ export const ReasoningGroupTitle = ({ totalDuration, isGroupReasoning, tools, mc
             className="w-full"
           >
             {tools.length > 0
-              ? `Completed ${tools.length} steps in ${formatDuration(totalDuration)}`
-              : `Thought for ${formatDuration(totalDuration)}`}
+              ? t('messages.completedSteps', { count: tools.length, duration: formatDuration(totalDuration) })
+              : t('messages.thoughtFor', { duration: formatDuration(totalDuration) })}
           </m.div>
         )}
       </AnimatePresence>

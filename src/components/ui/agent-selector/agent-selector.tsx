@@ -11,6 +11,7 @@ import { iconForAgent } from '@/components/agent-icon'
 import { mobileHeaderControlFillClass } from '@/components/ui/modal-styles'
 import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type AgentSelectorProps = {
   selectedAgent: Agent
@@ -84,6 +85,7 @@ export const AgentSelector = ({
   side,
   align,
 }: AgentSelectorProps) => {
+  const { t } = useTranslation('chat')
   const items = useMemo(() => buildAgentItems(agents), [agents])
   const [open, setOpen] = useState(false)
   const { triggerSelection } = useHaptics()
@@ -166,13 +168,13 @@ export const AgentSelector = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>{triggerInner}</TooltipTrigger>
-          {disabled && <TooltipContent side="bottom">Cannot change agent during reply</TooltipContent>}
+          {disabled && <TooltipContent side="bottom">{t('agent.cannotChangeDuringReply')}</TooltipContent>}
         </Tooltip>
       </TooltipProvider>
     )
   }
 
-  const footerAction = onAddAgent ? { label: 'Add Agent', onAction: onAddAgent } : undefined
+  const footerAction = onAddAgent ? { label: t('agent.addAgent'), onAction: onAddAgent } : undefined
 
   return (
     <SearchableMenu
@@ -180,9 +182,9 @@ export const AgentSelector = ({
       value={selectedAgent.id}
       onValueChange={handleAgentChange}
       searchable={agents.length > 10}
-      searchPlaceholder="Search agents"
-      emptyMessage="No agents found"
-      mobileTitle="Choose agent"
+      searchPlaceholder={t('agent.searchPlaceholder')}
+      emptyMessage={t('agent.empty')}
+      mobileTitle={t('agent.mobileTitle')}
       mobileSide="top"
       trigger={renderTrigger}
       renderItem={renderAgentItem}

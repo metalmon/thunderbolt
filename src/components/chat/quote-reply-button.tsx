@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { Reply } from 'lucide-react'
 import { type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useQuoteSelection } from './use-quote-selection'
 
 /** Gap in px between the selection and the floating button. */
@@ -26,6 +27,7 @@ export const QuoteReplyButton = () => {
   const threadId = useCurrentChatSession().id
   const addQuote = usePendingQuotesStore((s) => s.addQuote)
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation('chat')
 
   if (!selection) {
     return null
@@ -60,7 +62,7 @@ export const QuoteReplyButton = () => {
       className="z-50 flex items-center gap-1.5 rounded-full border bg-popover px-3.5 py-2 text-[length:var(--font-size-sm)] font-medium text-popover-foreground shadow-md transition hover:bg-muted"
     >
       <Reply className="size-4" aria-hidden="true" />
-      Reply
+      {t('messages.reply')}
     </button>,
     document.body,
   )
