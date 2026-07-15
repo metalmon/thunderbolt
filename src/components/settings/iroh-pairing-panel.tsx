@@ -14,6 +14,7 @@
 import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
+import { useTranslation } from 'react-i18next'
 import { CopyCommandRow } from './copy-command-row'
 
 /** Load state for this app's own iroh NodeId, shown so the user can authorize it
@@ -65,23 +66,25 @@ export const useAppNodeId = (enabled: boolean, load: () => Promise<string> = iro
 
 /** Renders the `thunderbolt iroh allow <node-id>` one-liner with a copy button,
  *  or the load/error state of fetching this app's pairing identity. */
-export const IrohPairingPanel = ({ appNodeId }: { appNodeId: AppNodeIdState }) => (
-  <div className="grid grid-cols-1 gap-2 rounded-lg border border-border p-3" data-testid="iroh-pairing-panel">
-    <p className="text-[length:var(--font-size-sm)] font-medium">Authorize this app on your bridge</p>
-    <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-      Run this on the machine hosting the bridge, then add it — the connection is verified on first use.
-    </p>
-    {appNodeId.status === 'ready' ? (
-      <CopyCommandRow command={`thunderbolt iroh allow ${appNodeId.nodeId}`} label="Copy allow command" />
-    ) : appNodeId.status === 'error' ? (
-      <p className="text-[length:var(--font-size-xs)] text-destructive">
-        Couldn&apos;t load this app&apos;s pairing identity: {appNodeId.error}
-      </p>
-    ) : (
-      <span className="flex items-center gap-2 text-[length:var(--font-size-xs)] text-muted-foreground">
-        <Loader2 className="size-4 animate-spin" />
-        Loading this app&apos;s pairing identity…
-      </span>
-    )}
-  </div>
-)
+export const IrohPairingPanel = ({ appNodeId }: { appNodeId: AppNodeIdState }) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <div className="grid grid-cols-1 gap-2 rounded-lg border border-border p-3" data-testid="iroh-pairing-panel">
+      <p className="text-[length:var(--font-size-sm)] font-medium">{t('agents.irohAuthorizeTitle')}</p>
+      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.irohAuthorizeDescription')}</p>
+      {appNodeId.status === 'ready' ? (
+        <CopyCommandRow command={`thunderbolt iroh allow ${appNodeId.nodeId}`} label={t('agents.copyAllowCommand')} />
+      ) : appNodeId.status === 'error' ? (
+        <p className="text-[length:var(--font-size-xs)] text-destructive">
+          {t('agents.pairingIdentityFailed', { error: appNodeId.error })}
+        </p>
+      ) : (
+        <span className="flex items-center gap-2 text-[length:var(--font-size-xs)] text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t('agents.loadingPairingIdentity')}
+        </span>
+      )}
+    </div>
+  )
+}

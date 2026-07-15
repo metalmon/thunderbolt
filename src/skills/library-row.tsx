@@ -4,12 +4,14 @@
 
 import { m } from 'framer-motion'
 import { SquarePen, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { SettingsSelectableRow } from '@/components/settings/settings-list'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu'
 import { Switch } from '@/components/ui/switch'
 import { isWidgetSkillId } from '@/defaults/skills'
 import type { Skill } from '@/types'
+import { translateDefaultField } from '@/i18n/translate-default'
 import { skillDisplayName } from './display'
 
 /**
@@ -50,19 +52,25 @@ export const LibraryRow = ({
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) => {
+  const { t: translateDefault } = useTranslation('defaults')
+  const { t } = useTranslation('settings')
+  const displayName = translateDefaultField(translateDefault, 'skills', skill.id, 'name', skillDisplayName(skill))
+
   const row = (
     <SettingsSelectableRow
-      title={skillDisplayName(skill)}
+      title={displayName}
       subtitle={skill.description}
       isSelected={isActive}
       isDimmed={!enabled}
       onSelect={() => onSelect(skill.id)}
-      ariaLabel={`Open ${skillDisplayName(skill)}`}
+      ariaLabel={t('skills.openAria', { name: displayName })}
       trailing={
         <Switch
           checked={enabled}
           onCheckedChange={(next) => onToggleEnabled(skill.id, next)}
-          aria-label={`${enabled ? 'Disable' : 'Enable'} ${skillDisplayName(skill)}`}
+          aria-label={
+            enabled ? t('skills.disableAria', { name: skill.name }) : t('skills.enableAria', { name: skill.name })
+          }
         />
       }
     />
@@ -78,11 +86,11 @@ export const LibraryRow = ({
           <ContextMenuContent className="min-w-56">
             <ContextMenuItem onClick={() => onEdit(skill.id)} className="cursor-pointer">
               <SquarePen className="size-4 mr-2" />
-              Edit
+              {t('skills.edit')}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onDelete(skill.id)} className="cursor-pointer">
               <Trash2 className="size-4 mr-2" />
-              Delete
+              {t('skills.delete')}
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>

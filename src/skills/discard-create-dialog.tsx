@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ConfirmActionDialog } from '@/components/ui/confirm-action-dialog'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Dirty-form discard prompt for the skill create/edit flows. Thin wrapper
@@ -13,22 +14,26 @@ export const DiscardCreateDialog = ({
   open,
   onOpenChange,
   onConfirm,
-  title = 'Leave without creating?',
-  description = "You'll lose what you've added so far.",
+  title,
+  description,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   title?: string
   description?: string
-}) => (
-  <ConfirmActionDialog
-    open={open}
-    title={title}
-    description={description}
-    confirmLabel="Discard"
-    cancelLabel="Keep editing"
-    onConfirm={onConfirm}
-    onCancel={() => onOpenChange(false)}
-  />
-)
+}) => {
+  const { t } = useTranslation('settings')
+
+  return (
+    <ConfirmActionDialog
+      open={open}
+      title={title ?? t('skills.leaveWithoutCreatingTitle')}
+      description={description ?? t('skills.unsavedCreateDescription')}
+      confirmLabel={t('skills.discard')}
+      cancelLabel={t('skills.keepEditing')}
+      onConfirm={onConfirm}
+      onCancel={() => onOpenChange(false)}
+    />
+  )
+}

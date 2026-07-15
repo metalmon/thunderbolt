@@ -5,6 +5,7 @@
 import { LayoutGroup, m } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SettingsEmptyState, SettingsNoResults } from '@/components/settings/settings-empty-state'
 import { SettingsListBody, SettingsListPane, SettingsSectionLabel } from '@/components/settings/settings-list'
@@ -42,6 +43,7 @@ export const SkillsList = ({
   onEditSkill: (id: string) => void
   onDeleteSkill: (id: string) => void
 }) => {
+  const { t } = useTranslation('settings')
   const [search, setSearch] = useState('')
 
   const isLibraryEmpty = skills.length === 0
@@ -65,12 +67,12 @@ export const SkillsList = ({
   return (
     <SettingsListPane>
       <PageSearch onSearch={setSearch}>
-        <PageHeader title="Skills">
+        <PageHeader title={t('skills.title')}>
           <PageSearch.Button />
-          <PageCreateAction label="New Skill" onClick={onCreate} />
+          <PageCreateAction label={t('skills.newSkill')} onClick={onCreate} />
         </PageHeader>
 
-        <PageSearch.Input placeholder="Search skills" onSearch={setSearch} />
+        <PageSearch.Input placeholder={t('skills.searchPlaceholder')} onSearch={setSearch} />
       </PageSearch>
 
       {/* LayoutGroup links the Enabled and Disabled <ul>s so a row's
@@ -108,7 +110,7 @@ export const SkillsList = ({
             // mt-4 visually separates the Disabled group from the enabled rows
             // above (the body's gap alone reads as one continuous list).
             <m.div layout="position" transition={skillRowTransition} className="mt-4 flex flex-col gap-2">
-              <SettingsSectionLabel>Disabled</SettingsSectionLabel>
+              <SettingsSectionLabel>{t('skills.disabled')}</SettingsSectionLabel>
               <m.ul layout="position" transition={skillRowTransition} className="flex flex-col gap-4">
                 {disabledRows.map((skill) => (
                   <LibraryRow
@@ -130,24 +132,24 @@ export const SkillsList = ({
             // The "I deleted everything" empty state — the list is the page's
             // main surface now, so the create CTA lives here.
             <SettingsEmptyState
-              title="No skills yet"
+              title={t('skills.emptyTitle')}
               description={
                 <>
-                  Skills are reusable instruction templates you summon in chat with{' '}
+                  {t('skills.emptyDescriptionPrefix')}{' '}
                   <code className="rounded-md bg-secondary px-1 font-mono text-xs">/name</code>.
                 </>
               }
               action={
                 <Button size="sm" variant="outline" onClick={onCreate}>
                   <Plus />
-                  Create your first skill
+                  {t('skills.createFirstButton')}
                 </Button>
               }
             />
           )}
           {!isLibraryEmpty && enabledRows.length === 0 && disabledRows.length === 0 && (
             // Search-empty state: the library has skills but none match.
-            <SettingsNoResults>No matching skills.</SettingsNoResults>
+            <SettingsNoResults>{t('skills.noMatches')}</SettingsNoResults>
           )}
         </SettingsListBody>
       </LayoutGroup>
