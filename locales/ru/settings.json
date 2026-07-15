@@ -1,0 +1,11 @@
+{
+  "localization": {
+    "title": "Локализация",
+    "languageLabel": "Язык",
+    "languageDescription": "Язык интерфейса",
+    "languages": {
+      "en": "English",
+      "ru": "Русский"
+    }
+  }
+}
