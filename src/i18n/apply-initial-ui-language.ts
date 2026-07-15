@@ -5,18 +5,36 @@
 import { setUiLanguage } from './i18n'
 import { readClientLocale, resolveInitialUiLanguage } from './ensure-ui-language'
 
+let applyPromise: Promise<void> | null = null
+
 export const applyInitialUiLanguageIfNeeded = async (input: {
   stored: string | null | undefined
   setValue: (value: string) => Promise<unknown>
 }): Promise<void> => {
-  const { language, shouldPersist } = resolveInitialUiLanguage({
-    stored: input.stored,
-    locale: readClientLocale(),
-  })
-  if (!shouldPersist) {
+  if (applyPromise) return applyPromise
+
+  applyPromise = (async () => {
+    const { language, shouldPersist } = resolveInitialUiLanguage({
+      stored: input.stored,
+      locale: readClientLocale(),
+    })
+    if (!shouldPersist) {
+      setUiLanguage(language)
+      return
+    }
+    await input.setValue(language)
     setUiLanguage(language)
-    return
+  })()
+
+  try {
+    await applyPromise
+  } catch (error) {
+    applyPromise = null
+    throw error
   }
-  await input.setValue(language)
-  setUiLanguage(language)
+}
+
+/** @internal test-only — clears in-flight dedup state between test cases */
+export const resetApplyInitialUiLanguageForTests = (): void => {
+  applyPromise = null
 }
