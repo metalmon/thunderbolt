@@ -1,0 +1,12 @@
+{
+  "appName": "Thunderbolt",
+  "loading": "Загрузка…",
+  "cancel": "Отмена",
+  "save": "Сохранить",
+  "delete": "Удалить",
+  "continue": "Продолжить",
+  "back": "Назад",
+  "close": "Закрыть",
+  "search": "Поиск",
+  "errorGeneric": "Что-то пошло не так"
+}
