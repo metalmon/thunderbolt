@@ -69,6 +69,9 @@ import { type ComponentProps, Suspense, lazy, useEffect, useState } from 'react'
 import { markAppMounted } from '@/lib/init-timing'
 import { takeDeviceApprovalReturn } from '@/lib/device-approval-return'
 import { LazyMotion } from 'framer-motion'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '@/i18n/i18n'
+import { UiLanguageSync } from '@/i18n/UiLanguageSync'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -344,6 +347,7 @@ export const App = () => {
       >
         <QueryClientProvider client={queryClient}>
           <DatabaseProvider db={initData.db}>
+            <UiLanguageSync />
             <HttpClientProvider httpClient={initData.httpClient}>
               <AuthProvider cloudUrl={initData.cloudUrl}>
                 <SignInModalProvider>
@@ -372,14 +376,16 @@ export const App = () => {
   }
 
   return (
-    <ThemeProvider>
-      <LazyMotion features={loadMotionFeatures} strict>
-        {renderAppContent()}
-        <WindowControls />
-        {/* The upgrade blocker replaces the whole app, so it must win over the
-            revoked-device modal that renders outside renderAppContent. */}
-        <RevokedDeviceModal open={revokedDeviceOpen && !upgradeRequired} />
-      </LazyMotion>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider>
+        <LazyMotion features={loadMotionFeatures} strict>
+          {renderAppContent()}
+          <WindowControls />
+          {/* The upgrade blocker replaces the whole app, so it must win over the
+              revoked-device modal that renders outside renderAppContent. */}
+          <RevokedDeviceModal open={revokedDeviceOpen && !upgradeRequired} />
+        </LazyMotion>
+      </ThemeProvider>
+    </I18nextProvider>
   )
 }
