@@ -246,6 +246,7 @@ export const SkillsView = () => {
       emptyPanel
     ) : mode === 'detail' ? (
       <SkillDetail
+        id={active.id}
         name={active.name}
         description={active.description}
         instruction={active.instruction}

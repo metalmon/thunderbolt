@@ -18,6 +18,8 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { translateDefaultField } from '@/i18n/translate-default'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Detail / edit panel for a single skill. Pinning is managed from the chat
@@ -25,6 +27,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
  * run-in-chat controls.
  */
 export const SkillDetail = ({
+  id,
   name,
   description,
   instruction,
@@ -34,6 +37,7 @@ export const SkillDetail = ({
   onDelete,
   onBack,
 }: {
+  id: string
   name: string
   description: string
   instruction: string
@@ -45,6 +49,9 @@ export const SkillDetail = ({
 }) => {
   const { isMobile } = useIsMobile()
   const navigate = useNavigate()
+  const { t } = useTranslation('defaults')
+  const displayName = translateDefaultField(t, 'skills', id, 'name', name)
+  const displayDescription = translateDefaultField(t, 'skills', id, 'description', description)
 
   const runInChat = () => {
     // Router state (not a URL param) by design: the entry point is internal
@@ -72,11 +79,11 @@ export const SkillDetail = ({
                 <ChevronLeft className="size-5 md:size-4" />
               </Button>
             )}
-            {!isMobile && <h2 className="text-xl leading-tight text-foreground">/{name}</h2>}
+            {!isMobile && <h2 className="text-xl leading-tight text-foreground">/{displayName}</h2>}
           </div>
           {isMobile && (
             <h2 className="absolute left-1/2 -translate-x-1/2 truncate max-w-[60%] text-center text-xl text-foreground pointer-events-none">
-              /{name}
+              /{displayName}
             </h2>
           )}
           <div className="flex items-center gap-2">
@@ -170,7 +177,7 @@ export const SkillDetail = ({
             </div>
           </AccordionTrigger>
           <AccordionContent className="pb-4 pt-0">
-            <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{description}</p>
+            <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{displayDescription}</p>
           </AccordionContent>
         </AccordionItem>
 

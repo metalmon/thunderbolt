@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { translateDefaultField } from '@/i18n/translate-default'
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -59,6 +61,7 @@ export const ChatSkillsBar = ({
   const { skills: library } = useLibrarySkills()
   const { isEnabled } = useEnabledSkills()
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation('defaults')
   const trackSkillEvent = useSkillTelemetry()
 
   const [openChipId, setOpenChipId] = useState<string | null>(null)
@@ -129,7 +132,7 @@ export const ChatSkillsBar = ({
         {pinned.map((skill) => (
           <SuggestionChip
             key={skill.id}
-            label={skill.name}
+            label={translateDefaultField(t, 'skills', skill.id, 'name', skill.name)}
             dimmed={openChipId !== null && openChipId !== skill.id}
             onClick={() => onAddToChat(skill.name)}
             onOpenChange={(open) => setOpenChipId(open ? skill.id : null)}
@@ -206,10 +209,12 @@ export const ChatSkillsBar = ({
                     // the slash autocomplete popover.
                     className="flex w-full cursor-pointer flex-col gap-0.5 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-accent"
                   >
-                    <span className="truncate text-[length:var(--font-size-body)] text-foreground">/{skill.name}</span>
+                    <span className="truncate text-[length:var(--font-size-body)] text-foreground">
+                      /{translateDefaultField(t, 'skills', skill.id, 'name', skill.name)}
+                    </span>
                     {skill.description && (
                       <span className="line-clamp-1 text-[length:var(--font-size-sm)] text-muted-foreground">
-                        {skill.description}
+                        {translateDefaultField(t, 'skills', skill.id, 'description', skill.description)}
                       </span>
                     )}
                   </button>

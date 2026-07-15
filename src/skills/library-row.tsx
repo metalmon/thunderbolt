@@ -8,7 +8,9 @@ import { useNavigate } from 'react-router'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
+import { translateDefaultField } from '@/i18n/translate-default'
 import type { Skill } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Shared spring transition for the row's own layout shift AND for the
@@ -49,6 +51,8 @@ export const LibraryRow = ({
   onDelete: (id: string) => void
 }) => {
   const navigate = useNavigate()
+  const { t } = useTranslation('defaults')
+  const displayName = translateDefaultField(t, 'skills', skill.id, 'name', skill.name)
 
   return (
     <m.li layout layoutId={skill.id} transition={skillRowTransition}>
@@ -81,7 +85,7 @@ export const LibraryRow = ({
               aria-label={enabled ? `Disable /${skill.name}` : `Enable /${skill.name}`}
             />
           </span>
-          <span className="truncate leading-none">/{skill.name}</span>
+          <span className="truncate leading-none">/{displayName}</span>
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
