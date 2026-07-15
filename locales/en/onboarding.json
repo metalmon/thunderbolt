@@ -1,1 +1,55 @@
-{}
+{
+  "dialog": {
+    "title": "Onboarding Wizard",
+    "description": "Complete the setup process to get started with Thunderbolt"
+  },
+  "actions": {
+    "continue": "Continue",
+    "skip": "Skip",
+    "completing": "Completing...",
+    "startUsing": "Start Using Thunderbolt"
+  },
+  "welcome": {
+    "title": "Welcome",
+    "description": "Sign-in successful"
+  },
+  "privacy": {
+    "title": "Welcome to <bold>Thunderbolt</bold>!",
+    "subtitle": "Your privacy-first AI assistant",
+    "zeroLogsTitle": "Zero Logs",
+    "zeroLogsDescription": "We don't keep logs of your conversations.",
+    "zeroTrainingTitle": "Zero Training",
+    "zeroTrainingDescription": "We don't train models on your data.",
+    "localStorageTitle": "Local Storage",
+    "localStorageDescription": "Data is stored securely on your device.",
+    "agreement": "I agree to the <privacyLink>Privacy Policy</privacyLink> and <termsLink>Terms of Service</termsLink>."
+  },
+  "auth": {
+    "connectTitle": "Connect {{provider}}",
+    "descriptionGoogle": "Your assistant can help you manage your email and calendar.",
+    "descriptionMicrosoft": "Your assistant can help you manage your email, calendar, and documents.",
+    "calendarTitle": "Calendar",
+    "calendarDescriptionGoogle": "View your schedule and upcoming events.",
+    "calendarDescriptionMicrosoft": "View and manage your schedule; create + reschedule events.",
+    "emailTitle": "Email",
+    "emailDescriptionGoogle": "Read your emails and compose drafts.",
+    "emailDescriptionMicrosoft": "Read, compose, and organize your emails.",
+    "oneDriveTitle": "OneDrive Access",
+    "oneDriveDescription": "Search and work with your OneDrive files and documents."
+  },
+  "name": {
+    "title": "What should we call you?",
+    "description": "Your AI assistant will use this name to address you personally.",
+    "placeholder": "Enter your name",
+    "required": "Name is required."
+  },
+  "location": {
+    "title": "Where are you located?",
+    "description": "This helps us personalize your experience with local settings and features.",
+    "required": "Location is required.",
+    "selectFromDropdown": "Please select a location from the dropdown to get coordinates."
+  },
+  "celebration": {
+    "allSet": "You're all set! 🎉"
+  }
+}
