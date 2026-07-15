@@ -122,6 +122,14 @@ export const defaultSettingCurrency: Setting = {
   userId: null,
 }
 
+export const defaultSettingUiLanguage: Setting = {
+  key: 'ui_language',
+  value: null,
+  updatedAt: null,
+  defaultHash: null,
+  userId: null,
+}
+
 export const defaultSettingIntegrationsProIsEnabled: Setting = {
   key: 'integrations_pro_is_enabled',
   value: 'true',
@@ -170,6 +178,7 @@ export const defaultSettings: ReadonlyArray<Setting> = [
   defaultSettingDateFormat,
   defaultSettingTimeFormat,
   defaultSettingCurrency,
+  defaultSettingUiLanguage,
   defaultSettingIntegrationsProIsEnabled,
   defaultSettingUserHasCompletedOnboarding,
   defaultSettingContentViewWidth,
@@ -187,4 +196,4 @@ export const defaultSettings: ReadonlyArray<Setting> = [
  * The paired snapshot test in `settings.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSettingsVersion = 1
+export const defaultSettingsVersion = 2
