@@ -10,6 +10,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { otpLength } from '@/lib/constants'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { Check, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type SignInOtpStepProps = {
   email: string
@@ -42,6 +43,7 @@ export const SignInOtpStep = ({
   onCancel,
   variant,
 }: SignInOtpStepProps) => {
+  const { t } = useTranslation(['auth', 'common'])
   const isVerifying = status === 'verifying'
 
   if (variant === 'page') {
@@ -49,9 +51,9 @@ export const SignInOtpStep = ({
       <div className="flex h-full w-full flex-col items-center">
         {/* Title + subtitle — centered vertically */}
         <div className="my-auto flex flex-col items-center text-center">
-          <p className="font-sans text-[28px] font-medium leading-normal text-foreground">Check your email</p>
+          <p className="font-sans text-[28px] font-medium leading-normal text-foreground">{t('otp.checkEmail')}</p>
           <p className="mt-2 text-base text-foreground">
-            If you have access, we&apos;ve sent an 8-digit code to <span className="font-bold">{email}</span>
+            {t('otp.accessCodePrefix')} <span className="font-bold">{email}</span>
           </p>
           <ActionFeedbackButton
             variant="ghost"
@@ -62,11 +64,11 @@ export const SignInOtpStep = ({
             successContent={
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Sent
+                {t('otp.sent')}
               </>
             }
           >
-            Resend Email
+            {t('otp.resendEmail')}
           </ActionFeedbackButton>
         </div>
 
@@ -104,10 +106,10 @@ export const SignInOtpStep = ({
             {isVerifying ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                {t('otp.verifying')}
               </>
             ) : (
-              'Continue'
+              t('continue', { ns: 'common' })
             )}
           </Button>
         </div>
@@ -123,17 +125,17 @@ export const SignInOtpStep = ({
 
       {/* Headline */}
       <div className="mt-4 text-center">
-        <p className="text-xl font-semibold">{isLocalhost ? 'Check the backend logs' : 'Check your email'}</p>
+        <p className="text-xl font-semibold">{isLocalhost ? t('otp.checkBackendLogs') : t('otp.checkEmail')}</p>
         <p className="mt-2 text-sm text-muted-foreground">
           {isLocalhost ? (
             <>
-              You appear to be using a{' '}
-              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">localhost</code> backend. Check your
-              backend server logs for the code or magic link.
+              {t('otp.localhostPrefix')}{' '}
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">localhost</code>{' '}
+              {t('otp.localhostSuffix')}
             </>
           ) : (
             <>
-              We sent a code to <span className="font-medium text-foreground">{email}</span>
+              {t('otp.sentCodeTo')} <span className="font-medium text-foreground">{email}</span>
             </>
           )}
         </p>
@@ -141,7 +143,7 @@ export const SignInOtpStep = ({
 
       {/* OTP Input */}
       <div className="mt-6 flex flex-col items-center gap-3">
-        <p className="text-sm text-muted-foreground">Or enter the 8-digit code</p>
+        <p className="text-sm text-muted-foreground">{t('otp.orEnterCode')}</p>
         <InputOTP
           maxLength={otpLength}
           pattern={REGEXP_ONLY_DIGITS}
@@ -166,7 +168,7 @@ export const SignInOtpStep = ({
         {isVerifying && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Verifying...
+            {t('otp.verifying')}
           </div>
         )}
 
@@ -181,20 +183,20 @@ export const SignInOtpStep = ({
           successContent={
             <>
               <Check className="mr-2 h-4 w-4" />
-              Sent
+              {t('otp.sent')}
             </>
           }
         >
-          Resend Email
+          {t('otp.resendEmail')}
         </ActionFeedbackButton>
 
-        {!isLocalhost && <p className="text-xs text-muted-foreground">Or click the magic link in your email</p>}
+        {!isLocalhost && <p className="text-xs text-muted-foreground">{t('otp.orClickMagicLink')}</p>}
       </div>
 
       {/* Cancel button */}
       <div className="mt-6 w-full">
         <Button variant="outline" className="w-full" onClick={onCancel}>
-          Cancel
+          {t('cancel', { ns: 'common' })}
         </Button>
       </div>
     </div>

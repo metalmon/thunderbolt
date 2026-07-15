@@ -11,6 +11,7 @@ import {
   ResponsiveModalTitle,
 } from '@/components/ui/responsive-modal'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SignInForm } from './sign-in'
 
 type SignInModalProps = {
@@ -24,6 +25,7 @@ type SignInModalProps = {
  * Provides the modal chrome and delegates to SignInForm for all form logic.
  */
 export const SignInModal = ({ open, onOpenChange, onSuccess }: SignInModalProps) => {
+  const { t } = useTranslation('auth')
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const goBackRef = useRef<(() => void) | null>(null)
 
@@ -72,12 +74,12 @@ export const SignInModal = ({ open, onOpenChange, onSuccess }: SignInModalProps)
       <ResponsiveModalContent centered className="flex flex-col gap-4">
         <ResponsiveModalHeader className={step === 'email' ? 'text-center' : ''}>
           <ResponsiveModalTitle className={step === 'email' ? 'text-2xl font-semibold' : 'sr-only'}>
-            {step === 'email' ? 'Sign In' : 'Enter your code'}
+            {step === 'email' ? t('signIn.title') : t('signIn.enterCodeTitle')}
           </ResponsiveModalTitle>
           {/* sr-only: Radix dialogs want a description for a11y, but the title
               says everything the sighted user needs. */}
           {step === 'email' && (
-            <ResponsiveModalDescription className="sr-only">Sign in to Thunderbolt</ResponsiveModalDescription>
+            <ResponsiveModalDescription className="sr-only">{t('signIn.modalDescription')}</ResponsiveModalDescription>
           )}
         </ResponsiveModalHeader>
         <SignInForm
