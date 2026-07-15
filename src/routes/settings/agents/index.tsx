@@ -18,6 +18,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { useAuth, useDatabase } from '@/contexts'
 import { deleteAgent, updateAgent, useAllAgents } from '@/dal'
 import { useEntityActionIntent } from '@/search/actions/use-entity-action-intent'
+import { useTranslation } from 'react-i18next'
 
 type AgentsSettingsPageProps = {
   /** Test/DI override for reading this app's iroh NodeId. Forwarded to the add
@@ -38,6 +39,7 @@ type AgentsSettingsPageProps = {
  * is "+" → the Add Custom Agent panel.
  */
 const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPageProps = {}) => {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const agents = useAllAgents()
   const authClient = useAuth()
@@ -118,10 +120,10 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
             is open on a narrow window: the list stops shrinking and slides
             under the panel (the column's overflow-hidden clips it at the
             panel edge). */}
-        <SettingsListPane className="gap-6">
-          <PageHeader title="Agents">
+        <SettingsListPane className="gap-6 overflow-y-auto">
+          <PageHeader title={t('agents.title')}>
             {allowCustomAgents && (
-              <PageCreateAction label="New Agent" onClick={openAddPanel} disabled={!currentUserId} />
+              <PageCreateAction label={t('agents.newAgent')} onClick={openAddPanel} disabled={!currentUserId} />
             )}
           </PageHeader>
 

@@ -8,6 +8,7 @@ import { SectionCard } from '@/components/ui/section-card'
 import { useDesktopUpdate, type UpdateErrorPhase, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { downloadLinks } from '@/lib/download-links'
 import { getPlatform, isDesktop, isMobile, isTauri } from '@/lib/platform'
+import { useTranslation } from 'react-i18next'
 
 const errorPrefix = (phase: UpdateErrorPhase | null): string => {
   switch (phase) {
@@ -51,6 +52,7 @@ const desktopStatusText = (
 }
 
 export const AppVersionSection = () => {
+  const { t } = useTranslation('settings')
   const appVersion = import.meta.env.VITE_APP_VERSION ?? 'unknown'
   const desktop = isDesktop()
   const mobile = isMobile()
@@ -69,11 +71,11 @@ export const AppVersionSection = () => {
   }
 
   return (
-    <SectionCard title="App Version">
+    <SectionCard title={t('appVersion.title')}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-row items-center justify-between gap-4">
           <div>
-            <label className="text-sm font-medium">Current version</label>
+            <label className="text-sm font-medium">{t('appVersion.currentVersionLabel')}</label>
             <p className="text-sm text-muted-foreground">{appVersion}</p>
           </div>
         </div>
@@ -83,18 +85,18 @@ export const AppVersionSection = () => {
             <div className="h-px bg-border -mx-6" />
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Updates</label>
+              <label className="text-sm font-medium">{t('appVersion.updatesLabel')}</label>
               <p className="text-sm text-muted-foreground">
                 {desktop
                   ? desktopStatusText(status, update?.version, downloadProgress, error, errorPhase)
-                  : 'Open the store to check for updates.'}
+                  : t('appVersion.mobileUpdateDescription')}
               </p>
               <Button
                 variant="secondary"
                 disabled={checkDisabled}
                 onClick={desktop ? handleDesktopCheck : handleMobileCheck}
               >
-                {desktop && status === 'checking' ? 'Checking...' : 'Check for updates'}
+                {desktop && status === 'checking' ? t('appVersion.checking') : t('appVersion.checkForUpdates')}
               </Button>
             </div>
           </>

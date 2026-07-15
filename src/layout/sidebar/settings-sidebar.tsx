@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { AudioLines, Bot, Cpu, Plug, SlidersHorizontal, Smartphone, Zap, type LucideIcon } from 'lucide-react'
 import { Fragment } from 'react'
 import { useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { SidebarNavToggle } from './nav-toggle'
 import { RailDivider } from './rail-divider'
 import { SidebarHeader } from './sidebar-header'
@@ -25,31 +26,32 @@ import type { SidebarSection } from './types'
 
 type NavItem = {
   path: string
-  label: string
+  /** i18n key in the `settings` namespace. */
+  labelKey: string
   icon: LucideIcon
   /** Match sub-routes too (e.g. /settings/models/:id). Default: exact match. */
   matchPrefix?: boolean
 }
 
-const navGroups: { label: string; items: NavItem[] }[] = [
+const navGroups: { labelKey: string; items: NavItem[] }[] = [
   {
-    label: 'Agents',
-    items: [{ path: '/settings/agents', label: 'All agents', icon: Bot }],
+    labelKey: 'sidebar.groupAgents',
+    items: [{ path: '/settings/agents', labelKey: 'sidebar.allAgents', icon: Bot }],
   },
   {
-    label: 'What agents use',
+    labelKey: 'sidebar.groupAgentTools',
     items: [
-      { path: '/settings/skills', label: 'Skills', icon: Zap },
-      { path: '/settings/connections', label: 'Connections', icon: Plug },
-      { path: '/settings/models', label: 'Models', icon: Cpu, matchPrefix: true },
-      { path: '/settings/voice', label: 'Voice', icon: AudioLines },
+      { path: '/settings/skills', labelKey: 'skills.title', icon: Zap },
+      { path: '/settings/connections', labelKey: 'connections.title', icon: Plug },
+      { path: '/settings/models', labelKey: 'models.title', icon: Cpu, matchPrefix: true },
+      { path: '/settings/voice', labelKey: 'voice.title', icon: AudioLines },
     ],
   },
   {
-    label: 'Settings',
+    labelKey: 'sidebar.groupSettings',
     items: [
-      { path: '/settings/preferences', label: 'Preferences', icon: SlidersHorizontal },
-      { path: '/settings/devices', label: 'Devices', icon: Smartphone },
+      { path: '/settings/preferences', labelKey: 'preferences.title', icon: SlidersHorizontal },
+      { path: '/settings/devices', labelKey: 'devices.title', icon: Smartphone },
     ],
   },
 ]
@@ -65,6 +67,7 @@ export const SettingsSidebarContent = ({
   onSectionChange,
   onSettingsNavigate,
 }: SettingsSidebarContentProps) => {
+  const { t } = useTranslation('settings')
   const { isMobile, toggleSidebar } = useSidebar()
   const location = useLocation()
   const { experimentalFeatureVoice } = useSettings({ experimental_feature_voice: false })
@@ -97,7 +100,7 @@ export const SettingsSidebarContent = ({
       )}
 
       {groups.map((group, index) => (
-        <Fragment key={group.label}>
+        <Fragment key={group.labelKey}>
           {/* Collapsed rail: the group labels are hidden, so a hairline
               divider takes over as the section boundary. */}
           {index > 0 && isCollapsed && <RailDivider />}
@@ -116,7 +119,7 @@ export const SettingsSidebarContent = ({
               </div>
             )}
             <SidebarGroupLabel className={isMobile && index === 0 ? 'mt-1' : undefined}>
-              {group.label}
+              {t(group.labelKey)}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -124,12 +127,12 @@ export const SettingsSidebarContent = ({
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       onClick={() => onSettingsNavigate(item.path)}
-                      tooltip={item.label}
+                      tooltip={t(item.labelKey)}
                       className="cursor-pointer"
                       isActive={isItemActive(item)}
                     >
                       <item.icon className="size-4" />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
