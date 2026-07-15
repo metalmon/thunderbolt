@@ -4,6 +4,7 @@
 
 import { formatNumber } from '@/lib/utils'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +27,7 @@ type ContextOverflowModalProps = {
  * Modal shown when a message would exceed the model's context window
  */
 export const ContextOverflowModal = ({ isOpen, onClose, onNewChat, maxTokens }: ContextOverflowModalProps) => {
+  const { t } = useTranslation('common')
   const formattedMaxTokens = maxTokens ? formatNumber(maxTokens) : 'unknown'
 
   return (
@@ -34,22 +36,22 @@ export const ContextOverflowModal = ({ isOpen, onClose, onNewChat, maxTokens }: 
         <AlertDialogHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="size-5 text-amber-600" />
-            <AlertDialogTitle>Context Window Exceeded</AlertDialogTitle>
+            <AlertDialogTitle>{t('contextOverflow.title')}</AlertDialogTitle>
           </div>
           <AlertDialogDescription>
-            <p>Your message would exceed the model's {formattedMaxTokens}-token context window.</p>
+            <p>{t('contextOverflow.description', { maxTokens: formattedMaxTokens })}</p>
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>{t('close')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
               onNewChat()
               onClose()
             }}
           >
-            New Chat
+            {t('contextOverflow.newChat')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -38,17 +38,9 @@ import { useMutation } from '@tanstack/react-query'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { CheckCircle2, GripVertical, Plus } from 'lucide-react'
-import {
-  type KeyboardEvent,
-  memo,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import { type KeyboardEvent, memo, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { translateDefaultField } from '@/i18n/translate-default'
 import { v7 as uuidv7 } from 'uuid'
 
 const taskDropAnimation: DropAnimation = {
@@ -255,6 +247,7 @@ type NewTaskInputProps = {
 }
 
 const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
+  const { t } = useTranslation('tasks')
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -295,7 +288,7 @@ const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleSubmit}
           onKeyDown={handleKeyDown}
-          placeholder="Add a new task..."
+          placeholder={t('newTaskPlaceholder')}
           className="w-full bg-transparent text-sm leading-5 p-0 m-0 focus:outline-none"
           style={{ height: '20px' }}
         />
@@ -387,6 +380,8 @@ export const getVisibleOptimisticTask = (
 
 const useTasksPageState = () => {
   const db = useDatabase()
+  const { t: tDefaults } = useTranslation('defaults')
+  const { t } = useTranslation('tasks')
 
   const [state, dispatch] = useReducer(tasksPageReducer, initialTasksPageState)
   const { isAddingNew, completingTasks, activeId, optimisticOrder, searchQuery, optimisticTask } = state
@@ -666,12 +661,12 @@ const TasksPage = () => {
           )}
         >
           <PageSearch onSearch={handleSearch}>
-            <PageHeader title="Tasks">
+            <PageHeader title={t('pageTitle')}>
               {!showEmptyState && (
                 <>
                   <PageSearch.Button />
                   <PageCreateAction
-                    label="New Task"
+                    label={t('newTask')}
                     onClick={startAddingTask}
                     disabled={isAddingNew || taskCreationSettling}
                   />
@@ -679,7 +674,7 @@ const TasksPage = () => {
               )}
             </PageHeader>
 
-            <PageSearch.Input placeholder="Search tasks..." onSearch={handleSearch} />
+            <PageSearch.Input placeholder={t('searchPlaceholder')} onSearch={handleSearch} />
           </PageSearch>
 
           {showEmptyState ? (
@@ -688,10 +683,10 @@ const TasksPage = () => {
                 <div className="bg-primary/10 p-4 rounded-full mb-4 inline-block">
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-6">No tasks yet</h3>
+                <h3 className="text-xl font-semibold mb-6">{t('emptyTitle')}</h3>
                 <Button variant="outline" onClick={startAddingTask} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Your First Task
+                  {t('emptyAddFirst')}
                 </Button>
               </div>
             </div>
@@ -744,13 +739,13 @@ const TasksPage = () => {
 
                     {visibleTasks.length === 0 && searchQuery && (
                       <div className="text-center py-12 text-muted-foreground">
-                        No tasks found matching "{searchQuery}"
+                        {t('noSearchResults', { query: searchQuery })}
                       </div>
                     )}
 
                     {totalCount > 50 && (
                       <div className="text-center py-4 text-sm text-muted-foreground">
-                        Showing 50 of {totalCount} tasks
+                        {t('showingLimited', { count: totalCount })}
                       </div>
                     )}
                   </div>
@@ -759,7 +754,9 @@ const TasksPage = () => {
                     {activeTask && (
                       <div className="flex items-center gap-3 rounded-lg bg-background px-3 py-2 shadow-lg border">
                         <GripVertical className="h-4 w-4 text-muted-foreground" />
-                        <span className="flex-1 text-sm">{activeTask.item}</span>
+                        <span className="flex-1 text-sm">
+                          {translateDefaultField(tDefaults, 'tasks', activeTask.id, 'item', activeTask.item)}
+                        </span>
                         <div
                           aria-hidden
                           className="size-[var(--icon-size-default)] rounded-md border border-border-strong"

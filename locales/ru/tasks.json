@@ -1,1 +1,11 @@
-{}
+{
+  "pageTitle": "Tasks",
+  "searchTooltip": "Search",
+  "addTaskTooltip": "Add Task",
+  "searchPlaceholder": "Search tasks...",
+  "newTaskPlaceholder": "Add a new task...",
+  "emptyTitle": "No tasks yet",
+  "emptyAddFirst": "Add Your First Task",
+  "noSearchResults": "No tasks found matching \"{{query}}\"",
+  "showingLimited": "Showing 50 of {{count}} tasks"
+}

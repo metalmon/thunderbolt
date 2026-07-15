@@ -5,21 +5,23 @@
 import { Download, RefreshCw, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useDesktopUpdate, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { Button } from '@/components/ui/button'
 import { isDesktop } from '@/lib/platform'
 
-const statusConfig: Record<UpdateStatus, { icon: typeof Download; message: string; showActions: boolean }> = {
-  initial: { icon: CheckCircle, message: '', showActions: false },
-  idle: { icon: CheckCircle, message: '', showActions: false },
-  checking: { icon: Loader2, message: 'Checking for updates...', showActions: false },
-  available: { icon: Download, message: 'A new version is available!', showActions: true },
-  downloading: { icon: Loader2, message: 'Downloading update...', showActions: false },
-  ready: { icon: RefreshCw, message: 'Update ready! Restart to apply.', showActions: true },
-  error: { icon: AlertCircle, message: 'Update failed', showActions: true },
+const statusIcons: Record<UpdateStatus, typeof Download> = {
+  initial: CheckCircle,
+  idle: CheckCircle,
+  checking: Loader2,
+  available: Download,
+  downloading: Loader2,
+  ready: RefreshCw,
+  error: AlertCircle,
 }
 
 export const UpdateNotification = () => {
+  const { t } = useTranslation('common')
   const { status, update, error, downloadAndInstall, restartApp, checkForUpdates } = useDesktopUpdate()
   const [dismissed, setDismissed] = useState(false)
 
@@ -28,9 +30,20 @@ export const UpdateNotification = () => {
     return null
   }
 
+  const statusMessages: Record<UpdateStatus, string> = {
+    initial: '',
+    idle: '',
+    checking: t('updateNotification.checking'),
+    available: t('updateNotification.available'),
+    downloading: t('updateNotification.downloading'),
+    ready: t('updateNotification.ready'),
+    error: t('updateNotification.error'),
+  }
+
+  const showActions = status === 'available' || status === 'ready' || status === 'error'
   const isVisible = !dismissed && status !== 'initial' && status !== 'idle' && status !== 'checking'
-  const config = statusConfig[status]
-  const Icon = config.icon
+  const Icon = statusIcons[status]
+  const message = statusMessages[status]
 
   const handlePrimaryAction = async () => {
     if (status === 'available') {
@@ -67,25 +80,27 @@ export const UpdateNotification = () => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">{config.message}</p>
+                <p className="text-sm font-medium text-foreground">{message}</p>
 
                 {status === 'available' && update && (
-                  <p className="text-xs text-muted-foreground mt-1">Version {update.version}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('updateNotification.version', { version: update.version })}
+                  </p>
                 )}
 
                 {status === 'error' && error && <p className="text-xs text-destructive mt-1">{error}</p>}
 
-                {config.showActions && (
+                {showActions && (
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" onClick={handlePrimaryAction}>
-                      {status === 'available' && 'Download'}
-                      {status === 'ready' && 'Restart Now'}
-                      {status === 'error' && 'Retry'}
+                      {status === 'available' && t('updateNotification.download')}
+                      {status === 'ready' && t('updateNotification.restartNow')}
+                      {status === 'error' && t('updateNotification.retry')}
                     </Button>
 
                     {status !== 'error' && (
                       <Button size="sm" variant="ghost" onClick={handleDismiss}>
-                        Later
+                        {t('updateNotification.later')}
                       </Button>
                     )}
                   </div>
@@ -95,7 +110,7 @@ export const UpdateNotification = () => {
               <button
                 onClick={handleDismiss}
                 className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                aria-label="Dismiss"
+                aria-label={t('updateNotification.dismiss')}
               >
                 <X className="size-4" />
               </button>
