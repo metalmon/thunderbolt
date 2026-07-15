@@ -11,6 +11,7 @@ import type { ConsoleSpies } from '@/test-utils/console-spies'
 import { setupConsoleSpy } from '@/test-utils/console-spies'
 import { MemoryRouter } from 'react-router'
 import type { ReactNode } from 'react'
+import '@/i18n/i18n'
 import { OnboardingDialog } from './onboarding-dialog'
 
 let consoleSpies: ConsoleSpies

@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CheckCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { IconCircle } from './icon-circle'
 
 export const OnboardingCelebrationStep = () => {
+  const { t } = useTranslation('onboarding')
+
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="space-y-6">
@@ -14,7 +17,7 @@ export const OnboardingCelebrationStep = () => {
             <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
           </IconCircle>
           <div className="space-y-2">
-            <p className="text-lg text-muted-foreground">You're all set! 🎉</p>
+            <p className="text-lg text-muted-foreground">{t('celebration.allSet')}</p>
           </div>
         </div>
       </div>

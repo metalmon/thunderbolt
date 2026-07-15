@@ -5,6 +5,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from 'bun:test'
 import '@testing-library/jest-dom'
+import '@/i18n/i18n'
 import { OnboardingPrivacyStep } from './onboarding-privacy-step'
 import { createTestProvider } from '@/test-utils/test-provider'
 import { setupTestDatabase, resetTestDatabase, teardownTestDatabase } from '@/dal/test-utils'

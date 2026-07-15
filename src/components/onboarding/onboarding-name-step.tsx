@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { OnboardingState } from '@/hooks/use-onboarding-state'
 import { useSettings } from '@/hooks/use-settings'
 import { IconCircle } from './icon-circle'
 
-const nameFormSchema = z.object({
-  preferredName: z.string().min(1, { message: 'Name is required.' }),
-})
-
-type NameFormData = z.infer<typeof nameFormSchema>
+type NameFormData = {
+  preferredName: string
+}
 
 type OnboardingNameStepProps = {
   state: OnboardingState
@@ -34,11 +33,20 @@ type OnboardingNameStepProps = {
 }
 
 export const OnboardingNameStep = ({ actions, onFormDirtyChange }: OnboardingNameStepProps) => {
+  const { t } = useTranslation('onboarding')
   const inputRef = useRef<HTMLInputElement>(null)
   const { preferredName } = useSettings({
     preferred_name: '',
   })
   const [isInitialized, setIsInitialized] = useState(false)
+
+  const nameFormSchema = useMemo(
+    () =>
+      z.object({
+        preferredName: z.string().min(1, { message: t('name.required') }),
+      }),
+    [t],
+  )
 
   const form = useForm<NameFormData>({
     resolver: zodResolver(nameFormSchema),
@@ -91,8 +99,8 @@ export const OnboardingNameStep = ({ actions, onFormDirtyChange }: OnboardingNam
         <IconCircle>
           <User className="w-8 h-8 text-primary" />
         </IconCircle>
-        <h2 className="text-2xl font-bold">What should we call you?</h2>
-        <p className="text-muted-foreground">Your AI assistant will use this name to address you personally.</p>
+        <h2 className="text-2xl font-bold">{t('name.title')}</h2>
+        <p className="text-muted-foreground">{t('name.description')}</p>
       </div>
 
       <Form {...form}>
@@ -103,7 +111,7 @@ export const OnboardingNameStep = ({ actions, onFormDirtyChange }: OnboardingNam
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Enter your name" {...field} ref={inputRef} autoComplete="off" />
+                  <Input placeholder={t('name.placeholder')} {...field} ref={inputRef} autoComplete="off" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
