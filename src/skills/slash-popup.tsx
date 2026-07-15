@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { translateDefaultField } from '@/i18n/translate-default'
 import type { SlashItem } from './use-slash-command'
 
 /**
@@ -35,6 +37,7 @@ export const SlashPopup = ({
   onHover: (idx: number) => void
 }) => {
   const listRef = useRef<HTMLUListElement>(null)
+  const { t } = useTranslation('defaults')
 
   // Scroll the highlighted row into view when the user arrow-keys past the
   // visible window. Legitimate effect — DOM measurement / scroll cannot be
@@ -55,39 +58,48 @@ export const SlashPopup = ({
       className="absolute bottom-full left-0 right-0 z-50 mb-2 rounded-xl border border-border bg-card p-1 shadow-lg"
     >
       <ul ref={listRef} className="max-h-64 overflow-y-auto">
-        {items.map((item, idx) => (
-          <li key={item.id}>
-            <button
-              type="button"
-              role="option"
-              aria-selected={idx === highlightedIdx}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                onSelect(item)
-              }}
-              onMouseEnter={() => onHover(idx)}
-              className={`flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
-                idx === highlightedIdx ? 'bg-accent' : 'hover:bg-accent'
-              }`}
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="truncate text-[length:var(--font-size-body)] text-foreground">
-                  {item.kind === 'command' ? `/${item.name}` : item.label}
+        {items.map((item, idx) => {
+          const displayName =
+            item.kind === 'command'
+              ? `/${item.name}`
+              : translateDefaultField(t, 'skills', item.id, 'name', item.label)
+          const displayDescription =
+            item.kind === 'skill' && item.description
+              ? translateDefaultField(t, 'skills', item.id, 'description', item.description)
+              : item.description
+
+          return (
+            <li key={item.id}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={idx === highlightedIdx}
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  onSelect(item)
+                }}
+                onMouseEnter={() => onHover(idx)}
+                className={`flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                  idx === highlightedIdx ? 'bg-accent' : 'hover:bg-accent'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <span className="truncate text-[length:var(--font-size-body)] text-foreground">{displayName}</span>
+                  {item.kind === 'command' && (
+                    <span className="max-w-[10rem] shrink-0 truncate rounded-sm border border-border px-1 py-px text-[length:var(--font-size-xs)] text-muted-foreground">
+                      {agentName}
+                    </span>
+                  )}
                 </span>
-                {item.kind === 'command' && (
-                  <span className="max-w-[10rem] shrink-0 truncate rounded-sm border border-border px-1 py-px text-[length:var(--font-size-xs)] text-muted-foreground">
-                    {agentName}
+                {displayDescription && (
+                  <span className="line-clamp-1 text-[length:var(--font-size-sm)] text-muted-foreground">
+                    {displayDescription}
                   </span>
                 )}
-              </span>
-              {item.description && (
-                <span className="line-clamp-1 text-[length:var(--font-size-sm)] text-muted-foreground">
-                  {item.description}
-                </span>
-              )}
-            </button>
-          </li>
-        ))}
+              </button>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

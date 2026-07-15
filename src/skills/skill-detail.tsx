@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Info, MoreVertical, SquarePen, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { Button, mutedIconButtonClass } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { translateDefaultField } from '@/i18n/translate-default'
 
 /**
  * Detail panel for a single skill. Pinning is managed from the chat composer
@@ -15,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
  * skill's content plus edit / delete controls.
  */
 export const SkillDetail = ({
+  id,
   name,
   description,
   instruction,
@@ -22,6 +25,7 @@ export const SkillDetail = ({
   onDelete,
   onClose,
 }: {
+  id: string
   /** Display name (the human label). */
   name: string
   description: string
@@ -32,6 +36,10 @@ export const SkillDetail = ({
    *  panel or the mobile overlay. */
   onClose: () => void
 }) => {
+  const { t } = useTranslation('defaults')
+  const displayName = translateDefaultField(t, 'skills', id, 'name', name)
+  const displayDescription = translateDefaultField(t, 'skills', id, 'description', description)
+
   const actionsMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -53,7 +61,7 @@ export const SkillDetail = ({
   )
 
   return (
-    <DetailPanel title={name} actions={actionsMenu} onClose={onClose}>
+    <DetailPanel title={displayName} actions={actionsMenu} onClose={onClose}>
       <div className="flex shrink-0 flex-col gap-2">
         <DetailSectionTitle>
           Description
@@ -72,7 +80,7 @@ export const SkillDetail = ({
             </TooltipContent>
           </Tooltip>
         </DetailSectionTitle>
-        <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{description}</p>
+        <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{displayDescription}</p>
       </div>
 
       <DetailDivider />

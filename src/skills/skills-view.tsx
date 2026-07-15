@@ -244,6 +244,7 @@ export const SkillsView = () => {
     if (mode === 'detail') {
       return (
         <SkillDetail
+          id={activeSkill.id}
           name={skillDisplayName(activeSkill)}
           description={activeSkill.description}
           instruction={activeSkill.instruction}
