@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { Smartphone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { ApproveDeviceDialog } from '@/components/approve-device-dialog'
 import { RevokeDeviceDialog } from '@/components/revoke-device-dialog'
@@ -15,6 +16,7 @@ import { useDenyDevice } from '@/hooks/use-deny-device'
 import { usePendingDeviceNotification } from '@/hooks/use-pending-device-notification'
 
 export const PendingDeviceModal = () => {
+  const { t } = useTranslation('common')
   const { pendingDeviceToNotify, pendingDevices } = usePendingDeviceNotification()
   const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
   const [confirmDenyOpen, setConfirmDenyOpen] = useState(false)
@@ -59,16 +61,16 @@ export const PendingDeviceModal = () => {
                 <Smartphone className="w-8 h-8 text-primary" />
               </IconCircle>
               <ResponsiveModalTitle className="text-2xl font-bold leading-normal">
-                New device waiting
+                {t('pendingDevice.title')}
               </ResponsiveModalTitle>
-              <p className="text-muted-foreground">A new device is requesting access to your encrypted data.</p>
+              <p className="text-muted-foreground">{t('pendingDevice.description')}</p>
 
               {pendingDeviceToNotify && (
                 <div className="flex items-center gap-3 rounded-lg border bg-secondary/50 p-4 text-left">
                   <Smartphone className="size-5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0 flex-1">
                     <span className="font-medium truncate">{pendingDeviceToNotify.name}</span>
-                    <p className="text-sm text-muted-foreground">Waiting for approval</p>
+                    <p className="text-sm text-muted-foreground">{t('pendingDevice.waitingForApproval')}</p>
                   </div>
                 </div>
               )}
@@ -76,10 +78,10 @@ export const PendingDeviceModal = () => {
 
             <div className="pt-5 flex flex-col gap-2">
               <Button className="w-full" onClick={() => setConfirmApproveOpen(true)}>
-                Approve
+                {t('pendingDevice.approve')}
               </Button>
               <Button className="w-full" variant="ghost" onClick={() => setConfirmDenyOpen(true)}>
-                <span className="text-destructive">Deny</span>
+                <span className="text-destructive">{t('pendingDevice.deny')}</span>
               </Button>
             </div>
           </div>
