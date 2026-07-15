@@ -12,7 +12,9 @@ import { cn } from '@/lib/utils'
 import type { Mode } from '@/types'
 import { Globe, MessageCircle, Microscope } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { translateDefaultField } from '@/i18n/translate-default'
 import { useMemo, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type ModeSelectorProps = {
   modes: Mode[]
@@ -38,22 +40,25 @@ type ModeItemData = {
   mode: Mode
 }
 
-const createModeGroups = (modes: Mode[]): SearchableMenuGroup<ModeItemData>[] => [
-  {
-    id: 'mode',
-    label: '',
-    items: modes.map((mode) => ({
-      id: mode.id,
-      label: mode.label,
-      icon: getModeIcon(mode.icon),
-      data: { mode },
-    })),
-  },
-]
-
 export const ModeSelector = ({ modes, selectedMode, onModeChange, iconOnly = false }: ModeSelectorProps) => {
   const { isMobile } = useIsMobile()
-  const groupedItems = useMemo(() => createModeGroups(modes), [modes])
+  const { t } = useTranslation('defaults')
+  const chatFallback = translateDefaultField(t, 'modes', 'mode-chat', 'label', 'Chat')
+  const groupedItems = useMemo(
+    (): SearchableMenuGroup<ModeItemData>[] => [
+      {
+        id: 'mode',
+        label: '',
+        items: modes.map((mode) => ({
+          id: mode.id,
+          label: translateDefaultField(t, 'modes', mode.id, 'label', mode.label),
+          icon: getModeIcon(mode.icon),
+          data: { mode },
+        })),
+      },
+    ],
+    [modes, t],
+  )
 
   const renderTrigger = (selected: SearchableMenuItem<ModeItemData> | undefined, isOpen: boolean) => (
     <div
@@ -68,7 +73,7 @@ export const ModeSelector = ({ modes, selectedMode, onModeChange, iconOnly = fal
       )}
     >
       {selected?.icon ?? <MessageCircle className="size-[var(--icon-size-default)] text-muted-foreground" />}
-      {!iconOnly && <span className="font-medium text-muted-foreground">{selected?.label ?? 'Chat'}</span>}
+      {!iconOnly && <span className="font-medium text-muted-foreground">{selected?.label ?? chatFallback}</span>}
     </div>
   )
 

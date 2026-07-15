@@ -10,6 +10,7 @@ import { useDatabase } from '@/contexts'
 import { createTask, deleteTask, getIncompleteTasks, getIncompleteTasksCount, updateTask } from '@/dal'
 import { trackEvent } from '@/lib/posthog'
 import { cn } from '@/lib/utils'
+import { translateDefaultField } from '@/i18n/translate-default'
 import type { Task } from '@/types'
 import type { DropAnimation } from '@dnd-kit/core'
 import {
@@ -36,6 +37,7 @@ import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { CheckCircle2, GripVertical, Plus, Square } from 'lucide-react'
 import { type KeyboardEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { v7 as uuidv7 } from 'uuid'
 
 // Task Item Component - Memoized for performance
@@ -48,6 +50,8 @@ type TaskItemProps = {
 }
 
 const TaskItem = memo(({ task, isCompleting, onComplete, onEdit, onDelete }: TaskItemProps) => {
+  const { t } = useTranslation('defaults')
+  const displayItem = translateDefaultField(t, 'tasks', task.id, 'item', task.item)
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(task.item)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -165,7 +169,7 @@ const TaskItem = memo(({ task, isCompleting, onComplete, onEdit, onDelete }: Tas
             )}
             style={{ height: '20px' }} // Explicit height
           >
-            {task.item}
+            {displayItem}
           </button>
         )}
       </div>
@@ -247,6 +251,7 @@ const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
 // Main Tasks Page Component
 export default function TasksPage() {
   const db = useDatabase()
+  const { t } = useTranslation('defaults')
 
   // State
   const [isAddingNew, setIsAddingNew] = useState(false)
@@ -560,7 +565,9 @@ export default function TasksPage() {
                     {activeTask && (
                       <div className="flex items-center gap-3 rounded-lg bg-background px-3 py-2 shadow-lg border">
                         <GripVertical className="h-4 w-4 text-muted-foreground" />
-                        <span className="flex-1 text-sm">{activeTask.item}</span>
+                        <span className="flex-1 text-sm">
+                          {translateDefaultField(t, 'tasks', activeTask.id, 'item', activeTask.item)}
+                        </span>
                         <Square className="h-5 w-5 text-muted-foreground" />
                       </div>
                     )}

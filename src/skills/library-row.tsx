@@ -7,7 +7,10 @@ import { SquarePen, Trash2 } from 'lucide-react'
 
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu'
 import { Switch } from '@/components/ui/switch'
+import { translateDefaultField } from '@/i18n/translate-default'
 import type { Skill } from '@/types'
+import { useTranslation } from 'react-i18next'
+
 import { skillDisplayName } from './display'
 
 /**
@@ -48,6 +51,9 @@ export const LibraryRow = ({
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) => {
+  const { t } = useTranslation('defaults')
+  const displayName = translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))
+
   return (
     <m.li layout layoutId={skill.id} transition={skillRowTransition}>
       <ContextMenu>
@@ -66,7 +72,7 @@ export const LibraryRow = ({
               enabled ? 'text-foreground' : 'text-muted-foreground/60'
             } ${isActive ? 'bg-accent' : 'hover:bg-accent'}`}
           >
-            <span className="min-w-0 flex-1 truncate leading-none">{skillDisplayName(skill)}</span>
+            <span className="min-w-0 flex-1 truncate leading-none">{displayName}</span>
             {/* `inline-flex items-center` keeps the Switch optically centered
                 with the name's text baseline. stopPropagation so toggling
                 doesn't also open the detail panel. */}
