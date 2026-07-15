@@ -10,6 +10,7 @@ import type { UseOAuthConnectResult } from '@/hooks/use-oauth-connect'
 import { type OAuthProvider } from '@/lib/auth'
 import { Calendar, File, Mail } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { OnboardingFeatureCard } from './onboarding-feature-card'
 import { OnboardingStepHeader } from './onboarding-step-header'
@@ -34,6 +35,7 @@ export const OnboardingAuthStep = ({
   onDisconnect,
   useOAuthConnectHook,
 }: OnboardingAuthStepProps) => {
+  const { t } = useTranslation('onboarding')
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -95,36 +97,26 @@ export const OnboardingAuthStep = ({
     <div className="flex w-full flex-1 flex-col justify-center">
       <OnboardingStepHeader
         icon={<TopIcon className="size-10" />}
-        title={`Connect ${providerName}`}
-        description={
-          isMicrosoft
-            ? 'Your assistant can help you manage your email, calendar, and documents.'
-            : 'Your assistant can help you manage your email and calendar.'
-        }
+        title={t('auth.connectTitle', { provider: providerName })}
+        description={isMicrosoft ? t('auth.descriptionMicrosoft') : t('auth.descriptionGoogle')}
       />
 
       <div className="mt-10 rounded-xl bg-muted">
         <OnboardingFeatureCard
           icon={Calendar}
-          title="Calendar"
-          description={
-            isMicrosoft
-              ? 'View and manage your schedule; create + reschedule events.'
-              : 'View your schedule and upcoming events.'
-          }
+          title={t('auth.calendarTitle')}
+          description={isMicrosoft ? t('auth.calendarDescriptionMicrosoft') : t('auth.calendarDescriptionGoogle')}
         />
         <OnboardingFeatureCard
           icon={Mail}
-          title="Email"
-          description={
-            isMicrosoft ? 'Read, compose, and organize your emails.' : 'Read your emails and compose drafts.'
-          }
+          title={t('auth.emailTitle')}
+          description={isMicrosoft ? t('auth.emailDescriptionMicrosoft') : t('auth.emailDescriptionGoogle')}
         />
         {isMicrosoft && (
           <OnboardingFeatureCard
             icon={File}
-            title="OneDrive Access"
-            description="Search and work with your OneDrive files and documents."
+            title={t('auth.oneDriveTitle')}
+            description={t('auth.oneDriveDescription')}
           />
         )}
 

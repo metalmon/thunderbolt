@@ -4,11 +4,14 @@
 
 import { GradientCircleCheck } from '@/components/ui/gradient-circle-check'
 import { OnboardingStepHeader } from './onboarding-step-header'
+import { useTranslation } from 'react-i18next'
 
 export const OnboardingCelebrationStep = () => {
+  const { t } = useTranslation('onboarding')
+
   return (
     <div className="flex h-full w-full flex-col justify-center">
-      <OnboardingStepHeader icon={<GradientCircleCheck className="size-12" />} title="You're all set! 🎉" />
+      <OnboardingStepHeader icon={<GradientCircleCheck className="size-12" />} title={`${t('celebration.allSet')} 🎉`} />
     </div>
   )
 }

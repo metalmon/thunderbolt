@@ -5,6 +5,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, beforeEach, expect, mock } from 'bun:test'
 import '@testing-library/jest-dom'
+import '@/i18n/i18n'
 import { OnboardingActionButtons } from './onboarding-action-buttons'
 
 describe('OnboardingActionButtons', () => {
