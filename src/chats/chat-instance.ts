@@ -42,6 +42,7 @@ import {
   getErrorName,
   getErrorRetryable,
   getErrorStatusCode,
+  isAcpSessionBusyError,
   isAgentRunInProgressError,
   isContentRejectionError,
   isContextOverflowError,
@@ -949,6 +950,14 @@ export const createChatInstance = (
       if (isRateLimitError(lastError) && !isRunInProgress) {
         markRetriesExhausted(finishedTurn)
         lastError = null
+        return
+      }
+
+      // Don't auto-retry ACP SESSION_BUSY — the prior turn still owns the slot
+      // (common right after Stop). Blind retries worsen the race.
+      if (isAcpSessionBusyError(lastError)) {
+        lastError = null
+        useChatStore.getState().updateSession(id, { retriesExhausted: true })
         return
       }
 
