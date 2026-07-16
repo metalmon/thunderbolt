@@ -4,6 +4,7 @@
 
 import { isFramelessControlsPlatform } from '@/lib/platform'
 import { Maximize2, Minus, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Custom min/maximize/close controls for the frameless Windows and Linux apps,
@@ -26,6 +27,8 @@ import { Maximize2, Minus, X } from 'lucide-react'
  * window rather than quitting.
  */
 export const WindowControls = () => {
+  const { t } = useTranslation('common')
+
   if (!isFramelessControlsPlatform()) {
     return null
   }
@@ -49,12 +52,12 @@ export const WindowControls = () => {
     <div
       data-tauri-drag-region="false"
       className="fixed right-0 top-0 z-50 flex h-[var(--touch-height-xl)] w-[var(--window-controls-width)] items-stretch"
-      aria-label="Window controls"
+      aria-label={t('windowControls.ariaLabel')}
     >
       <button
         type="button"
         onClick={handleMinimize}
-        aria-label="Minimize"
+        aria-label={t('windowControls.minimize')}
         className="flex flex-1 items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
       >
         <Minus className="size-3.5" aria-hidden="true" />
@@ -62,7 +65,7 @@ export const WindowControls = () => {
       <button
         type="button"
         onClick={handleMaximize}
-        aria-label="Maximize"
+        aria-label={t('windowControls.maximize')}
         className="flex flex-1 items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
       >
         <Maximize2 className="size-3.5" aria-hidden="true" />
@@ -70,7 +73,7 @@ export const WindowControls = () => {
       <button
         type="button"
         onClick={handleClose}
-        aria-label="Close"
+        aria-label={t('close')}
         className="flex flex-1 items-center justify-center text-muted-foreground hover:bg-destructive hover:text-white cursor-pointer"
       >
         <X className="size-3.5" aria-hidden="true" />

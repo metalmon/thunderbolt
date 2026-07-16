@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useTranslation } from 'react-i18next'
 
 export type SyncEnableWarningDialogProps = {
   open: boolean
@@ -23,22 +24,23 @@ export type SyncEnableWarningDialogProps = {
  * Reusable dialog shown before enabling cloud sync. Warns that synced data
  * is not encrypted. Use in preferences and header sync controls.
  */
-export const SyncEnableWarningDialog = ({ open, onOpenChange, onConfirm }: SyncEnableWarningDialogProps) => (
-  <AlertDialog open={open} onOpenChange={onOpenChange}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Enable sync?</AlertDialogTitle>
-        <AlertDialogDescription>
-          At this time, synced data is not encrypted. Enabling sync will store your data on our servers without
-          encryption. Do you want to continue?
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm} variant="destructive">
-          Enable sync without encryption
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)
+export const SyncEnableWarningDialog = ({ open, onOpenChange, onConfirm }: SyncEnableWarningDialogProps) => {
+  const { t } = useTranslation('common')
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('syncEnableWarning.title')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('syncEnableWarning.description')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} variant="destructive">
+            {t('syncEnableWarning.confirm')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
