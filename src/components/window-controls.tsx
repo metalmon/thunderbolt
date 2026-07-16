@@ -4,6 +4,7 @@
 
 import { isFramelessControlsPlatform } from '@/lib/platform'
 import { Maximize2, Minus, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Custom min/maximize/close buttons for Windows and Linux, where the main
@@ -16,6 +17,8 @@ import { Maximize2, Minus, X } from 'lucide-react'
  * authoritative rather than duplicating the hide+dock logic here.
  */
 export const WindowControls = () => {
+  const { t } = useTranslation('common')
+
   if (!isFramelessControlsPlatform()) {
     return null
   }
@@ -41,12 +44,12 @@ export const WindowControls = () => {
     <div
       data-tauri-drag-region="false"
       className="flex items-center h-full -mr-2 shrink-0"
-      aria-label="Window controls"
+      aria-label={t('windowControls.ariaLabel')}
     >
       <button
         type="button"
         onClick={handleMinimize}
-        aria-label="Minimize"
+        aria-label={t('windowControls.minimize')}
         className="h-full w-11 flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
       >
         <Minus className="size-3.5" aria-hidden="true" />
@@ -54,7 +57,7 @@ export const WindowControls = () => {
       <button
         type="button"
         onClick={handleMaximize}
-        aria-label="Maximize"
+        aria-label={t('windowControls.maximize')}
         className="h-full w-11 flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
       >
         <Maximize2 className="size-3.5" aria-hidden="true" />
@@ -62,7 +65,7 @@ export const WindowControls = () => {
       <button
         type="button"
         onClick={handleClose}
-        aria-label="Close"
+        aria-label={t('close')}
         className="h-full w-11 flex items-center justify-center text-muted-foreground hover:bg-destructive hover:text-white cursor-pointer"
       >
         <X className="size-3.5" aria-hidden="true" />

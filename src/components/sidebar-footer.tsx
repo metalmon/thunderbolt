@@ -176,7 +176,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Account menu"
+                  aria-label={t('common:accountMenu.ariaLabel')}
                   className={cn(
                     'flex w-full items-center justify-center h-[var(--touch-height-xl)] cursor-pointer transition-colors',
                     'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -248,7 +248,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               <div className="flex flex-col gap-1 px-2">
                 <AccountMenuItemButton
                   icon={<Download className={iconSize} />}
-                  label="Download App"
+                  label={t('common:accountMenu.downloadApp')}
                   onClick={() => openLink(getDownloadUrl())}
                 />
               </div>
@@ -262,13 +262,13 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               <div className="flex flex-col gap-1 px-2">
                 <AccountMenuItemButton
                   icon={<Terminal className={iconSize} />}
-                  label="Dev Settings"
+                  label={t('common:accountMenu.devSettings')}
                   to="/settings/dev-settings"
                   onNavigate={handleMenuNavigate}
                 />
                 <AccountMenuItemButton
                   icon={<Terminal className={iconSize} />}
-                  label="Message Simulator"
+                  label={t('common:accountMenu.messageSimulator')}
                   to="/message-simulator"
                   onNavigate={handleMenuNavigate}
                 />
@@ -281,7 +281,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
           <div className="flex flex-col gap-1 px-2 pb-2">
             <AccountMenuItemButton
               icon={<LogOut className={iconSize} />}
-              label="Log out"
+              label={t('common:accountMenu.logOut')}
               onClick={() => handleMenuAction(() => setLogoutModalOpen(true))}
             />
           </div>

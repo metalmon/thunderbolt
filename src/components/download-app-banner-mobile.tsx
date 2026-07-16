@@ -5,6 +5,7 @@
 import { X } from 'lucide-react'
 import { useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { getDownloadUrl } from '@/lib/download-links'
@@ -14,6 +15,7 @@ import { isWebMobilePlatform, isTauri } from '@/lib/platform'
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
 
 export const DownloadAppBannerMobile = () => {
+  const { t } = useTranslation('common')
   const [dismissed, setDismissed] = useState(false)
 
   if (!showAppDownloads || isTauri() || !isWebMobilePlatform()) {
@@ -45,14 +47,14 @@ export const DownloadAppBannerMobile = () => {
             <button
               onClick={handleDismiss}
               className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              aria-label="Dismiss"
+              aria-label={t('downloadApp.dismiss')}
             >
               <X className="size-4" />
             </button>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">One app, every AI model</p>
-              <p className="text-xs text-muted-foreground truncate">Get Thunderbolt free app</p>
+              <p className="text-sm font-semibold text-foreground truncate">{t('downloadApp.subtitle')}</p>
+              <p className="text-xs text-muted-foreground truncate">{t('downloadApp.title')}</p>
             </div>
 
             <Button
@@ -65,7 +67,7 @@ export const DownloadAppBannerMobile = () => {
               }}
             >
               <a href={storeUrl} target="_blank" rel="noopener noreferrer">
-                Download
+                {t('downloadApp.download')}
               </a>
             </Button>
           </div>

@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
  * Only renders when PowerSync is configured.
  */
 export const PowerSyncStatus = () => {
-  const { t } = useTranslation(['auth', 'settings'])
+  const { t } = useTranslation(['common', 'auth'])
   const authClient = useAuth()
   const { data: session } = authClient.useSession()
   const sessionUser = session?.user as User | undefined
@@ -51,27 +51,27 @@ export const PowerSyncStatus = () => {
 
   const getStatusText = () => {
     if (!syncEnabled) {
-      return 'Sync disabled'
+      return t('syncStatus.disabled')
     }
     if (isConnecting) {
-      return 'Connecting...'
+      return t('syncStatus.connecting')
     }
     if (!isConnected) {
-      return 'Offline'
+      return t('syncStatus.offline')
     }
     if (hasSynced && lastSyncedAt) {
       const seconds = Math.floor((Date.now() - lastSyncedAt.getTime()) / 1000)
       if (seconds < 60) {
-        return 'Just synced'
+        return t('syncStatus.justSynced')
       }
       const minutes = Math.floor(seconds / 60)
       if (minutes < 60) {
-        return `Synced ${minutes}m ago`
+        return t('syncStatus.syncedMinutesAgo', { count: minutes })
       }
       const hours = Math.floor(minutes / 60)
-      return `Synced ${hours}h ago`
+      return t('syncStatus.syncedHoursAgo', { count: hours })
     }
-    return 'Connected'
+    return t('syncStatus.connected')
   }
 
   const getIcon = () => {
@@ -88,7 +88,7 @@ export const PowerSyncStatus = () => {
   }
 
   const statusNote =
-    syncEnabled && !isConnected && connectionStatus !== 'connecting' ? 'Changes will sync when back online' : null
+    syncEnabled && !isConnected && connectionStatus !== 'connecting' ? t('syncStatus.willSyncWhenOnline') : null
 
   const handleRetry = async () => {
     setIsReconnecting(true)
@@ -113,7 +113,7 @@ export const PowerSyncStatus = () => {
                   popoverOpen && 'bg-secondary',
                   isMobile && popoverOpen && 'relative z-50',
                 )}
-                aria-label={t('settings:data.syncStatusAria')}
+                aria-label={t('syncStatus.ariaLabel')}
                 aria-haspopup="dialog"
               >
                 {getIcon()}
@@ -158,7 +158,7 @@ export const PowerSyncStatus = () => {
             <div>
               <div className="flex flex-row items-center justify-between mb-2">
                 <label className="text-sm font-medium" htmlFor="sync-toggle">
-                  {t('settings:data.cloudSyncTitle')}
+                  {t('syncStatus.cloudSyncTitle')}
                 </label>
                 {isAuthenticated && (
                   <Switch
@@ -166,14 +166,12 @@ export const PowerSyncStatus = () => {
                     checked={syncEnabled}
                     onCheckedChange={handleSyncToggle}
                     disabled={isConnecting}
-                    aria-label={t('settings:data.enableCloudSyncAria')}
+                    aria-label={t('syncStatus.enableCloudSyncAria')}
                   />
                 )}
               </div>
               <p className="text-sm text-muted-foreground mt-0.5">
-                {isAuthenticated
-                  ? t('settings:data.cloudSyncEnabledDescription')
-                  : t('settings:data.cloudSyncDescription')}
+                {isAuthenticated ? t('syncStatus.cloudSyncEnabledDescription') : t('syncStatus.cloudSyncDescription')}
               </p>
               {!isAuthenticated && (
                 <Button
@@ -201,7 +199,7 @@ export const PowerSyncStatus = () => {
                     ) : (
                       <RefreshCw className="size-3 mr-1" />
                     )}
-                    Retry
+                    {t('syncStatus.retry')}
                   </Button>
                 </div>
               )}
