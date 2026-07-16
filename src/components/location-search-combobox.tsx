@@ -5,6 +5,7 @@
 import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
 import { useLocationSearch, type LocationData } from '@/hooks/use-location-search'
 import type { ComponentPropsWithoutRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type LocationSearchComboboxProps = Omit<ComponentPropsWithoutRef<'button'>, 'value' | 'onSelect'> & {
   value?: string | null
@@ -16,12 +17,13 @@ type LocationSearchComboboxProps = Omit<ComponentPropsWithoutRef<'button'>, 'val
 export const LocationSearchCombobox = ({
   value,
   onSelect,
-  placeholder = 'Select location...',
+  placeholder,
   autoOpen = false,
   className,
   disabled,
   ...rest
 }: LocationSearchComboboxProps) => {
+  const { t } = useTranslation('settings')
   const locationSearch = useLocationSearch({ autoOpen })
 
   const items: ComboboxItem[] = locationSearch.locations.map((location) => ({
@@ -42,14 +44,14 @@ export const LocationSearchCombobox = ({
       items={items}
       onValueChange={handleValueChange}
       displayValue={value || undefined}
-      placeholder={placeholder}
-      searchPlaceholder="Search locations..."
+      placeholder={placeholder ?? t('localization.selectLocationPlaceholder')}
+      searchPlaceholder={t('localization.searchLocationsPlaceholder')}
       searchValue={locationSearch.searchQuery}
       onSearchChange={locationSearch.setSearchQuery}
       loading={locationSearch.searchQuery.trim().length > 0 && (locationSearch.isSearching || locationSearch.isPending)}
       emptyMessage={
         locationSearch.searchQuery.trim().length > 0 && locationSearch.locations.length === 0
-          ? 'No locations found.'
+          ? t('localization.noLocationsFound')
           : ''
       }
       open={locationSearch.open}
