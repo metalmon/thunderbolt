@@ -1,13 +1,13 @@
 #!/usr/bin/env pwsh
-# Regenerates local `main` from upstream mirror + cherry-picked fork branches.
+# Regenerates local `master` from upstream mirror + cherry-picked fork branches.
 #
 # Branch model:
-#   master  -> pristine mirror of origin/main (ff-only; never commit product work here)
+#   main    -> pristine mirror of origin/main (ff-only; never commit product work here)
 #   feat/* / local/* -> single-concern patches listed in $Branches
-#   main    -> master + cherry-pick($Branches); build/deploy this
+#   master  -> main + cherry-pick($Branches); build/deploy/push this to fork master
 #
 # Wrap / locale branches are stacked on feat/i18n-infra, so they cherry-pick
-# feat/i18n-infra..$b (delta only). Base patches use master..$b.
+# feat/i18n-infra..$b (delta only). Base patches use main..$b.
 
 [CmdletBinding()]
 param(
@@ -29,16 +29,16 @@ $Branches = @(
     "local/i18n-locales"
 )
 
-# Branches whose unique commits sit directly on master (not stacked on infra).
-$MasterRangeBranches = @(
+# Branches whose unique commits sit directly on main (not stacked on infra).
+$MainRangeBranches = @(
     "fix/make-format-windows",
     "feat/i18n-infra"
 )
 
 function Get-CherryPickRange {
     param([string]$Branch)
-    if ($MasterRangeBranches -contains $Branch) {
-        return "master..$Branch"
+    if ($MainRangeBranches -contains $Branch) {
+        return "main..$Branch"
     }
     return "feat/i18n-infra..$Branch"
 }
@@ -47,21 +47,21 @@ Write-Host "==> fetching $Upstream and $Remote" -ForegroundColor Cyan
 git fetch $Upstream --prune
 git fetch $Remote --prune
 
-Write-Host "==> fast-forwarding master to $Upstream/main" -ForegroundColor Cyan
-$masterExists = git rev-parse --verify master 2>$null
+Write-Host "==> fast-forwarding main to $Upstream/main" -ForegroundColor Cyan
+$mainExists = git rev-parse --verify main 2>$null
 if ($LASTEXITCODE -eq 0) {
-    git checkout master
-    if ($LASTEXITCODE -ne 0) { throw "Failed to checkout master" }
+    git checkout main
+    if ($LASTEXITCODE -ne 0) { throw "Failed to checkout main (is main checked out in another worktree?)" }
     git merge --ff-only "$Upstream/main"
-    if ($LASTEXITCODE -ne 0) { throw "Failed to ff-only master to $Upstream/main" }
+    if ($LASTEXITCODE -ne 0) { throw "Failed to ff-only main to $Upstream/main" }
 } else {
-    git checkout -B master "$Upstream/main"
-    if ($LASTEXITCODE -ne 0) { throw "Failed to create master from $Upstream/main" }
+    git checkout -B main "$Upstream/main"
+    if ($LASTEXITCODE -ne 0) { throw "Failed to create main from $Upstream/main" }
 }
 
-Write-Host "==> resetting main to master" -ForegroundColor Cyan
-git checkout -B main master
-if ($LASTEXITCODE -ne 0) { throw "Failed to reset main to master (is main checked out in another worktree?)" }
+Write-Host "==> resetting master to main" -ForegroundColor Cyan
+git checkout -B master main
+if ($LASTEXITCODE -ne 0) { throw "Failed to reset master to main" }
 
 foreach ($b in $Branches) {
     $range = Get-CherryPickRange $b
@@ -74,9 +74,10 @@ foreach ($b in $Branches) {
     }
 }
 
-Write-Host "==> main rebuilt" -ForegroundColor Green
+Write-Host "==> master rebuilt" -ForegroundColor Green
 git --no-pager log --oneline -n ($Branches.Count + 5)
 
 if ($Push) {
-    git push --force-with-lease $Remote main
+    git push --force-with-lease $Remote master
 }
+
