@@ -39,13 +39,13 @@
       "identifier": "http:default",
       "allow": [
         {
-          "url": "http://localhost:11434"
-        },
-        {
-          "url": "http://localhost:3001"
+          "url": "http://localhost:*"
         },
         {
           "url": "https://api.openai.com"
+        },
+        {
+          "url": "https://openrouter.ai"
         },
         {
           "url": "https://router.huggingface.co"
@@ -61,9 +61,6 @@
         },
         {
           "url": "https://graph.microsoft.com"
-        },
-        {
-          "url": "http://localhost:8000"
         }
       ]
     },
