@@ -46,6 +46,8 @@ import { useMutation } from '@tanstack/react-query'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { http } from '@/lib/http'
+import type { TFunction } from 'i18next'
+
 import { PrivateBadge } from '@/components/ui/private-badge'
 import { AlertTriangle, Check, Cpu, Loader2, MoreVertical, Plus, SquarePen, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
@@ -243,55 +245,60 @@ const ConnectionTestSection = ({
   )
 }
 
-const formSchema = z
-  .object({
-    provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
-    name: z.string().min(1, { message: 'Name is required.' }),
-    model: z.string().min(1, { message: 'Model name is required.' }),
-    customModel: z.string().optional(),
-    url: z.string().optional(),
-    apiKey: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.provider === 'custom') {
-        return data.url !== undefined && data.url.length > 0
-      }
-      return true
-    },
-    {
-      message: 'URL is required for Custom providers',
+const buildFormSchema = (t: TFunction<'settings'>) =>
+  z
+    .object({
+      provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
+      name: z.string().min(1, { message: t('models.nameRequired') }),
+      model: z.string().min(1, { message: t('models.modelNameRequired') }),
+      customModel: z.string().optional(),
+      url: z.string().optional(),
+      apiKey: z.string().optional(),
+    })
+    .refine(
+      (data) => {
+        if (data.provider === 'custom') {
+          return data.url !== undefined && data.url.length > 0
+        }
+        return true
+      },
+      {
+        message: t('models.urlRequiredCustom'),
+        path: ['url'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.provider === 'thunderbolt') {
+          return true // API key not required for thunderbolt
+        }
+        if (data.provider === 'custom') {
+          return true // API key is optional for custom (OpenAI compatible)
+        }
+        return data.apiKey !== undefined && data.apiKey.length > 0
+      },
+      {
+        message: t('models.apiKeyRequired'),
+        path: ['apiKey'],
+      },
+    )
+
+type FormSchema = z.infer<ReturnType<typeof buildFormSchema>>
+
+const buildEditFormSchema = (t: TFunction<'settings'>, provider: Model['provider']) =>
+  z
+    .object({
+      name: z.string().min(1, { message: t('models.nameRequired') }),
+      model: z.string().min(1, { message: t('models.modelNameRequired') }),
+      url: z.string().optional(),
+      apiKey: z.string().optional(),
+    })
+    .refine((data) => provider !== 'custom' || (!!data.url && data.url.length > 0), {
+      message: t('models.urlRequiredCustom'),
       path: ['url'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.provider === 'thunderbolt') {
-        return true // API key not required for thunderbolt
-      }
-      if (data.provider === 'custom') {
-        return true // API key is optional for custom (OpenAI compatible)
-      }
-      return data.apiKey !== undefined && data.apiKey.length > 0
-    },
-    {
-      message: 'API Key is required for this provider',
-      path: ['apiKey'],
-    },
-  )
+    })
 
-const editFormSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required.' }),
-  model: z.string().min(1, { message: 'Model name is required.' }),
-  url: z.string().optional(),
-  apiKey: z.string().optional(),
-})
-
-const buildEditFormSchema = (provider: Model['provider']) =>
-  editFormSchema.refine((data) => provider !== 'custom' || (!!data.url && data.url.length > 0), {
-    message: 'URL is required for Custom providers',
-    path: ['url'],
-  })
+type EditFormSchema = z.infer<ReturnType<typeof buildEditFormSchema>>
 
 const EditModelForm = ({
   model,
@@ -301,12 +308,13 @@ const EditModelForm = ({
 }: {
   model: Model
   onCancel: () => void
-  onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
+  onSubmit: (values: EditFormSchema & { id: string }) => void
   isPending: boolean
 }) => {
   const { t } = useTranslation('settings')
-  const form = useForm<z.infer<typeof editFormSchema>>({
-    resolver: zodResolver(buildEditFormSchema(model.provider)),
+  const editFormSchema = useMemo(() => buildEditFormSchema(t, model.provider), [t, model.provider])
+  const form = useForm<EditFormSchema>({
+    resolver: zodResolver(editFormSchema),
     defaultValues: {
       name: model.name || '',
       model: model.model,
@@ -331,7 +339,7 @@ const EditModelForm = ({
     apiKey: watchedApiKey,
   })
 
-  const handleSubmit = (values: z.infer<typeof editFormSchema>) => {
+  const handleSubmit = (values: EditFormSchema) => {
     onSubmit({ ...values, id: model.id })
   }
 
@@ -446,7 +454,7 @@ const EditModelModal = ({
 }: {
   model: Model | null
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
+  onSubmit: (values: EditFormSchema & { id: string }) => void
   isPending: boolean
 }) => {
   const { t } = useTranslation('settings')
@@ -479,6 +487,7 @@ export const systemModelMenuMessage = "Built-in models can't be edited or remove
 
 export default function ModelsPage() {
   const { t } = useTranslation('settings')
+  const formSchema = useMemo(() => buildFormSchema(t), [t])
   const db = useDatabase()
   const [state, dispatch] = useReducer(modelReducer, initialState)
   const [editingModel, setEditingModel] = useState<Model | null>(null)
@@ -497,7 +506,7 @@ export default function ModelsPage() {
   })
 
   const addModelMutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: FormSchema) => {
       await createModelDAL(db, {
         id: uuidv7(),
         ...values,
@@ -529,7 +538,7 @@ export default function ModelsPage() {
   })
 
   const editModelMutation = useMutation({
-    mutationFn: async (values: z.infer<typeof editFormSchema> & { id: string }) => {
+    mutationFn: async (values: EditFormSchema & { id: string }) => {
       const { id, ...fields } = values
       await updateModel(db, id, {
         ...fields,
@@ -560,9 +569,7 @@ export default function ModelsPage() {
     resetModelMutation.mutate(id)
   }
 
-  type FormData = z.infer<typeof formSchema>
-
-  const form = useForm<FormData>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       provider: 'thunderbolt',
@@ -574,7 +581,7 @@ export default function ModelsPage() {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormSchema) => {
     // Use customModel if it's a custom selection, otherwise use model
     const modelId = selectedModelId === 'custom' && values.customModel ? values.customModel : values.model
 
@@ -746,7 +753,7 @@ export default function ModelsPage() {
       if (error instanceof TypeError) {
         dispatch({
           type: 'FETCH_MODELS_FAILURE',
-          error: 'Network request failed (the browser blocked the request or the server is unreachable).',
+          error: t('models.networkRequestFailed'),
         })
       }
       // HttpError with a Response object
@@ -756,17 +763,17 @@ export default function ModelsPage() {
         if (response) {
           dispatch({
             type: 'FETCH_MODELS_FAILURE',
-            error: `Server responded with status ${response.status} ${response.statusText}`,
+            error: t('models.serverStatusError', { status: response.status, statusText: response.statusText }),
           })
         } else {
-          dispatch({ type: 'FETCH_MODELS_FAILURE', error: 'Server responded with an unknown error.' })
+          dispatch({ type: 'FETCH_MODELS_FAILURE', error: t('models.serverUnknownError') })
         }
       }
       // Generic JavaScript error
       else if (error instanceof Error && error.message) {
         dispatch({ type: 'FETCH_MODELS_FAILURE', error: error.message })
       } else {
-        dispatch({ type: 'FETCH_MODELS_FAILURE', error: 'Failed to load models' })
+        dispatch({ type: 'FETCH_MODELS_FAILURE', error: t('models.failedToLoadModels') })
       }
 
       // No models could be fetched; state already handled in failure action
@@ -1190,8 +1197,8 @@ export default function ModelsPage() {
                         <ModificationIndicator
                           hasModifications={isModelModified(model)}
                           onReset={() => handleResetModel(model.id)}
-                          customMessage="You've customized this model."
-                          ariaLabel="Modified model"
+                          customMessage={t('models.customizedModel')}
+                          ariaLabel={t('models.modifiedModelAria')}
                           requireConfirmation={false}
                         >
                           {model.name}

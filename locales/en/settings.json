@@ -75,6 +75,17 @@
     "importButton": "Import Data",
     "import": "Import",
     "importDialogTitle": "Import this backup?",
+    "importDialogBody": "This file contains {{count}} rows{{exportedBy}}{{exportedOn}}. Rows that share an ID with existing data will be overwritten with the file's version and synced to your other devices. This can't be undone.",
+    "importExportedBy": " exported by {{email}}",
+    "importExportedOn": " on {{date}}",
+    "importAccountMismatch": "⚠ This export was made by a different account ({{email}}). Importing it here will mix that data into your account — confirm only if you intend to.",
+    "invalidExportFile": "This file doesn't look like a Thunderbolt export.",
+    "couldNotReadImportFile": "Could not read the import file.",
+    "mustSignInToImport": "You must be signed in to import data.",
+    "importSuccess": "Imported {{count}} rows. The app may take a moment to reflect new chats.",
+    "failedToImport": "Failed to import data.",
+    "failedToExport": "Failed to export data.",
+    "failedToDeleteAccount": "Failed to delete account.",
     "deleteLocalDataLabel": "Delete All Local Data",
     "resetting": "Resetting...",
     "resetDatabase": "Reset Database",
@@ -144,7 +155,8 @@
     "loading": "Loading integrations...",
     "disconnect": "Disconnect",
     "emptyTitle": "No integrations available",
-    "emptyDescription": "Check back later for new integrations"
+    "emptyDescription": "Check back later for new integrations",
+    "disconnectFailed": "Failed to disconnect integration"
   },
   "models": {
     "title": "Models",
@@ -185,7 +197,22 @@
     "removeModel": "Remove Model",
     "removeModelDescription": "Are you sure you want to remove this model? This action cannot be undone.",
     "removing": "Removing...",
-    "remove": "Remove"
+    "remove": "Remove",
+    "editModelTooltip": "Edit model",
+    "removeModelTooltip": "Remove model",
+    "addModelTooltip": "Add model",
+    "builtInCantEdit": "Built-in models can't be edited",
+    "builtInCantRemove": "Built-in models can't be removed",
+    "nameRequired": "Name is required.",
+    "modelNameRequired": "Model name is required.",
+    "urlRequiredCustom": "URL is required for Custom providers",
+    "apiKeyRequired": "API Key is required for this provider",
+    "networkRequestFailed": "Network request failed (the browser blocked the request or the server is unreachable).",
+    "serverStatusError": "Server responded with status {{status}} {{statusText}}",
+    "serverUnknownError": "Server responded with an unknown error.",
+    "failedToLoadModels": "Failed to load models",
+    "customizedModel": "You've customized this model.",
+    "modifiedModelAria": "Modified model"
   },
   "mcpServers": {
     "title": "MCP Servers",
@@ -359,7 +386,9 @@
     "viewInstallGuide": "View install guide",
     "namePlaceholder": "My Agent",
     "urlPlaceholder": "wss://example.com/ws or paste an iroh ticket",
-    "urlHelper": "A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable)."
+    "urlHelper": "A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable).",
+    "urlInvalid": "Enter a wss:// URL or an iroh ticket",
+    "iosRequiresWss": "iOS requires a secure URL (wss://)"
   },
   "appVersion": {
     "title": "App Version",

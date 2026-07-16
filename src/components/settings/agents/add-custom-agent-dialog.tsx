@@ -126,7 +126,7 @@ export const AddCustomAgentDialog = ({
   const validation = validateAgentUrl(trimmedUrl, isIos)
   // Surface an invalid-target error at render time (once the field is non-empty)
   // so the user sees why submit stays gated.
-  const urlError = trimmedUrl.length > 0 && 'error' in validation ? validation.error : null
+  const urlError = trimmedUrl.length > 0 && 'error' in validation ? t(`agents.${validation.error}`) : null
   const transport = 'error' in validation ? null : validation.transport
   const isIroh = transport === 'iroh'
   // A WebSocket endpoint is probed before save. An iroh bridge must first

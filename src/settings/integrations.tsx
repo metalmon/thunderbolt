@@ -146,7 +146,7 @@ export default function IntegrationsPage() {
       await queryClient.invalidateQueries({ queryKey: ['integrationStatus'] })
     } catch (err) {
       console.error('Failed to disconnect integration', err)
-      setError(err instanceof Error ? err.message : 'Failed to disconnect integration')
+      setError(err instanceof Error ? err.message : t('integrations.disconnectFailed'))
     }
   }
 
