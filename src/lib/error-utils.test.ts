@@ -12,6 +12,7 @@ import {
   getErrorRetryable,
   getErrorStatusCode,
   getInferenceQuotaWindow,
+  isAcpSessionBusyError,
   isContentRejectionError,
   isContextOverflowError,
   isRateLimitError,
@@ -554,6 +555,25 @@ describe('getErrorRetryable', () => {
 
   it('is undefined for pi-ai text without an embedded status', () => {
     expect(getErrorRetryable(new Error('Something went wrong'))).toBeUndefined()
+  })
+})
+
+describe('isAcpSessionBusyError', () => {
+  it('detects Zeroclaw / ACP "active prompt turn" busy rejects', () => {
+    expect(
+      isAcpSessionBusyError(new Error('Session already has an active prompt turn: 50be29d3-97bd-4bcc-8012-dd7e0a160ac3')),
+    ).toBe(true)
+    expect(
+      isAcpSessionBusyError(
+        new Error(JSON.stringify({ error: 'Session already has an active prompt turn: sess-1', status: 500 })),
+      ),
+    ).toBe(true)
+  })
+
+  it('returns false for unrelated errors', () => {
+    expect(isAcpSessionBusyError(new Error('Network timeout'))).toBe(false)
+    expect(isAcpSessionBusyError(new Error(JSON.stringify({ error: 'Server error', status: 500 })))).toBe(false)
+    expect(isAcpSessionBusyError(null)).toBe(false)
   })
 })
 
