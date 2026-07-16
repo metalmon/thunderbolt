@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,6 +26,7 @@ type TelemetryWarningModalProps = {
 
 export const TelemetryWarningModal = forwardRef<TelemetryWarningModalRef, TelemetryWarningModalProps>(
   ({ onDisableTelemetry }, ref) => {
+    const { t } = useTranslation('common')
     const [open, setOpen] = useState(false)
 
     const handleClose = () => {
@@ -45,14 +47,12 @@ export const TelemetryWarningModal = forwardRef<TelemetryWarningModalRef, Teleme
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Preview Features Will Be Disabled</AlertDialogTitle>
-            <AlertDialogDescription>
-              Turning off telemetry will disable all preview features. Are you sure you want to continue?
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('telemetryWarning.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('telemetryWarning.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDisableTelemetry}>Disable Telemetry</AlertDialogAction>
+            <AlertDialogCancel onClick={handleClose}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDisableTelemetry}>{t('telemetryWarning.disable')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
