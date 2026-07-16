@@ -21,12 +21,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useSignInModal } from '@/contexts/sign-in-modal-context'
 import { MobileBlurBackdrop } from '@/components/ui/mobile-blur-backdrop'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * PowerSync status indicator that shows sync state in the header.
  * Only renders when PowerSync is configured.
  */
 export const PowerSyncStatus = () => {
+  const { t } = useTranslation(['auth', 'settings'])
   const authClient = useAuth()
   const { data: session } = authClient.useSession()
   const sessionUser = session?.user as User | undefined
@@ -111,7 +113,7 @@ export const PowerSyncStatus = () => {
                   popoverOpen && 'bg-secondary',
                   isMobile && popoverOpen && 'relative z-50',
                 )}
-                aria-label="Sync status"
+                aria-label={t('settings:data.syncStatusAria')}
                 aria-haspopup="dialog"
               >
                 {getIcon()}
@@ -156,7 +158,7 @@ export const PowerSyncStatus = () => {
             <div>
               <div className="flex flex-row items-center justify-between mb-2">
                 <label className="text-sm font-medium" htmlFor="sync-toggle">
-                  Cloud Sync
+                  {t('settings:data.cloudSyncTitle')}
                 </label>
                 {isAuthenticated && (
                   <Switch
@@ -164,14 +166,14 @@ export const PowerSyncStatus = () => {
                     checked={syncEnabled}
                     onCheckedChange={handleSyncToggle}
                     disabled={isConnecting}
-                    aria-label="Enable cloud sync"
+                    aria-label={t('settings:data.enableCloudSyncAria')}
                   />
                 )}
               </div>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {isAuthenticated
-                  ? 'Enable cloud synchronization to keep your data synced across devices.'
-                  : 'Keep all of your devices synced.'}
+                  ? t('settings:data.cloudSyncEnabledDescription')
+                  : t('settings:data.cloudSyncDescription')}
               </p>
               {!isAuthenticated && (
                 <Button
@@ -181,7 +183,7 @@ export const PowerSyncStatus = () => {
                     openSignInModal()
                   }}
                 >
-                  Sign In
+                  {t('auth:signIn.title')}
                 </Button>
               )}
               {statusNote && isAuthenticated && (

@@ -40,7 +40,8 @@ import { eq } from 'drizzle-orm'
 import { Check, Copy, Globe, LockKeyhole, Pencil, Plus, RefreshCw, Server, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { v7 as uuidv7 } from 'uuid'
 import { probeMcpServerTools } from '@/lib/mcp-connection-test'
 import { type MCPTransportType } from '@/lib/mcp-transport'
@@ -160,35 +161,37 @@ const StatusPanel = ({
  * to its tone, icon, title, and body copy. `success` is rendered separately
  * because it carries a tools list as the panel's children.
  */
-const testResultPanels: Record<
+const getTestResultPanels = (
+  t: TFunction<'settings'>,
+): Record<
   Exclude<TestConnectionResult['kind'], 'success'>,
   { tone: StatusTone; icon: ReactNode; title: string; body: string }
-> = {
+> => ({
   'needs-oauth': {
     tone: 'warning',
     icon: <LockKeyhole className="h-4 w-4" />,
-    title: 'Authorization required',
-    body: 'This server uses OAuth. Add it and authorize to connect.',
+    title: t('mcpServers.needsOAuthTitle'),
+    body: t('mcpServers.needsOAuthBody'),
   },
   'needs-token': {
     tone: 'warning',
     icon: <LockKeyhole className="h-4 w-4" />,
-    title: 'Access token required',
-    body: 'This server needs a personal access token or API key. Paste it in the Credential field above, then test again.',
+    title: t('mcpServers.needsTokenTitle'),
+    body: t('mcpServers.needsTokenBody'),
   },
   'token-rejected': {
     tone: 'destructive',
     icon: <X className="h-4 w-4" />,
-    title: 'Token rejected',
-    body: 'The server rejected the credential — check your bearer token or API key.',
+    title: t('mcpServers.tokenRejectedTitle'),
+    body: t('mcpServers.tokenRejectedBody'),
   },
   error: {
     tone: 'destructive',
     icon: <X className="h-4 w-4" />,
-    title: 'Connection failed',
-    body: 'Could not connect to the MCP server. Please check the URL and try again.',
+    title: t('mcpServers.connectionFailedTitle'),
+    body: t('mcpServers.connectionFailedBody'),
   },
-}
+})
 
 export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDeps } = {}) {
   const { t } = useTranslation('settings')
@@ -282,12 +285,14 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
   // is always labeled by its own context (switching modes clears the other
   // sources, see the mode toggle).
   const addDialogError = importError
-    ? { title: 'Import failed', body: importError }
+    ? { title: t('mcpServers.importFailedTitle'), body: importError }
     : updateError
-      ? { title: 'Save failed', body: updateError }
+      ? { title: t('mcpServers.saveFailedTitle'), body: updateError }
       : dialogError
-        ? { title: 'Authorization error', body: dialogError }
+        ? { title: t('mcpServers.authorizationErrorTitle'), body: dialogError }
         : null
+
+  const testResultPanels = getTestResultPanels(t)
 
   // TODO: Add support for stdio servers
   const { data: servers = [] } = useQuery({
@@ -476,7 +481,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
       })
     } catch (error) {
       console.error('Failed to update MCP server:', error)
-      setUpdateError('Could not save changes. Please try again.')
+      setUpdateError(t('mcpServers.saveFailed'))
       return
     }
     // Push the patch into the MCP provider so the live client redials with the
@@ -515,7 +520,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
       resetLocalDialogState()
     } catch (error) {
       console.error('Failed to import MCP servers:', error)
-      setImportError('Could not import servers. Please try again.')
+      setImportError(t('mcpServers.importFailed'))
     }
   }
 
@@ -609,13 +614,13 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
   const getStatusTooltipText = (status: string) => {
     switch (status) {
       case 'connected':
-        return 'Connected'
+        return t('mcpServers.connected')
       case 'connecting':
-        return 'Connecting...'
+        return t('mcpServers.connecting')
       case 'disconnected':
-        return 'Disconnected'
+        return t('mcpServers.disconnected')
       default:
-        return 'Unknown'
+        return t('mcpServers.unknown')
     }
   }
 
@@ -709,8 +714,10 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
     return null
   }
 
-  const dialogTitle = form.editingServerId ? 'Edit MCP Server' : 'Add MCP Server'
-  const dialogDescription = form.editingServerId ? 'Edit MCP server configuration' : 'Add a new MCP server'
+  const dialogTitle = form.editingServerId ? t('mcpServers.editServer') : t('mcpServers.addServer')
+  const dialogDescription = form.editingServerId
+    ? t('mcpServers.editServerDescription')
+    : t('mcpServers.addServerDescription')
 
   return (
     <div className="flex flex-col gap-6 p-4 w-full max-w-[760px] mx-auto">
@@ -760,8 +767,8 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                 }}
                 className="w-full flex-shrink-0"
               >
-                <ToggleGroupItem value="simple">Simple</ToggleGroupItem>
-                <ToggleGroupItem value="advanced">Advanced (JSON)</ToggleGroupItem>
+                <ToggleGroupItem value="simple">{t('mcpServers.simple')}</ToggleGroupItem>
+                <ToggleGroupItem value="advanced">{t('mcpServers.advancedJson')}</ToggleGroupItem>
               </ToggleGroup>
             )}
 
@@ -769,20 +776,20 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
               {mode === 'simple' ? (
                 <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
                   <div className="grid grid-cols-1 gap-2">
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">{t('mcpServers.name')}</Label>
                     <Input
                       id="name"
-                      placeholder="Server name (used to prefix tools)"
+                      placeholder={t('mcpServers.serverNamePlaceholder')}
                       value={newServerName}
                       onChange={(e) => form.changeName(e.target.value)}
                     />
                   </div>
 
                   <div className="grid grid-cols-1 gap-2">
-                    <Label htmlFor="url">Server URL</Label>
+                    <Label htmlFor="url">{t('mcpServers.serverUrl')}</Label>
                     <Input
                       id="url"
-                      placeholder="http://localhost:8000/mcp/"
+                      placeholder={t('mcpServers.serverUrlPlaceholder')}
                       value={newServerUrl}
                       onChange={(e) => form.changeUrl(e.target.value)}
                       onBlur={handleUrlBlur}
@@ -796,8 +803,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                       <p className="text-[length:var(--font-size-xs)] text-destructive">{urlValidation.reason}</p>
                     )}
                     <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                      A URL, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works
-                      only if the peer is discoverable).
+                      {t('mcpServers.urlOrIrohHelper')}
                     </p>
                   </div>
 
@@ -809,7 +815,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                   ) : (
                     <>
                       <div className="grid grid-cols-1 gap-2">
-                        <Label htmlFor="transport">Transport</Label>
+                        <Label htmlFor="transport">{t('mcpServers.transport')}</Label>
                         <Select
                           value={newServerTransport}
                           onValueChange={(value) => form.changeTransport(value as MCPTransportType)}
@@ -825,11 +831,11 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                       </div>
 
                       <div className="grid grid-cols-1 gap-2">
-                        <Label htmlFor="token">Credential (optional)</Label>
+                        <Label htmlFor="token">{t('mcpServers.credentialOptional')}</Label>
                         <Input
                           id="token"
                           type="password"
-                          placeholder="Bearer token or API key"
+                          placeholder={t('mcpServers.credentialPlaceholder')}
                           value={newServerToken}
                           onChange={(e) => form.changeToken(e.target.value)}
                         />
@@ -842,15 +848,19 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                           variant="outline"
                           className="w-full"
                         >
-                          {isTestingConnection ? 'Testing Connection...' : 'Test Connection'}
+                          {isTestingConnection ? t('mcpServers.testingConnection') : t('mcpServers.testConnection')}
                         </Button>
                       )}
 
                       {testResult.kind === 'success' && (
-                        <StatusPanel tone="success" icon={<Check className="h-4 w-4" />} title="Connection successful!">
+                        <StatusPanel
+                          tone="success"
+                          icon={<Check className="h-4 w-4" />}
+                          title={t('mcpServers.connectionSuccessful')}
+                        >
                           {serverCapabilities.length > 0 && (
                             <div className="mt-3">
-                              <p className="text-sm text-success font-medium">Available tools:</p>
+                              <p className="text-sm text-success font-medium">{t('mcpServers.availableTools')}</p>
                               <ul className="text-sm text-success/90 mt-1 space-y-1 max-h-40 overflow-y-auto">
                                 {serverCapabilities.map((capability, index) => (
                                   <li key={index} className="flex items-center gap-2">
@@ -880,7 +890,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
               ) : (
                 <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
                   <div className="grid grid-cols-1 gap-2">
-                    <Label htmlFor="json-config">Servers JSON</Label>
+                    <Label htmlFor="json-config">{t('mcpServers.serversJson')}</Label>
                     <Textarea
                       id="json-config"
                       className="font-mono text-[length:var(--font-size-xs)] min-h-48 max-h-[40vh] overflow-y-auto resize-none"
@@ -891,8 +901,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                       onChange={(e) => setJsonText(e.target.value)}
                     />
                     <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                      Paste an <code>mcpServers</code> config. Only remote (http/sse) servers are supported; non-Bearer
-                      auth headers are ignored.
+                      <Trans i18nKey="mcpServers.pasteConfig" ns="settings" components={{ code: <code /> }} />
                     </p>
                   </div>
                 </div>
@@ -915,7 +924,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                   resetLocalDialogState()
                 }}
               >
-                Cancel
+                {t('mcpServers.cancel')}
               </Button>
               {form.editingServerId ? (
                 <Button
@@ -930,20 +939,20 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                     updateServerMutation.isPending
                   }
                 >
-                  Save Changes
+                  {t('mcpServers.saveChanges')}
                 </Button>
               ) : mode === 'advanced' ? (
                 <Button onClick={handleImportConfig} disabled={!jsonText.trim() || importServersMutation.isPending}>
-                  Import Servers
+                  {t('mcpServers.importServers')}
                 </Button>
               ) : !isIroh && testResult.kind === 'needs-oauth' ? (
                 <Button onClick={handleAddAndAuthorize} disabled={!isUrlReady || isAddAuthorizePending}>
                   <LockKeyhole className="h-3.5 w-3.5 mr-1.5" />
-                  Add &amp; Authorize
+                  {t('mcpServers.addAuthorize')}
                 </Button>
               ) : (
                 <Button onClick={handleAddServer} disabled={!isSaveReady || (!isIroh && testResult.kind !== 'success')}>
-                  Add Server
+                  {t('mcpServers.addServerButton')}
                 </Button>
               )}
             </div>
@@ -986,7 +995,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p>{connectionError ? 'Connection error' : getStatusTooltipText(status)}</p>
+                        <p>{connectionError ? t('mcpServers.connectionError') : getStatusTooltipText(status)}</p>
                       </TooltipContent>
                     </Tooltip>
                     <div className="min-w-0 flex-1">
@@ -1029,7 +1038,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                             <Globe className="h-4 w-4 text-muted-foreground cursor-default" />
                           </TooltipTrigger>
                           <TooltipContent side="bottom">
-                            <p>Remote</p>
+                            <p>{t('mcpServers.remote')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -1044,7 +1053,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         onClick={() => handleRetryConnection(server.id)}
                       >
                         <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRetrying ? 'animate-spin' : ''}`} />
-                        {isRetrying ? 'Retrying...' : 'Retry connection'}
+                        {isRetrying ? t('mcpServers.retrying') : t('mcpServers.retryConnection')}
                       </Button>
                     )}
                     {(showAuthorize || isAuthorizing) && (
@@ -1055,7 +1064,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         onClick={() => startAuthorize(server)}
                       >
                         <LockKeyhole className="h-3.5 w-3.5 mr-1.5" />
-                        {isAuthorizing ? 'Authorizing...' : 'Authorize'}
+                        {isAuthorizing ? t('mcpServers.authorizing') : t('mcpServers.authorize')}
                       </Button>
                     )}
                     {isAuthorized && (
@@ -1063,11 +1072,11 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="sm" onClick={() => startAuthorize(server)}>
                             <Check className="h-3.5 w-3.5 mr-1.5 text-success" />
-                            Re-authorize
+                            {t('mcpServers.reAuthorize')}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                          <p>Authorized — re-run the OAuth flow if access was revoked</p>
+                          <p>{t('mcpServers.authorizedDescription')}</p>
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -1084,13 +1093,13 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p>{isEnabled ? 'Disable server' : 'Enable server'}</p>
+                        <p>{isEnabled ? t('mcpServers.disableServer') : t('mcpServers.enableServer')}</p>
                       </TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          aria-label="Edit server"
+                          aria-label={t('mcpServers.editServerAria')}
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
@@ -1100,7 +1109,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p>Edit server</p>
+                        <p>{t('mcpServers.editServerAria')}</p>
                       </TooltipContent>
                     </Tooltip>
                     <Popover
@@ -1115,17 +1124,15 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                       <PopoverContent className="w-80" side="bottom" align="end">
                         <div className="space-y-3">
                           <div>
-                            <h4 className="font-medium">Remove Server</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Are you sure you want to remove this MCP server? This action cannot be undone.
-                            </p>
+                            <h4 className="font-medium">{t('mcpServers.removeServer')}</h4>
+                            <p className="text-sm text-muted-foreground">{t('mcpServers.removeServerDescription')}</p>
                           </div>
                           <div className="flex justify-end gap-2">
                             <Button variant="outline" size="sm" onClick={() => setDeleteConfirmOpen(null)}>
-                              Cancel
+                              {t('mcpServers.cancel')}
                             </Button>
                             <Button variant="destructive" size="sm" onClick={() => handleDeleteServer(server.id)}>
-                              Remove
+                              {t('mcpServers.remove')}
                             </Button>
                           </div>
                         </div>
@@ -1138,9 +1145,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
                 <CardContent className="pt-0">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <p className="text-sm text-destructive cursor-default">
-                        Could not connect to this server. Check the URL and that the server is reachable.
-                      </p>
+                      <p className="text-sm text-destructive cursor-default">{t('mcpServers.couldNotConnect')}</p>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
                       <p className="max-w-xs break-words">{connectionError.message}</p>
@@ -1151,7 +1156,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
               {oauthState?.phase === 'needs-auth' && (
                 <CardContent className="pt-0">
                   <p className="text-sm text-muted-foreground">
-                    {oauthState.message ?? 'This server requires authorization. Click Authorize to connect.'}
+                    {oauthState.message ?? t('mcpServers.requiresAuthorization')}
                   </p>
                 </CardContent>
               )}
@@ -1179,13 +1184,11 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
           <Card className="border-dashed border-2 border-muted-foreground/25">
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Server className="size-10 text-muted-foreground mb-4" />
-              <h3 className="font-medium text-foreground mb-1">No MCP servers configured</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Get started by adding your first MCP server connection.
-              </p>
+              <h3 className="font-medium text-foreground mb-1">{t('mcpServers.emptyTitle')}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{t('mcpServers.emptyDescription')}</p>
               <Button onClick={form.openDialog} variant="outline">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Server
+                {t('mcpServers.addServerButton')}
               </Button>
             </CardContent>
           </Card>

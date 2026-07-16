@@ -261,7 +261,7 @@ export const AddCustomAgentDialog = ({
             <Label htmlFor="agent-name">{t('agents.name')}</Label>
             <Input
               id="agent-name"
-              placeholder="My Agent"
+              placeholder={t('agents.namePlaceholder')}
               value={state.name}
               onChange={(e) => dispatch({ type: 'SET_NAME', value: e.target.value })}
               autoComplete="off"
@@ -271,7 +271,7 @@ export const AddCustomAgentDialog = ({
             <Label htmlFor="agent-url">{t('agents.url')}</Label>
             <Input
               id="agent-url"
-              placeholder="wss://example.com/ws or paste an iroh ticket"
+              placeholder={t('agents.urlPlaceholder')}
               value={state.url}
               onChange={(e) => dispatch({ type: 'SET_URL', value: e.target.value })}
               autoComplete="off"
@@ -279,10 +279,7 @@ export const AddCustomAgentDialog = ({
               autoCorrect="off"
               spellCheck={false}
             />
-            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-              A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare
-              NodeId works only if the peer is discoverable).
-            </p>
+            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.urlHelper')}</p>
           </div>
           {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
           <div className="grid grid-cols-1 gap-2">

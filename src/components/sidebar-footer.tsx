@@ -4,6 +4,7 @@
 
 import { ChevronsUpDown, Loader2, LogOut, Terminal, UserRound, Download } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { User } from '@shared/types/auth'
 
@@ -74,6 +75,7 @@ const triggerButtonClassName = (isOpen: boolean) =>
   )
 
 export const SidebarFooter = ({ className }: SidebarFooterProps) => {
+  const { t } = useTranslation(['auth', 'common'])
   const authClient = useAuth()
   const { isMobile, setOpenMobile, state } = useSidebar()
   const { openSignInModal } = useSignInModal()
@@ -139,7 +141,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
                 </div>
                 {isExpanded && (
                   <div className="grid flex-1 text-left text-[length:var(--font-size-body)] leading-tight">
-                    <span className="truncate text-muted-foreground">Loading...</span>
+                    <span className="truncate text-muted-foreground">{t('common:loading')}</span>
                   </div>
                 )}
               </SidebarMenuButton>
@@ -147,7 +149,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               // Not logged in - collapsed desktop
               <button
                 type="button"
-                aria-label="Sign in"
+                aria-label={t('auth:signIn.title')}
                 className={cn(
                   'flex w-full items-center justify-center h-[var(--touch-height-xl)] cursor-pointer transition-colors',
                   'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -160,6 +162,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               // Not logged in - expanded
               <button
                 type="button"
+                aria-label={t('auth:signIn.title')}
                 className={cn(
                   'flex w-full items-center gap-2 px-3 h-[var(--touch-height-xl)] cursor-pointer transition-colors text-[length:var(--font-size-body)]',
                   'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -167,7 +170,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
                 onClick={handleSignInClick}
               >
                 <UserRound className="size-[var(--icon-size-default)] shrink-0 text-muted-foreground" />
-                <span className="truncate">Sign In</span>
+                <span className="truncate">{t('auth:signIn.title')}</span>
               </button>
             ) : isDesktopCollapsed ? (
               <PopoverTrigger asChild>
