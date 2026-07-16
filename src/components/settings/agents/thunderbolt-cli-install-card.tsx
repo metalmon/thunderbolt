@@ -5,6 +5,7 @@
 import { arch } from '@tauri-apps/plugin-os'
 import { AlertTriangle, Check, Download, ExternalLink, Loader2, Terminal } from 'lucide-react'
 import { useState, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CopyCommandRow } from '@/components/settings/copy-command-row'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -53,6 +54,7 @@ export const ThunderboltCliInstallCard = ({
   architecture,
   tauri,
 }: ThunderboltCliInstallCardProps) => {
+  const { t } = useTranslation('settings')
   const [state, setState] = useState<InstallState>({ status: 'idle' })
   const [isPending, startTransition] = useTransition()
 
@@ -81,18 +83,9 @@ export const ThunderboltCliInstallCard = ({
         <div className="flex items-center gap-3">
           <Terminal className="size-8 text-muted-foreground shrink-0" aria-hidden="true" />
           <div className="flex flex-col gap-1 min-w-0">
-            <CardTitle>Thunderbolt CLI</CardTitle>
+            <CardTitle>{t('agents.cliTitle')}</CardTitle>
             <CardDescription>
-              {isTauriEnv ? (
-                <>
-                  Install the standalone <code className="font-mono">thunderbolt</code> terminal agent to{' '}
-                  <code className="font-mono">~/.local/bin</code>.
-                </>
-              ) : (
-                <>
-                  Install the standalone <code className="font-mono">thunderbolt</code> terminal agent from your shell.
-                </>
-              )}
+              {isTauriEnv ? t('agents.cliDescriptionTauri') : t('agents.cliDescriptionWeb')}
             </CardDescription>
           </div>
         </div>
@@ -102,21 +95,19 @@ export const ThunderboltCliInstallCard = ({
           <>
             <Button variant="secondary" className="self-start" disabled={isPending} onClick={handleInstall}>
               {isPending ? <Loader2 className="animate-spin" /> : <Download />}
-              {isPending ? 'Installing…' : 'Install CLI'}
+              {isPending ? t('agents.installing') : t('agents.installCli')}
             </Button>
 
             {state.status === 'success' && (
               <div className="flex flex-col gap-3">
                 <p className="flex items-center gap-2 text-[length:var(--font-size-sm)]">
                   <Check className="size-4 shrink-0 text-green-600" aria-hidden="true" />
-                  Installed to <code className="font-mono">{state.result.path}</code>
+                  {t('agents.installedTo', { path: state.result.path })}
                 </p>
                 {!state.result.onPath && state.result.pathHint && (
                   <div className="flex flex-col gap-2">
-                    <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                      Add <code className="font-mono">~/.local/bin</code> to your PATH, then restart your shell:
-                    </p>
-                    <CopyCommandRow command={state.result.pathHint} label="Copy PATH command" />
+                    <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.addPath')}</p>
+                    <CopyCommandRow command={state.result.pathHint} label={t('agents.copyPathCommand')} />
                   </div>
                 )}
               </div>
@@ -131,9 +122,9 @@ export const ThunderboltCliInstallCard = ({
                 {state.showManualBuild && (
                   <div className="flex flex-col gap-2">
                     <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                      Build it from source instead (requires Bun):
+                      {t('agents.buildFromSource')}
                     </p>
-                    <CopyCommandRow command={manualBuildCommand} label="Copy build command" />
+                    <CopyCommandRow command={manualBuildCommand} label={t('agents.copyBuildCommand')} />
                   </div>
                 )}
               </div>
@@ -143,7 +134,7 @@ export const ThunderboltCliInstallCard = ({
           <Button asChild variant="secondary" className="self-start">
             <a href={cliInstallGuideUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink />
-              View install guide
+              {t('agents.viewInstallGuide')}
             </a>
           </Button>
         )}

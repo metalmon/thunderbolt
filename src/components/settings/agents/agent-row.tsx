@@ -57,18 +57,22 @@ export const canDeleteAgent = (agent: Agent, currentUserId: string | null): bool
 export const canEditAgent = (agent: Agent, currentUserId: string | null): boolean =>
   canDeleteAgent(agent, currentUserId)
 
+export type AgentToggleDisabledReason = 'builtInAlwaysAvailable' | 'systemAlwaysAvailable'
+
 /** Computes the toggle's disabled state and the corresponding "always available"
- *  tooltip text. Built-in is an in-code constant; system agents are configured
+ *  reason key. Built-in is an in-code constant; system agents are configured
  *  on the backend via env vars — neither can be toggled by the user. Exported
  *  for unit testing the branching without rendering the portaled tooltip. */
-export const agentToggleDisabled = (agent: Agent): { disabled: boolean; disabledTooltip: string | null } => {
+export const agentToggleDisabled = (
+  agent: Agent,
+): { disabled: boolean; disabledReason: AgentToggleDisabledReason | null } => {
   if (agent.type === 'built-in') {
-    return { disabled: true, disabledTooltip: 'Built-in agent is always available' }
+    return { disabled: true, disabledReason: 'builtInAlwaysAvailable' }
   }
   if (agent.type === 'managed-acp' && agent.isSystem === 1) {
-    return { disabled: true, disabledTooltip: 'System agent is always available' }
+    return { disabled: true, disabledReason: 'systemAlwaysAvailable' }
   }
-  return { disabled: false, disabledTooltip: null }
+  return { disabled: false, disabledReason: null }
 }
 
 type AgentRowProps = {
@@ -85,7 +89,7 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
   const badge = badgeForAgent(agent)
   const showEdit = canEditAgent(agent, currentUserId)
   const showDelete = canDeleteAgent(agent, currentUserId)
-  const { disabled: toggleDisabled, disabledTooltip } = agentToggleDisabled(agent)
+  const { disabled: toggleDisabled, disabledReason } = agentToggleDisabled(agent)
   const isEnabled = agent.enabled === 1
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -133,13 +137,11 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 <p>
-                  {disabledTooltip === 'Built-in agent is always available'
-                    ? t('agents.builtInAlwaysAvailable')
-                    : disabledTooltip === 'System agent is always available'
-                      ? t('agents.systemAlwaysAvailable')
-                      : isEnabled
-                        ? t('agents.disableAgent')
-                        : t('agents.enableAgent')}
+                  {disabledReason
+                    ? t(`agents.${disabledReason}`)
+                    : isEnabled
+                      ? t('agents.disableAgent')
+                      : t('agents.enableAgent')}
                 </p>
               </TooltipContent>
             </Tooltip>

@@ -179,21 +179,21 @@ describe('agentToggleDisabled', () => {
   it('disables the toggle for the built-in agent with the built-in tooltip', () => {
     expect(agentToggleDisabled(builtInAgent)).toEqual({
       disabled: true,
-      disabledTooltip: 'Built-in agent is always available',
+      disabledReason: 'builtInAlwaysAvailable',
     })
   })
 
   it('disables the toggle for system agents with the system tooltip', () => {
     expect(agentToggleDisabled(systemAgent)).toEqual({
       disabled: true,
-      disabledTooltip: 'System agent is always available',
+      disabledReason: 'systemAlwaysAvailable',
     })
   })
 
   it('keeps the toggle enabled for custom agents and emits no tooltip', () => {
     expect(agentToggleDisabled(customAgent)).toEqual({
       disabled: false,
-      disabledTooltip: null,
+      disabledReason: null,
     })
   })
 })
