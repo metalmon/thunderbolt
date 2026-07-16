@@ -5,6 +5,7 @@
 import { Download } from 'lucide-react'
 import { useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { getDownloadUrl } from '@/lib/download-links'
@@ -14,6 +15,7 @@ import { isWebDesktopPlatform, isTauri } from '@/lib/platform'
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
 
 export const DownloadAppBannerDesktop = () => {
+  const { t } = useTranslation('common')
   const [dismissed, setDismissed] = useState(false)
 
   if (!showAppDownloads || isTauri() || !isWebDesktopPlatform()) {
@@ -51,16 +53,16 @@ export const DownloadAppBannerDesktop = () => {
               <Download className="size-5 text-foreground" />
 
               <div>
-                <p className="text-sm font-semibold text-foreground">Get Thunderbolt free app</p>
-                <p className="text-xs text-muted-foreground mt-0.5">One app, every AI model</p>
+                <p className="text-sm font-semibold text-foreground">{t('downloadApp.title')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('downloadApp.subtitle')}</p>
               </div>
 
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleDownload}>
-                  Download App
+                  {t('downloadApp.downloadApp')}
                 </Button>
                 <Button size="sm" variant="outline" onClick={handleDismiss}>
-                  Later
+                  {t('downloadApp.later')}
                 </Button>
               </div>
             </div>

@@ -5,6 +5,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 import { type ComponentProps } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/utils'
 
@@ -54,6 +55,8 @@ const DialogContent = ({
   useTransparentOverlay?: boolean
   fullScreen?: boolean
 }) => {
+  const { t } = useTranslation('common')
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay useTransparentOverlay={useTransparentOverlay} />
@@ -79,7 +82,7 @@ const DialogContent = ({
             style={{ top: fullScreen ? 'calc(var(--safe-area-top-padding, 0px) + 16px)' : '16px' }}
           >
             <XIcon />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t('close')}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>

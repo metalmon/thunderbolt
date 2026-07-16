@@ -5,6 +5,7 @@
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import type { ButtonHTMLAttributes } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type BackButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Button size variant */
@@ -21,12 +22,13 @@ const sizeClasses = {
  * Used for navigation in modals, cards, and overlays.
  */
 export const BackButton = ({ size = 'md', className, ...props }: BackButtonProps) => {
+  const { t } = useTranslation('common')
   const sizes = sizeClasses[size]
 
   return (
     <button
       type="button"
-      aria-label="Go back"
+      aria-label={t('goBack')}
       className={cn(
         'flex cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted',
         sizes.button,

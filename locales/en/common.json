@@ -125,5 +125,66 @@
     "title": "Context Window Exceeded",
     "description": "Your message would exceed the model's {{maxTokens}}-token context window.",
     "newChat": "New Chat"
+  },
+  "logout": {
+    "title": "Log out",
+    "description": "What would you like to do with your local data?",
+    "keepTitle": "Leave data on device",
+    "keepDescription": "Your chats and settings will remain on this device for next time.",
+    "deleteTitle": "Delete data from device",
+    "deleteDescription": "Remove all chats, settings, and cached data from this device.",
+    "loggingOut": "Logging out...",
+    "deleting": "Deleting..."
+  },
+  "syncStatus": {
+    "ariaLabel": "Sync status",
+    "disabled": "Sync disabled",
+    "connecting": "Connecting...",
+    "offline": "Offline",
+    "justSynced": "Just synced",
+    "syncedMinutesAgo": "Synced {{count}}m ago",
+    "syncedHoursAgo": "Synced {{count}}h ago",
+    "connected": "Connected",
+    "willSyncWhenOnline": "Changes will sync when back online",
+    "retry": "Retry",
+    "cloudSyncTitle": "Cloud Sync",
+    "cloudSyncDescription": "Keep all of your devices synced.",
+    "cloudSyncEnabledDescription": "Enable cloud synchronization to keep your data synced across devices.",
+    "enableCloudSyncAria": "Enable cloud sync"
+  },
+  "syncEnableWarning": {
+    "title": "Enable sync?",
+    "description": "At this time, synced data is not encrypted. Enabling sync will store your data on our servers without encryption. Do you want to continue?",
+    "confirm": "Enable sync without encryption"
+  },
+  "telemetryRequired": {
+    "title": "Telemetry Required",
+    "description": "In order to use preview features, we ask that you help us improve the product by sharing telemetry data.",
+    "enable": "Enable Telemetry"
+  },
+  "telemetryWarning": {
+    "title": "Preview Features Will Be Disabled",
+    "description": "Turning off telemetry will disable all preview features. Are you sure you want to continue?",
+    "disable": "Disable Telemetry"
+  },
+  "downloadApp": {
+    "title": "Get Thunderbolt free app",
+    "subtitle": "One app, every AI model",
+    "downloadApp": "Download App",
+    "download": "Download",
+    "later": "Later",
+    "dismiss": "Dismiss"
+  },
+  "accountMenu": {
+    "ariaLabel": "Account menu",
+    "downloadApp": "Download App",
+    "devSettings": "Dev Settings",
+    "messageSimulator": "Message Simulator",
+    "logOut": "Log out"
+  },
+  "windowControls": {
+    "ariaLabel": "Window controls",
+    "minimize": "Minimize",
+    "maximize": "Maximize"
   }
 }
