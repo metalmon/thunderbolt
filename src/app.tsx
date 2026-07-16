@@ -301,7 +301,7 @@ export const App = () => {
                       <ProxyFetchProvider>
                         <MCPProvider>
                           <HapticsProvider>
-                            <SidebarProvider>
+                            <SidebarProvider className="h-full overflow-hidden">
                               <ContentViewProvider>
                                 <ExternalLinkDialogProvider>
                                   <ChatFontApplier />
