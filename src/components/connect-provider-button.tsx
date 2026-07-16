@@ -7,6 +7,7 @@ import { useOAuthConnect } from '@/hooks/use-oauth-connect'
 import { type OAuthProvider } from '@/lib/auth'
 import { Check, Loader2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type ConnectProviderButtonProps = {
   provider: OAuthProvider
@@ -46,11 +47,12 @@ export const ConnectProviderButton = ({
   variant = 'secondary',
   size,
   connectLabel,
-  connectingLabel = 'Connecting...',
-  connectedLabel = 'Connected!',
+  connectingLabel,
+  connectedLabel,
   allowDisconnect = false,
   useOAuthConnectHook,
 }: ConnectProviderButtonProps) => {
+  const { t } = useTranslation('settings')
   const [isHovered, setIsHovered] = useState(false)
 
   // Use injected hook for testing, or real implementation in production
@@ -78,7 +80,9 @@ export const ConnectProviderButton = ({
   }
 
   const providerName = provider === 'microsoft' ? 'Microsoft' : 'Google'
-  const defaultConnectLabel = connectLabel || `Connect ${providerName}`
+  const defaultConnectLabel = connectLabel || t('integrations.connectProvider', { provider: providerName })
+  const resolvedConnectingLabel = connectingLabel ?? t('integrations.connecting')
+  const resolvedConnectedLabel = connectedLabel ?? t('integrations.connected')
 
   const showDisconnect = isConnected && allowDisconnect && isHovered
 
@@ -96,18 +100,18 @@ export const ConnectProviderButton = ({
         showDisconnect ? (
           <>
             <X className="w-4 h-4 mr-2" />
-            Disconnect
+            {t('integrations.disconnect')}
           </>
         ) : (
           <>
             <Check className="w-4 h-4 mr-2 text-green-600" />
-            {connectedLabel}
+            {resolvedConnectedLabel}
           </>
         )
       ) : isConnecting ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          {connectingLabel}
+          {resolvedConnectingLabel}
         </>
       ) : (
         defaultConnectLabel

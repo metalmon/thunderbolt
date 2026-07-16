@@ -16,6 +16,7 @@ import { decodePairingTicket } from '@/lib/pairing-ticket'
 import { decodeQrFromFile } from '@/lib/qr-scan'
 import { Loader2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type SetNodeIdDialogProps = {
   open: boolean
@@ -32,6 +33,7 @@ type Status = { kind: 'idle' } | { kind: 'scanning' } | { kind: 'error'; message
  * pairing code or scanning one from an uploaded QR image. Default export for lazy loading.
  */
 const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending }: SetNodeIdDialogProps) => {
+  const { t } = useTranslation(['settings', 'common'])
   const [text, setText] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -43,7 +45,10 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
       setText(decoded)
       setStatus({ kind: 'idle' })
     } catch (err) {
-      setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'Could not read QR code' })
+      setStatus({
+        kind: 'error',
+        message: err instanceof Error ? err.message : t('devices.couldNotReadQr'),
+      })
     }
   }
 
@@ -53,10 +58,16 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
       try {
         await onConfirm(nodeId)
       } catch (err) {
-        setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'Could not bind the pairing code' })
+        setStatus({
+          kind: 'error',
+          message: err instanceof Error ? err.message : t('devices.couldNotBind'),
+        })
       }
     } catch (err) {
-      setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'Invalid pairing code' })
+      setStatus({
+        kind: 'error',
+        message: err instanceof Error ? err.message : t('devices.invalidPairingCode'),
+      })
     }
   }
 
@@ -66,17 +77,15 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Pair {deviceName}</DialogTitle>
-          <DialogDescription>
-            Paste a pairing code or upload its QR image to bind this device to its peer-to-peer identity.
-          </DialogDescription>
+          <DialogTitle>{t('devices.pairTitle', { deviceName })}</DialogTitle>
+          <DialogDescription>{t('devices.pairDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3">
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="thunderbolt-pair:…"
+            placeholder={t('devices.pairPlaceholder')}
             rows={3}
             spellCheck={false}
             className="font-mono text-[length:var(--font-size-xs)]"
@@ -104,7 +113,7 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
             onClick={() => fileInputRef.current?.click()}
           >
             {scanning ? <Loader2 className="size-4 mr-1 animate-spin" /> : <Upload className="size-4 mr-1" />}
-            Scan from image
+            {t('devices.scanFromImage')}
           </Button>
 
           {status.kind === 'error' && (
@@ -114,11 +123,11 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
+            {t('common:cancel')}
           </Button>
           <Button onClick={() => void handleSave()} disabled={isPending || scanning || text.trim().length === 0}>
             {isPending ? <Loader2 className="size-4 mr-1 animate-spin" /> : null}
-            Save
+            {t('common:save')}
           </Button>
         </DialogFooter>
       </DialogContent>

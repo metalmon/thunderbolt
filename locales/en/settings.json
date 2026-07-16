@@ -31,7 +31,18 @@
     },
     "selectLocationPlaceholder": "Select location...",
     "searchLocationsPlaceholder": "Search locations...",
-    "noLocationsFound": "No locations found."
+    "noLocationsFound": "No locations found.",
+    "updateDefaultsTitle": "Update Defaults?",
+    "updateDefaultsDescription": "Would you like to update your units based on the new location?",
+    "keepCurrentUnits": "Keep Current Units",
+    "updateUnits": "Update Units"
+  },
+  "modification": {
+    "customized": "You've customized this setting.",
+    "confirmReset": "Are you sure? You will lose any changes that you made.",
+    "modifiedItem": "Modified item",
+    "defaultSetting": "Default setting",
+    "resetToDefault": "Reset to Default"
   },
   "network": {
     "title": "Network",
@@ -103,7 +114,14 @@
     "show": "Show",
     "update": "Update",
     "setNodeId": "Set node ID",
-    "loadingCode": "Loading code…"
+    "loadingCode": "Loading code…",
+    "pairTitle": "Pair {{deviceName}}",
+    "pairDescription": "Paste a pairing code or upload its QR image to bind this device to its peer-to-peer identity.",
+    "pairPlaceholder": "thunderbolt-pair:…",
+    "scanFromImage": "Scan from image",
+    "couldNotReadQr": "Could not read QR code",
+    "couldNotBind": "Could not bind the pairing code",
+    "invalidPairingCode": "Invalid pairing code"
   },
   "developer": {
     "title": "Developer Settings",
@@ -120,6 +138,9 @@
     "getPro": "Get Pro",
     "connectGoogle": "Connect Google",
     "connectMicrosoft": "Connect Microsoft",
+    "connectProvider": "Connect {{provider}}",
+    "connecting": "Connecting...",
+    "connected": "Connected!",
     "loading": "Loading integrations...",
     "disconnect": "Disconnect",
     "emptyTitle": "No integrations available",
@@ -326,6 +347,8 @@
     "pairingIdentityFailed": "Couldn't load this app's pairing identity: {{error}}",
     "loadingPairingIdentity": "Loading this app's pairing identity…",
     "cliTitle": "Thunderbolt CLI",
+    "cliDescriptionTauri": "Install the standalone thunderbolt terminal agent to ~/.local/bin.",
+    "cliDescriptionWeb": "Install the standalone thunderbolt terminal agent from your shell.",
     "installing": "Installing…",
     "installCli": "Install CLI",
     "installedTo": "Installed to {{path}}",
