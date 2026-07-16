@@ -25,6 +25,7 @@ git remote add fork   https://github.com/metalmon/thunderbolt.git
 | `feat/i18n-infra` | Core i18n plumbing: helpers, i18next init, `ui_language` setting, provider, rebuild script, docs. |
 | `feat/i18n-wrap-*` | One branch per UI surface; each replaces hardcoded English with `t()` calls and grows `locales/en/*.json`. |
 | `local/i18n-locales` | Russian (`ru`) catalog completion only - no wrap or infra code changes. |
+| `local/dev-fixes` | Local compose backend, Tauri CSP/capabilities, sidebar overflow fix. |
 | `master` | **Build and deploy this.** Ephemeral assembly: `main` + cherry-pick of every branch in `$Branches`. Push to `fork master`. |
 
 Wrap branches are intentionally **narrow**: each should contain only the string-wrapping work for its namespace (settings, chat, auth, onboarding, tasks). Infra stays on `feat/i18n-infra`; translations stay on `local/i18n-locales`.
@@ -39,6 +40,7 @@ Current stack (order matters - listed in `dev-local/rebuild-master.ps1`):
 6. `feat/i18n-wrap-onboarding`
 7. `feat/i18n-wrap-tasks`
 8. `local/i18n-locales` (same infra-tip range - locale commit(s) only)
+9. `local/dev-fixes` (cherry-pick `main..branch` — last, so `app.tsx` lands on i18n)
 
 ## Rebuilding `master`
 
