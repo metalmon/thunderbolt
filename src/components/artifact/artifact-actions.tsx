@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { Check, Copy, Download } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /** Filename-safe slug from a human title, e.g. "Sales Dashboard" → "sales-dashboard". */
 const toFileSlug = (title: string): string =>
@@ -30,6 +31,7 @@ type ArtifactActionsProps = {
  * toggle the surrounding (collapsible) card header.
  */
 export const ArtifactActions = ({ html, title, buttonClassName }: ArtifactActionsProps) => {
+  const { t } = useTranslation('chat')
   const { copy, isCopied } = useCopyToClipboard()
 
   const handleDownload = () => {
@@ -57,7 +59,7 @@ export const ArtifactActions = ({ html, title, buttonClassName }: ArtifactAction
         variant="ghost"
         size="icon"
         className={cn('size-8 shrink-0 rounded-full', buttonClassName)}
-        title="Copy HTML"
+        title={t('artifact.copyHtml')}
       >
         {isCopied ? <Check className="size-4 animate-[fadeOut_2s_ease-in-out]" /> : <Copy className="size-4" />}
       </Button>
@@ -69,7 +71,7 @@ export const ArtifactActions = ({ html, title, buttonClassName }: ArtifactAction
         variant="ghost"
         size="icon"
         className={cn('size-8 shrink-0 rounded-full', buttonClassName)}
-        title="Download HTML"
+        title={t('artifact.downloadHtml')}
       >
         <Download className="size-4" />
       </Button>

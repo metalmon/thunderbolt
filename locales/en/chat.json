@@ -133,7 +133,29 @@
     "shownInPanel": "{{title}} — shown in side panel",
     "showInline": "Show inline",
     "generating": "Generating…",
-    "openInSidePanel": "Open in side panel"
+    "openInSidePanel": "Open in side panel",
+    "copyHtml": "Copy HTML",
+    "downloadHtml": "Download HTML"
+  },
+  "toolLoading": {
+    "searching": "Searching...",
+    "retrievingData": "Retrieving data...",
+    "editing": "Editing...",
+    "creating": "Creating...",
+    "removing": "Removing...",
+    "processing": "Processing...",
+    "analyzing": "Analyzing...",
+    "sending": "Sending...",
+    "gettingWeather": "Getting weather...",
+    "searchingFor": "Searching for \"{{query}}\"...",
+    "gettingWeatherFor": "Getting weather for {{location}}...",
+    "editingFile": "Editing {{file}}...",
+    "readingFile": "Reading {{file}}...",
+    "usingTool": "Using \"{{toolName}}\" tool..."
+  },
+  "deleteThread": {
+    "title": "Delete the thread?",
+    "description": "This action cannot be undone. This will permanently delete this chat and all its messages."
   },
   "sources": {
     "source": "Source",

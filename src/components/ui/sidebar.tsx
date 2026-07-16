@@ -30,6 +30,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const sidebarCookieName = 'sidebar_state'
 const sidebarCookieMaxAge = 60 * 60 * 24 * 7
@@ -298,6 +299,7 @@ Sidebar.displayName = 'Sidebar'
 const SidebarTrigger = forwardRef<ElementRef<typeof Button>, ComponentProps<typeof Button>>(
   ({ className, onClick, ...props }, ref) => {
     const { toggleSidebar } = useSidebar()
+    const { t } = useTranslation('chat')
 
     return (
       <Button
@@ -313,7 +315,7 @@ const SidebarTrigger = forwardRef<ElementRef<typeof Button>, ComponentProps<type
         {...props}
       >
         <PanelLeft />
-        <span className="sr-only">Toggle Sidebar</span>
+        <span className="sr-only">{t('sidebar.toggle')}</span>
       </Button>
     )
   },
@@ -330,6 +332,7 @@ const SidebarRail = forwardRef<
   }
 >(({ className, enableDrag = true, direction = 'right', maxResizeWidth = maxSidebarWidth, ...props }, ref) => {
   const { toggleSidebar, setWidth, state, width, setIsDraggingRail } = useSidebar()
+  const { t } = useTranslation('chat')
 
   const { dragRef, handleMouseDown } = useSidebarResize({
     direction,
@@ -353,13 +356,13 @@ const SidebarRail = forwardRef<
       //* updated ref to use combinedRef
       ref={combinedRef}
       data-sidebar="rail"
-      aria-label="Toggle Sidebar"
+      aria-label={t('sidebar.toggle')}
       tabIndex={-1}
       // onClick={toggleSidebar}
       //* replace onClick with onMouseDown
       // @ts-ignore
       onMouseDown={handleMouseDown}
-      title="Toggle Sidebar"
+      title={t('sidebar.toggle')}
       className={cn(
         'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',

@@ -4,6 +4,7 @@
 
 import type { ReasoningUIPart } from 'ai'
 import { Check, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Expandable } from '../ui/expandable'
 
 type ReasoningPartProps = {
@@ -11,11 +12,12 @@ type ReasoningPartProps = {
 }
 
 export const ReasoningPart = ({ part }: ReasoningPartProps) => {
+  const { t } = useTranslation('chat')
   const state = part.state
 
   return (
     <Expandable
-      title={<span className="text-muted-foreground">Thinking</span>}
+      title={<span className="text-muted-foreground">{t('messages.thinking')}</span>}
       className="shadow-none"
       icon={
         state === 'streaming' ? (

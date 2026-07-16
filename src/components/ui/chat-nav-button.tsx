@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import { Ellipsis, Trash2 } from 'lucide-react'
 import { type HTMLAttributes } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 type ChatNavButtonProps = HTMLAttributes<HTMLDivElement> & {
@@ -30,6 +31,7 @@ type ChatNavButtonProps = HTMLAttributes<HTMLDivElement> & {
 export const ChatNavButton = ({ chatTitle, threadId, className, asChild = false, ...props }: ChatNavButtonProps) => {
   const Comp = asChild ? Slot : 'div'
   const navigate = useNavigate()
+  const { t } = useTranslation(['chat', 'common'])
 
   const handleButtonClick = () => {
     navigate(`/chats/${threadId}`)
@@ -69,20 +71,18 @@ export const ChatNavButton = ({ chatTitle, threadId, className, asChild = false,
                           className="w-full justify-start text-destructive hover:text-destructive"
                         >
                           <Trash2 className="size-4 mr-2" />
-                          Delete
+                          {t('common:delete')}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete the thread?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete this chat and all its messages.
-                          </AlertDialogDescription>
+                          <AlertDialogTitle>{t('deleteThread.title')}</AlertDialogTitle>
+                          <AlertDialogDescription>{t('deleteThread.description')}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>{t('common:cancel')}</AlertDialogCancel>
                           <AlertDialogAction className={cn(buttonVariants({ variant: 'destructive' }))}>
-                            Delete
+                            {t('common:delete')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
