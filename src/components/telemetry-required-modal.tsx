@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,6 +26,7 @@ type TelemetryRequiredModalProps = {
 
 export const TelemetryRequiredModal = forwardRef<TelemetryRequiredModalRef, TelemetryRequiredModalProps>(
   ({ onEnableTelemetry }, ref) => {
+    const { t } = useTranslation('common')
     const [open, setOpen] = useState(false)
     const [featureName, setFeatureName] = useState<string | null>(null)
 
@@ -52,14 +54,12 @@ export const TelemetryRequiredModal = forwardRef<TelemetryRequiredModalRef, Tele
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Telemetry Required</AlertDialogTitle>
-            <AlertDialogDescription>
-              In order to use preview features, we ask that you help us improve the product by sharing telemetry data.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('telemetryRequired.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('telemetryRequired.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleEnableTelemetry}>Enable Telemetry</AlertDialogAction>
+            <AlertDialogCancel onClick={handleClose}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEnableTelemetry}>{t('telemetryRequired.enable')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

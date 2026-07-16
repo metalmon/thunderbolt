@@ -5,6 +5,7 @@
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 import { type ComponentProps } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { HapticMountBoundary } from '@/hooks/use-haptics'
 import { withCollapsedAutoFocusSelection } from '@/lib/focus'
@@ -49,6 +50,8 @@ const SheetContent = ({
   overlayClassName?: string
   hideCloseButton?: boolean
 }) => {
+  const { t } = useTranslation('common')
+
   return (
     <SheetPortal>
       <SheetOverlay className={overlayClassName} />
@@ -73,7 +76,7 @@ const SheetContent = ({
         {!hideCloseButton && (
           <SheetPrimitive.Close className={cn(modalCloseClass, 'top-4 right-4')}>
             <XIcon className="size-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t('close')}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Content>
