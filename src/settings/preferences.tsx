@@ -1219,15 +1219,13 @@ export default function PreferencesSettingsPage() {
       <AlertDialog open={localizationDialogOpen} onOpenChange={(open) => !open && handleDeclineLocalizationSettings()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Update Defaults?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Would you like to update your units based on the new location?
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('localization.updateDefaultsTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('localization.updateDefaultsDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep Current Units</AlertDialogCancel>
+            <AlertDialogCancel>{t('localization.keepCurrentUnits')}</AlertDialogCancel>
             <AlertDialogAction autoFocus onClick={handleApplyLocalizationSettings}>
-              Update Units
+              {t('localization.updateUnits')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
