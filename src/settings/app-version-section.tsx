@@ -8,21 +8,23 @@ import { SectionCard } from '@/components/ui/section-card'
 import { useDesktopUpdate, type UpdateErrorPhase, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { downloadLinks } from '@/lib/download-links'
 import { getPlatform, isDesktop, isMobile, isTauri } from '@/lib/platform'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
-const errorPrefix = (phase: UpdateErrorPhase | null): string => {
+const errorPrefix = (t: TFunction<'settings'>, phase: UpdateErrorPhase | null): string => {
   switch (phase) {
     case 'download':
-      return "Couldn't download the update"
+      return t('appVersion.errorDownload')
     case 'restart':
-      return "Couldn't restart to apply the update"
+      return t('appVersion.errorRestart')
     case 'check':
     case null:
-      return "Couldn't check for updates"
+      return t('appVersion.errorCheck')
   }
 }
 
 const desktopStatusText = (
+  t: TFunction<'settings'>,
   status: UpdateStatus,
   updateVersion: string | undefined,
   downloadProgress: number,
@@ -31,21 +33,21 @@ const desktopStatusText = (
 ): string => {
   switch (status) {
     case 'initial':
-      return 'Tap to check for updates.'
+      return t('appVersion.tapToCheck')
     case 'idle':
-      return "You're on the latest version."
+      return t('appVersion.latestVersion')
     case 'checking':
-      return 'Checking for updates...'
+      return t('appVersion.checkingForUpdates')
     case 'available':
       return updateVersion
-        ? `Version ${updateVersion} is available. See the update prompt to install.`
-        : 'A new version is available. See the update prompt to install.'
+        ? t('appVersion.versionAvailable', { version: updateVersion })
+        : t('appVersion.newVersionAvailable')
     case 'downloading':
-      return `Downloading update... ${downloadProgress}%`
+      return t('appVersion.downloading', { progress: downloadProgress })
     case 'ready':
-      return 'Update ready. Restart to apply.'
+      return t('appVersion.updateReady')
     case 'error': {
-      const prefix = errorPrefix(errorPhase)
+      const prefix = errorPrefix(t, errorPhase)
       return error ? `${prefix}: ${error}` : `${prefix}.`
     }
   }
@@ -88,7 +90,7 @@ export const AppVersionSection = () => {
               <label className="text-sm font-medium">{t('appVersion.updatesLabel')}</label>
               <p className="text-sm text-muted-foreground">
                 {desktop
-                  ? desktopStatusText(status, update?.version, downloadProgress, error, errorPhase)
+                  ? desktopStatusText(t, status, update?.version, downloadProgress, error, errorPhase)
                   : t('appVersion.mobileUpdateDescription')}
               </p>
               <Button
