@@ -26,13 +26,15 @@ $Branches = @(
     "feat/i18n-wrap-auth",
     "feat/i18n-wrap-onboarding",
     "feat/i18n-wrap-tasks",
-    "local/i18n-locales"
+    "local/i18n-locales",
+    "local/dev-fixes"
 )
 
 # Branches whose unique commits sit directly on main (not stacked on infra).
 $MainRangeBranches = @(
     "fix/make-format-windows",
-    "feat/i18n-infra"
+    "feat/i18n-infra",
+    "local/dev-fixes"
 )
 
 function Get-CherryPickRange {
