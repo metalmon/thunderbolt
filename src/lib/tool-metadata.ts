@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { ToolConfig } from '@/types'
+import i18n from '@/i18n/i18n'
 import { http } from './http'
 import { memoize } from './memoize'
 import { getAvailableTools } from './tools'
@@ -112,6 +113,7 @@ export const formatDisplayName = (toolName: string): string =>
  */
 const generateLoadingMessage = (toolName: string, category: ToolCategory, input?: unknown, verb?: string): string => {
   const inputObject = input as Record<string, unknown>
+  const t = (key: string, options?: Record<string, string>) => i18n.t(`chat:toolLoading.${key}`, options)
 
   // If verb is provided, use it with variable substitution
   if (verb) {
@@ -126,42 +128,42 @@ const generateLoadingMessage = (toolName: string, category: ToolCategory, input?
   // Context-aware messages with args
   if (input) {
     if (name.includes('search') && typeof inputObject.query === 'string') {
-      const query = inputObject.query.slice(0, 20)
-      return `Searching for "${query}${inputObject.query.length > 20 ? '...' : ''}"...`
+      const query = `${inputObject.query.slice(0, 20)}${inputObject.query.length > 20 ? '...' : ''}`
+      return t('searchingFor', { query })
     }
     if (name.includes('weather') && typeof inputObject.location === 'string') {
-      return `Getting weather for ${inputObject.location}...`
+      return t('gettingWeatherFor', { location: inputObject.location })
     }
     if ((name.includes('edit') || name.includes('file')) && typeof inputObject.target_file === 'string') {
       const fileName = inputObject.target_file.split('/').pop() || inputObject.target_file
-      return `${name.includes('edit') ? 'Editing' : 'Reading'} ${fileName}...`
+      return name.includes('edit') ? t('editingFile', { file: fileName }) : t('readingFile', { file: fileName })
     }
     if (name.includes('grep') && typeof inputObject.query === 'string') {
-      const query = inputObject.query.slice(0, 15)
-      return `Searching for "${query}${inputObject.query.length > 15 ? '...' : ''}"...`
+      const query = `${inputObject.query.slice(0, 15)}${inputObject.query.length > 15 ? '...' : ''}`
+      return t('searchingFor', { query })
     }
   }
 
   // Category fallbacks
   const messages: Record<ToolCategory, string> = {
-    search: 'Searching...',
-    data: 'Retrieving data...',
+    search: t('searching'),
+    data: t('retrievingData'),
     action:
       name.includes('edit') || name.includes('write')
-        ? 'Editing...'
+        ? t('editing')
         : name.includes('create') || name.includes('add')
-          ? 'Creating...'
+          ? t('creating')
           : name.includes('delete') || name.includes('remove')
-            ? 'Removing...'
-            : 'Processing...',
-    analysis: 'Analyzing...',
-    communication: 'Sending...',
-    weather: 'Getting weather...',
-    unknown: 'Processing...',
+            ? t('removing')
+            : t('processing'),
+    analysis: t('analyzing'),
+    communication: t('sending'),
+    weather: t('gettingWeather'),
+    unknown: t('processing'),
   }
 
   // Return category message or final fallback
-  return messages[category] || `Using "${toolName}" tool...`
+  return messages[category] || t('usingTool', { toolName })
 }
 
 const getToolIcon = (toolName: string) => {
@@ -206,7 +208,7 @@ const getDisplayNameInitials = (displayName: string) =>
  * Gets tool metadata with caching for performance (async version)
  */
 export const getToolMetadata = async (toolName: string, args?: unknown): Promise<ToolMetadata> => {
-  const cacheKey = `${toolName}:${JSON.stringify(args || {})}`
+  const cacheKey = `${i18n.language}:${toolName}:${JSON.stringify(args || {})}`
 
   if (metadataCache.has(cacheKey)) {
     return metadataCache.get(cacheKey)!
@@ -235,7 +237,7 @@ export const getToolMetadata = async (toolName: string, args?: unknown): Promise
  * This is a fallback for components that can't handle async operations
  */
 export const getToolMetadataSync = (toolName: string, input?: unknown): ToolMetadata => {
-  const cacheKey = `${toolName}:${JSON.stringify(input || {})}_sync`
+  const cacheKey = `${i18n.language}:${toolName}:${JSON.stringify(input || {})}_sync`
 
   if (metadataCache.has(cacheKey)) {
     return metadataCache.get(cacheKey)!
