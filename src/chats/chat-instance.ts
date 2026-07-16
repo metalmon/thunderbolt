@@ -22,6 +22,7 @@ import { getDb as defaultGetDb } from '@/db/database'
 import {
   getChatErrorKind,
   getErrorRetryable,
+  isAcpSessionBusyError,
   isContentRejectionError,
   isContextOverflowError,
   isRateLimitError,
@@ -388,6 +389,14 @@ export const createChatInstance = (
       if (isRateLimitError(lastError)) {
         markRetriesExhausted()
         lastError = null
+        return
+      }
+
+      // Don't auto-retry ACP SESSION_BUSY — the prior turn still owns the slot
+      // (common right after Stop). Blind retries worsen the race.
+      if (isAcpSessionBusyError(lastError)) {
+        lastError = null
+        useChatStore.getState().updateSession(id, { retriesExhausted: true })
         return
       }
 
