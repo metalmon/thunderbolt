@@ -8,7 +8,10 @@
     "personalizationTitle": "Personalization",
     "preferredNameLabel": "Preferred Name",
     "preferredNamePlaceholder": "Your name",
-    "preferredNameDescription": "How Thunderbolt salutes you"
+    "preferredNameDescription": "How Thunderbolt salutes you",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "localization": {
     "title": "Localization",
@@ -25,7 +28,10 @@
     "languages": {
       "en": "English",
       "ru": "Русский"
-    }
+    },
+    "selectLocationPlaceholder": "Select location...",
+    "searchLocationsPlaceholder": "Search locations...",
+    "noLocationsFound": "No locations found."
   },
   "network": {
     "title": "Network",
@@ -68,7 +74,12 @@
     "deleting": "Deleting...",
     "deleteAccountButton": "Delete My Account",
     "deleteAccountDialogTitle": "Delete your account?",
-    "deleteAccountDialogDescription": "This will permanently delete your account and all of your data on our servers and on this device, including settings, chat history, and cached information. This action cannot be undone."
+    "deleteAccountDialogDescription": "This will permanently delete your account and all of your data on our servers and on this device, including settings, chat history, and cached information. This action cannot be undone.",
+    "cloudSyncTitle": "Cloud Sync",
+    "cloudSyncDescription": "Keep all of your devices synced.",
+    "cloudSyncEnabledDescription": "Enable cloud synchronization to keep your data synced across devices.",
+    "enableCloudSyncAria": "Enable cloud sync",
+    "syncStatusAria": "Sync status"
   },
   "sidebar": {
     "title": "Settings",
@@ -209,7 +220,14 @@
     "tokenRejectedTitle": "Token rejected",
     "tokenRejectedBody": "The server rejected the credential — check your bearer token or API key.",
     "connectionFailedTitle": "Connection failed",
-    "connectionFailedBody": "Could not connect to the MCP server. Please check the URL and try again."
+    "connectionFailedBody": "Could not connect to the MCP server. Please check the URL and try again.",
+    "urlOrIrohHelper": "A URL, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable).",
+    "saveFailed": "Could not save changes. Please try again.",
+    "importFailed": "Could not import servers. Please try again.",
+    "importFailedTitle": "Import failed",
+    "saveFailedTitle": "Save failed",
+    "authorizationErrorTitle": "Authorization error",
+    "serverUrlPlaceholder": "http://localhost:8000/mcp/"
   },
   "skills": {
     "title": "Skills",
@@ -315,7 +333,10 @@
     "copyPathCommand": "Copy PATH command",
     "buildFromSource": "Build it from source instead (requires Bun):",
     "copyBuildCommand": "Copy build command",
-    "viewInstallGuide": "View install guide"
+    "viewInstallGuide": "View install guide",
+    "namePlaceholder": "My Agent",
+    "urlPlaceholder": "wss://example.com/ws or paste an iroh ticket",
+    "urlHelper": "A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable)."
   },
   "appVersion": {
     "title": "App Version",
@@ -323,6 +344,16 @@
     "updatesLabel": "Updates",
     "mobileUpdateDescription": "Open the store to check for updates.",
     "checking": "Checking...",
-    "checkForUpdates": "Check for updates"
+    "checkForUpdates": "Check for updates",
+    "tapToCheck": "Tap to check for updates.",
+    "latestVersion": "You're on the latest version.",
+    "checkingForUpdates": "Checking for updates...",
+    "versionAvailable": "Version {{version}} is available. See the update prompt to install.",
+    "newVersionAvailable": "A new version is available. See the update prompt to install.",
+    "downloading": "Downloading update... {{progress}}%",
+    "updateReady": "Update ready. Restart to apply.",
+    "errorDownload": "Couldn't download the update",
+    "errorRestart": "Couldn't restart to apply the update",
+    "errorCheck": "Couldn't check for updates"
   }
 }
