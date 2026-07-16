@@ -426,14 +426,14 @@ export default function PreferencesSettingsPage() {
       const payload = await readJsonFile(file)
       const summary = summarizeExportEnvelope(payload, session?.user?.email ?? null)
       if (!summary) {
-        throw new ImportFormatError("This file doesn't look like a Thunderbolt export.")
+        throw new ImportFormatError(t('data.invalidExportFile'))
       }
       dispatch({ type: 'SET_PENDING_IMPORT', payload: { payload, ...summary } })
     } catch (error) {
       console.error('Failed to read import file:', error)
       dispatch({
         type: 'SET_IMPORT_ERROR',
-        payload: error instanceof Error ? error.message : 'Could not read the import file.',
+        payload: error instanceof Error ? error.message : t('data.couldNotReadImportFile'),
       })
     }
   }
@@ -444,17 +444,17 @@ export default function PreferencesSettingsPage() {
     }
     const userId = session?.user?.id
     if (!userId) {
-      dispatch({ type: 'SET_IMPORT_ERROR', payload: 'You must be signed in to import data.' })
+      dispatch({ type: 'SET_IMPORT_ERROR', payload: t('data.mustSignInToImport') })
       return
     }
     dispatch({ type: 'SET_IS_IMPORTING', payload: true })
     dispatch({ type: 'SET_IMPORT_ERROR', payload: null })
     try {
       const result = await importUserData(db, pendingImport.payload, { id: userId })
-      const total = Object.values(result.tables).reduce((sum, t) => sum + (t?.upserted ?? 0), 0)
+      const total = Object.values(result.tables).reduce((sum, rows) => sum + (rows?.upserted ?? 0), 0)
       dispatch({
         type: 'SET_IMPORT_SUCCESS',
-        payload: `Imported ${total.toLocaleString()} rows. The app may take a moment to reflect new chats.`,
+        payload: t('data.importSuccess', { count: total.toLocaleString() }),
       })
       trackEvent('settings_data_import')
       dispatch({ type: 'SET_PENDING_IMPORT', payload: null })
@@ -462,7 +462,7 @@ export default function PreferencesSettingsPage() {
       console.error('Failed to import data:', error)
       dispatch({
         type: 'SET_IMPORT_ERROR',
-        payload: error instanceof Error ? error.message : 'Failed to import data.',
+        payload: error instanceof Error ? error.message : t('data.failedToImport'),
       })
     } finally {
       dispatch({ type: 'SET_IS_IMPORTING', payload: false })
@@ -494,7 +494,7 @@ export default function PreferencesSettingsPage() {
       console.error('Failed to export data:', error)
       dispatch({
         type: 'SET_EXPORT_ERROR',
-        payload: error instanceof Error ? error.message : 'Failed to export data.',
+        payload: error instanceof Error ? error.message : t('data.failedToExport'),
       })
     } finally {
       dispatch({ type: 'SET_IS_EXPORTING', payload: false })
@@ -523,7 +523,7 @@ export default function PreferencesSettingsPage() {
       window.location.reload()
     } catch (error) {
       console.error('Failed to delete account:', error)
-      setDeleteAccountError(error instanceof Error ? error.message : 'Failed to delete account.')
+      setDeleteAccountError(error instanceof Error ? error.message : t('data.failedToDeleteAccount'))
     } finally {
       dispatch({ type: 'SET_IS_DELETING_ACCOUNT', payload: false })
     }
@@ -1189,21 +1189,21 @@ export default function PreferencesSettingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('data.importDialogTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendingImport && (
-                <>
-                  This file contains {pendingImport.totalRows.toLocaleString()} rows
-                  {pendingImport.sourceEmail ? ` exported by ${pendingImport.sourceEmail}` : ''}
-                  {pendingImport.exportedAtLabel ? ` on ${pendingImport.exportedAtLabel}` : ''}. Rows that share an ID
-                  with existing data will be overwritten with the file's version and synced to your other devices. This
-                  can't be undone.
-                </>
-              )}
+              {pendingImport &&
+                t('data.importDialogBody', {
+                  count: pendingImport.totalRows.toLocaleString(),
+                  exportedBy: pendingImport.sourceEmail
+                    ? t('data.importExportedBy', { email: pendingImport.sourceEmail })
+                    : '',
+                  exportedOn: pendingImport.exportedAtLabel
+                    ? t('data.importExportedOn', { date: pendingImport.exportedAtLabel })
+                    : '',
+                })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {pendingImport?.accountMismatch && (
             <p className="text-sm text-destructive font-medium" role="alert">
-              ⚠ This export was made by a different account ({pendingImport.sourceEmail}). Importing it here will mix
-              that data into your account — confirm only if you intend to.
+              {t('data.importAccountMismatch', { email: pendingImport.sourceEmail })}
             </p>
           )}
           {importError && (

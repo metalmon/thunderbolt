@@ -79,22 +79,22 @@ describe('validateAgentUrl', () => {
 
   it('rejects http:// with a clear "WebSocket only" message', () => {
     const result = validateAgentUrl('http://example.com/acp', notIos)
-    expect('error' in result && result.error).toMatch(/WebSocket|wss:\/\/|ws:\/\//i)
+    expect(result).toEqual({ error: 'urlInvalid' })
   })
 
   it('rejects https:// with a clear "WebSocket only" message', () => {
     const result = validateAgentUrl('https://example.com/acp', notIos)
-    expect('error' in result && result.error).toMatch(/WebSocket|wss:\/\/|ws:\/\//i)
+    expect(result).toEqual({ error: 'urlInvalid' })
   })
 
   it('rejects unsupported schemes with a user-facing message', () => {
     const result = validateAgentUrl('ftp://example.com', notIos)
-    expect('error' in result && result.error).toMatch(/WebSocket|wss:\/\/|ws:\/\//i)
+    expect(result).toEqual({ error: 'urlInvalid' })
   })
 
   it('rejects ws:// on Tauri iOS (ATS forbids cleartext)', () => {
     const result = validateAgentUrl('ws://example.com', isIos)
-    expect('error' in result && result.error).toMatch(/iOS.*secure/i)
+    expect(result).toEqual({ error: 'iosRequiresWss' })
   })
 
   it('still accepts wss:// on Tauri iOS', () => {

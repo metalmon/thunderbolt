@@ -48,6 +48,7 @@ import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { http } from '@/lib/http'
 import { AlertTriangle, Check, Cpu, Loader2, Lock, Pen, Plus, Trash2, X } from 'lucide-react'
+import type { TFunction } from 'i18next'
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -243,56 +244,61 @@ const ConnectionTestSection = ({
   )
 }
 
-const formSchema = z
-  .object({
-    provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
-    name: z.string().min(1, { message: 'Name is required.' }),
-    model: z.string().min(1, { message: 'Model name is required.' }),
-    customModel: z.string().optional(),
-    url: z.string().optional(),
-    apiKey: z.string().optional(),
-    toolUsage: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      if (data.provider === 'custom') {
-        return data.url !== undefined && data.url.length > 0
-      }
-      return true
-    },
-    {
-      message: 'URL is required for Custom providers',
+const buildFormSchema = (t: TFunction<'settings'>) =>
+  z
+    .object({
+      provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
+      name: z.string().min(1, { message: t('models.nameRequired') }),
+      model: z.string().min(1, { message: t('models.modelNameRequired') }),
+      customModel: z.string().optional(),
+      url: z.string().optional(),
+      apiKey: z.string().optional(),
+      toolUsage: z.boolean(),
+    })
+    .refine(
+      (data) => {
+        if (data.provider === 'custom') {
+          return data.url !== undefined && data.url.length > 0
+        }
+        return true
+      },
+      {
+        message: t('models.urlRequiredCustom'),
+        path: ['url'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.provider === 'thunderbolt') {
+          return true // API key not required for thunderbolt
+        }
+        if (data.provider === 'custom') {
+          return true // API key is optional for custom (OpenAI compatible)
+        }
+        return data.apiKey !== undefined && data.apiKey.length > 0
+      },
+      {
+        message: t('models.apiKeyRequired'),
+        path: ['apiKey'],
+      },
+    )
+
+type FormSchema = z.infer<ReturnType<typeof buildFormSchema>>
+
+const buildEditFormSchema = (t: TFunction<'settings'>, provider: Model['provider']) =>
+  z
+    .object({
+      name: z.string().min(1, { message: t('models.nameRequired') }),
+      model: z.string().min(1, { message: t('models.modelNameRequired') }),
+      url: z.string().optional(),
+      apiKey: z.string().optional(),
+    })
+    .refine((data) => provider !== 'custom' || (!!data.url && data.url.length > 0), {
+      message: t('models.urlRequiredCustom'),
       path: ['url'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.provider === 'thunderbolt') {
-        return true // API key not required for thunderbolt
-      }
-      if (data.provider === 'custom') {
-        return true // API key is optional for custom (OpenAI compatible)
-      }
-      return data.apiKey !== undefined && data.apiKey.length > 0
-    },
-    {
-      message: 'API Key is required for this provider',
-      path: ['apiKey'],
-    },
-  )
+    })
 
-const editFormSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required.' }),
-  model: z.string().min(1, { message: 'Model name is required.' }),
-  url: z.string().optional(),
-  apiKey: z.string().optional(),
-})
-
-const buildEditFormSchema = (provider: Model['provider']) =>
-  editFormSchema.refine((data) => provider !== 'custom' || (!!data.url && data.url.length > 0), {
-    message: 'URL is required for Custom providers',
-    path: ['url'],
-  })
+type EditFormSchema = z.infer<ReturnType<typeof buildEditFormSchema>>
 
 const EditModelForm = ({
   model,
@@ -302,12 +308,13 @@ const EditModelForm = ({
 }: {
   model: Model
   onCancel: () => void
-  onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
+  onSubmit: (values: EditFormSchema & { id: string }) => void
   isPending: boolean
 }) => {
   const { t } = useTranslation('settings')
-  const form = useForm<z.infer<typeof editFormSchema>>({
-    resolver: zodResolver(buildEditFormSchema(model.provider)),
+  const editFormSchema = useMemo(() => buildEditFormSchema(t, model.provider), [t, model.provider])
+  const form = useForm<EditFormSchema>({
+    resolver: zodResolver(editFormSchema),
     defaultValues: {
       name: model.name || '',
       model: model.model,
@@ -332,7 +339,7 @@ const EditModelForm = ({
     apiKey: watchedApiKey,
   })
 
-  const handleSubmit = (values: z.infer<typeof editFormSchema>) => {
+  const handleSubmit = (values: EditFormSchema) => {
     onSubmit({ ...values, id: model.id })
   }
 
@@ -447,7 +454,7 @@ const EditModelModal = ({
 }: {
   model: Model | null
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: z.infer<typeof editFormSchema> & { id: string }) => void
+  onSubmit: (values: EditFormSchema & { id: string }) => void
   isPending: boolean
 }) => {
   const { t } = useTranslation('settings')
@@ -476,16 +483,17 @@ const EditModelModal = ({
 }
 
 /** Tooltip copy for model row edit/remove actions. Exported for unit tests. */
-export const modelEditTooltip = (isSystemModel: boolean): string =>
-  isSystemModel ? "Built-in models can't be edited" : 'Edit model'
+export const modelEditTooltip = (isSystemModel: boolean, t: TFunction<'settings'>): string =>
+  isSystemModel ? t('models.builtInCantEdit') : t('models.editModelTooltip')
 
-export const modelRemoveTooltip = (isSystemModel: boolean): string =>
-  isSystemModel ? "Built-in models can't be removed" : 'Remove model'
+export const modelRemoveTooltip = (isSystemModel: boolean, t: TFunction<'settings'>): string =>
+  isSystemModel ? t('models.builtInCantRemove') : t('models.removeModelTooltip')
 
-export const modelAddTooltip = (): string => 'Add model'
+export const modelAddTooltip = (t: TFunction<'settings'>): string => t('models.addModelTooltip')
 
 export default function ModelsPage() {
   const { t } = useTranslation('settings')
+  const formSchema = useMemo(() => buildFormSchema(t), [t])
   const db = useDatabase()
   const [state, dispatch] = useReducer(modelReducer, initialState)
   const [editingModel, setEditingModel] = useState<Model | null>(null)
@@ -504,7 +512,7 @@ export default function ModelsPage() {
   })
 
   const addModelMutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: FormSchema) => {
       await createModelDAL(db, {
         id: uuidv7(),
         ...values,
@@ -533,7 +541,7 @@ export default function ModelsPage() {
   })
 
   const editModelMutation = useMutation({
-    mutationFn: async (values: z.infer<typeof editFormSchema> & { id: string }) => {
+    mutationFn: async (values: EditFormSchema & { id: string }) => {
       const { id, ...fields } = values
       await updateModel(db, id, {
         ...fields,
@@ -564,9 +572,7 @@ export default function ModelsPage() {
     resetModelMutation.mutate(id)
   }
 
-  type FormData = z.infer<typeof formSchema>
-
-  const form = useForm<FormData>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       provider: 'thunderbolt',
@@ -579,7 +585,7 @@ export default function ModelsPage() {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormSchema) => {
     // Use customModel if it's a custom selection, otherwise use model
     const modelId = selectedModelId === 'custom' && values.customModel ? values.customModel : values.model
 
@@ -751,7 +757,7 @@ export default function ModelsPage() {
       if (error instanceof TypeError) {
         dispatch({
           type: 'FETCH_MODELS_FAILURE',
-          error: 'Network request failed (the browser blocked the request or the server is unreachable).',
+          error: t('models.networkRequestFailed'),
         })
       }
       // HttpError with a Response object
@@ -761,17 +767,17 @@ export default function ModelsPage() {
         if (response) {
           dispatch({
             type: 'FETCH_MODELS_FAILURE',
-            error: `Server responded with status ${response.status} ${response.statusText}`,
+            error: t('models.serverStatusError', { status: response.status, statusText: response.statusText }),
           })
         } else {
-          dispatch({ type: 'FETCH_MODELS_FAILURE', error: 'Server responded with an unknown error.' })
+          dispatch({ type: 'FETCH_MODELS_FAILURE', error: t('models.serverUnknownError') })
         }
       }
       // Generic JavaScript error
       else if (error instanceof Error && error.message) {
         dispatch({ type: 'FETCH_MODELS_FAILURE', error: error.message })
       } else {
-        dispatch({ type: 'FETCH_MODELS_FAILURE', error: 'Failed to load models' })
+        dispatch({ type: 'FETCH_MODELS_FAILURE', error: t('models.failedToLoadModels') })
       }
 
       // No models could be fetched; state already handled in failure action
@@ -954,13 +960,13 @@ export default function ModelsPage() {
           <Tooltip>
             <TooltipTrigger asChild>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-lg" aria-label={modelAddTooltip()}>
+                <Button variant="outline" size="icon" className="rounded-lg" aria-label={modelAddTooltip(t)}>
                   <Plus />
                 </Button>
               </DialogTrigger>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>{modelAddTooltip()}</p>
+              <p>{modelAddTooltip(t)}</p>
             </TooltipContent>
           </Tooltip>
           <ResponsiveModalContentComposable className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -1236,8 +1242,8 @@ export default function ModelsPage() {
                         <ModificationIndicator
                           hasModifications={isModelModified(model)}
                           onReset={() => handleResetModel(model.id)}
-                          customMessage="You've customized this model."
-                          ariaLabel="Modified model"
+                          customMessage={t('models.customizedModel')}
+                          ariaLabel={t('models.modifiedModelAria')}
                           requireConfirmation={false}
                         >
                           {model.name}
@@ -1276,14 +1282,14 @@ export default function ModelsPage() {
                               variant="outline"
                               onClick={() => setEditingModel(model)}
                               disabled={isSystemModel}
-                              aria-label={modelEditTooltip(isSystemModel)}
+                              aria-label={modelEditTooltip(isSystemModel, t)}
                             >
                               <Pen className="h-3 w-3" />
                             </ButtonGroupItem>
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                          <p>{modelEditTooltip(isSystemModel)}</p>
+                          <p>{modelEditTooltip(isSystemModel, t)}</p>
                         </TooltipContent>
                       </Tooltip>
                       <Tooltip>
@@ -1293,14 +1299,14 @@ export default function ModelsPage() {
                               variant="outline"
                               onClick={() => dispatch({ type: 'OPEN_DELETE_CONFIRM', modelId: model.id })}
                               disabled={isSystemModel}
-                              aria-label={modelRemoveTooltip(isSystemModel)}
+                              aria-label={modelRemoveTooltip(isSystemModel, t)}
                             >
                               <Trash2 className="h-3 w-3" />
                             </ButtonGroupItem>
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                          <p>{modelRemoveTooltip(isSystemModel)}</p>
+                          <p>{modelRemoveTooltip(isSystemModel, t)}</p>
                         </TooltipContent>
                       </Tooltip>
                     </ButtonGroup>

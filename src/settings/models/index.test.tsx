@@ -5,6 +5,7 @@
 import { createModel } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
+import i18n, { setUiLanguage } from '@/i18n/i18n'
 import { renderWithReactivity, waitForElement } from '@/test-utils/powersync-reactivity-test'
 import { getClock } from '@/testing-library'
 import '@testing-library/jest-dom'
@@ -69,17 +70,23 @@ describe('ModelsPage reactivity', () => {
 })
 
 describe('model action tooltips', () => {
+  const t = i18n.getFixedT('en', 'settings')
+
+  beforeEach(() => {
+    setUiLanguage('en')
+  })
+
   it('explains why built-in models cannot be edited or removed', () => {
-    expect(modelEditTooltip(true)).toBe("Built-in models can't be edited")
-    expect(modelRemoveTooltip(true)).toBe("Built-in models can't be removed")
+    expect(modelEditTooltip(true, t)).toBe("Built-in models can't be edited")
+    expect(modelRemoveTooltip(true, t)).toBe("Built-in models can't be removed")
   })
 
   it('uses action labels for user-added models', () => {
-    expect(modelEditTooltip(false)).toBe('Edit model')
-    expect(modelRemoveTooltip(false)).toBe('Remove model')
+    expect(modelEditTooltip(false, t)).toBe('Edit model')
+    expect(modelRemoveTooltip(false, t)).toBe('Remove model')
   })
 
   it('labels the add model control', () => {
-    expect(modelAddTooltip()).toBe('Add model')
+    expect(modelAddTooltip(t)).toBe('Add model')
   })
 })

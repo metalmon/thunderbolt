@@ -47,21 +47,24 @@ export const inferTransport = (url: string): CustomAgentTransport | null => {
  *  of letting the connection silently fail. */
 const defaultIsTauriIOS = (): boolean => isTauri() && getPlatform() === 'ios'
 
+/** Stable error codes for `validateAgentUrl` — translate at the call site. */
+export type AgentUrlValidationError = 'urlInvalid' | 'iosRequiresWss'
+
 /** Pure validation of `url` against the platform's transport rules. Returns
- *  the inferred transport on success, or a user-facing error string. Extracted
- *  so the test suite can exercise it without rendering the dialog. */
+ *  the inferred transport on success, or a stable error code. Extracted so the
+ *  test suite can exercise it without rendering the dialog. */
 export const validateAgentUrl = (
   url: string,
   isIos: () => boolean = defaultIsTauriIOS,
-): { transport: CustomAgentTransport } | { error: string } => {
+): { transport: CustomAgentTransport } | { error: AgentUrlValidationError } => {
   const transport = inferTransport(url)
   if (!transport) {
-    return { error: 'Enter a wss:// URL or an iroh ticket' }
+    return { error: 'urlInvalid' }
   }
   // iroh dials QUIC over an encrypted relay (no cleartext) and its target isn't a
   // URL, so the iOS ATS guard only applies to a `ws://` WebSocket endpoint.
   if (transport === 'websocket' && isIos() && new URL(url).protocol === 'ws:') {
-    return { error: 'iOS requires a secure URL (wss://)' }
+    return { error: 'iosRequiresWss' }
   }
   return { transport }
 }
@@ -191,7 +194,7 @@ export const AddCustomAgentDialog = ({
   const validation = validateAgentUrl(trimmedUrl, isIos)
   // Surface an invalid-target error at render time (once the field is non-empty)
   // so the user sees why submit stays gated.
-  const urlError = trimmedUrl.length > 0 && 'error' in validation ? validation.error : null
+  const urlError = trimmedUrl.length > 0 && 'error' in validation ? t(`agents.${validation.error}`) : null
   const transport = 'error' in validation ? null : validation.transport
   const isIroh = transport === 'iroh'
   // A WebSocket endpoint is probed before save. An iroh bridge must first
