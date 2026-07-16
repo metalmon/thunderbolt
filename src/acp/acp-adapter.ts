@@ -902,7 +902,9 @@ export const connectAcpAdapter = async (
     // Stop: the AI SDK aborts the *local* stream, but the remote ACP turn keeps
     // running (burning tokens, still executing tool calls) until we tell the
     // agent. Send `session/cancel` — fire-and-forget, since teardown must not
-    // block on the wire — then run the same teardown.
+    // block on the wire — then run the same teardown. `activePrompts` keeps the
+    // session marked busy until `connection.prompt` settles, so a follow-up send
+    // cannot race the agent's busy slot.
     const onAbort = (): void => {
       if (tornDown) {
         return
