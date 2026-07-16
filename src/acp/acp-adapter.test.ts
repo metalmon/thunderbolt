@@ -1483,6 +1483,55 @@ describe('connectAcpAdapter — Stop cancels the remote ACP turn', () => {
     expect(sse.join('')).toContain('"type":"finish"')
     expect(calls.cancel).toHaveLength(0)
   })
+
+  it('waits for an aborted prompt to settle before starting another prompt on the same session', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection, calls, releasePrompts } = buildFakeConnection()
+
+    const adapter = await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async () => transport,
+      ClientSideConnection: FakeConnection as never,
+    })
+
+    const controller = new AbortController()
+    const first = await adapter.fetch(promptInit('long turn', controller.signal), threadCtx('thread-A'))
+    expect(calls.prompt).toHaveLength(1)
+
+    await act(async () => {
+      controller.abort()
+      await getClock().runAllAsync()
+      await readSse(first)
+    })
+
+    // Local stream is torn down, but the remote prompt is still gated open —
+    // a follow-up send must not race a second session/prompt onto the wire.
+    let secondStarted = false
+    const secondPromise = adapter
+      .fetch(promptInit('next'), threadCtx('thread-A', { acpSessionId: 'sess-1' }))
+      .then((response) => {
+        secondStarted = true
+        return response
+      })
+
+    await act(async () => {
+      await getClock().tickAsync(1)
+    })
+
+    expect(secondStarted).toBe(false)
+    expect(calls.prompt).toHaveLength(1)
+
+    let second: Response | undefined
+    await act(async () => {
+      releasePrompts()
+      await getClock().runAllAsync()
+      second = await secondPromise
+      await readSse(second)
+    })
+
+    expect(secondStarted).toBe(true)
+    expect(calls.prompt).toHaveLength(2)
+    expect(calls.cancel).toHaveLength(1)
+  })
 })
 
 describe('ACP reasoning configuration', () => {
