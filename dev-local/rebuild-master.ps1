@@ -20,6 +20,7 @@ $ErrorActionPreference = "Stop"
 
 $Branches = @(
     "fix/make-format-windows",
+    "fix/acp-stop-busy",
     "feat/i18n-infra",
     "feat/i18n-wrap-settings",
     "feat/i18n-wrap-chat",
@@ -33,6 +34,7 @@ $Branches = @(
 # Branches whose unique commits sit directly on main (not stacked on infra).
 $MainRangeBranches = @(
     "fix/make-format-windows",
+    "fix/acp-stop-busy",
     "feat/i18n-infra",
     "local/dev-fixes"
 )
