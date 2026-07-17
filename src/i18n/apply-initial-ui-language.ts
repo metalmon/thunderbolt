@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { applyLocalizationDefaultsIfNeeded, type LocalizationStoredValues } from './apply-localization-defaults'
+import type { LocalizationUnitDefaults } from './localization-defaults'
 import { setUiLanguage } from './i18n'
 import { readClientLocale, resolveInitialUiLanguage } from './ensure-ui-language'
 
@@ -10,6 +12,11 @@ let applyPromise: Promise<void> | null = null
 export const applyInitialUiLanguageIfNeeded = async (input: {
   stored: string | null | undefined
   setValue: (value: string) => Promise<unknown>
+  /** When set, seeds language-specific unit defaults if those keys are still unset. */
+  localization?: {
+    stored: LocalizationStoredValues
+    setValues: (defaults: LocalizationUnitDefaults) => Promise<unknown>
+  }
 }): Promise<void> => {
   if (applyPromise) return applyPromise
 
@@ -24,6 +31,13 @@ export const applyInitialUiLanguageIfNeeded = async (input: {
     }
     await input.setValue(language)
     setUiLanguage(language)
+    if (input.localization) {
+      await applyLocalizationDefaultsIfNeeded({
+        language,
+        stored: input.localization.stored,
+        setValues: input.localization.setValues,
+      })
+    }
   })()
 
   try {
