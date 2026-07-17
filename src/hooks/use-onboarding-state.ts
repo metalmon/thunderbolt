@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { applyInitialUiLanguageIfNeeded } from '@/i18n/apply-initial-ui-language'
+import { applyLocalizationDefaultsIfNeeded } from '@/i18n/apply-localization-defaults'
+import type { LocalizationUnitDefaults } from '@/i18n/localization-defaults'
+import { normalizeUiLanguage } from '@/i18n/languages'
 import { extractCountryFromLocation } from '@/lib/country-utils'
 import { useEffect, useReducer, useRef } from 'react'
 import { useCountryUnits } from './use-country-units'
@@ -231,25 +234,67 @@ export const useOnboardingState = () => {
   const { fetchCountryUnits } = useCountryUnits()
   const uiLanguageAppliedRef = useRef(false)
 
-  // One-shot auto-detect ui_language from browser locale when unset
+  // One-shot: detect ui_language if unset, and seed language-specific unit defaults when unset.
   useEffect(() => {
-    if (uiLanguage.isLoading || uiLanguageAppliedRef.current) {
-      return
-    }
-    if (uiLanguage.value != null && uiLanguage.value !== '') {
+    if (uiLanguage.isLoading || distanceUnit.isLoading || uiLanguageAppliedRef.current) {
       return
     }
 
-    void applyInitialUiLanguageIfNeeded({
-      stored: uiLanguage.value,
-      setValue: (v) => uiLanguage.setValue(v),
-    }).then(
+    const localizationStored = {
+      distance_unit: distanceUnit.data?.value,
+      temperature_unit: temperatureUnit.data?.value,
+      date_format: dateFormat.data?.value,
+      time_format: timeFormat.data?.value,
+      currency: currency.data?.value,
+    }
+
+    const persistLocalizationDefaults = async (defaults: LocalizationUnitDefaults) => {
+      await Promise.all([
+        distanceUnit.setValue(defaults.distance_unit, { recomputeHash: true }),
+        temperatureUnit.setValue(defaults.temperature_unit, { recomputeHash: true }),
+        dateFormat.setValue(defaults.date_format, { recomputeHash: true }),
+        timeFormat.setValue(defaults.time_format, { recomputeHash: true }),
+        currency.setValue(defaults.currency, { recomputeHash: true }),
+      ])
+    }
+
+    const run = async () => {
+      if (uiLanguage.value == null || uiLanguage.value === '') {
+        await applyInitialUiLanguageIfNeeded({
+          stored: uiLanguage.value,
+          setValue: (v) => uiLanguage.setValue(v),
+          localization: {
+            stored: localizationStored,
+            setValues: persistLocalizationDefaults,
+          },
+        })
+        return
+      }
+
+      await applyLocalizationDefaultsIfNeeded({
+        language: normalizeUiLanguage(uiLanguage.value),
+        stored: localizationStored,
+        setValues: persistLocalizationDefaults,
+      })
+    }
+
+    void run().then(
       () => {
         uiLanguageAppliedRef.current = true
       },
       () => {},
     )
-  }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
+  }, [
+    uiLanguage.isLoading,
+    uiLanguage.value,
+    uiLanguage,
+    distanceUnit.isLoading,
+    distanceUnit,
+    temperatureUnit,
+    dateFormat,
+    timeFormat,
+    currency,
+  ])
 
   // Sync with saved step on mount
   useEffect(() => {
