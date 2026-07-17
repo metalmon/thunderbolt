@@ -153,6 +153,17 @@
     "readingFile": "Reading {{file}}...",
     "usingTool": "Using \"{{toolName}}\" tool..."
   },
+  "toolNames": {
+    "search": "Search",
+    "fetch_content": "Fetch content",
+    "get_current_weather": "Current weather",
+    "get_weather_forecast": "Weather forecast",
+    "google_check_inbox": "Check inbox",
+    "google_search_emails": "Search emails",
+    "google_get_email": "Get email",
+    "google_check_calendar": "Check calendar",
+    "processing": "Processing"
+  },
   "deleteThread": {
     "title": "Delete the thread?",
     "description": "This action cannot be undone. This will permanently delete this chat and all its messages."
