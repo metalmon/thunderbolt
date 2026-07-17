@@ -12,3 +12,4 @@ export const BUILTIN_TASK_IDS = new Set([
   '0198ecc5-cc2b-735b-b478-96071aa92f62',
   '0198ecc5-cc2b-735b-b478-99e9874d61ba',
 ])
+export const BUILTIN_AGENT_IDS = new Set(['thunderbolt-built-in'])
