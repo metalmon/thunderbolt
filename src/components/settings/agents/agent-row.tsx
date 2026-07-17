@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useState } from 'react'
 import { Globe, Pencil, Server, Trash2, Zap } from 'lucide-react'
+import { translateDefaultField } from '@/i18n/translate-default'
 import type { Agent } from '@/types/acp'
 import { useTranslation } from 'react-i18next'
 
@@ -85,6 +86,7 @@ type AgentRowProps = {
 
 export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: AgentRowProps) => {
   const { t } = useTranslation('settings')
+  const { t: translateDefault } = useTranslation('defaults')
   const Icon = iconForAgent(agent)
   const badge = badgeForAgent(agent)
   const showEdit = canEditAgent(agent, currentUserId)
@@ -92,6 +94,9 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
   const { disabled: toggleDisabled, disabledReason } = agentToggleDisabled(agent)
   const isEnabled = agent.enabled === 1
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const displayDescription = agent.description
+    ? translateDefaultField(translateDefault, 'agents', agent.id, 'description', agent.description)
+    : null
 
   const handleDelete = () => {
     setDeleteOpen(false)
@@ -118,8 +123,8 @@ export const AgentRow = ({ agent, currentUserId, onToggle, onEdit, onDelete }: A
                       : t('agents.remote')}
                 </span>
               </div>
-              {agent.description && (
-                <p className="text-[length:var(--font-size-sm)] text-muted-foreground truncate">{agent.description}</p>
+              {displayDescription && (
+                <p className="text-[length:var(--font-size-sm)] text-muted-foreground truncate">{displayDescription}</p>
               )}
             </div>
           </div>
