@@ -218,7 +218,7 @@ export const getToolMetadata = async (toolName: string, args?: unknown): Promise
   const toolConfig = await getToolConfigByName(toolName)
   const category = detectCategory(toolName)
 
-  const displayName = formatDisplayName(toolName)
+  const displayName = translateDisplayName(toolName)
 
   const metadata: ToolMetadata = {
     displayName,
@@ -244,7 +244,7 @@ export const getToolMetadataSync = (toolName: string, input?: unknown): ToolMeta
   }
 
   const category = detectCategory(toolName)
-  const displayName = formatDisplayName(toolName)
+  const displayName = translateDisplayName(toolName)
 
   const metadata: ToolMetadata = {
     displayName,
