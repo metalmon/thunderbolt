@@ -8,6 +8,7 @@ import { translateDefaultField } from './translate-default'
 
 const t = ((key: string, opts?: { defaultValue?: string }) => {
   if (key === 'modes.mode-chat.label') return 'Чат'
+  if (key === 'agents.thunderbolt-built-in.description') return 'Встроенный ИИ-ассистент'
   return opts?.defaultValue ?? key
 }) as TFunction
 
@@ -22,5 +23,15 @@ describe('translateDefaultField', () => {
 
   test('returns fallback for non-builtin id', () => {
     expect(translateDefaultField(t, 'modes', 'mode-custom', 'label', 'Custom')).toBe('Custom')
+  })
+
+  test('translates builtin agent description', () => {
+    expect(translateDefaultField(t, 'agents', 'thunderbolt-built-in', 'description', 'Built-in AI assistant')).toBe(
+      'Встроенный ИИ-ассистент',
+    )
+  })
+
+  test('returns fallback for non-builtin agent id', () => {
+    expect(translateDefaultField(t, 'agents', 'custom-agent', 'description', 'Custom')).toBe('Custom')
   })
 })

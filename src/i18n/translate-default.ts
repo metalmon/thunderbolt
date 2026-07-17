@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { TFunction } from 'i18next'
-import { BUILTIN_MODE_IDS, BUILTIN_SKILL_IDS, BUILTIN_TASK_IDS } from './builtin-default-ids'
+import { BUILTIN_AGENT_IDS, BUILTIN_MODE_IDS, BUILTIN_SKILL_IDS, BUILTIN_TASK_IDS } from './builtin-default-ids'
 
-type DefaultKind = 'modes' | 'skills' | 'tasks'
+type DefaultKind = 'modes' | 'skills' | 'tasks' | 'agents'
 
 const BUILTIN: Record<DefaultKind, Set<string>> = {
   modes: BUILTIN_MODE_IDS,
   skills: BUILTIN_SKILL_IDS,
   tasks: BUILTIN_TASK_IDS,
+  agents: BUILTIN_AGENT_IDS,
 }
 
 /** Translate a built-in default entity field; custom ids return fallback unchanged. */
