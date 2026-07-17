@@ -25,8 +25,10 @@ import { useEffect, useMemo, useReducer, useRef, useState, type ChangeEvent } fr
 import { useTranslation } from 'react-i18next'
 
 import { applyInitialUiLanguageIfNeeded } from '@/i18n/apply-initial-ui-language'
+import { applyLocalizationDefaultsIfNeeded } from '@/i18n/apply-localization-defaults'
 import { setUiLanguage } from '@/i18n/i18n'
 import { normalizeUiLanguage } from '@/i18n/languages'
+import type { LocalizationUnitDefaults } from '@/i18n/localization-defaults'
 
 import { LocationSearchCombobox } from '@/components/location-search-combobox'
 import { ModificationIndicator } from '@/components/modification-indicator'
@@ -239,25 +241,67 @@ export default function PreferencesSettingsPage() {
 
   const uiLanguageAppliedRef = useRef(false)
 
-  // One-shot auto-detect ui_language from browser locale when unset
+  // One-shot: detect ui_language if unset, and seed language-specific unit defaults when unset.
   useEffect(() => {
-    if (uiLanguage.isLoading || uiLanguageAppliedRef.current) {
-      return
-    }
-    if (uiLanguage.value != null && uiLanguage.value !== '') {
+    if (uiLanguage.isLoading || distanceUnit.isLoading || uiLanguageAppliedRef.current) {
       return
     }
 
-    void applyInitialUiLanguageIfNeeded({
-      stored: uiLanguage.value,
-      setValue: (v) => uiLanguage.setValue(v),
-    }).then(
+    const localizationStored = {
+      distance_unit: distanceUnit.data?.value,
+      temperature_unit: temperatureUnit.data?.value,
+      date_format: dateFormat.data?.value,
+      time_format: timeFormat.data?.value,
+      currency: currency.data?.value,
+    }
+
+    const persistLocalizationDefaults = async (defaults: LocalizationUnitDefaults) => {
+      await Promise.all([
+        distanceUnit.setValue(defaults.distance_unit, { recomputeHash: true }),
+        temperatureUnit.setValue(defaults.temperature_unit, { recomputeHash: true }),
+        dateFormat.setValue(defaults.date_format, { recomputeHash: true }),
+        timeFormat.setValue(defaults.time_format, { recomputeHash: true }),
+        currency.setValue(defaults.currency, { recomputeHash: true }),
+      ])
+    }
+
+    const run = async () => {
+      if (uiLanguage.value == null || uiLanguage.value === '') {
+        await applyInitialUiLanguageIfNeeded({
+          stored: uiLanguage.value,
+          setValue: (v) => uiLanguage.setValue(v),
+          localization: {
+            stored: localizationStored,
+            setValues: persistLocalizationDefaults,
+          },
+        })
+        return
+      }
+
+      await applyLocalizationDefaultsIfNeeded({
+        language: normalizeUiLanguage(uiLanguage.value),
+        stored: localizationStored,
+        setValues: persistLocalizationDefaults,
+      })
+    }
+
+    void run().then(
       () => {
         uiLanguageAppliedRef.current = true
       },
       () => {},
     )
-  }, [uiLanguage.isLoading, uiLanguage.value, uiLanguage])
+  }, [
+    uiLanguage.isLoading,
+    uiLanguage.value,
+    uiLanguage,
+    distanceUnit.isLoading,
+    distanceUnit,
+    temperatureUnit,
+    dateFormat,
+    timeFormat,
+    currency,
+  ])
 
   // Auto-populate localization settings from country data if not set
   useEffect(() => {
@@ -634,6 +678,25 @@ export default function PreferencesSettingsPage() {
                 const language = normalizeUiLanguage(v)
                 await uiLanguage.setValue(language)
                 setUiLanguage(language)
+                await applyLocalizationDefaultsIfNeeded({
+                  language,
+                  stored: {
+                    distance_unit: distanceUnit.data?.value,
+                    temperature_unit: temperatureUnit.data?.value,
+                    date_format: dateFormat.data?.value,
+                    time_format: timeFormat.data?.value,
+                    currency: currency.data?.value,
+                  },
+                  setValues: async (defaults) => {
+                    await Promise.all([
+                      distanceUnit.setValue(defaults.distance_unit, { recomputeHash: true }),
+                      temperatureUnit.setValue(defaults.temperature_unit, { recomputeHash: true }),
+                      dateFormat.setValue(defaults.date_format, { recomputeHash: true }),
+                      timeFormat.setValue(defaults.time_format, { recomputeHash: true }),
+                      currency.setValue(defaults.currency, { recomputeHash: true }),
+                    ])
+                  },
+                })
                 trackEvent('settings_localization_update', { ui_language: language })
               }}
             >
