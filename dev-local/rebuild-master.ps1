@@ -1,13 +1,14 @@
 #!/usr/bin/env pwsh
 # Regenerates local `master` from upstream mirror + cherry-picked fork branches.
 #
-# Branch model:
+# Branch model (5-branch consolidated — see dev-local/fork-branches.ps1 + AGENTS.md):
 #   main    -> pristine mirror of origin/main (ff-only; never commit product work here)
-#   feat/* / local/* -> single-concern patches listed in $Branches
-#   master  -> main + cherry-pick($Branches); build/deploy/push this to fork master
+#   fork/*  -> single-concern patch branches listed in $ForkBranches
+#   master  -> main + cherry-pick($ForkBranches); build/deploy/push this to fork master
 #
-# Wrap / locale branches are stacked on feat/i18n-infra, so they cherry-pick
-# feat/i18n-infra..$b (delta only). Base patches use main..$b.
+# Every fork branch sits directly on main (range main..$b) EXCEPT fork/i18n-locales,
+# which stacks on fork/i18n (range fork/i18n..$b) — its locale content modifies the
+# locales/** skeleton that fork/i18n's i18next-init commit creates.
 
 [CmdletBinding()]
 param(
@@ -18,41 +19,18 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$Branches = @(
-    "fix/make-format-windows",
-    "fix/acp-stop-busy",
-    "local/acp-standard-resource-blob",
-    "local/acp-citations-ref-map",
-    "feat/i18n-infra",
-    "feat/i18n-wrap-settings",
-    "feat/i18n-wrap-chat",
-    "feat/i18n-wrap-auth",
-    "feat/i18n-wrap-onboarding",
-    "feat/i18n-wrap-tasks",
-    "local/i18n-locales",
-    "local/dev-fixes"
-)
-
-# Branches whose unique commits sit directly on main (not stacked on infra).
-$MainRangeBranches = @(
-    "fix/make-format-windows",
-    "fix/acp-stop-busy",
-    "local/acp-standard-resource-blob",
-    "local/acp-citations-ref-map",
-    "feat/i18n-infra",
-    "local/dev-fixes"
-)
+# Canonical branch list + apply order live in one place; dot-source it.
+. "$PSScriptRoot/fork-branches.ps1"
+$Branches = $ForkBranches
 
 function Get-CherryPickRange {
     param([string]$Branch)
-    # Citations stack on resource-blob materialization (same idea as wrap/infra).
-    if ($Branch -eq "local/acp-citations-ref-map") {
-        return "local/acp-standard-resource-blob..$Branch"
+    # fork/i18n-locales is stacked on fork/i18n (its locale content modifies the
+    # locales/** skeleton fork/i18n's i18next-init commit creates). All others sit on main.
+    if ($Branch -eq "fork/i18n-locales") {
+        return "fork/i18n..$Branch"
     }
-    if ($MainRangeBranches -contains $Branch) {
-        return "main..$Branch"
-    }
-    return "feat/i18n-infra..$Branch"
+    return "main..$Branch"
 }
 
 Write-Host "==> fetching $Upstream and $Remote" -ForegroundColor Cyan
