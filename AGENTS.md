@@ -1,3 +1,66 @@
+# Fork Maintenance Rules (metalmon/thunderbolt)
+
+This is a fork of `thunderbird/thunderbolt` (MPL-2.0). These rules keep the
+fork maintainable against a moving upstream and keep our own IP cleanly
+separable. Read before touching fork branches.
+
+## License boundary — additive vs invasive
+
+Upstream is **MPL-2.0** (file-level copyleft). Every change is exactly one of:
+
+- **Additive (our IP):** NEW files only, under **our** license header, in
+  `src/fork/**`, `zeroclaw-integration/**`, our locale catalogs, and fork
+  docs. Never edits an upstream file. Relicensable / commercializable later.
+- **Invasive (MPL):** edits to existing upstream files. Keep to the **absolute
+  minimum**. Retains the MPL header. This is the only surface that conflicts
+  when upstream advances.
+
+**Rule:** never put fork logic inside an upstream file. Add a thin seam and
+implement the logic in `src/fork/**`.
+
+## Thin-hook rule
+
+An invasive edit is one import + one `forkX(...)` call, nothing more. All
+behavior lives in `src/fork/**`. Example: `src/acp/acp-adapter.ts` calls
+`forkAcpTurnStart(sessionId)`; the ref-map / citation logic lives in
+`src/fork/zeroclaw/*`. Exception: i18n `t()` wrapping is irreducibly invasive
+— it is contained on its own branch, not eliminated.
+
+## Branch structure
+
+Patches live on branches based on `main` (assembled onto `master` by
+`dev-local/rebuild-master.ps1`):
+
+- `fork/additive` — our new-file IP (additive only, never edits upstream).
+- `fork/hooks` — thin seams in upstream files (MPL).
+- `fork/i18n-wrap` — `t()` wrapping of upstream components (MPL, invasive).
+- `fork/i18n-locales` — our locale catalogs (additive).
+- `fork/dev` — local dev/build fixes (not upstreamed).
+
+The canonical list lives in `dev-local/fork-branches.ps1`.
+
+## Upstream sync workflow
+
+1. `git fetch origin --prune`
+2. `pwsh dev-local/fork-upstream-impact.ps1` — see which branches collide with
+   upstream's changes.
+3. Rebase only the branches it flags onto `origin/main`; resolve conflicts
+   once (rerere caches them).
+4. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+
+## Environment (Windows)
+
+- Git config per clone: `git config core.autocrlf false; git config core.eol lf`
+  (prevents phantom CRLF churn that jams checkouts/rebuilds).
+- `git config rerere.enabled true; git config rerere.autoupdate true`
+  (records conflict resolutions so rebuilds replay them).
+- Run the rebuild with `HUSKY=0` so lint-staged does not reformat the tree
+  mid-rebuild.
+
+---
+
+# Upstream project instructions (thunderbird/thunderbolt)
+
 ## Core Principles
 
 - **Bias towards tasteful simplicity** - favor elegant, readable, maintainable solutions that add minimal complexity. Avoid over-engineering, premature optimization, and defensive coding patterns that obscure intent.
