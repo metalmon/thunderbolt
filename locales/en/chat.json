@@ -162,7 +162,17 @@
     "google_search_emails": "Search emails",
     "google_get_email": "Get email",
     "google_check_calendar": "Check calendar",
-    "processing": "Processing"
+    "processing": "Processing",
+    "deliver_file": "Deliver file"
+  },
+  "deliveredFile": {
+    "delivered": "Delivered",
+    "download": "Download",
+    "downloadAria": "Download {{filename}}"
+  },
+  "documentPreview": {
+    "unavailable": "Preview not available for this file type. Use the download button to view it.",
+    "downloadAria": "Download {{filename}}"
   },
   "deleteThread": {
     "title": "Delete the thread?",
