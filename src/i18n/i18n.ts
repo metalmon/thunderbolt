@@ -21,7 +21,7 @@ import ruOnboarding from '../../locales/ru/onboarding.json'
 import ruTasks from '../../locales/ru/tasks.json'
 import ruDefaults from '../../locales/ru/defaults.json'
 
-import { normalizeUiLanguage, type UiLanguage } from './languages'
+import { detectUiLanguage, normalizeUiLanguage, type UiLanguage } from './languages'
 
 export const I18N_NAMESPACES = ['common', 'settings', 'chat', 'auth', 'onboarding', 'tasks', 'defaults'] as const
 
@@ -46,7 +46,7 @@ void i18n.use(initReactI18next).init({
       defaults: ruDefaults,
     },
   },
-  lng: 'en',
+  lng: detectUiLanguage(typeof navigator !== 'undefined' ? navigator.language : 'en'),
   fallbackLng: 'en',
   defaultNS: 'common',
   ns: [...I18N_NAMESPACES],
