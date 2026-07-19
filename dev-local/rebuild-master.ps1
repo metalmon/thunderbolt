@@ -22,6 +22,7 @@ $Branches = @(
     "fix/make-format-windows",
     "fix/acp-stop-busy",
     "local/acp-standard-resource-blob",
+    "local/acp-citations-ref-map",
     "feat/i18n-infra",
     "feat/i18n-wrap-settings",
     "feat/i18n-wrap-chat",
@@ -37,12 +38,17 @@ $MainRangeBranches = @(
     "fix/make-format-windows",
     "fix/acp-stop-busy",
     "local/acp-standard-resource-blob",
+    "local/acp-citations-ref-map",
     "feat/i18n-infra",
     "local/dev-fixes"
 )
 
 function Get-CherryPickRange {
     param([string]$Branch)
+    # Citations stack on resource-blob materialization (same idea as wrap/infra).
+    if ($Branch -eq "local/acp-citations-ref-map") {
+        return "local/acp-standard-resource-blob..$Branch"
+    }
     if ($MainRangeBranches -contains $Branch) {
         return "main..$Branch"
     }
