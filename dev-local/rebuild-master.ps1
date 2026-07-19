@@ -75,14 +75,32 @@ Write-Host "==> resetting master to main" -ForegroundColor Cyan
 git checkout -B master main
 if ($LASTEXITCODE -ne 0) { throw "Failed to reset master to main" }
 
+$env:GIT_EDITOR = "true"  # never open an editor on --continue
+
 foreach ($b in $Branches) {
     $range = Get-CherryPickRange $b
     Write-Host "==> cherry-pick $range" -ForegroundColor Cyan
     git cherry-pick $range
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "!!! cherry-pick conflict on $b ($range)." -ForegroundColor Red
-        Write-Host "    Resolve, git cherry-pick --continue, then re-run." -ForegroundColor Red
-        exit 1
+        # rerere (autoupdate) may have already resolved + staged every conflict.
+        # If no unmerged paths remain, continue automatically; otherwise stop.
+        $unmerged = git diff --name-only --diff-filter=U
+        if ([string]::IsNullOrWhiteSpace($unmerged)) {
+            Write-Host "    rerere resolved all conflicts for $b — auto-continuing" -ForegroundColor Yellow
+            git add -A
+            git cherry-pick --continue
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "!!! auto-continue failed on $b ($range)." -ForegroundColor Red
+                exit 1
+            }
+        } else {
+            Write-Host "!!! unrecorded cherry-pick conflict on $b ($range):" -ForegroundColor Red
+            Write-Host $unmerged -ForegroundColor Red
+            Write-Host "    Resolve, run: git add <files>; git cherry-pick --continue" -ForegroundColor Red
+            Write-Host "    rerere will record this resolution so the next rebuild replays it automatically." -ForegroundColor Red
+            Write-Host "    Then re-run this script." -ForegroundColor Red
+            exit 1
+        }
     }
 }
 
