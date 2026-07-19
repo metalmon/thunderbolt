@@ -230,8 +230,10 @@ export default function IntegrationsPage() {
                 <AvailableTools
                   className="pt-4"
                   tools={proToolConfigs.map((config) => ({
-                    name: config.name,
-                    description: config.description,
+                    name: t(`integrations.tools.${config.name}.name`, { defaultValue: config.name }),
+                    description: t(`integrations.tools.${config.name}.description`, {
+                      defaultValue: config.description,
+                    }),
                   }))}
                 />
               </CardContent>
@@ -242,8 +244,10 @@ export default function IntegrationsPage() {
                 <AvailableTools
                   className="pt-4"
                   tools={googleToolConfigs.map((config) => ({
-                    name: config.name,
-                    description: config.description,
+                    name: t(`integrations.tools.${config.name}.name`, { defaultValue: config.name }),
+                    description: t(`integrations.tools.${config.name}.description`, {
+                      defaultValue: config.description,
+                    }),
                   }))}
                 />
               </CardContent>
@@ -254,8 +258,10 @@ export default function IntegrationsPage() {
                 <AvailableTools
                   className="pt-4"
                   tools={microsoftToolConfigs.map((config) => ({
-                    name: config.name,
-                    description: config.description,
+                    name: t(`integrations.tools.${config.name}.name`, { defaultValue: config.name }),
+                    description: t(`integrations.tools.${config.name}.description`, {
+                      defaultValue: config.description,
+                    }),
                   }))}
                 />
               </CardContent>
