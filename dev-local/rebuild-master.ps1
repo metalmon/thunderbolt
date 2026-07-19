@@ -59,25 +59,35 @@ foreach ($b in $Branches) {
     $range = Get-CherryPickRange $b
     Write-Host "==> cherry-pick $range" -ForegroundColor Cyan
     git cherry-pick $range
-    if ($LASTEXITCODE -ne 0) {
-        # rerere (autoupdate) may have already resolved + staged every conflict.
-        # If no unmerged paths remain, continue automatically; otherwise stop.
+
+    # A range cherry-pick is a SEQUENCE and can stop multiple times (once per
+    # conflicting/empty commit). Handle every stop until the sequence completes
+    # ($LASTEXITCODE back to 0). Each --skip/--continue advances by one commit,
+    # so this terminates.
+    while ($LASTEXITCODE -ne 0) {
         $unmerged = git diff --name-only --diff-filter=U
-        if ([string]::IsNullOrWhiteSpace($unmerged)) {
-            Write-Host "    rerere resolved all conflicts for $b — auto-continuing" -ForegroundColor Yellow
-            git add -A
-            git cherry-pick --continue
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "!!! auto-continue failed on $b ($range)." -ForegroundColor Red
-                exit 1
-            }
-        } else {
+        if (-not [string]::IsNullOrWhiteSpace($unmerged)) {
+            # Unrecorded conflict rerere could not resolve — stop for a human.
             Write-Host "!!! unrecorded cherry-pick conflict on $b ($range):" -ForegroundColor Red
             Write-Host $unmerged -ForegroundColor Red
             Write-Host "    Resolve, run: git add <files>; git cherry-pick --continue" -ForegroundColor Red
             Write-Host "    rerere will record this resolution so the next rebuild replays it automatically." -ForegroundColor Red
             Write-Host "    Then re-run this script." -ForegroundColor Red
             exit 1
+        }
+
+        # No unmerged paths: rerere (autoupdate) staged every resolution. Do NOT
+        # `git add -A` — that would stage untracked scratch (dev-local plans/specs).
+        # If the resolved pick is now empty (its change is already present higher in
+        # the stack — e.g. a fork/zeroclaw i18n wrap that fork/i18n also ships), skip
+        # it; otherwise continue. Either advances the sequencer; the loop re-checks.
+        git diff --cached --quiet HEAD
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "    empty pick on $b (already in stack) — skipping" -ForegroundColor Yellow
+            git cherry-pick --skip
+        } else {
+            Write-Host "    rerere-resolved conflict on $b — continuing" -ForegroundColor Yellow
+            git cherry-pick --continue
         }
     }
 }
