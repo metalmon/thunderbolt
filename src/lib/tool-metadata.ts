@@ -108,6 +108,15 @@ export const formatDisplayName = (toolName: string): string =>
     .join(' ')
     .slice(0, 25)
 
+/** Resolve a built-in tool display name from `chat:toolNames.*`, else title-case. */
+export const translateDisplayName = (toolName: string): string => {
+  const key = `toolNames.${toolName}`
+  if (i18n.exists(`chat:${key}`)) {
+    return i18n.t(`chat:${key}`)
+  }
+  return formatDisplayName(toolName)
+}
+
 /**
  * Generates contextual loading message
  */
