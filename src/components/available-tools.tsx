@@ -4,6 +4,7 @@
 
 import { Check, Square } from 'lucide-react'
 import type { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
@@ -44,15 +45,16 @@ export type AvailableToolsProps = {
  * presentation across different settings pages.
  */
 export const AvailableTools: FC<AvailableToolsProps> = ({ tools, className }) => {
+  const { t } = useTranslation('settings')
   return (
     <div className={cn(className)}>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="tools" className="border-none">
           <AccordionTrigger className="py-3 hover:no-underline">
             <div className="flex items-center gap-2">
-              <div className="text-sm font-medium text-foreground">Available Tools</div>
+              <div className="text-sm font-medium text-foreground">{t('integrations.availableTools')}</div>
               <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                {tools.length} tool{tools.length !== 1 ? 's' : ''}
+                {t('integrations.toolCount', { count: tools.length })}
               </div>
             </div>
           </AccordionTrigger>

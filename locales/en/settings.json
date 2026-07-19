@@ -156,7 +156,23 @@
     "disconnect": "Disconnect",
     "emptyTitle": "No integrations available",
     "emptyDescription": "Check back later for new integrations",
-    "disconnectFailed": "Failed to disconnect integration"
+    "disconnectFailed": "Failed to disconnect integration",
+    "availableTools": "Available Tools",
+    "toolCount_one": "{{count}} tool",
+    "toolCount_other": "{{count}} tools",
+    "tools": {
+      "search": { "name": "Web Search", "description": "Search the web for current information." },
+      "fetch_content": { "name": "Fetch Page Content", "description": "Fetch and read content from a public web page." },
+      "google_check_inbox": { "name": "Check Inbox", "description": "Check your Gmail inbox for recent emails." },
+      "google_search_emails": { "name": "Search Emails", "description": "Search Gmail using query syntax." },
+      "google_get_email": { "name": "Get Email", "description": "Open a Gmail message with its full content." },
+      "google_draft_email": { "name": "Draft Email", "description": "Create a Gmail draft (a new email or a reply)." },
+      "google_check_calendar": { "name": "Check Calendar", "description": "Check Google Calendar for upcoming events." },
+      "microsoft_list_messages": { "name": "List Messages", "description": "List Outlook messages with optional filtering." },
+      "microsoft_get_message": { "name": "Get Message", "description": "Open a specific Outlook message." },
+      "microsoft_search_onedrive": { "name": "Search OneDrive", "description": "Search OneDrive files by name or content." },
+      "microsoft_get_onedrive_file_content": { "name": "Read OneDrive File", "description": "Read text content from a OneDrive file." }
+    }
   },
   "models": {
     "title": "Models",
