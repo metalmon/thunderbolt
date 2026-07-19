@@ -1,55 +1,55 @@
 {
   "dialog": {
-    "title": "Onboarding Wizard",
-    "description": "Complete the setup process to get started with Thunderbolt"
+    "title": "Мастер настройки",
+    "description": "Пройдите настройку, чтобы начать работу с Thunderbolt"
   },
   "actions": {
-    "continue": "Continue",
-    "skip": "Skip",
-    "completing": "Completing...",
-    "startUsing": "Start Using Thunderbolt"
+    "continue": "Продолжить",
+    "skip": "Пропустить",
+    "completing": "Завершение…",
+    "startUsing": "Начать работу с Thunderbolt"
   },
   "welcome": {
-    "title": "Welcome",
-    "description": "Sign-in successful"
+    "title": "Добро пожаловать",
+    "description": "Вход выполнен успешно"
   },
   "privacy": {
-    "title": "Welcome to <bold>Thunderbolt</bold>!",
-    "subtitle": "Your privacy-first AI assistant",
-    "zeroLogsTitle": "Zero Logs",
-    "zeroLogsDescription": "We don't keep logs of your conversations.",
-    "zeroTrainingTitle": "Zero Training",
-    "zeroTrainingDescription": "We don't train models on your data.",
-    "localStorageTitle": "Local Storage",
-    "localStorageDescription": "Data is stored securely on your device.",
-    "agreement": "I agree to the <privacyLink>Privacy Policy</privacyLink> and <termsLink>Terms of Service</termsLink>."
+    "title": "Добро пожаловать в <bold>Thunderbolt</bold>!",
+    "subtitle": "ИИ-помощник с приоритетом конфиденциальности",
+    "zeroLogsTitle": "Без логов",
+    "zeroLogsDescription": "Мы не храним логи ваших разговоров.",
+    "zeroTrainingTitle": "Без обучения на данных",
+    "zeroTrainingDescription": "Мы не обучаем модели на ваших данных.",
+    "localStorageTitle": "Локальное хранение",
+    "localStorageDescription": "Данные надёжно хранятся на вашем устройстве.",
+    "agreement": "Я соглашаюсь с <privacyLink>Политикой конфиденциальности</privacyLink> и <termsLink>Условиями использования</termsLink>."
   },
   "auth": {
-    "connectTitle": "Connect {{provider}}",
-    "descriptionGoogle": "Your assistant can help you manage your email and calendar.",
-    "descriptionMicrosoft": "Your assistant can help you manage your email, calendar, and documents.",
-    "calendarTitle": "Calendar",
-    "calendarDescriptionGoogle": "View your schedule and upcoming events.",
-    "calendarDescriptionMicrosoft": "View and manage your schedule; create + reschedule events.",
-    "emailTitle": "Email",
-    "emailDescriptionGoogle": "Read your emails and compose drafts.",
-    "emailDescriptionMicrosoft": "Read, compose, and organize your emails.",
-    "oneDriveTitle": "OneDrive Access",
-    "oneDriveDescription": "Search and work with your OneDrive files and documents."
+    "connectTitle": "Подключить {{provider}}",
+    "descriptionGoogle": "Помощник поможет управлять почтой и календарём.",
+    "descriptionMicrosoft": "Помощник поможет управлять почтой, календарём и документами.",
+    "calendarTitle": "Календарь",
+    "calendarDescriptionGoogle": "Просматривайте расписание и предстоящие события.",
+    "calendarDescriptionMicrosoft": "Просматривайте и управляйте расписанием; создавайте и переносите события.",
+    "emailTitle": "Почта",
+    "emailDescriptionGoogle": "Читайте письма и составляйте черновики.",
+    "emailDescriptionMicrosoft": "Читайте, пишите и организуйте письма.",
+    "oneDriveTitle": "Доступ к OneDrive",
+    "oneDriveDescription": "Ищите и работайте с файлами и документами в OneDrive."
   },
   "name": {
-    "title": "What should we call you?",
-    "description": "Your AI assistant will use this name to address you personally.",
-    "placeholder": "Enter your name",
-    "required": "Name is required."
+    "title": "Как к вам обращаться?",
+    "description": "ИИ-помощник будет использовать это имя в общении с вами.",
+    "placeholder": "Введите имя",
+    "required": "Укажите имя."
   },
   "location": {
-    "title": "Where are you located?",
-    "description": "This helps us personalize your experience with local settings and features.",
-    "required": "Location is required.",
-    "selectFromDropdown": "Please select a location from the dropdown to get coordinates."
+    "title": "Где вы находитесь?",
+    "description": "Это поможет персонализировать опыт с учётом местных настроек и функций.",
+    "required": "Укажите местоположение.",
+    "selectFromDropdown": "Выберите местоположение из списка, чтобы получить координаты."
   },
   "celebration": {
-    "allSet": "You're all set! 🎉"
+    "allSet": "Всё готово! 🎉"
   }
 }

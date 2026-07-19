@@ -1,153 +1,196 @@
 {
   "nav": {
-    "newChat": "New Chat",
-    "tasks": "Tasks",
-    "settings": "Settings"
+    "newChat": "Новый чат",
+    "tasks": "Задачи",
+    "settings": "Настройки"
   },
   "sidebar": {
-    "collapse": "Collapse Sidebar",
-    "expand": "Expand Sidebar",
-    "toggle": "Toggle Sidebar",
-    "open": "Open Sidebar",
-    "recentChats": "Recent Chats",
-    "searchPlaceholder": "Search chats...",
-    "search": "Search chats",
-    "clearAll": "Clear all chats",
-    "noMatches": "No matches for \"{{query}}\"",
-    "rename": "Rename",
-    "renameTitle": "Rename chat",
-    "chatNamePlaceholder": "Chat name"
+    "collapse": "Свернуть боковую панель",
+    "expand": "Развернуть боковую панель",
+    "toggle": "Переключить боковую панель",
+    "open": "Открыть боковую панель",
+    "recentChats": "Недавние чаты",
+    "searchPlaceholder": "Поиск чатов…",
+    "search": "Поиск чатов",
+    "clearAll": "Очистить все чаты",
+    "noMatches": "Нет совпадений для «{{query}}»",
+    "rename": "Переименовать",
+    "renameTitle": "Переименовать чат",
+    "chatNamePlaceholder": "Название чата"
   },
   "deleteChat": {
-    "title": "Delete this chat?",
-    "description": "This will permanently delete this chat.",
-    "confirm": "Delete Chat"
+    "title": "Удалить этот чат?",
+    "description": "Чат будет удалён безвозвратно.",
+    "confirm": "Удалить чат"
   },
   "deleteAllChats": {
-    "title": "Delete all chats?",
-    "description": "This will permanently delete all your chats.",
-    "confirm": "Delete All Chats"
+    "title": "Удалить все чаты?",
+    "description": "Все ваши чаты будут удалены безвозвратно.",
+    "confirm": "Удалить все чаты"
   },
   "prompt": {
-    "placeholder": "Say something...",
-    "askAnything": "Ask me anything...",
-    "stopGenerating": "Stop generating",
-    "sendMessage": "Send message",
-    "attachFile": "Attach a file",
-    "dropFile": "Drop file to attach",
-    "dismiss": "Dismiss",
-    "connecting": "Connecting to {{name}}...",
-    "connectFailed": "Failed to connect to {{name}}",
-    "agentUnavailable": "This chat uses {{name}}, which is not available on this platform.",
-    "connectionFailed": "Connection failed",
-    "attachMaxFiles": "You can attach up to {{count}} files.",
-    "attachUnsupportedType": "\"{{name}}\" isn't a supported file type.",
-    "attachTooLarge": "\"{{name}}\" is too large (max {{maxMb}}MB).",
-    "attachStorageFull": "Couldn't attach \"{{name}}\" — your browser's storage is full or unavailable."
+    "placeholder": "Напишите что-нибудь…",
+    "askAnything": "Спросите что угодно…",
+    "stopGenerating": "Остановить генерацию",
+    "sendMessage": "Отправить сообщение",
+    "attachFile": "Прикрепить файл",
+    "dropFile": "Отпустите файл, чтобы прикрепить",
+    "dismiss": "Закрыть",
+    "connecting": "Подключение к {{name}}…",
+    "connectFailed": "Не удалось подключиться к {{name}}",
+    "agentUnavailable": "Этот чат использует {{name}}, который недоступен на этой платформе.",
+    "connectionFailed": "Не удалось подключиться",
+    "attachMaxFiles": "Можно прикрепить не больше {{count}} файлов.",
+    "attachUnsupportedType": "«{{name}}» — неподдерживаемый тип файла.",
+    "attachTooLarge": "«{{name}}» слишком большой (макс. {{maxMb}} МБ).",
+    "attachStorageFull": "Не удалось прикрепить «{{name}}» — хранилище браузера заполнено или недоступно."
   },
   "loading": {
-    "searchingWeb": "Searching the web…",
-    "researching": "Researching…"
+    "searchingWeb": "Поиск в интернете…",
+    "researching": "Исследование…"
   },
   "mode": {
-    "defaultBadge": "Default"
+    "defaultBadge": "По умолчанию"
   },
   "model": {
-    "customModels": "Custom Models",
-    "standardModels": "Standard Models",
-    "standardDisabledSubtitle": "Not available in confidential chats.",
-    "confidentialModels": "Confidential Models",
-    "confidentialDisabledSubtitle": "Available only in confidential chats.",
-    "selectModel": "Select Model",
-    "apiKeyMissing": "API key not configured",
-    "addModels": "Add Models",
-    "searchPlaceholder": "Search Models",
-    "empty": "No models found"
+    "customModels": "Свои модели",
+    "standardModels": "Стандартные модели",
+    "standardDisabledSubtitle": "Недоступны в конфиденциальных чатах.",
+    "confidentialModels": "Конфиденциальные модели",
+    "confidentialDisabledSubtitle": "Доступны только в конфиденциальных чатах.",
+    "selectModel": "Выбрать модель",
+    "apiKeyMissing": "API-ключ не настроен",
+    "addModels": "Добавить модели",
+    "searchPlaceholder": "Поиск моделей",
+    "empty": "Модели не найдены"
   },
   "agent": {
-    "builtIn": "Built-in",
-    "system": "System",
-    "custom": "Custom",
-    "cannotChangeDuringReply": "Cannot change agent during reply",
-    "addAgent": "Add Agent",
-    "searchPlaceholder": "Search agents",
-    "empty": "No agents found"
+    "builtIn": "Встроенные",
+    "system": "Системные",
+    "custom": "Свои",
+    "cannotChangeDuringReply": "Нельзя сменить агента во время ответа",
+    "addAgent": "Добавить агента",
+    "searchPlaceholder": "Поиск агентов",
+    "empty": "Агенты не найдены"
   },
   "skills": {
-    "slashCommands": "Slash commands",
-    "pinLimitReached": "Pin limit reached ({{max}}). Unpin one first.",
-    "noMoreToPin": "No more skills to pin",
-    "pinASkill": "Pin a skill",
-    "dismiss": "Dismiss",
-    "pinnedSkill": "Pinned skill /{{label}}",
-    "addToChat": "Add to chat",
-    "addInstructionsToChat": "Add instructions to chat",
-    "reorder": "Reorder",
-    "unpin": "Unpin"
+    "slashCommands": "Слеш-команды",
+    "pinLimitReached": "Достигнут лимит закреплений ({{max}}). Сначала открепите один навык.",
+    "noMoreToPin": "Больше нечего закреплять",
+    "pinASkill": "Закрепить навык",
+    "dismiss": "Закрыть",
+    "pinnedSkill": "Закреплённый навык /{{label}}",
+    "addToChat": "Добавить в чат",
+    "addInstructionsToChat": "Добавить инструкции в чат",
+    "reorder": "Изменить порядок",
+    "unpin": "Открепить"
   },
   "messages": {
-    "scrollToBottom": "Scroll to bottom",
-    "copyMessage": "Copy message",
-    "copy": "Copy",
-    "reply": "Reply",
-    "retry": "Retry",
-    "viewQuote": "View quote",
-    "removeQuote": "Remove quote",
-    "thinking": "Thinking",
-    "thinkingEllipsis": "Thinking...",
-    "completedSteps": "Completed {{count}} steps in {{duration}}",
-    "thoughtFor": "Thought for {{duration}}"
+    "scrollToBottom": "Прокрутить вниз",
+    "copyMessage": "Копировать сообщение",
+    "copy": "Копировать",
+    "reply": "Ответить",
+    "retry": "Повторить",
+    "viewQuote": "Показать цитату",
+    "removeQuote": "Убрать цитату",
+    "thinking": "Думаю",
+    "thinkingEllipsis": "Думаю…",
+    "completedSteps": "Выполнено шагов: {{count}} за {{duration}}",
+    "thoughtFor": "Думал {{duration}}"
   },
   "permission": {
-    "editFile": "Edit file",
-    "delete": "Delete",
-    "runCommand": "Run command",
-    "moveFile": "Move file",
-    "action": "Action",
-    "alwaysAllowKind": "Always allow all {{label}} actions",
-    "alwaysAllowKindGeneric": "Always allow all actions of this kind",
-    "title": "Permission Required",
-    "commandArgs": "Command / arguments",
-    "toolInput": "Tool input",
-    "alwaysAllowEverything": "Always allow everything from this agent"
+    "editFile": "Изменить файл",
+    "delete": "Удалить",
+    "runCommand": "Выполнить команду",
+    "moveFile": "Переместить файл",
+    "action": "Действие",
+    "alwaysAllowKind": "Всегда разрешать все действия «{{label}}»",
+    "alwaysAllowKindGeneric": "Всегда разрешать все действия этого типа",
+    "title": "Требуется разрешение",
+    "commandArgs": "Команда / аргументы",
+    "toolInput": "Ввод инструмента",
+    "alwaysAllowEverything": "Всегда разрешать всё от этого агента"
   },
   "fileCard": {
-    "sentAsText": "Sent as text",
-    "sentAsImages": "Sent as images",
+    "sentAsText": "Отправлено как текст",
+    "sentAsImages": "Отправлено как изображения",
     "pdf": "PDF",
-    "file": "FILE",
-    "remove": "Remove {{filename}}",
-    "resendAs": "Resend as {{mode}}",
-    "text": "text",
-    "images": "images"
+    "file": "ФАЙЛ",
+    "remove": "Удалить {{filename}}",
+    "resendAs": "Отправить снова как {{mode}}",
+    "text": "текст",
+    "images": "изображения"
   },
   "errors": {
-    "rateLimit": "Too many requests. Please try again in a moment.",
-    "contextOverflow": "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window.",
-    "retrying": "Something went wrong. Retrying ({{retryCount}}/{{maxRetries}})...",
-    "deliveryExhausted": "This model couldn't read the attached file. Try a different model.",
-    "generic": "Something went wrong. Please try again."
+    "rateLimit": "Слишком много запросов. Подождите немного и попробуйте снова.",
+    "contextOverflow": "Разговор слишком большой для окна контекста модели. Начните новый чат, удалите часть вложений или выберите модель с большим контекстом.",
+    "retrying": "Что-то пошло не так. Повтор ({{retryCount}}/{{maxRetries}})…",
+    "deliveryExhausted": "Эта модель не смогла прочитать прикреплённый файл. Попробуйте другую модель.",
+    "generic": "Что-то пошло не так. Попробуйте ещё раз."
   },
   "artifact": {
-    "fallbackTitle": "Artifact",
-    "shownInPanel": "{{title}} — shown in side panel",
-    "showInline": "Show inline",
-    "generating": "Generating…",
-    "openInSidePanel": "Open in side panel"
+    "fallbackTitle": "Артефакт",
+    "shownInPanel": "{{title}} — показано в боковой панели",
+    "showInline": "Показать в тексте",
+    "generating": "Генерация…",
+    "openInSidePanel": "Открыть в боковой панели",
+    "copyHtml": "Копировать HTML",
+    "downloadHtml": "Скачать HTML"
+  },
+  "toolLoading": {
+    "searching": "Поиск...",
+    "retrievingData": "Получение данных...",
+    "editing": "Редактирование...",
+    "creating": "Создание...",
+    "removing": "Удаление...",
+    "processing": "Обработка...",
+    "analyzing": "Анализ...",
+    "sending": "Отправка...",
+    "gettingWeather": "Получение погоды...",
+    "searchingFor": "Поиск «{{query}}»...",
+    "gettingWeatherFor": "Получение погоды для {{location}}...",
+    "editingFile": "Редактирование {{file}}...",
+    "readingFile": "Чтение {{file}}...",
+    "usingTool": "Использование инструмента «{{toolName}}»..."
+  },
+  "toolNames": {
+    "search": "Поиск",
+    "fetch_content": "Загрузка содержимого",
+    "get_current_weather": "Текущая погода",
+    "get_weather_forecast": "Прогноз погоды",
+    "google_check_inbox": "Входящие",
+    "google_search_emails": "Поиск писем",
+    "google_get_email": "Письмо",
+    "google_check_calendar": "Календарь",
+    "processing": "Обработка",
+    "deliver_file": "Доставка файла"
+  },
+  "deliveredFile": {
+    "delivered": "Доставлено",
+    "download": "Скачать",
+    "downloadAria": "Скачать {{filename}}"
+  },
+  "documentPreview": {
+    "unavailable": "Предпросмотр недоступен для этого типа файла. Используйте кнопку скачивания, чтобы открыть его.",
+    "downloadAria": "Скачать {{filename}}"
+  },
+  "deleteThread": {
+    "title": "Удалить ветку?",
+    "description": "Это действие нельзя отменить. Чат и все сообщения будут удалены безвозвратно."
   },
   "sources": {
-    "source": "Source",
-    "sources": "Sources",
-    "noneAvailable": "No sources available",
-    "unknown": "Unknown",
-    "viewSource": "View source: {{name}}"
+    "source": "Источник",
+    "sources": "Источники",
+    "noneAvailable": "Источники недоступны",
+    "unknown": "Неизвестно",
+    "viewSource": "Открыть источник: {{name}}"
   },
   "externalLink": {
-    "title": "Open External Link",
-    "description": "Confirm opening an external link",
-    "openInSidebar": "Open in Sidebar",
-    "opening": "Opening…",
-    "openInBrowser": "Open in Browser",
-    "openLink": "Open Link"
+    "title": "Открыть внешнюю ссылку",
+    "description": "Подтвердите открытие внешней ссылки",
+    "openInSidebar": "Открыть в боковой панели",
+    "opening": "Открытие…",
+    "openInBrowser": "Открыть в браузере",
+    "openLink": "Открыть ссылку"
   }
 }
