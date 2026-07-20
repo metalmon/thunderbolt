@@ -14,13 +14,14 @@ describe('resolveDocumentResultTarget', () => {
     clearDeliveredUriRefMap()
   })
 
-  test('attachment://deliver uri → local-file sideview', () => {
+  test('explicit widget name wins; sideviewId stays keyed on the basename', () => {
     upsertDeliveredUriRef({
       uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
       localFileId: 'local-abc',
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'a1b2c3d4e5f6.pdf',
+      title: 'Отчёт по аренде',
     })
     const target = resolveDocumentResultTarget({
       fileId: 'attachment://deliver/a1b2c3d4e5f6.pdf',
@@ -29,24 +30,26 @@ describe('resolveDocumentResultTarget', () => {
     expect(target).toEqual({
       kind: 'local-file',
       sideviewType: 'local-file',
-      sideviewId: buildDocumentSideviewId({ fileId: 'local-abc', fileName: 'Договор.pdf' }),
+      // sideviewId keyed on the basename (matches the download card + citations), NOT the label
+      sideviewId: buildDocumentSideviewId({ fileId: 'local-abc', fileName: 'a1b2c3d4e5f6.pdf' }),
       displayName: 'Договор.pdf',
     })
   })
 
-  test('missing name falls back to storage basename', () => {
+  test('missing name falls back to the delivered title (widget label)', () => {
     upsertDeliveredUriRef({
       uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
       localFileId: 'local-abc',
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'a1b2c3d4e5f6.pdf',
+      title: 'Годовой отчёт',
     })
     const target = resolveDocumentResultTarget({
       fileId: 'attachment://deliver/a1b2c3d4e5f6.pdf',
     })
     if (target.kind === 'missing') throw new Error('expected a resolved target for a mapped deliver uri')
-    expect(target.displayName).toBe('a1b2c3d4e5f6.pdf')
+    expect(target.displayName).toBe('Годовой отчёт')
     expect(target.sideviewId).toContain('a1b2c3d4e5f6.pdf')
   })
 

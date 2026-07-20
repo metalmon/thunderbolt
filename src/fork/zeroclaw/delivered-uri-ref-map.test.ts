@@ -20,6 +20,7 @@ const sample = (over: Partial<DeliveredUriRef> = {}): DeliveredUriRef => ({
   turnPosition: 1,
   mimeType: 'application/pdf',
   storageBasename: 'a1b2c3d4e5f6.pdf',
+  title: 'Договор аренды.pdf',
   ...over,
 })
 
