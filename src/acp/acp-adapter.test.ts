@@ -502,6 +502,7 @@ describe('connectAcpAdapter — handshake failure modes', () => {
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'prior.pdf',
+      title: 'prior.pdf',
     })
     expect(listDeliveredUriRefs()).toHaveLength(1)
 
