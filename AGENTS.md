@@ -31,17 +31,18 @@ behavior lives in `src/fork/**`. Example: `src/acp/acp-adapter.ts` calls
 Patches live on branches based on `main` (assembled onto `master` by
 `dev-local/rebuild-master.ps1`):
 
-- `fork/acp-fixes` — invasive upstream ACP fixes (MPL).
+- `fork/additive` — ZeroClaw ACP additive IP (new files in `src/fork/zeroclaw/**`,
+  `zeroclaw-integration/**`; fork IP, currently MPL-headered). New files only.
 - `fork/i18n` — i18next infra + `t()` wrapping + render-time default translation
   (MPL, invasive; the primary rebase-forward target when upstream advances).
 - `fork/i18n-locales` — RU/EN locale catalogs (additive, fork IP). Stacks on
   `fork/i18n` (its content fills the `locales/**` skeleton i18n creates).
-- `fork/zeroclaw` — ZeroClaw ACP materialize + citation ref-map. Mixed additive
-  (`src/fork/zeroclaw/**`) + invasive seams; a later thin-hook pass splits it into
-  a clean `fork/additive` + `fork/hooks` per the design.
+- `fork/hooks` — thin import-plus-call seams in upstream files: ZeroClaw wiring
+  + the acp-stop-busy fix (MPL, invasive). All ZeroClaw behaviour lives in
+  `fork/additive`'s files.
 - `fork/dev` — local dev/build fixes + fork tooling & docs (not upstreamed; applied last).
 
-Apply order (rebuild): `fork/acp-fixes → fork/i18n → fork/i18n-locales → fork/zeroclaw → fork/dev`.
+Apply order (rebuild): `fork/additive → fork/i18n → fork/i18n-locales → fork/hooks → fork/dev`.
 The canonical list lives in `dev-local/fork-branches.ps1`.
 
 ## Upstream sync workflow
