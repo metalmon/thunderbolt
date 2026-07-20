@@ -5,7 +5,7 @@
 import { type ContentPart, type ContentPartsState, parseContentPartsIncremental } from '@/ai/widget-parser'
 import { useSmoothText } from '@/hooks/use-smooth-text'
 import { buildDeliveredCitationPlaceholders } from '@/fork/zeroclaw/delivered-citations'
-import { listDeliveredUriRefs } from '@/fork/zeroclaw/delivered-uri-ref-map'
+import { type DeliveredFileRef } from '@/fork/zeroclaw/outbound-resource-blob'
 import { sourceToCitation } from '@/lib/source-utils'
 import {
   buildDocumentSideviewId,
@@ -29,6 +29,9 @@ type TextPartProps = {
   isStreaming?: boolean
   sources?: SourceMetadata[]
   haystackReferences?: HaystackReferenceMeta[]
+  /** ZeroClaw files delivered in this message, in delivery order — the persisted source
+   *  of truth for `[N]` / deliver-uri citations (see delivered-citations). */
+  deliveredFiles?: DeliveredFileRef[]
 }
 
 /**
@@ -160,14 +163,14 @@ export const buildDocumentCitationPlaceholders = (
   return { fullText, citations }
 }
 
-export const TextPart = memo(({ part, messageId, isStreaming = false, sources, haystackReferences }: TextPartProps) => {
+export const TextPart = memo(({ part, messageId, isStreaming = false, sources, haystackReferences, deliveredFiles }: TextPartProps) => {
   const isPartStreaming = isStreaming && part.state === 'streaming'
   const revealedText = useSmoothText(part.text, isPartStreaming)
   // The parser strips complete native citations; withhold their unfinished suffix to avoid syntax flashes.
   const text = isPartStreaming ? revealedText.replace(/【(?:\d+(?:†[^】]*)?)?$/, '') : revealedText
   const hasNewSources = !!sources && sources.length > 0
   const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
-  const hasDeliveredRefs = listDeliveredUriRefs().length > 0
+  const hasDeliveredRefs = !!deliveredFiles && deliveredFiles.length > 0
 
   // Thread incremental parse state across renders so a streamed part re-scans only
   // its appended tail (marker-free prose) instead of the whole growing string.
@@ -193,7 +196,7 @@ export const TextPart = memo(({ part, messageId, isStreaming = false, sources, h
     const buildPlaceholders = hasDocumentRefs
       ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences!, offset)
       : hasDeliveredRefs
-        ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, offset)
+        ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, deliveredFiles!, offset)
         : hasNewSources
           ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources!, offset)
           : null
@@ -228,7 +231,7 @@ export const TextPart = memo(({ part, messageId, isStreaming = false, sources, h
       hasCitations: false,
       hasText: parts.some((p) => p.type === 'text'),
     }
-  }, [text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences])
+  }, [text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences, deliveredFiles])
 
   const dedupedParts = useMemo(() => deduplicateLinkPreviews(processedParts), [processedParts])
 
