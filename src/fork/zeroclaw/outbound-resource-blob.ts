@@ -66,6 +66,18 @@ export const filenameFromUri = (uri: string): string => {
   return slash && slash.length > 0 ? slash : 'upload.bin'
 }
 
+/**
+ * Display caption for a delivered file: the ZeroClaw `tool_call_update.title`
+ * (prose, as-is) when present and meaningful, else the uri basename. The old
+ * daemon sent the literal tool name "deliver_file" as the title — treat that as
+ * absent. Used for citations + the document-result widget label, never the disk
+ * filename (which is always the basename).
+ */
+export const deliveredCaption = (title: string | null | undefined, basename: string): string => {
+  const trimmed = title?.trim()
+  return trimmed && trimmed !== 'deliver_file' ? trimmed : basename
+}
+
 const decodeBase64 = (b64: string): Uint8Array | null => {
   try {
     const binary = atob(b64)
@@ -117,6 +129,7 @@ export const extractResourceBlobsFromToolContent = (content: unknown): AcpResour
  */
 export const materializeOutboundResourceBlobs = (
   content: unknown,
+  title?: string | null,
   deps: OutboundBlobDeps = defaultDeps,
 ): DeliveredFileRef[] => {
   const extracted = extractResourceBlobsFromToolContent(content)
@@ -150,6 +163,7 @@ export const materializeOutboundResourceBlobs = (
       turnPosition,
       mimeType: item.mimeType,
       storageBasename: filename,
+      title: deliveredCaption(title, filename),
     })
     refs.push({
       localFileId: id,
