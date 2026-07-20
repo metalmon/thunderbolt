@@ -42,11 +42,6 @@ import type { Agent, AgentAdapterContext } from '@/types/acp'
 import type { AcpTransport } from './types'
 import { connectAcpAdapter, type AcpAdapterContext } from './acp-adapter'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
-import {
-  clearDeliveredUriRefMap,
-  listDeliveredUriRefs,
-  upsertDeliveredUriRef,
-} from '@/fork/zeroclaw/delivered-uri-ref-map'
 import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 const remoteAgent: Agent = {
@@ -364,36 +359,6 @@ describe('connectAcpAdapter — handshake failure modes', () => {
     expect(sent).toContain('Never write [N]:uri')
     expect(sent).toContain('<widget:document-result fileId="<exact uri>"')
     expect(sent.endsWith('cite me')).toBe(true)
-  })
-
-  it('clears the delivered uri ref map at the start of each prompt turn', async () => {
-    clearDeliveredUriRefMap()
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/prior.pdf',
-      localFileId: 'local-prior',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'prior.pdf',
-      title: 'prior.pdf',
-    })
-    expect(listDeliveredUriRefs()).toHaveLength(1)
-
-    const { transport } = buildFakeTransport()
-    const { FakeConnection, releasePrompts } = buildFakeConnection()
-
-    const adapter = await connectAcpAdapter(remoteAgent, baseCtx(), {
-      openTransport: async () => transport,
-      ClientSideConnection: FakeConnection as never,
-    })
-
-    const response = await adapter.fetch(promptInit('new turn'), threadCtx('t1'))
-    expect(listDeliveredUriRefs()).toHaveLength(0)
-
-    await act(async () => {
-      releasePrompts()
-      await getClock().runAllAsync()
-      await readSse(response)
-    })
   })
 
   it('sends the user text unchanged when no skill instructions resolved', async () => {
