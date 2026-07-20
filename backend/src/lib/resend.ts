@@ -5,8 +5,9 @@
 import type React from 'react'
 import { Resend } from 'resend'
 
-/** Default sender address for all outgoing emails */
-export const emailFrom = 'hello@auth.thunderbolt.io'
+/** Sender address for all outgoing emails. Override via RESEND_EMAIL_FROM
+ *  (the domain must be verified in your Resend account, or use onboarding@resend.dev). */
+export const emailFrom = process.env.RESEND_EMAIL_FROM || 'hello@auth.thunderbolt.io'
 
 /**
  * Shared Resend client instance for sending emails
