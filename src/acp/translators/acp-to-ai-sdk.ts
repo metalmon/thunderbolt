@@ -339,7 +339,7 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
         } else {
           // completed — prefer standard ACP resource+blob in `content` (ZeroClaw
           // deliver_file) over Haystack remote fileId; keep rawOutput as text summary.
-          const delivered = materializeOutboundResourceBlobs(update.content)
+          const delivered = materializeOutboundResourceBlobs(update.content, update.title)
           const output = enrichToolOutputWithDeliveredFiles(update.rawOutput ?? update.content ?? {}, delivered)
           emit({
             type: 'tool-output-available',
