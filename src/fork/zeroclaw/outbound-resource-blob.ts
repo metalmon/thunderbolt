@@ -5,7 +5,6 @@
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
 import { putAttachment, type StoredFile } from '@/lib/file-blob-storage'
-import { nextDeliveredTurnPosition, upsertDeliveredUriRef } from './delivered-uri-ref-map'
 
 /** Cap aligned with ZeroClaw deliver_file / embedded resource intake (10 MiB). */
 export const maxOutboundBlobBytes = 10 * 1024 * 1024
@@ -22,7 +21,10 @@ export type DeliveredFileRef = {
   mimeType: string
   size: number
   uri: string
-  turnPosition: number
+  /** Prose caption from `tool_call_update.title` (falls back to the basename). Citation /
+   *  document-result widget label, never the disk filename. Optional: absent on files
+   *  delivered before the title field existed — readers fall back to {@link deliveredCaption}. */
+  title?: string
 }
 
 /** Shape emitted on `tool-output-available` when ACP content carried resource+blob. */
@@ -33,13 +35,11 @@ export type DeliveredFilesOutput = {
 
 export type OutboundBlobDeps = {
   putAttachment: typeof putAttachment
-  randomId: () => string
   now: () => number
 }
 
 const defaultDeps: OutboundBlobDeps = {
   putAttachment,
-  randomId: () => crypto.randomUUID(),
   now: () => Date.now(),
 }
 
@@ -64,6 +64,24 @@ export const filenameFromUri = (uri: string): string => {
   }
   const slash = trimmed.replace(/\\/g, '/').split('/').pop()
   return slash && slash.length > 0 ? slash : 'upload.bin'
+}
+
+/**
+ * Deterministic, colon/slash-free IndexedDB key for a delivered file, derived purely
+ * from its deliver uri. This is the heart of the design: a widget or citation holds
+ * only the uri and computes the same `localFileId` the writer stored the blob under —
+ * so resolution needs no in-memory map and survives turn boundaries, app restarts, and
+ * conversation loads. FNV-1a over the uri, rendered as `zc-<8 hex>` (no `:` / `/`, so it
+ * is a safe first segment of a `fileId:fileName` sideview id).
+ */
+export const deliveredLocalFileId = (uri: string): string => {
+  const s = uri.trim()
+  let hash = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) {
+    hash ^= s.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return `zc-${(hash >>> 0).toString(16).padStart(8, '0')}`
 }
 
 /**
@@ -123,9 +141,11 @@ export const extractResourceBlobsFromToolContent = (content: unknown): AcpResour
 }
 
 /**
- * Decode + store outbound ACP resource blobs into IndexedDB. Storage is
- * fire-and-forget so the ACP translator can stay synchronous; the Blob is
- * ready in memory for immediate download even if IDB commit races a click.
+ * Decode + store outbound ACP resource blobs into IndexedDB under a uri-derived id
+ * ({@link deliveredLocalFileId}). Storage is fire-and-forget so the ACP translator
+ * can stay synchronous; the Blob is ready in memory for immediate download even if
+ * IDB commit races a click. The returned refs — persisted in the tool output — are the
+ * single source of truth for citations; there is no live map to keep in sync.
  */
 export const materializeOutboundResourceBlobs = (
   content: unknown,
@@ -140,13 +160,12 @@ export const materializeOutboundResourceBlobs = (
       continue
     }
     const filename = filenameFromUri(item.uri)
-    const id = deps.randomId()
-    const turnPosition = nextDeliveredTurnPosition()
+    const localFileId = deliveredLocalFileId(item.uri)
     // Copy into a fresh ArrayBuffer-backed view for BlobPart typing.
     const copy = new Uint8Array(bytes.byteLength)
     copy.set(bytes)
     const stored: StoredFile = {
-      id,
+      id: localFileId,
       filename,
       mimeType: item.mimeType,
       size: copy.byteLength,
@@ -157,21 +176,13 @@ export const materializeOutboundResourceBlobs = (
       // Preview/download still works from the in-memory Blob we do not retain;
       // a failed IDB write only breaks later sideview reloads.
     })
-    upsertDeliveredUriRef({
-      uri: item.uri,
-      localFileId: id,
-      turnPosition,
-      mimeType: item.mimeType,
-      storageBasename: filename,
-      title: deliveredCaption(title, filename),
-    })
     refs.push({
-      localFileId: id,
+      localFileId,
       filename,
       mimeType: item.mimeType,
       size: copy.byteLength,
       uri: item.uri,
-      turnPosition,
+      title: deliveredCaption(title, filename),
     })
   }
   return refs
@@ -187,8 +198,7 @@ export const isDeliveredFilesOutput = (output: unknown): output is DeliveredFile
       typeof f.localFileId === 'string' &&
       typeof f.filename === 'string' &&
       typeof f.mimeType === 'string' &&
-      typeof f.uri === 'string' &&
-      typeof f.turnPosition === 'number',
+      typeof f.uri === 'string',
   )
 }
 
