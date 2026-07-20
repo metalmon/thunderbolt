@@ -64,6 +64,8 @@ import { openTransport } from './transports'
 import type { AcpTransport } from './types'
 import { createTranslatorStream, toAcpCommands, type AcpCommand, type Translator } from './translators/acp-to-ai-sdk'
 import type { WebSocketFactory } from './transports/websocket'
+import { clearDeliveredUriRefMap } from '@/fork/zeroclaw/delivered-uri-ref-map'
+import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 import { configSelectOptions, sessionConfigKey, useSessionConfigStore } from './session-config-store'
 import { useAcpSessionStore, type AcpSessionState } from './session-state-store'
@@ -298,8 +300,12 @@ const extractPriorTranscript = (init: RequestInit): string | undefined => {
   return transcript.length > 0 ? transcript : undefined
 }
 
-/** Fold session skill disclosure, forced user-skill instructions, and fallback
- *  prior transcript into ACP's single prompt-text channel. Absent blocks are
+/** Fold session skill disclosure, ZeroClaw deliver_file cite note, forced
+ *  user-skill instructions, and fallback prior transcript into ACP's single
+ *  prompt-text channel. Order: cite note first (always-on for ACP), session
+ *  skill disclosure next, skill instructions (behavioral, system-like), the
+ *  prior-conversation context block, the live user text last — mirroring how
+ *  the built-in pipeline layers system → history → prompt. Absent blocks are
  *  omitted; with none, user text stays unchanged. */
 const composeAcpPrompt = (
   skillInstructions: string[] | undefined,
@@ -312,6 +318,7 @@ const composeAcpPrompt = (
     // First: it's the most stable block, so an agent that caches a prefix keeps
     // it, and it frames everything after it.
     projectSection,
+    ZEROCLAW_DELIVER_CITE_NOTE,
     sessionSkillDisclosure,
     sessionSkillDisclosure === undefined && skillInstructions && skillInstructions.length > 0
       ? skillInstructions.join('\n\n')
@@ -928,6 +935,9 @@ export const connectAcpAdapter = async (
       freshPending.delete(context.threadId)
     }
 
+    // Turn-scoped live map — clear previous turn's refs before driving the new
+    // prompt so deliver_file upserts from this response accumulate cleanly.
+    clearDeliveredUriRefMap()
     // Drive the prompt off the request thread — the response stream is the
     // synchronous return value so the AI SDK can attach immediately.
     void (async () => {
