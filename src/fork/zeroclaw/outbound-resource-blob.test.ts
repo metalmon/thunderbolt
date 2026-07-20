@@ -4,10 +4,10 @@
 
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
-import { describe, expect, test, vi, beforeEach } from 'vitest'
-import { clearDeliveredUriRefMap, getDeliveredUriRefByUri } from './delivered-uri-ref-map'
+import { describe, expect, test, vi } from 'vitest'
 import {
   deliveredCaption,
+  deliveredLocalFileId,
   enrichToolOutputWithDeliveredFiles,
   extractResourceBlobsFromToolContent,
   filenameFromUri,
@@ -21,8 +21,24 @@ describe('filenameFromUri', () => {
     expect(filenameFromUri('file:///tmp/report.pdf')).toBe('report.pdf')
   })
 
+  test('takes basename from an attachment deliver uri', () => {
+    expect(filenameFromUri('attachment://deliver/91ae7de2253c4cc4.pdf')).toBe('91ae7de2253c4cc4.pdf')
+  })
+
   test('falls back when empty', () => {
     expect(filenameFromUri('')).toBe('upload.bin')
+  })
+})
+
+describe('deliveredLocalFileId', () => {
+  test('is deterministic, colon/slash-free, and uri-specific', () => {
+    const a = deliveredLocalFileId('attachment://deliver/a.pdf')
+    const b = deliveredLocalFileId('attachment://deliver/b.pdf')
+    expect(a).toMatch(/^zc-[0-9a-f]{8}$/)
+    expect(deliveredLocalFileId('attachment://deliver/a.pdf')).toBe(a) // stable across calls
+    expect(a).not.toBe(b) // distinct uris → distinct ids
+    expect(a).not.toContain(':')
+    expect(a).not.toContain('/')
   })
 })
 
@@ -63,124 +79,74 @@ describe('extractResourceBlobsFromToolContent', () => {
 })
 
 describe('materializeOutboundResourceBlobs', () => {
-  beforeEach(() => {
-    clearDeliveredUriRefMap()
+  const resourceContent = (uri: string, blob: string) => ({
+    type: 'content',
+    content: { type: 'resource', resource: { uri, mimeType: 'application/pdf', blob } },
   })
 
-  test('stores decoded bytes and returns local refs', () => {
+  test('stores the blob under the uri-derived id and returns a matching ref', () => {
     const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
-    const content = [
-      {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///a/doc.pdf', mimeType: 'application/pdf', blob: btoa('hello') },
-        },
-      },
-    ]
-    const refs = materializeOutboundResourceBlobs(content, 'Quarterly Report', {
+    const uri = 'file:///a/doc.pdf'
+    const refs = materializeOutboundResourceBlobs([resourceContent(uri, btoa('hello'))], 'Quarterly Report', {
       putAttachment,
-      randomId: () => 'id-1',
       now: () => 123,
     })
     expect(refs).toEqual([
       {
-        localFileId: 'id-1',
+        localFileId: deliveredLocalFileId(uri),
         filename: 'doc.pdf',
         mimeType: 'application/pdf',
         size: 5,
-        uri: 'file:///a/doc.pdf',
-        turnPosition: 1,
+        uri,
+        title: 'Quarterly Report',
       },
     ])
     expect(putAttachment).toHaveBeenCalledTimes(1)
-    expect(putAttachment.mock.calls[0][0].id).toBe('id-1')
+    // The blob is stored under the SAME deterministic id a widget/citation will recompute.
+    expect(putAttachment.mock.calls[0][0].id).toBe(deliveredLocalFileId(uri))
     expect(putAttachment.mock.calls[0][0].blob).toBeInstanceOf(Blob)
   })
 
-  test('registers ref-map entry with uri and turnPosition', () => {
+  test('preserves delivery order across multiple blobs (drives [N] citations)', () => {
     const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
-    const content = [
-      {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///a/doc.pdf', mimeType: 'application/pdf', blob: btoa('hello') },
-        },
-      },
-    ]
-    materializeOutboundResourceBlobs(content, 'Doc Title', {
-      putAttachment,
-      randomId: () => 'id-1',
-      now: () => 123,
-    })
-    expect(getDeliveredUriRefByUri('file:///a/doc.pdf')).toEqual({
-      uri: 'file:///a/doc.pdf',
-      localFileId: 'id-1',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'doc.pdf',
-      title: 'Doc Title',
-    })
+    const refs = materializeOutboundResourceBlobs(
+      [resourceContent('file:///a/first.pdf', btoa('one')), resourceContent('file:///b/second.pdf', btoa('two'))],
+      undefined,
+      { putAttachment, now: () => 123 },
+    )
+    expect(refs.map((r) => r.uri)).toEqual(['file:///a/first.pdf', 'file:///b/second.pdf'])
+    expect(refs.map((r) => r.localFileId)).toEqual([
+      deliveredLocalFileId('file:///a/first.pdf'),
+      deliveredLocalFileId('file:///b/second.pdf'),
+    ])
+    // no title given → caption falls back to basename
+    expect(refs.map((r) => r.title)).toEqual(['first.pdf', 'second.pdf'])
   })
 
-  test('assigns increasing turnPosition for multiple blobs', () => {
+  test('stores the tool_call_update title on the ref (prose caption)', () => {
     const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
-    let id = 0
-    const content = [
+    const refs = materializeOutboundResourceBlobs(
+      [resourceContent('file:///a/report.pdf', btoa('x'))],
+      'Lease Agreement',
       {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///a/first.pdf', mimeType: 'application/pdf', blob: btoa('one') },
-        },
+        putAttachment,
+        now: () => 1,
       },
-      {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///b/second.pdf', mimeType: 'application/pdf', blob: btoa('two') },
-        },
-      },
-    ]
-    const refs = materializeOutboundResourceBlobs(content, undefined, {
-      putAttachment,
-      randomId: () => `id-${++id}`,
-      now: () => 123,
-    })
-    expect(refs.map((r) => r.turnPosition)).toEqual([1, 2])
-    expect(getDeliveredUriRefByUri('file:///a/first.pdf')?.turnPosition).toBe(1)
-    expect(getDeliveredUriRefByUri('file:///b/second.pdf')?.turnPosition).toBe(2)
-  })
-
-  test('stores the tool_call_update title on the ref-map entry (prose caption)', () => {
-    const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
-    const content = [
-      {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///a/report.pdf', mimeType: 'application/pdf', blob: btoa('x') },
-        },
-      },
-    ]
-    materializeOutboundResourceBlobs(content, 'Lease Agreement', { putAttachment, randomId: () => 'id-1', now: () => 1 })
-    expect(getDeliveredUriRefByUri('file:///a/report.pdf')?.title).toBe('Lease Agreement')
+    )
+    expect(refs[0].title).toBe('Lease Agreement')
   })
 
   test('title falls back to the basename for the legacy "deliver_file" title', () => {
     const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
-    const content = [
+    const refs = materializeOutboundResourceBlobs(
+      [resourceContent('file:///a/report.pdf', btoa('x'))],
+      'deliver_file',
       {
-        type: 'content',
-        content: {
-          type: 'resource',
-          resource: { uri: 'file:///a/report.pdf', mimeType: 'application/pdf', blob: btoa('x') },
-        },
+        putAttachment,
+        now: () => 1,
       },
-    ]
-    materializeOutboundResourceBlobs(content, 'deliver_file', { putAttachment, randomId: () => 'id-1', now: () => 1 })
-    expect(getDeliveredUriRefByUri('file:///a/report.pdf')?.title).toBe('report.pdf')
+    )
+    expect(refs[0].title).toBe('report.pdf')
   })
 })
 
@@ -206,7 +172,7 @@ describe('enrichToolOutputWithDeliveredFiles', () => {
         mimeType: 'application/pdf',
         size: 1,
         uri: 'file:///x.pdf',
-        turnPosition: 1,
+        title: 'x.pdf',
       },
     ])
     expect(isDeliveredFilesOutput(out)).toBe(true)
@@ -218,6 +184,27 @@ describe('enrichToolOutputWithDeliveredFiles', () => {
 
   test('passthrough when no files', () => {
     expect(enrichToolOutputWithDeliveredFiles('ok', [])).toBe('ok')
+  })
+})
+
+describe('isDeliveredFilesOutput', () => {
+  test('accepts legacy refs that predate the title field', () => {
+    // Older persisted output has no `title` (and may carry a now-unused `turnPosition`);
+    // it must still validate so old cards keep rendering.
+    const legacy = {
+      text: 'x',
+      deliveredFiles: [
+        {
+          localFileId: 'r',
+          filename: 'a.pdf',
+          mimeType: 'application/pdf',
+          size: 1,
+          uri: 'file:///a.pdf',
+          turnPosition: 1,
+        },
+      ],
+    }
+    expect(isDeliveredFilesOutput(legacy)).toBe(true)
   })
 })
 
@@ -235,7 +222,7 @@ describe('toolPartHasDeliveredFiles', () => {
               mimeType: 'application/pdf',
               size: 1,
               uri: 'file:///a.pdf',
-              turnPosition: 1,
+              title: 'a.pdf',
             },
           ],
         },
