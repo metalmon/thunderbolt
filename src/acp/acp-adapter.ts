@@ -64,7 +64,6 @@ import { openTransport } from './transports'
 import type { AcpTransport } from './types'
 import { createTranslatorStream, toAcpCommands, type AcpCommand, type Translator } from './translators/acp-to-ai-sdk'
 import type { WebSocketFactory } from './transports/websocket'
-import { clearDeliveredUriRefMap } from '@/fork/zeroclaw/delivered-uri-ref-map'
 import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 import { configSelectOptions, sessionConfigKey, useSessionConfigStore } from './session-config-store'
@@ -935,9 +934,6 @@ export const connectAcpAdapter = async (
       freshPending.delete(context.threadId)
     }
 
-    // Turn-scoped live map — clear previous turn's refs before driving the new
-    // prompt so deliver_file upserts from this response accumulate cleanly.
-    clearDeliveredUriRefMap()
     // Drive the prompt off the request thread — the response stream is the
     // synchronous return value so the AI SDK can attach immediately.
     void (async () => {
