@@ -40,6 +40,28 @@ const createReasoningGroupPart = (
 const createToolGroupPart = (tools: ToolUIPart[]): ReasoningGroupUIPart =>
   createReasoningGroupPart(tools.map((tool) => ({ type: 'tool' as const, content: tool, id: tool.toolCallId })))
 
+/** A standalone ACP deliver_file tool part (as groupMessageParts lifts it out). */
+const createDeliveredFilePart = (name: string): ToolUIPart =>
+  ({
+    type: 'tool-deliver_file',
+    toolCallId: `call-${name}`,
+    state: 'output-available',
+    input: {},
+    output: {
+      text: `Delivered ${name}`,
+      deliveredFiles: [
+        {
+          localFileId: `zc-${name}`,
+          filename: `${name}.pdf`,
+          mimeType: 'application/pdf',
+          size: 1,
+          uri: `attachment://deliver/${name}.pdf`,
+          title: `${name}.pdf`,
+        },
+      ],
+    },
+  }) as unknown as ToolUIPart
+
 describe('mountMessageParts', () => {
   const testMessageId = 'test-message-id'
   const testReasoningTime: Record<string, number> = {}
@@ -102,6 +124,31 @@ describe('mountMessageParts', () => {
       // Both parts should be rendered
       expect(result[0]).toBeDefined()
       expect(result[1]).toBeDefined()
+    })
+  })
+
+  describe('delivered files', () => {
+    it('merges a run of consecutive deliver_file parts into a single row', () => {
+      const parts: GroupedUIPart[] = [
+        createDeliveredFilePart('a'),
+        createDeliveredFilePart('b'),
+        createDeliveredFilePart('c'),
+      ]
+      const result = mountMessageParts(parts, false, testMessageId, testReasoningTime)
+      // Three single-file deliveries collapse to one DeliveredFilesGroup node.
+      expect(result).toHaveLength(1)
+    })
+
+    it('keeps separate rows when a text part interrupts the run', () => {
+      const parts: GroupedUIPart[] = [
+        createDeliveredFilePart('a'),
+        createDeliveredFilePart('b'),
+        createTextPart('between'),
+        createDeliveredFilePart('c'),
+      ]
+      const result = mountMessageParts(parts, false, testMessageId, testReasoningTime)
+      // [row(a,b), text, row(c)]
+      expect(result).toHaveLength(3)
     })
   })
 

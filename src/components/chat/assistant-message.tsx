@@ -17,7 +17,7 @@ import type { HaystackReferenceMeta, ThunderboltUIMessage, UIMessageMetadata } f
 import type { SourceMetadata } from '@/types/source'
 import type { TextUIPart } from 'ai'
 import { memo, useMemo, type ReactNode } from 'react'
-import { DeliveredFileCard } from '@/fork/zeroclaw/delivered-file-card'
+import { DeliveredFilesGroup } from '@/fork/zeroclaw/delivered-file-card'
 import {
   type DeliveredFileRef,
   type DeliveredFilesOutput,
@@ -46,6 +46,14 @@ const emptyReasoningTime: Record<string, number> = {}
 
 // Animation classes for subtle slide-in effect
 const animationClasses = 'animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out'
+
+/** A standalone ACP delivered-file tool part (lifted out of its group by groupMessageParts). */
+const isDeliveredToolPart = (part: GroupedUIPart): boolean =>
+  splitPartType(part.type)[0] === 'tool' && toolPartHasDeliveredFiles(part as ToolOrDynamicToolUIPart)
+
+/** The delivered files a tool part carries, or [] when it carries none. */
+const deliveredFilesOfPart = (part: GroupedUIPart): DeliveredFileRef[] =>
+  isDeliveredToolPart(part) ? ((part as ToolOrDynamicToolUIPart).output as DeliveredFilesOutput).deliveredFiles : []
 
 /**
  * Converts grouped message parts into React elements for rendering.
@@ -82,11 +90,7 @@ export const mountMessageParts = (
   // ZeroClaw deliver_file outputs in this message, flattened in delivery order. This is the
   // persisted source of truth text parts resolve `[N]` / deliver-uri citations against — so
   // citations open after a reload / in later turns, with no live map.
-  const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap((part) =>
-    toolPartHasDeliveredFiles(part as ToolOrDynamicToolUIPart)
-      ? ((part as ToolOrDynamicToolUIPart).output as DeliveredFilesOutput).deliveredFiles
-      : [],
-  )
+  const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
 
   groupedParts.forEach((part, index) => {
     const [partType] = splitPartType(part.type)
@@ -122,11 +126,21 @@ export const mountMessageParts = (
       case 'tool': {
         // groupMessageParts lifts render_html and ACP delivered-file parts.
         const toolPart = part as ToolOrDynamicToolUIPart
-        if (toolPartHasDeliveredFiles(toolPart)) {
-          partElements.push(<DeliveredFileCard output={toolPart.output} />)
-        } else {
+        if (!toolPartHasDeliveredFiles(toolPart)) {
           partElements.push(<ArtifactMessagePart part={toolPart} />)
+          break
         }
+        // Merge a run of consecutive deliver_file parts into one wrapping row so
+        // multiple single-file deliveries show side by side, not stacked. Only the
+        // run's first part renders it; the rest of the run is skipped here.
+        if (index > 0 && isDeliveredToolPart(groupedParts[index - 1])) {
+          break
+        }
+        const runFiles: DeliveredFileRef[] = []
+        for (let i = index; i < groupedParts.length && isDeliveredToolPart(groupedParts[i]); i++) {
+          runFiles.push(...deliveredFilesOfPart(groupedParts[i]))
+        }
+        partElements.push(<DeliveredFilesGroup files={runFiles} />)
         break
       }
     }
