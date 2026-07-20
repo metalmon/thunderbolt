@@ -41,7 +41,9 @@ const sourceFromRef = (ref: DeliveredUriRef, isPrimary: boolean): LocalDocumentC
   const ext = ref.storageBasename.split('.').pop()?.toLowerCase() ?? ''
   return {
     id: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.storageBasename }),
-    title: ref.storageBasename,
+    // Citation label = ZeroClaw title (prose). The stable sideviewId + documentMeta stay
+    // keyed on the basename so the widget/card open the same preview.
+    title: ref.title,
     url: '',
     siteName: ext.toUpperCase(),
     isPrimary,
