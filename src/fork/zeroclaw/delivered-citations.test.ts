@@ -4,38 +4,34 @@
 
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
-import { beforeEach, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { type DocumentCitationSource } from '@/types/citation'
-import { clearDeliveredUriRefMap, upsertDeliveredUriRef } from './delivered-uri-ref-map'
-import {
-  buildDeliveredCitationPlaceholders,
-  normalizeDeliverCitationFootnotes,
-} from './delivered-citations'
+import { buildDeliveredCitationPlaceholders, normalizeDeliverCitationFootnotes } from './delivered-citations'
+import { type DeliveredFileRef } from './outbound-resource-blob'
 import { buildDocumentSideviewId, isDocumentCitation } from '@/types/citation'
 
-describe('buildDeliveredCitationPlaceholders', () => {
-  beforeEach(() => {
-    clearDeliveredUriRefMap()
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/a.pdf',
-      localFileId: 'L1',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'a.pdf',
-      title: 'Договор аренды',
-    })
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/9efe7606154733ab.docx',
-      localFileId: 'L2',
-      turnPosition: 2,
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      storageBasename: '9efe7606154733ab.docx',
-      title: 'ГОСТ Р 57978-2017',
-    })
-  })
+const deliveredFiles: DeliveredFileRef[] = [
+  {
+    localFileId: 'L1',
+    filename: 'a.pdf',
+    mimeType: 'application/pdf',
+    size: 10,
+    uri: 'attachment://deliver/a.pdf',
+    title: 'Договор аренды',
+  },
+  {
+    localFileId: 'L2',
+    filename: '9efe7606154733ab.docx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    size: 20,
+    uri: 'attachment://deliver/9efe7606154733ab.docx',
+    title: 'ГОСТ Р 57978-2017',
+  },
+]
 
-  test('replaces [1] with cite placeholder bound to local file', () => {
-    const { fullText, citations } = buildDeliveredCitationPlaceholders('See [1].', 0)
+describe('buildDeliveredCitationPlaceholders', () => {
+  test('replaces [1] (1-based delivery order) with cite placeholder bound to the local file', () => {
+    const { fullText, citations } = buildDeliveredCitationPlaceholders('See [1].', deliveredFiles, 0)
     expect(fullText).toMatch(/\{\{CITE:\d+\}\}/)
     expect(fullText).not.toContain('[1]')
     const sources = citations.get(0)
@@ -52,18 +48,21 @@ describe('buildDeliveredCitationPlaceholders', () => {
     }
   })
 
+  test('title falls back to the basename when the delivered ref carries no title', () => {
+    const untitled: DeliveredFileRef[] = [{ ...deliveredFiles[0], title: undefined }]
+    const { citations } = buildDeliveredCitationPlaceholders('See [1].', untitled, 0)
+    expect((citations.get(0)?.[0] as DocumentCitationSource | undefined)?.title).toBe('a.pdf')
+  })
+
   test('unknown [N] left unchanged', () => {
-    const { fullText } = buildDeliveredCitationPlaceholders('See [9].', 0)
+    const { fullText } = buildDeliveredCitationPlaceholders('See [9].', deliveredFiles, 0)
     expect(fullText).toBe('See [9].')
   })
 
   test('strips markdown footnote [N]:attachment:// so no raw :uri remains', () => {
-    const raw =
-      '**ГОСТ Р 57978-2017**, чанк 1\n\n[2]:attachment://deliver/9efe7606154733ab.docx'
-    expect(normalizeDeliverCitationFootnotes(raw)).toBe(
-      '**ГОСТ Р 57978-2017**, чанк 1\n\n[2]',
-    )
-    const { fullText, citations } = buildDeliveredCitationPlaceholders(raw, 0)
+    const raw = '**ГОСТ Р 57978-2017**, чанк 1\n\n[2]:attachment://deliver/9efe7606154733ab.docx'
+    expect(normalizeDeliverCitationFootnotes(raw)).toBe('**ГОСТ Р 57978-2017**, чанк 1\n\n[2]')
+    const { fullText, citations } = buildDeliveredCitationPlaceholders(raw, deliveredFiles, 0)
     expect(fullText).toMatch(/\{\{CITE:\d+\}\}/)
     expect(fullText).not.toContain('attachment://')
     expect(fullText).not.toContain(':attachment')
@@ -72,17 +71,15 @@ describe('buildDeliveredCitationPlaceholders', () => {
   })
 
   test('allows optional space after colon in footnote form', () => {
-    const { fullText } = buildDeliveredCitationPlaceholders(
-      '[1]: attachment://deliver/a.pdf',
-      0,
-    )
+    const { fullText } = buildDeliveredCitationPlaceholders('[1]: attachment://deliver/a.pdf', deliveredFiles, 0)
     expect(fullText).toMatch(/^\{\{CITE:\d+\}\}$/)
     expect(fullText).not.toContain('attachment://')
   })
 
-  test('bare attachment://deliver uri becomes cite when mapped', () => {
+  test('bare attachment://deliver uri becomes cite when among delivered files', () => {
     const { fullText, citations } = buildDeliveredCitationPlaceholders(
       'File:\nattachment://deliver/a.pdf',
+      deliveredFiles,
       0,
     )
     expect(fullText).toMatch(/\{\{CITE:\d+\}\}/)
@@ -90,12 +87,18 @@ describe('buildDeliveredCitationPlaceholders', () => {
     expect((citations.get(0)?.[0] as DocumentCitationSource | undefined)?.documentMeta.fileId).toBe('L1')
   })
 
-  test('markdown link to deliver uri becomes cite when mapped', () => {
+  test('markdown link to deliver uri becomes cite when among delivered files', () => {
     const { fullText } = buildDeliveredCitationPlaceholders(
       'See [DOCX](attachment://deliver/9efe7606154733ab.docx).',
+      deliveredFiles,
       0,
     )
     expect(fullText).toMatch(/See \{\{CITE:\d+\}\}\./)
     expect(fullText).not.toContain('attachment://')
+  })
+
+  test('unknown bare uri left unchanged (no delivered file for it)', () => {
+    const { fullText } = buildDeliveredCitationPlaceholders('attachment://deliver/nope.pdf', deliveredFiles, 0)
+    expect(fullText).toBe('attachment://deliver/nope.pdf')
   })
 })

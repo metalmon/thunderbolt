@@ -4,61 +4,39 @@
 
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
-import { beforeEach, describe, expect, test } from 'vitest'
-import { clearDeliveredUriRefMap, upsertDeliveredUriRef } from './delivered-uri-ref-map'
+import { describe, expect, test } from 'vitest'
 import { resolveDocumentResultTarget } from './resolve-delivered-file'
+import { deliveredLocalFileId } from './outbound-resource-blob'
 import { buildDocumentSideviewId } from '@/types/citation'
 
 describe('resolveDocumentResultTarget', () => {
-  beforeEach(() => {
-    clearDeliveredUriRefMap()
-  })
+  const uri = 'attachment://deliver/a1b2c3d4e5f6.pdf'
+  const localFileId = deliveredLocalFileId(uri)
 
-  test('explicit widget name wins; sideviewId stays keyed on the basename', () => {
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
-      localFileId: 'local-abc',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'a1b2c3d4e5f6.pdf',
-      title: 'Отчёт по аренде',
-    })
-    const target = resolveDocumentResultTarget({
-      fileId: 'attachment://deliver/a1b2c3d4e5f6.pdf',
-      name: 'Договор.pdf',
-    })
+  test('deliver uri resolves with no map — purely from the uri (survives reload)', () => {
+    const target = resolveDocumentResultTarget({ fileId: uri, name: 'Договор.pdf' })
     expect(target).toEqual({
       kind: 'local-file',
       sideviewType: 'local-file',
-      // sideviewId keyed on the basename (matches the download card + citations), NOT the label
-      sideviewId: buildDocumentSideviewId({ fileId: 'local-abc', fileName: 'a1b2c3d4e5f6.pdf' }),
+      // sideviewId keyed on the basename + the deterministic uri-derived id (the same id
+      // the blob was stored under), NOT the label — so card/citation/widget all agree.
+      sideviewId: buildDocumentSideviewId({ fileId: localFileId, fileName: 'a1b2c3d4e5f6.pdf' }),
       displayName: 'Договор.pdf',
     })
   })
 
-  test('missing name falls back to the delivered title (widget label)', () => {
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
-      localFileId: 'local-abc',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'a1b2c3d4e5f6.pdf',
-      title: 'Годовой отчёт',
-    })
-    const target = resolveDocumentResultTarget({
-      fileId: 'attachment://deliver/a1b2c3d4e5f6.pdf',
-    })
-    if (target.kind === 'missing') throw new Error('expected a resolved target for a mapped deliver uri')
-    expect(target.displayName).toBe('Годовой отчёт')
-    expect(target.sideviewId).toContain('a1b2c3d4e5f6.pdf')
+  test('deterministic id has no colon/slash so it is a safe sideviewId first segment', () => {
+    expect(localFileId).toMatch(/^zc-[0-9a-f]{8}$/)
+    expect(localFileId).not.toContain(':')
+    expect(localFileId).not.toContain('/')
   })
 
-  test('unknown attachment uri on ZC path → missing (not haystack)', () => {
-    const target = resolveDocumentResultTarget({
-      fileId: 'attachment://deliver/nope.pdf',
-      name: 'x.pdf',
-    })
-    expect(target).toEqual({ kind: 'missing' })
+  test('missing name falls back to the basename', () => {
+    const target = resolveDocumentResultTarget({ fileId: uri })
+    if (target.kind !== 'local-file') throw new Error('expected a resolved local-file target')
+    expect(target.displayName).toBe('a1b2c3d4e5f6.pdf')
+    expect(target.sideviewId).toContain('a1b2c3d4e5f6.pdf')
+    expect(target.sideviewId).toContain(localFileId)
   })
 
   test('non-attachment fileId → haystack-document (unchanged path)', () => {

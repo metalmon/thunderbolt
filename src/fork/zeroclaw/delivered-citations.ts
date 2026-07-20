@@ -10,11 +10,7 @@ import {
   type CitationSource,
   type DocumentCitationSource,
 } from '@/types/citation'
-import {
-  getDeliveredUriRefByTurnPosition,
-  getDeliveredUriRefByUri,
-  type DeliveredUriRef,
-} from './delivered-uri-ref-map'
+import { deliveredCaption, type DeliveredFileRef } from './outbound-resource-blob'
 
 const groupedCitationRegex = /\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
 const individualCitationRegex = /\[(\d+)\]/g
@@ -37,34 +33,34 @@ export type LocalDocumentCitationSource = DocumentCitationSource & {
 export const isLocalDocumentCitation = (source: CitationSource): source is LocalDocumentCitationSource =>
   (source as Partial<LocalDocumentCitationSource>).localFileSideview === true
 
-const sourceFromRef = (ref: DeliveredUriRef, isPrimary: boolean): LocalDocumentCitationSource => {
-  const ext = ref.storageBasename.split('.').pop()?.toLowerCase() ?? ''
+const sourceFromRef = (ref: DeliveredFileRef, isPrimary: boolean): LocalDocumentCitationSource => {
+  const ext = ref.filename.split('.').pop()?.toLowerCase() ?? ''
   return {
-    id: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.storageBasename }),
+    id: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.filename }),
     // Citation label = ZeroClaw title (prose). The stable sideviewId + documentMeta stay
     // keyed on the basename so the widget/card open the same preview.
-    title: ref.title,
+    title: deliveredCaption(ref.title, ref.filename),
     url: '',
     siteName: ext.toUpperCase(),
     isPrimary,
     documentMeta: {
       fileId: ref.localFileId,
-      fileName: ref.storageBasename,
+      fileName: ref.filename,
     },
     localFileSideview: true,
   }
 }
 
 /** Strip `[N]:attachment://deliver/…` → `[N]` so the cite rewriter does not leave `:uri` text. */
-export const normalizeDeliverCitationFootnotes = (text: string): string =>
-  text.replace(footnoteDeliverUriRegex, '[$1]')
+export const normalizeDeliverCitationFootnotes = (text: string): string => text.replace(footnoteDeliverUriRegex, '[$1]')
 
 /**
  * Replace known bare / markdown `attachment://deliver/…` with a cite placeholder
- * when the uri is in the turn ref-map. Unknown URIs are left unchanged.
+ * when the uri is among the turn's delivered files. Unknown URIs are left unchanged.
  */
 const replaceBareDeliverUris = (
   text: string,
+  deliveredFiles: DeliveredFileRef[],
   citations: CitationMap,
   startKey: number,
 ): { fullText: string; nextKey: number } => {
@@ -74,7 +70,7 @@ const replaceBareDeliverUris = (
     if (match.startsWith(':')) {
       return match
     }
-    const ref = getDeliveredUriRefByUri(uri)
+    const ref = deliveredFiles.find((f) => f.uri === uri)
     if (!ref) {
       return match
     }
@@ -85,8 +81,15 @@ const replaceBareDeliverUris = (
   return { fullText, nextKey }
 }
 
+/**
+ * Rewrite `[N]` / bare deliver URIs into cite placeholders bound to `deliveredFiles`.
+ * `[N]` is the 1-based delivery order in the turn, resolved by position in the array
+ * (which the message assembles from every deliver_file tool output, in order). The
+ * array is the persisted source of truth, so citations resolve after a reload.
+ */
 export const buildDeliveredCitationPlaceholders = (
   text: string,
+  deliveredFiles: DeliveredFileRef[],
   startKey = 0,
 ): { fullText: string; citations: CitationMap } => {
   const citations: CitationMap = new Map()
@@ -98,7 +101,7 @@ export const buildDeliveredCitationPlaceholders = (
     const validSources: LocalDocumentCitationSource[] = []
     for (const m of match.matchAll(individualCitationRegex)) {
       const n = parseInt(m[1], 10)
-      const ref = getDeliveredUriRefByTurnPosition(n)
+      const ref = deliveredFiles[n - 1]
       if (!ref) {
         continue
       }
@@ -112,7 +115,7 @@ export const buildDeliveredCitationPlaceholders = (
     return `{{CITE:${key}}}`
   })
 
-  ;({ fullText, nextKey } = replaceBareDeliverUris(fullText, citations, nextKey))
+  ;({ fullText, nextKey } = replaceBareDeliverUris(fullText, deliveredFiles, citations, nextKey))
 
   return { fullText, citations }
 }
