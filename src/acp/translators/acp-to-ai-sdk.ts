@@ -326,7 +326,7 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
             toolCallId: update.toolCallId,
             // Fork seam: prefer a standard ACP resource+blob in `content` (ZeroClaw's
             // deliver_file) over a Haystack remote fileId; rawOutput stays the summary.
-            output: enrichToolOutputWithDeliveredFiles(output, materializeOutboundResourceBlobs(state.content)),
+            output: enrichToolOutputWithDeliveredFiles(output, materializeOutboundResourceBlobs(state.content, state.title)),
           },
     )
     const startedAt = toolStartTimes.get(update.toolCallId)
