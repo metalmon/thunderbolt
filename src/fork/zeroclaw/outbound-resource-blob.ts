@@ -1,0 +1,194 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+
+import { putAttachment, type StoredFile } from '@/lib/file-blob-storage'
+import { nextDeliveredTurnPosition, upsertDeliveredUriRef } from './delivered-uri-ref-map'
+
+/** Cap aligned with ZeroClaw deliver_file / embedded resource intake (10 MiB). */
+export const maxOutboundBlobBytes = 10 * 1024 * 1024
+
+export type AcpResourceBlob = {
+  uri: string
+  mimeType: string
+  blob: string
+}
+
+export type DeliveredFileRef = {
+  localFileId: string
+  filename: string
+  mimeType: string
+  size: number
+  uri: string
+  turnPosition: number
+}
+
+/** Shape emitted on `tool-output-available` when ACP content carried resource+blob. */
+export type DeliveredFilesOutput = {
+  text: string
+  deliveredFiles: DeliveredFileRef[]
+}
+
+export type OutboundBlobDeps = {
+  putAttachment: typeof putAttachment
+  randomId: () => string
+  now: () => number
+}
+
+const defaultDeps: OutboundBlobDeps = {
+  putAttachment,
+  randomId: () => crypto.randomUUID(),
+  now: () => Date.now(),
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
+
+/** Basename from a file:// or opaque uri; falls back to upload.bin. */
+export const filenameFromUri = (uri: string): string => {
+  const trimmed = uri.trim()
+  if (!trimmed) {
+    return 'upload.bin'
+  }
+  try {
+    if (trimmed.startsWith('file:')) {
+      const path = decodeURIComponent(new URL(trimmed).pathname)
+      const base = path.split('/').pop()
+      if (base) {
+        return base
+      }
+    }
+  } catch {
+    // fall through
+  }
+  const slash = trimmed.replace(/\\/g, '/').split('/').pop()
+  return slash && slash.length > 0 ? slash : 'upload.bin'
+}
+
+const decodeBase64 = (b64: string): Uint8Array | null => {
+  try {
+    const binary = atob(b64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    return bytes
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Walk ACP `tool_call_update.content` (array of tool-content items) and collect
+ * nested `type: "resource"` blocks that carry a base64 `blob`.
+ */
+export const extractResourceBlobsFromToolContent = (content: unknown): AcpResourceBlob[] => {
+  if (!Array.isArray(content)) {
+    return []
+  }
+  const out: AcpResourceBlob[] = []
+  for (const item of content) {
+    if (!isRecord(item)) {
+      continue
+    }
+    // ACP tool content item: { type: "content", content: ContentBlock }
+    const block = item.type === 'content' && isRecord(item.content) ? item.content : item
+    if (!isRecord(block) || block.type !== 'resource' || !isRecord(block.resource)) {
+      continue
+    }
+    const resource = block.resource
+    const blob = typeof resource.blob === 'string' ? resource.blob : null
+    if (!blob) {
+      continue
+    }
+    const uri = typeof resource.uri === 'string' ? resource.uri : 'file:///upload.bin'
+    const mimeType =
+      typeof resource.mimeType === 'string' && resource.mimeType ? resource.mimeType : 'application/octet-stream'
+    out.push({ uri, mimeType, blob })
+  }
+  return out
+}
+
+/**
+ * Decode + store outbound ACP resource blobs into IndexedDB. Storage is
+ * fire-and-forget so the ACP translator can stay synchronous; the Blob is
+ * ready in memory for immediate download even if IDB commit races a click.
+ */
+export const materializeOutboundResourceBlobs = (
+  content: unknown,
+  deps: OutboundBlobDeps = defaultDeps,
+): DeliveredFileRef[] => {
+  const extracted = extractResourceBlobsFromToolContent(content)
+  const refs: DeliveredFileRef[] = []
+  for (const item of extracted) {
+    const bytes = decodeBase64(item.blob)
+    if (!bytes || bytes.byteLength === 0 || bytes.byteLength > maxOutboundBlobBytes) {
+      continue
+    }
+    const filename = filenameFromUri(item.uri)
+    const id = deps.randomId()
+    const turnPosition = nextDeliveredTurnPosition()
+    // Copy into a fresh ArrayBuffer-backed view for BlobPart typing.
+    const copy = new Uint8Array(bytes.byteLength)
+    copy.set(bytes)
+    const stored: StoredFile = {
+      id,
+      filename,
+      mimeType: item.mimeType,
+      size: copy.byteLength,
+      createdAt: deps.now(),
+      blob: new Blob([copy], { type: item.mimeType }),
+    }
+    void deps.putAttachment(stored).catch(() => {
+      // Preview/download still works from the in-memory Blob we do not retain;
+      // a failed IDB write only breaks later sideview reloads.
+    })
+    upsertDeliveredUriRef({
+      uri: item.uri,
+      localFileId: id,
+      turnPosition,
+      mimeType: item.mimeType,
+      storageBasename: filename,
+    })
+    refs.push({
+      localFileId: id,
+      filename,
+      mimeType: item.mimeType,
+      size: copy.byteLength,
+      uri: item.uri,
+      turnPosition,
+    })
+  }
+  return refs
+}
+
+export const isDeliveredFilesOutput = (output: unknown): output is DeliveredFilesOutput => {
+  if (!isRecord(output) || !Array.isArray(output.deliveredFiles)) {
+    return false
+  }
+  return output.deliveredFiles.every(
+    (f) =>
+      isRecord(f) &&
+      typeof f.localFileId === 'string' &&
+      typeof f.filename === 'string' &&
+      typeof f.mimeType === 'string' &&
+      typeof f.uri === 'string' &&
+      typeof f.turnPosition === 'number',
+  )
+}
+
+export const enrichToolOutputWithDeliveredFiles = (
+  rawOutput: unknown,
+  deliveredFiles: DeliveredFileRef[],
+): DeliveredFilesOutput | unknown => {
+  if (deliveredFiles.length === 0) {
+    return rawOutput ?? {}
+  }
+  const text = typeof rawOutput === 'string' ? rawOutput : rawOutput == null ? '' : JSON.stringify(rawOutput)
+  return { text, deliveredFiles }
+}
+
+/** True when a tool UI part carries materialized outbound ACP blobs. */
+export const toolPartHasDeliveredFiles = (part: { state?: string; output?: unknown }): boolean =>
+  part.state === 'output-available' && isDeliveredFilesOutput(part.output) && part.output.deliveredFiles.length > 0
