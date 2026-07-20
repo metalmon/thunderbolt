@@ -46,6 +46,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SectionCard } from '@/components/ui/section-card'
 import { Switch } from '@/components/ui/switch'
+import { ReasoningCollapseToggle } from '@/fork/reasoning/reasoning-collapse-toggle'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { usePostHogClient } from '@/lib/posthog'
 import { useActiveLocale } from '@/i18n/use-active-locale'
@@ -665,6 +666,8 @@ export default function PreferencesSettingsPage() {
               aria-label={t`Haptic Feedback`}
             />
           </div>
+
+          <ReasoningCollapseToggle />
         </div>
       </SectionCard>
 
