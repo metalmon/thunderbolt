@@ -4,9 +4,9 @@
 
 import '@/testing-library'
 import { ContentViewProvider, useContentView } from '@/content-view/context'
-import { clearDeliveredUriRefMap, upsertDeliveredUriRef } from '@/fork/zeroclaw/delivered-uri-ref-map'
+import { deliveredLocalFileId } from '@/fork/zeroclaw/outbound-resource-blob'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 import { type ReactNode } from 'react'
 import { DocumentResultWidget } from './widget'
 
@@ -32,10 +32,6 @@ const renderWithCapture = (ui: ReactNode) => {
 }
 
 describe('DocumentResultWidget', () => {
-  beforeEach(() => {
-    clearDeliveredUriRefMap()
-  })
-
   it('renders file name and snippet', () => {
     render(
       <ContentViewProvider>
@@ -67,25 +63,18 @@ describe('DocumentResultWidget', () => {
     })
   })
 
-  it('opens local-file sideview for ZeroClaw attachment uri', () => {
-    upsertDeliveredUriRef({
-      uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
-      localFileId: 'local-abc',
-      turnPosition: 1,
-      mimeType: 'application/pdf',
-      storageBasename: 'a1b2c3d4e5f6.pdf',
-      title: 'Годовой отчёт',
-    })
+  it('opens local-file sideview for ZeroClaw attachment uri (resolved from the uri, no map)', () => {
+    const uri = 'attachment://deliver/a1b2c3d4e5f6.pdf'
 
-    const { captured } = renderWithCapture(
-      <DocumentResultWidget name="Договор.pdf" fileId="attachment://deliver/a1b2c3d4e5f6.pdf" />,
-    )
+    const { captured } = renderWithCapture(<DocumentResultWidget name="Договор.pdf" fileId={uri} />)
 
     fireEvent.click(screen.getByRole('button', { name: /Договор\.pdf/i }))
 
     const sideview = captured()
     expect(sideview?.sideviewType).toBe('local-file')
-    expect(sideview?.sideviewId).toContain('local-abc')
+    // localFileId is derived deterministically from the uri (the id the blob was stored
+    // under), so the click resolves with no in-memory ref-map — survives reload / turns.
+    expect(sideview?.sideviewId).toContain(deliveredLocalFileId(uri))
     // sideviewId is keyed on the basename (matches the download card + citations),
     // not the widget label — so it stays consistent across all three open paths.
     expect(sideview?.sideviewId).toContain('a1b2c3d4e5f6.pdf')
