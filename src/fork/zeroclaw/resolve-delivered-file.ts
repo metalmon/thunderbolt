@@ -5,7 +5,7 @@
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
 import { buildDocumentSideviewId } from '@/types/citation'
-import { getDeliveredUriRefByUri } from './delivered-uri-ref-map'
+import { deliveredLocalFileId, filenameFromUri } from './outbound-resource-blob'
 
 export type DocumentResultTarget =
   | {
@@ -26,23 +26,25 @@ const isAttachmentDeliverUri = (fileId: string): boolean => fileId.startsWith('a
 
 /**
  * Resolve `<widget:document-result fileId=…>` for ZC vs Haystack.
- * Unknown `attachment://deliver/…` must NOT become a Haystack fetch.
+ *
+ * ZC deliver uris resolve purely from the uri: the blob was stored under
+ * {@link deliveredLocalFileId}(uri) and the basename is parsed from the uri, so a
+ * widget clicked after a reload / in a later turn opens the same preview the download
+ * card and `[N]` citations open — with no in-memory map. Unknown `attachment://deliver/…`
+ * must NOT become a Haystack fetch, hence the dedicated branch.
  */
 export const resolveDocumentResultTarget = (args: { fileId: string; name?: string }): DocumentResultTarget => {
   const fileId = args.fileId.trim()
   if (isAttachmentDeliverUri(fileId)) {
-    const ref = getDeliveredUriRefByUri(fileId)
-    if (!ref) {
-      return { kind: 'missing' }
-    }
-    // Widget label = explicit name, else ZeroClaw title (prose), else basename. The
-    // sideviewId stays keyed on the basename so it matches the download card + citations
-    // (all three open the same preview).
-    const displayName = (args.name && args.name.trim()) || ref.title || ref.storageBasename
+    const basename = filenameFromUri(fileId)
+    const localFileId = deliveredLocalFileId(fileId)
+    // Widget label = explicit name, else the basename. The sideviewId stays keyed on the
+    // basename so it matches the download card + citations (all three open the same preview).
+    const displayName = (args.name && args.name.trim()) || basename
     return {
       kind: 'local-file',
       sideviewType: 'local-file',
-      sideviewId: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.storageBasename }),
+      sideviewId: buildDocumentSideviewId({ fileId: localFileId, fileName: basename }),
       displayName,
     }
   }
