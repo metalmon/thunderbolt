@@ -35,11 +35,14 @@ export const resolveDocumentResultTarget = (args: { fileId: string; name?: strin
     if (!ref) {
       return { kind: 'missing' }
     }
-    const displayName = (args.name && args.name.trim()) || ref.storageBasename
+    // Widget label = explicit name, else ZeroClaw title (prose), else basename. The
+    // sideviewId stays keyed on the basename so it matches the download card + citations
+    // (all three open the same preview).
+    const displayName = (args.name && args.name.trim()) || ref.title || ref.storageBasename
     return {
       kind: 'local-file',
       sideviewType: 'local-file',
-      sideviewId: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: displayName }),
+      sideviewId: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.storageBasename }),
       displayName,
     }
   }

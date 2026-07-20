@@ -22,6 +22,7 @@ describe('buildDeliveredCitationPlaceholders', () => {
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'a.pdf',
+      title: 'Договор аренды',
     })
     upsertDeliveredUriRef({
       uri: 'attachment://deliver/9efe7606154733ab.docx',
@@ -29,6 +30,7 @@ describe('buildDeliveredCitationPlaceholders', () => {
       turnPosition: 2,
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       storageBasename: '9efe7606154733ab.docx',
+      title: 'ГОСТ Р 57978-2017',
     })
   })
 
@@ -42,7 +44,10 @@ describe('buildDeliveredCitationPlaceholders', () => {
     expect(isDocumentCitation(s)).toBe(true)
     if (isDocumentCitation(s)) {
       expect(s.documentMeta.fileId).toBe('L1')
+      expect(s.documentMeta.fileName).toBe('a.pdf')
       expect(s.id).toBe(buildDocumentSideviewId({ fileId: 'L1', fileName: 'a.pdf' }))
+      // Citation label is the ZeroClaw title (prose), distinct from the basename id.
+      expect(s.title).toBe('Договор аренды')
       expect((s as { localFileSideview?: boolean }).localFileSideview).toBe(true)
     }
   })
