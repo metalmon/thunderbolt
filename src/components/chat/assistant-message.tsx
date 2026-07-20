@@ -17,6 +17,8 @@ import type { HaystackReferenceMeta, ThunderboltUIMessage, UIMessageMetadata } f
 import type { SourceMetadata } from '@/types/source'
 import type { TextUIPart } from 'ai'
 import { memo, useMemo, type ReactNode } from 'react'
+import { DeliveredFileCard } from '@/fork/zeroclaw/delivered-file-card'
+import { toolPartHasDeliveredFiles } from '@/fork/zeroclaw/outbound-resource-blob'
 import { ArtifactMessagePart } from './artifact-message-part'
 import { CopyMessageButton } from './copy-message-button'
 import { ReasoningGroup } from './reasoning-group'
@@ -103,10 +105,16 @@ export const mountMessageParts = (
           />,
         )
         break
-      case 'tool':
-        // groupMessageParts only lifts render_html tool parts out of the group.
-        partElements.push(<ArtifactMessagePart part={part as ToolOrDynamicToolUIPart} />)
+      case 'tool': {
+        // groupMessageParts lifts render_html and ACP delivered-file parts.
+        const toolPart = part as ToolOrDynamicToolUIPart
+        if (toolPartHasDeliveredFiles(toolPart)) {
+          partElements.push(<DeliveredFileCard output={toolPart.output} />)
+        } else {
+          partElements.push(<ArtifactMessagePart part={toolPart} />)
+        }
         break
+      }
     }
   })
 
