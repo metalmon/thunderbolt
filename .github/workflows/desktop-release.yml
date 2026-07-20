@@ -73,7 +73,7 @@ jobs:
         if: ${{ !inputs.nightly }}
         uses: crabnebula-dev/cloud-release@1a8803698ba41de6b23e42abc5dcc3721308233c # v0.2.6
         with:
-          command: release draft thunderbird/thunderbolt ${{ inputs.version }}
+          command: release draft metalmon/thunderbolt ${{ inputs.version }}
           api-key: ${{ secrets.CRABNEBULA_CLOUD_API_KEY }}
 
   build:
@@ -369,7 +369,7 @@ jobs:
         continue-on-error: true
         uses: crabnebula-dev/cloud-release@1a8803698ba41de6b23e42abc5dcc3721308233c # v0.2.6
         with:
-          command: release upload thunderbird/thunderbolt ${{ inputs.version }} --framework tauri
+          command: release upload metalmon/thunderbolt ${{ inputs.version }} --framework tauri
           api-key: ${{ secrets.CRABNEBULA_CLOUD_API_KEY }}
 
       - name: Warn on CrabNebula upload failure
@@ -400,5 +400,5 @@ jobs:
         if: ${{ !inputs.nightly }}
         uses: crabnebula-dev/cloud-release@1a8803698ba41de6b23e42abc5dcc3721308233c # v0.2.6
         with:
-          command: release publish thunderbird/thunderbolt ${{ inputs.version }} --framework tauri
+          command: release publish metalmon/thunderbolt ${{ inputs.version }} --framework tauri
           api-key: ${{ secrets.CRABNEBULA_CLOUD_API_KEY }}
