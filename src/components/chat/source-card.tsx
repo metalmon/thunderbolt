@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { type MouseEvent, useState } from 'react'
+import { isLocalDocumentCitation } from '@/fork/zeroclaw/delivered-citations'
 import { buildDocumentSideviewId, type CitationSource, isDocumentCitation } from '@/types/citation'
 import { useOpenExternalLink } from '@/components/chat/markdown-utils'
 import { useShowSideview } from '@/content-view/context'
@@ -51,7 +52,9 @@ export const SourceCard = ({ source, className, onSelect }: SourceCardProps) => 
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
     e.preventDefault()
-    if (isDocument) {
+    if (isDocument && isLocalDocumentCitation(source)) {
+      showSideview?.('local-file', buildDocumentSideviewId(source.documentMeta))
+    } else if (isDocument) {
       showSideview?.('document', buildDocumentSideviewId(source.documentMeta))
     } else if (safeUrl !== '#') {
       openExternalLink(safeUrl)

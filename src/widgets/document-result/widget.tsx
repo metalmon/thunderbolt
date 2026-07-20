@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useContentView } from '@/content-view/context'
-import { buildDocumentSideviewId } from '@/types/citation'
+import { resolveDocumentResultTarget } from '@/fork/zeroclaw/resolve-delivered-file'
 import { File, FileText, FileType2 } from 'lucide-react'
 import { useCallback } from 'react'
 
@@ -34,7 +34,11 @@ export const DocumentResultWidget = ({ name, fileId, snippet }: DocumentResultWi
   const Icon = getFileIcon(name)
 
   const handleClick = useCallback(() => {
-    showSideview('document', buildDocumentSideviewId({ fileId, fileName: name }))
+    const target = resolveDocumentResultTarget({ fileId, name })
+    if (target.kind === 'missing') {
+      return
+    }
+    showSideview(target.sideviewType, target.sideviewId)
   }, [showSideview, fileId, name])
 
   return (

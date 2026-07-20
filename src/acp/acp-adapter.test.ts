@@ -42,6 +42,12 @@ import type { Agent, AgentAdapterContext } from '@/types/acp'
 import type { AcpTransport } from './types'
 import { connectAcpAdapter, type AcpAdapterContext } from './acp-adapter'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
+import {
+  clearDeliveredUriRefMap,
+  listDeliveredUriRefs,
+  upsertDeliveredUriRef,
+} from '@/fork/zeroclaw/delivered-uri-ref-map'
+import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 const remoteAgent: Agent = {
   id: 'remote-foo',
@@ -228,6 +234,9 @@ const conversationInit = (turns: { role: 'user' | 'assistant'; text: string }[])
 const sentPromptText = (calls: { prompt: PromptRequest[] }, index = 0): string =>
   (calls.prompt[index]?.prompt?.[0] as { type: string; text: string }).text
 
+/** Expected ACP prompt text with the always-on ZeroClaw deliver_file cite note. */
+const withCiteNote = (body: string): string => `${ZEROCLAW_DELIVER_CITE_NOTE}\n\n${body}`
+
 describe('connectAcpAdapter — handshake failure modes', () => {
   it('rejects after handshakeTimeoutMs when initialize never resolves and tears down the transport', async () => {
     const { transport, closeCalls } = buildFakeTransport()
@@ -329,7 +338,61 @@ describe('connectAcpAdapter — handshake failure modes', () => {
     })
 
     const sent = calls.prompt[0]?.prompt?.[0] as { type: string; text: string }
-    expect(sent.text).toBe('Tell a joke about cats, then give a time and place to tell it.\n\n/tell-a-joke')
+    expect(sent.text).toBe(
+      withCiteNote('Tell a joke about cats, then give a time and place to tell it.\n\n/tell-a-joke'),
+    )
+  })
+
+  it('prepends the ZeroClaw deliver_file citation note to every ACP prompt', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection, calls, releasePrompts } = buildFakeConnection()
+
+    const adapter = await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async () => transport,
+      ClientSideConnection: FakeConnection as never,
+    })
+
+    const response = await adapter.fetch(promptInit('cite me'), threadCtx('t1'))
+    await act(async () => {
+      releasePrompts()
+      await getClock().runAllAsync()
+      await readSse(response)
+    })
+
+    const sent = sentPromptText(calls)
+    expect(sent).toContain(ZEROCLAW_DELIVER_CITE_NOTE)
+    expect(sent).toContain('Never write [N]:uri')
+    expect(sent).toContain('<widget:document-result fileId="<exact uri>"')
+    expect(sent.endsWith('cite me')).toBe(true)
+  })
+
+  it('clears the delivered uri ref map at the start of each prompt turn', async () => {
+    clearDeliveredUriRefMap()
+    upsertDeliveredUriRef({
+      uri: 'attachment://deliver/prior.pdf',
+      localFileId: 'local-prior',
+      turnPosition: 1,
+      mimeType: 'application/pdf',
+      storageBasename: 'prior.pdf',
+    })
+    expect(listDeliveredUriRefs()).toHaveLength(1)
+
+    const { transport } = buildFakeTransport()
+    const { FakeConnection, releasePrompts } = buildFakeConnection()
+
+    const adapter = await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async () => transport,
+      ClientSideConnection: FakeConnection as never,
+    })
+
+    const response = await adapter.fetch(promptInit('new turn'), threadCtx('t1'))
+    expect(listDeliveredUriRefs()).toHaveLength(0)
+
+    await act(async () => {
+      releasePrompts()
+      await getClock().runAllAsync()
+      await readSse(response)
+    })
   })
 
   it('sends the user text unchanged when no skill instructions resolved', async () => {
@@ -349,7 +412,7 @@ describe('connectAcpAdapter — handshake failure modes', () => {
     })
 
     const sent = calls.prompt[0]?.prompt?.[0] as { type: string; text: string }
-    expect(sent.text).toBe('just a normal message')
+    expect(sent.text).toBe(withCiteNote('just a normal message'))
   })
 })
 
@@ -578,7 +641,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.newSession).toHaveLength(0)
     expect(persisted).toEqual([]) // reused id, nothing fresh to persist
     // No app-side replay: the live prompt carries only the current user text.
-    expect(sentPromptText(calls)).toBe('now')
+    expect(sentPromptText(calls)).toBe(withCiteNote('now'))
   })
 
   it('tier 1→3: resume rejects (session evicted) → newSession + persist + transcript replay', async () => {
@@ -655,7 +718,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.resumeSession).toHaveLength(1)
     expect(calls.loadSession).toHaveLength(1)
     expect(calls.newSession).toHaveLength(0)
-    expect(sentPromptText(calls)).toBe('now') // agent replays its own history
+    expect(sentPromptText(calls)).toBe(withCiteNote('now')) // agent replays its own history
   })
 
   it('tier 2→3: loadSession rejects → newSession + transcript replay', async () => {
@@ -723,7 +786,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.newSession).toHaveLength(1) // one fresh session, cached
     expect(persisted).toEqual(['sess-1']) // persisted exactly once
     expect(sentPromptText(calls, 0)).toContain('Conversation so far:')
-    expect(sentPromptText(calls, 1)).toBe('q3') // no re-seed on the second send
+    expect(sentPromptText(calls, 1)).toBe(withCiteNote('q3')) // no re-seed on the second send
   })
 
   it('brand-new thread (no prior turns) never seeds a transcript on either send', async () => {
@@ -750,8 +813,8 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
       releasePrompts,
     )
 
-    expect(sentPromptText(calls, 0)).toBe('hello')
-    expect(sentPromptText(calls, 1)).toBe('again')
+    expect(sentPromptText(calls, 0)).toBe(withCiteNote('hello'))
+    expect(sentPromptText(calls, 1)).toBe(withCiteNote('again'))
   })
 
   it('defers persistence: ensureSession warms a fresh session but does NOT persist until the first real send', async () => {
