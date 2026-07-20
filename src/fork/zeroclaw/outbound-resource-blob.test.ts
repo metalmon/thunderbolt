@@ -7,6 +7,7 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
 import { clearDeliveredUriRefMap, getDeliveredUriRefByUri } from './delivered-uri-ref-map'
 import {
+  deliveredCaption,
   enrichToolOutputWithDeliveredFiles,
   extractResourceBlobsFromToolContent,
   filenameFromUri,
@@ -77,7 +78,7 @@ describe('materializeOutboundResourceBlobs', () => {
         },
       },
     ]
-    const refs = materializeOutboundResourceBlobs(content, {
+    const refs = materializeOutboundResourceBlobs(content, 'Quarterly Report', {
       putAttachment,
       randomId: () => 'id-1',
       now: () => 123,
@@ -108,7 +109,7 @@ describe('materializeOutboundResourceBlobs', () => {
         },
       },
     ]
-    materializeOutboundResourceBlobs(content, {
+    materializeOutboundResourceBlobs(content, 'Doc Title', {
       putAttachment,
       randomId: () => 'id-1',
       now: () => 123,
@@ -119,6 +120,7 @@ describe('materializeOutboundResourceBlobs', () => {
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'doc.pdf',
+      title: 'Doc Title',
     })
   })
 
@@ -141,7 +143,7 @@ describe('materializeOutboundResourceBlobs', () => {
         },
       },
     ]
-    const refs = materializeOutboundResourceBlobs(content, {
+    const refs = materializeOutboundResourceBlobs(content, undefined, {
       putAttachment,
       randomId: () => `id-${++id}`,
       now: () => 123,
@@ -149,6 +151,49 @@ describe('materializeOutboundResourceBlobs', () => {
     expect(refs.map((r) => r.turnPosition)).toEqual([1, 2])
     expect(getDeliveredUriRefByUri('file:///a/first.pdf')?.turnPosition).toBe(1)
     expect(getDeliveredUriRefByUri('file:///b/second.pdf')?.turnPosition).toBe(2)
+  })
+
+  test('stores the tool_call_update title on the ref-map entry (prose caption)', () => {
+    const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
+    const content = [
+      {
+        type: 'content',
+        content: {
+          type: 'resource',
+          resource: { uri: 'file:///a/report.pdf', mimeType: 'application/pdf', blob: btoa('x') },
+        },
+      },
+    ]
+    materializeOutboundResourceBlobs(content, 'Lease Agreement', { putAttachment, randomId: () => 'id-1', now: () => 1 })
+    expect(getDeliveredUriRefByUri('file:///a/report.pdf')?.title).toBe('Lease Agreement')
+  })
+
+  test('title falls back to the basename for the legacy "deliver_file" title', () => {
+    const putAttachment = vi.fn(async (_file: { id: string; blob: Blob }) => {})
+    const content = [
+      {
+        type: 'content',
+        content: {
+          type: 'resource',
+          resource: { uri: 'file:///a/report.pdf', mimeType: 'application/pdf', blob: btoa('x') },
+        },
+      },
+    ]
+    materializeOutboundResourceBlobs(content, 'deliver_file', { putAttachment, randomId: () => 'id-1', now: () => 1 })
+    expect(getDeliveredUriRefByUri('file:///a/report.pdf')?.title).toBe('report.pdf')
+  })
+})
+
+describe('deliveredCaption', () => {
+  test('uses the title when present and meaningful', () => {
+    expect(deliveredCaption('Lease Agreement', 'a1b2.pdf')).toBe('Lease Agreement')
+  })
+
+  test('falls back to basename when title is missing, empty, or the legacy tool name', () => {
+    expect(deliveredCaption(undefined, 'a1b2.pdf')).toBe('a1b2.pdf')
+    expect(deliveredCaption('', 'a1b2.pdf')).toBe('a1b2.pdf')
+    expect(deliveredCaption('   ', 'a1b2.pdf')).toBe('a1b2.pdf')
+    expect(deliveredCaption('deliver_file', 'a1b2.pdf')).toBe('a1b2.pdf')
   })
 })
 

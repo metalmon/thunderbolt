@@ -9,7 +9,11 @@ export type DeliveredUriRef = {
   localFileId: string
   turnPosition: number
   mimeType: string
+  /** Basename parsed from the uri — used for the download filename and the stable sideviewId. */
   storageBasename: string
+  /** Display caption from `tool_call_update.title` (falls back to storageBasename). Used for
+   *  citations and the document-result widget label, NOT the download card. */
+  title: string
 }
 
 /** Turn-scoped live map. Cleared at turn boundaries by callers when needed. */
