@@ -18,7 +18,11 @@ import type { SourceMetadata } from '@/types/source'
 import type { TextUIPart } from 'ai'
 import { memo, useMemo, type ReactNode } from 'react'
 import { DeliveredFileCard } from '@/fork/zeroclaw/delivered-file-card'
-import { toolPartHasDeliveredFiles } from '@/fork/zeroclaw/outbound-resource-blob'
+import {
+  type DeliveredFileRef,
+  type DeliveredFilesOutput,
+  toolPartHasDeliveredFiles,
+} from '@/fork/zeroclaw/outbound-resource-blob'
 import { ArtifactMessagePart } from './artifact-message-part'
 import { CopyMessageButton } from './copy-message-button'
 import { ReasoningGroup } from './reasoning-group'
@@ -75,6 +79,15 @@ export const mountMessageParts = (
     return partType === 'text' || partType === 'tool'
   })
 
+  // ZeroClaw deliver_file outputs in this message, flattened in delivery order. This is the
+  // persisted source of truth text parts resolve `[N]` / deliver-uri citations against — so
+  // citations open after a reload / in later turns, with no live map.
+  const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap((part) =>
+    toolPartHasDeliveredFiles(part as ToolOrDynamicToolUIPart)
+      ? ((part as ToolOrDynamicToolUIPart).output as DeliveredFilesOutput).deliveredFiles
+      : [],
+  )
+
   groupedParts.forEach((part, index) => {
     const [partType] = splitPartType(part.type)
     const isLastPart = index === groupedParts.length - 1
@@ -102,6 +115,7 @@ export const mountMessageParts = (
             messageId={messageId}
             sources={sources}
             haystackReferences={haystackReferences}
+            deliveredFiles={deliveredFiles}
           />,
         )
         break
