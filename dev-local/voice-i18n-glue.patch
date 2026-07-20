@@ -1,0 +1,30 @@
+diff --git a/src/settings/voice.tsx b/src/settings/voice.tsx
+index f81fb6b3..128c8fd5 100644
+--- a/src/settings/voice.tsx
++++ b/src/settings/voice.tsx
+@@ -109,6 +109,7 @@ export const VoiceSettingsPage = () => {
+ 
+   const update = (patch: Partial<VoiceProviderConfig>) => setLocalSetting('voiceProvider', { ...config, ...patch })
+   const isCustom = config.kind === 'openai-compatible'
++  const isGeminiLive = config.kind === 'gemini-live'
+   const canTest = isCustom && config.baseUrl.trim().length > 0
+ 
+   const runTest = async () => {
+@@ -141,11 +142,16 @@ export const VoiceSettingsPage = () => {
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="thunderbolt">Volt (hosted, private)</SelectItem>
++                <SelectItem value="gemini-live">Gemini Live (realtime)</SelectItem>
+                 <SelectItem value="openai-compatible">{t('voice.customEndpointOption')}</SelectItem>
+               </SelectContent>
+             </Select>
+             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+-              {isCustom ? t('voice.customHint') : t('voice.enclaveHint')}
++              {isGeminiLive
++                ? 'Real-time voice conversation via Google Gemini Live. API key is managed server-side.'
++                : isCustom
++                  ? t('voice.customHint')
++                  : t('voice.enclaveHint')}
+             </p>
+           </div>
+ 
