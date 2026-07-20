@@ -4,6 +4,8 @@
 
 import type { AcpCompaction } from '@/acp/compaction'
 import { isRenderHtmlPart, renderHtmlOutput } from '@/artifacts/render-html-tool'
+// Fork-owned ZeroClaw delivered-file lift — see src/fork/zeroclaw/FORK.md
+import { toolPartHasDeliveredFiles } from '@/fork/zeroclaw/outbound-resource-blob'
 import {
   type DynamicToolUIPart,
   isToolOrDynamicToolUIPart,
@@ -108,6 +110,14 @@ export const groupMessageParts = (parts: GroupableUIPart[]): GroupedUIPart[] => 
       // verified result. Only a finished call that FAILED verification — or errored — stays in
       // the group as an ordinary tool call.
       if (isRenderHtmlPart(part) && artifactRendersStandalone(part)) {
+        flushGroup()
+        grouped.push(part)
+        return
+      }
+
+      // Standard ACP outbound resource+blob (ZeroClaw deliver_file) — lift out
+      // like render_html so preview/download is not buried in the tool group.
+      if (toolPartHasDeliveredFiles(part)) {
         flushGroup()
         grouped.push(part)
         return
