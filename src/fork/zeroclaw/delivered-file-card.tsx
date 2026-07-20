@@ -42,16 +42,29 @@ export const DeliveredFileCard = ({ output }: DeliveredFileCardProps) => {
   if (!isDeliveredFilesOutput(output)) {
     return null
   }
-  return <DeliveredFilesList files={output.deliveredFiles} summary={output.text} showSideview={showSideview} />
+  return <DeliveredFilesList files={output.deliveredFiles} showLabel={!!output.text} showSideview={showSideview} />
+}
+
+/**
+ * Render a set of delivered files as one wrapping row. Used to merge files that
+ * arrived across several consecutive `deliver_file` tool calls into a single row
+ * (see assistant-message) instead of a card per call stacked vertically.
+ */
+export const DeliveredFilesGroup = ({ files }: { files: DeliveredFileRef[] }) => {
+  const { showSideview } = useSideview()
+  if (files.length === 0) {
+    return null
+  }
+  return <DeliveredFilesList files={files} showLabel showSideview={showSideview} />
 }
 
 type ListProps = {
   files: DeliveredFileRef[]
-  summary: string
+  showLabel: boolean
   showSideview: (sideviewType: string | null, sideviewId: string | null) => void
 }
 
-const DeliveredFilesList = ({ files, summary, showSideview }: ListProps) => {
+const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
   const { t } = useTranslation('chat')
   const open = useCallback(
     (ref: DeliveredFileRef) => {
@@ -62,7 +75,7 @@ const DeliveredFilesList = ({ files, summary, showSideview }: ListProps) => {
 
   return (
     <div className="my-2 flex flex-col gap-2">
-      {summary ? <p className="text-sm text-muted-foreground">{t('deliveredFile.delivered')}</p> : null}
+      {showLabel ? <p className="text-sm text-muted-foreground">{t('deliveredFile.delivered')}</p> : null}
       <div className="flex flex-wrap gap-3">
         {files.map((ref) => (
           <div key={ref.localFileId} className="flex flex-col items-start gap-1">
