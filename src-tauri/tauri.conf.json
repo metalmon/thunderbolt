@@ -29,11 +29,12 @@
     "security": {
       "csp": {
         "default-src": "'self' tauri: asset:",
-        "connect-src": "'self' ipc: http://ipc.localhost https: wss: ws://localhost:8000 http://localhost:8000 ws://localhost:8080 http://localhost:8080 ws://127.0.0.1:8839 ws://127.0.0.1:8840 http://localhost:11434",
-        "img-src": "'self' asset: data: https://api.thunderbolt.io",
+        "connect-src": "'self' ipc: http://ipc.localhost https: wss: blob: ws://localhost:8000 http://localhost:8000 ws://localhost:8080 http://localhost:8080 ws://127.0.0.1:8839 ws://127.0.0.1:8840 http://localhost:11434",
+        "img-src": "'self' asset: data: blob: https://api.thunderbolt.io",
         "font-src": "'self' data:",
         "style-src": "'self' 'unsafe-inline'",
-        "script-src": "'self' 'wasm-unsafe-eval'"
+        "script-src": "'self' 'wasm-unsafe-eval'",
+        "worker-src": "'self' blob:"
       }
     },
     "withGlobalTauri": true

@@ -36,6 +36,11 @@ import type {
   ToolCallStatus,
 } from '@agentclientprotocol/sdk'
 import type { HaystackDocumentMeta, HaystackReferenceMeta } from '@/types'
+// Fork-owned ZeroClaw ACP outbound blob materialization — see src/fork/zeroclaw/FORK.md
+import {
+  enrichToolOutputWithDeliveredFiles,
+  materializeOutboundResourceBlobs,
+} from '@/fork/zeroclaw/outbound-resource-blob'
 import type { AiSdkChunk } from '../types'
 
 const sseDataPrefix = 'data: '
@@ -332,11 +337,14 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
             errorText: typeof update.rawOutput === 'string' ? update.rawOutput : JSON.stringify(update.rawOutput ?? {}),
           })
         } else {
-          // completed
+          // completed — prefer standard ACP resource+blob in `content` (ZeroClaw
+          // deliver_file) over Haystack remote fileId; keep rawOutput as text summary.
+          const delivered = materializeOutboundResourceBlobs(update.content)
+          const output = enrichToolOutputWithDeliveredFiles(update.rawOutput ?? update.content ?? {}, delivered)
           emit({
             type: 'tool-output-available',
             toolCallId: update.toolCallId,
-            output: update.rawOutput ?? update.content ?? {},
+            output,
           })
         }
         const startedAt = toolStartTimes.get(update.toolCallId)
