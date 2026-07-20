@@ -23,6 +23,7 @@ import {
   type DeliveredFilesOutput,
   toolPartHasDeliveredFiles,
 } from '@/fork/zeroclaw/outbound-resource-blob'
+import { useCollapseReasoning } from '@/fork/reasoning/use-collapse-reasoning'
 import { ArtifactMessagePart } from './artifact-message-part'
 import { CopyMessageButton } from './copy-message-button'
 import { ReasoningGroup } from './reasoning-group'
@@ -70,6 +71,8 @@ export const mountMessageParts = (
   sources?: SourceMetadata[],
   haystackReferences?: HaystackReferenceMeta[],
   mcpTools?: UIMessageMetadata['mcpTools'],
+  loadingMessage?: string,
+  collapseReasoning?: boolean,
 ) => {
   const partElements: ReactNode[] = []
 
@@ -108,6 +111,7 @@ export const mountMessageParts = (
             reasoningTime={reasoningTime}
             reasoningStartTimes={reasoningStartTimes}
             mcpTools={mcpTools}
+            collapseReasoning={collapseReasoning}
           />,
         )
         break
@@ -167,6 +171,9 @@ export const AssistantMessage = memo(
     const sources = metadata?.sources
     const haystackReferences = metadata?.haystackReferences
     const mcpTools = metadata?.mcpTools
+    // Fork: collapsed-by-default reasoning preference (synced). Read here so ReasoningGroup
+    // stays a pure, context-free component (prop-driven, testable without a DB provider).
+    const collapseReasoning = useCollapseReasoning()
 
     // Memoize part element creation to prevent recreating React nodes unnecessarily
     const partElements: ReactNode[] = useMemo(
@@ -180,6 +187,8 @@ export const AssistantMessage = memo(
           sources,
           haystackReferences,
           mcpTools,
+          loadingMessage,
+          collapseReasoning,
         ),
       [
         groupedParts,
@@ -190,6 +199,8 @@ export const AssistantMessage = memo(
         sources,
         haystackReferences,
         mcpTools,
+        loadingMessage,
+        collapseReasoning,
       ],
     )
 
