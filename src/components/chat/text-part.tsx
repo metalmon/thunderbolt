@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { type ContentPart, type ContentPartsState, parseContentPartsIncremental } from '@/ai/widget-parser'
+import { buildDeliveredCitationPlaceholders } from '@/fork/zeroclaw/delivered-citations'
+import { listDeliveredUriRefs } from '@/fork/zeroclaw/delivered-uri-ref-map'
 import { sourceToCitation } from '@/lib/source-utils'
 import {
   buildDocumentSideviewId,
@@ -159,6 +161,7 @@ export const buildDocumentCitationPlaceholders = (
 export const TextPart = memo(({ part, messageId, sources, haystackReferences }: TextPartProps) => {
   const hasNewSources = !!sources && sources.length > 0
   const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
+  const hasDeliveredRefs = listDeliveredUriRefs().length > 0
 
   // Thread incremental parse state across renders so a streamed part re-scans only
   // its appended tail (marker-free prose) instead of the whole growing string.
@@ -182,10 +185,12 @@ export const TextPart = memo(({ part, messageId, sources, haystackReferences }: 
     // Pick the citation builder based on which source type is active.
     // Document references take priority when both are present.
     const buildPlaceholders = hasDocumentRefs
-      ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences, offset)
-      : hasNewSources
-        ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources, offset)
-        : null
+      ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences!, offset)
+      : hasDeliveredRefs
+        ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, offset)
+        : hasNewSources
+          ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources!, offset)
+          : null
 
     if (buildPlaceholders) {
       let keyOffset = 0
@@ -217,7 +222,7 @@ export const TextPart = memo(({ part, messageId, sources, haystackReferences }: 
       hasCitations: false,
       hasText: parts.some((p) => p.type === 'text'),
     }
-  }, [part.text, hasNewSources, hasDocumentRefs, sources, haystackReferences])
+  }, [part.text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences])
 
   const dedupedParts = useMemo(() => deduplicateLinkPreviews(processedParts), [processedParts])
 
