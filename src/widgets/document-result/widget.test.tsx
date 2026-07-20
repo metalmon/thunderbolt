@@ -4,8 +4,9 @@
 
 import '@/testing-library'
 import { ContentViewProvider, useContentView } from '@/content-view/context'
+import { clearDeliveredUriRefMap, upsertDeliveredUriRef } from '@/fork/zeroclaw/delivered-uri-ref-map'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { type ReactNode } from 'react'
 import { DocumentResultWidget } from './widget'
 
@@ -31,6 +32,10 @@ const renderWithCapture = (ui: ReactNode) => {
 }
 
 describe('DocumentResultWidget', () => {
+  beforeEach(() => {
+    clearDeliveredUriRefMap()
+  })
+
   it('renders file name and snippet', () => {
     render(
       <ContentViewProvider>
@@ -60,6 +65,28 @@ describe('DocumentResultWidget', () => {
       sideviewType: 'document',
       sideviewId: 'file-1:report.pdf',
     })
+  })
+
+  it('opens local-file sideview for ZeroClaw attachment uri', () => {
+    upsertDeliveredUriRef({
+      uri: 'attachment://deliver/a1b2c3d4e5f6.pdf',
+      localFileId: 'local-abc',
+      turnPosition: 1,
+      mimeType: 'application/pdf',
+      storageBasename: 'a1b2c3d4e5f6.pdf',
+    })
+
+    const { captured } = renderWithCapture(
+      <DocumentResultWidget name="Договор.pdf" fileId="attachment://deliver/a1b2c3d4e5f6.pdf" />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Договор\.pdf/i }))
+
+    const sideview = captured()
+    expect(sideview?.sideviewType).toBe('local-file')
+    expect(sideview?.sideviewId).toContain('local-abc')
+    expect(sideview?.sideviewId).toContain('Договор.pdf')
+    expect(sideview?.sideviewType).not.toBe('document')
   })
 
   it('chooses the correct icon variant based on extension', () => {

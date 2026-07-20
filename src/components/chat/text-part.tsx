@@ -4,6 +4,8 @@
 
 import { type ContentPart, type ContentPartsState, parseContentPartsIncremental } from '@/ai/widget-parser'
 import { useSmoothText } from '@/hooks/use-smooth-text'
+import { buildDeliveredCitationPlaceholders } from '@/fork/zeroclaw/delivered-citations'
+import { listDeliveredUriRefs } from '@/fork/zeroclaw/delivered-uri-ref-map'
 import { sourceToCitation } from '@/lib/source-utils'
 import {
   buildDocumentSideviewId,
@@ -165,6 +167,7 @@ export const TextPart = memo(({ part, messageId, isStreaming = false, sources, h
   const text = isPartStreaming ? revealedText.replace(/【(?:\d+(?:†[^】]*)?)?$/, '') : revealedText
   const hasNewSources = !!sources && sources.length > 0
   const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
+  const hasDeliveredRefs = listDeliveredUriRefs().length > 0
 
   // Thread incremental parse state across renders so a streamed part re-scans only
   // its appended tail (marker-free prose) instead of the whole growing string.
@@ -188,10 +191,12 @@ export const TextPart = memo(({ part, messageId, isStreaming = false, sources, h
     // Pick the citation builder based on which source type is active.
     // Document references take priority when both are present.
     const buildPlaceholders = hasDocumentRefs
-      ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences, offset)
-      : hasNewSources
-        ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources, offset)
-        : null
+      ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences!, offset)
+      : hasDeliveredRefs
+        ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, offset)
+        : hasNewSources
+          ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources!, offset)
+          : null
 
     if (buildPlaceholders) {
       let keyOffset = 0
@@ -223,7 +228,7 @@ export const TextPart = memo(({ part, messageId, isStreaming = false, sources, h
       hasCitations: false,
       hasText: parts.some((p) => p.type === 'text'),
     }
-  }, [text, hasNewSources, hasDocumentRefs, sources, haystackReferences])
+  }, [text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences])
 
   const dedupedParts = useMemo(() => deduplicateLinkPreviews(processedParts), [processedParts])
 
