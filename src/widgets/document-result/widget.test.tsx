@@ -74,6 +74,7 @@ describe('DocumentResultWidget', () => {
       turnPosition: 1,
       mimeType: 'application/pdf',
       storageBasename: 'a1b2c3d4e5f6.pdf',
+      title: 'Годовой отчёт',
     })
 
     const { captured } = renderWithCapture(
@@ -85,7 +86,9 @@ describe('DocumentResultWidget', () => {
     const sideview = captured()
     expect(sideview?.sideviewType).toBe('local-file')
     expect(sideview?.sideviewId).toContain('local-abc')
-    expect(sideview?.sideviewId).toContain('Договор.pdf')
+    // sideviewId is keyed on the basename (matches the download card + citations),
+    // not the widget label — so it stays consistent across all three open paths.
+    expect(sideview?.sideviewId).toContain('a1b2c3d4e5f6.pdf')
     expect(sideview?.sideviewType).not.toBe('document')
   })
 
