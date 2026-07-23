@@ -68,7 +68,8 @@ type LocalSettingsState = {
    *  the warning survives going offline. Set and cleared only by an online answer. */
   recoveryContinuityUpdateRequiredFor: string | null
   /** Null until the user picks one; ThemeProvider then falls back to the operator default, then 'system'. */
-  theme: 'light' | 'dark' | 'system' | null
+  /** Fork: 'paper' is a fixed warm palette the user can choose like any other theme. */
+  theme: 'light' | 'dark' | 'system' | 'paper' | null
   voiceProvider: VoiceProviderConfig
 }
 
