@@ -363,7 +363,14 @@
     "more": "More",
     "close": "Close",
     "labelPlaceholder": "Daily Brief",
-    "slug": "Slug"
+    "slug": "Slug",
+    "slugError": {
+      "required": "Slug is required.",
+      "tooLong": "Slug must be {{max}} characters or fewer.",
+      "invalidChars": "Slug may only contain lowercase letters, numbers, and hyphens.",
+      "edgeHyphen": "Slug cannot start or end with a hyphen.",
+      "consecutiveHyphens": "Slug cannot contain consecutive hyphens."
+    }
   },
   "agents": {
     "title": "Agents",

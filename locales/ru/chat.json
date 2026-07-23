@@ -95,6 +95,7 @@
     "pinnedSkill": "Закреплённый навык /{{label}}",
     "addToChat": "Добавить в чат",
     "addInstructionsToChat": "Добавить инструкции в чат",
+    "editSkill": "Изменить навык",
     "reorder": "Изменить порядок",
     "unpin": "Открепить",
     "pinFailed": "Не удалось закрепить {{name}}.",
