@@ -33,7 +33,8 @@ const syncMacWindowTheme = async (theme: Theme) => {
   }
   try {
     const { getCurrentWindow } = await import('@tauri-apps/api/window')
-    await getCurrentWindow().setTheme(theme === 'system' ? null : theme)
+    // 'paper' maps to the light window appearance; 'system' follows the OS.
+    await getCurrentWindow().setTheme(theme === 'system' ? null : theme === 'dark' ? 'dark' : 'light')
   } catch (error) {
     console.error(error)
   }
@@ -72,18 +73,21 @@ const syncMacWindowEffects = async (resolvedTheme: 'dark' | 'light') => {
 }
 
 /** Apply a resolved theme to the document: root class, background, meta tag, and native chrome. */
-const applyResolvedTheme = (resolvedTheme: 'dark' | 'light') => {
+const applyResolvedTheme = (resolvedTheme: 'dark' | 'light' | 'paper') => {
   const root = window.document.documentElement
-  root.classList.remove('light', 'dark')
+  root.classList.remove('light', 'dark', 'paper')
   root.classList.add(resolvedTheme)
 
   const bgColor = readThemeBackgroundColor(root)
   root.style.backgroundColor = bgColor
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bgColor)
 
-  void setAndroidBarColor(resolvedTheme === 'dark' ? 'light' : 'dark')
-  syncNativeInterfaceStyle(resolvedTheme)
-  void syncMacWindowEffects(resolvedTheme)
+  // 'paper' is a fixed warm (light-ish) theme — the native window chrome, keyboard
+  // and mac vibrancy treat it exactly like light.
+  const nativeStyle: 'dark' | 'light' = resolvedTheme === 'dark' ? 'dark' : 'light'
+  void setAndroidBarColor(nativeStyle === 'dark' ? 'light' : 'dark')
+  syncNativeInterfaceStyle(nativeStyle)
+  void syncMacWindowEffects(nativeStyle)
 }
 
 /**
@@ -102,7 +106,7 @@ const persistThemeToNativeStore = async (theme: string) => {
   await store.set('theme', theme)
 }
 
-export type Theme = 'dark' | 'light' | 'system'
+export type Theme = 'dark' | 'light' | 'system' | 'paper'
 
 type ThemeProviderState = {
   theme: Theme
