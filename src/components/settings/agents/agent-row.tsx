@@ -8,7 +8,7 @@ import { iconForAgent } from '@/components/agent-icon'
 import { cn } from '@/lib/utils'
 import type { Agent } from '@/types/acp'
 import { AgentListRow } from './agent-list-row'
-import { agentProvenanceLine } from './agent-provenance'
+import { translateAgentProvenance } from './agent-provenance'
 
 type AgentRowProps = {
   agent: Agent
@@ -51,7 +51,7 @@ export const AgentRow = ({ agent, isSelected, onOpen }: AgentRowProps) => {
       subtitleTestId={`agent-provenance-${agent.id}`}
       subtitle={
         <>
-          {agentProvenanceLine(agent)}
+          {translateAgentProvenance(agent, t)}
           {disabled && ` · ${t('agentList.disabled')}`}
         </>
       }
