@@ -107,7 +107,11 @@
   },
   "sidebar": {
     "title": "Настройки",
-    "backToChat": "Вернуться к чату"
+    "backToChat": "Вернуться к чату",
+    "groupAgents": "Агенты",
+    "groupAgentTools": "Что используют агенты",
+    "groupSettings": "Настройки",
+    "allAgents": "Все агенты"
   },
   "devices": {
     "title": "Устройства",
@@ -121,6 +125,7 @@
     "thisDevice": "Это устройство",
     "revoked": "Отозвано",
     "lastSeen": "Был(а) в сети: {{value}}",
+    "bridgeAcceptsConnections": "Принимает подключения от ваших устройств",
     "revoke": "Отозвать",
     "noPairingIdentity": "Нет идентификатора сопряжения",
     "hide": "Скрыть",
