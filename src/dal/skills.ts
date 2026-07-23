@@ -36,36 +36,55 @@ export class PinLimitExceededError extends Error {
   }
 }
 
-const maxSkillNameLength = 64
+export const maxSkillNameLength = 64
+
+/** The distinct ways a skill slug can violate the AgentSkills spec. The form
+ *  translates each code for display; the DAL maps each to an English string
+ *  ({@link skillNameErrorMessages}) for thrown-error messages and logs. */
+export type SkillNameErrorCode = 'required' | 'tooLong' | 'invalidChars' | 'edgeHyphen' | 'consecutiveHyphens'
 
 /**
  * Validate a skill slug against the [AgentSkills spec](https://agentskills.io/specification#name-field):
- * 1–64 chars; lowercase a–z, 0–9, hyphens only; no leading/trailing hyphen;
- * no consecutive hyphens.
+ * 1–64 chars; lowercase letters (any script — Latin, Cyrillic, …), digits, and
+ * hyphens only; no leading/trailing hyphen; no consecutive hyphens.
  *
  * Slugs are stored in the `name` column as bare slugs (no leading `/`). The
  * slash is a chat trigger added at display + parse time only, not part of the
  * data.
  *
- * @returns A human-readable error string when invalid, or `null` when valid.
+ * @returns An error code when invalid, or `null` when valid. Callers translate
+ * the code (form) or map it to an English message (DAL throw sites).
  */
-export const validateSkillName = (slug: string): string | null => {
+export const validateSkillName = (slug: string): SkillNameErrorCode | null => {
   if (slug.length === 0) {
-    return 'Slug is required.'
+    return 'required'
   }
   if (slug.length > maxSkillNameLength) {
-    return `Slug must be ${maxSkillNameLength} characters or fewer.`
+    return 'tooLong'
   }
-  if (!/^[a-z0-9-]+$/.test(slug)) {
-    return 'Slug may only contain lowercase letters, numbers, and hyphens.'
+  // `\p{Ll}` = any lowercase letter (Latin, Cyrillic, …): keeps the spec's
+  // lowercase-only discipline while accepting non-ASCII scripts. The `u` flag
+  // is required for `\p{…}`.
+  if (!/^[\p{Ll}0-9-]+$/u.test(slug)) {
+    return 'invalidChars'
   }
   if (slug.startsWith('-') || slug.endsWith('-')) {
-    return 'Slug cannot start or end with a hyphen.'
+    return 'edgeHyphen'
   }
   if (slug.includes('--')) {
-    return 'Slug cannot contain consecutive hyphens.'
+    return 'consecutiveHyphens'
   }
   return null
+}
+
+/** English fallbacks for {@link SkillNameErrorCode} — thrown-error messages and
+ *  logs. The user-facing form translates the codes instead. */
+const skillNameErrorMessages: Record<SkillNameErrorCode, string> = {
+  required: 'Slug is required.',
+  tooLong: `Slug must be ${maxSkillNameLength} characters or fewer.`,
+  invalidChars: 'Slug may only contain lowercase letters, numbers, and hyphens.',
+  edgeHyphen: 'Slug cannot start or end with a hyphen.',
+  consecutiveHyphens: 'Slug cannot contain consecutive hyphens.',
 }
 
 /**
@@ -78,7 +97,7 @@ export const validateSkillName = (slug: string): string | null => {
 export const slugifySkillName = (displayName: string): string =>
   displayName
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^\p{Ll}0-9]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, maxSkillNameLength)
     .replace(/-+$/, '')
@@ -166,7 +185,7 @@ export type CreateSkillInput = {
 export const createSkill = async (db: AnyDrizzleDatabase, input: CreateSkillInput): Promise<Skill> => {
   const slugError = validateSkillName(input.name)
   if (slugError) {
-    throw new SkillNameInvalidError(slugError)
+    throw new SkillNameInvalidError(skillNameErrorMessages[slugError])
   }
   await assertNameAvailable(db, input.name)
   const row: Skill = {
@@ -196,7 +215,7 @@ export const updateSkill = async (db: AnyDrizzleDatabase, id: string, patch: Upd
   if (patch.name !== undefined) {
     const slugError = validateSkillName(patch.name)
     if (slugError) {
-      throw new SkillNameInvalidError(slugError)
+      throw new SkillNameInvalidError(skillNameErrorMessages[slugError])
     }
     await assertNameAvailable(db, patch.name, id)
   }

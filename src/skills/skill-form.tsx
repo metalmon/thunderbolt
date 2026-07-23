@@ -9,7 +9,7 @@ import { Button, mutedIconButtonClass } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { validateSkillName } from '@/dal'
+import { maxSkillNameLength, validateSkillName } from '@/dal'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 
@@ -81,7 +81,10 @@ export const SkillForm = ({
   // trimmed value — `handleSubmit` submits the trimmed slug, so the two must
   // agree.
   const trimmedSlug = slug.trim()
-  const localSlugError = trimmedSlug === '' ? null : validateSkillName(trimmedSlug)
+  const localSlugErrorCode = trimmedSlug === '' ? null : validateSkillName(trimmedSlug)
+  const localSlugError = localSlugErrorCode
+    ? t(`skills.slugError.${localSlugErrorCode}`, { max: maxSkillNameLength })
+    : null
   // Block submission while a server-side slug error (e.g. SkillNameTakenError)
   // is still showing — slug edits clear it, so the button re-enables on the
   // next keystroke.
@@ -90,7 +93,7 @@ export const SkillForm = ({
     trimmedSlug !== '' &&
     description.trim() !== '' &&
     instruction.trim() !== '' &&
-    localSlugError === null &&
+    localSlugErrorCode === null &&
     !slugError
 
   const handleSubmit = () => {
