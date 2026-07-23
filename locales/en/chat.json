@@ -34,6 +34,8 @@
     "stopGenerating": "Stop generating",
     "sendMessage": "Send message",
     "attachFile": "Attach a file",
+    "addToChat": "Add to chat",
+    "uploadFile": "Upload file",
     "dropFile": "Drop file to attach",
     "dismiss": "Dismiss",
     "connecting": "Connecting to {{name}}...",

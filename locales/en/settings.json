@@ -107,7 +107,11 @@
   },
   "sidebar": {
     "title": "Settings",
-    "backToChat": "Back to Chat"
+    "backToChat": "Back to Chat",
+    "groupAgents": "Agents",
+    "groupAgentTools": "What agents use",
+    "groupSettings": "Settings",
+    "allAgents": "All agents"
   },
   "devices": {
     "title": "Devices",
@@ -121,6 +125,7 @@
     "thisDevice": "This Device",
     "revoked": "Revoked",
     "lastSeen": "Last seen: {{value}}",
+    "bridgeAcceptsConnections": "Accepts connections from your devices",
     "revoke": "Revoke",
     "noPairingIdentity": "No pairing identity",
     "hide": "Hide",
