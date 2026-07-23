@@ -4,6 +4,7 @@
 
 @import 'tailwindcss';
 @import '@fontsource-variable/mozilla-headline';
+@import './fork/typography/chat-font.css';
 
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';

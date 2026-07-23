@@ -122,6 +122,10 @@ export const MemoizedMarkdown = memo(({ content, id, components }: MemoizedMarkd
         {
           // Override prose styles to match your design
           color: 'inherit',
+          // Fork: chat reading font — System sans vs the "Lora" (Plantin) serif.
+          // --font-chat is driven by the synced chat_font setting (ChatFontApplier +
+          // chat-font.css); default resolves to the serif.
+          fontFamily: 'var(--font-chat)',
           fontSize: 'inherit',
           lineHeight: 'inherit',
           // Ensure proper styling for markdown elements
