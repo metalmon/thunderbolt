@@ -95,6 +95,7 @@
     "pinnedSkill": "Pinned skill /{{label}}",
     "addToChat": "Add to chat",
     "addInstructionsToChat": "Add instructions to chat",
+    "editSkill": "Edit skill",
     "reorder": "Reorder",
     "unpin": "Unpin",
     "pinFailed": "Couldn't pin {{name}}.",
