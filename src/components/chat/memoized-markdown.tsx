@@ -126,7 +126,8 @@ export const MemoizedMarkdown = memo(({ content, id, components }: MemoizedMarkd
           // --font-chat is driven by the synced chat_font setting (ChatFontApplier +
           // chat-font.css); default resolves to the serif.
           fontFamily: 'var(--font-chat)',
-          fontSize: 'inherit',
+          // Chat prose size — chat_font_size setting × serif bump (see chat-font.css).
+          fontSize: 'var(--font-chat-size, inherit)',
           lineHeight: 'inherit',
           // Ensure proper styling for markdown elements
           '--tw-prose-body': 'inherit',
