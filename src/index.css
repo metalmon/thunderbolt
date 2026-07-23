@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import 'tailwindcss';
-@import '@fontsource-variable/mozilla-headline';
 @import './fork/typography/chat-font.css';
 
 @plugin 'tailwindcss-animate';
@@ -12,8 +11,11 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Mozilla brand font for display headings (e.g. the empty-chat greeting). */
-  --font-heading: 'Mozilla Headline Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Fork: display-heading font. Upstream's Mozilla Headline Variable is Latin-only,
+     so Cyrillic headings fell back to the system font — use the bundled Plantin Cyr MT
+     serif (Latin + Cyrillic; @font-face in fork/typography/chat-font.css), which also
+     matches the "Lora" chat serif for an editorial, cohesive look. */
+  --font-heading: 'Plantin Cyr MT', Georgia, 'Times New Roman', serif;
 
   /* No pure white/black anywhere — remap Tailwind's white/black utilities
      (bg-white, text-white, bg-black/40 overlays, etc.) to the theme's off-white
