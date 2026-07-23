@@ -86,7 +86,9 @@ export const LibraryRow = ({
                 checked={enabled}
                 onCheckedChange={(next) => onToggleEnabled(skill.id, next)}
                 aria-label={
-                  enabled ? t('skills.disableAria', { name: skill.name }) : t('skills.enableAria', { name: skill.name })
+                  enabled
+                    ? t('skills.disableAria', { name: skillDisplayName(skill) })
+                    : t('skills.enableAria', { name: skillDisplayName(skill) })
                 }
               />
             </span>
