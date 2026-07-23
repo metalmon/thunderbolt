@@ -17,6 +17,7 @@ import { maxPinnedSkills } from '@/dal'
 import { isWidgetSkillId } from '@/defaults/skills'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
+import { translateDefaultField } from '@/i18n/translate-default'
 import { skillDisplayName, skillMatchesQuery } from '@/skills/display'
 import { chipSurfaceClass, SuggestionChip } from '@/skills/suggestion-chip'
 import { useSkillTelemetry } from '@/skills/telemetry'
@@ -242,11 +243,11 @@ export const ChatSkillsBar = ({
               className="flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-accent"
             >
               <span className="truncate text-[length:var(--font-size-body)] text-foreground">
-                {skillDisplayName(skill)}
+                {translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))}
               </span>
               {skill.description && (
                 <span className="line-clamp-1 text-[length:var(--font-size-sm)] text-muted-foreground">
-                  {skill.description}
+                  {translateDefaultField(t, 'skills', skill.id, 'description', skill.description)}
                 </span>
               )}
             </button>
@@ -312,7 +313,7 @@ export const ChatSkillsBar = ({
         {pinned.map((skill) => (
           <SuggestionChip
             key={skill.id}
-            label={skillDisplayName(skill)}
+            label={translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))}
             onClick={() => onAddToChat(skill)}
             onAddInstruction={() => onAddInstruction(skill.instruction)}
             onEdit={isWidgetSkillId(skill.id) ? undefined : () => openCreateItem({ kind: 'skill', skillId: skill.id })}
