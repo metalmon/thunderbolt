@@ -321,7 +321,8 @@ const CustomBody = ({
           isEditable={isEditable}
           validate={(url) => {
             const validation = validateAgentUrl(url)
-            return 'error' in validation ? validation.error : null
+            // validation.error is an i18n key code (agents.<code>), not a sentence.
+            return 'error' in validation ? t(`agents.${validation.error}`) : null
           }}
           onSave={(url) => {
             // Re-infer the transport (ws vs iroh) for the validated draft —
