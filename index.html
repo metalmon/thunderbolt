@@ -48,16 +48,21 @@
         var themeModes = ['light', 'dark', 'system']
         var defaultTheme = themeModes.indexOf(branding.defaultThemeMode) >= 0 ? branding.defaultThemeMode : null
         var theme = chosenTheme || defaultTheme
-        var isDark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
-        var modeTokens = (branding.cssVars && branding.cssVars[isDark ? 'dark' : 'light']) || {}
+        // Fork: 'paper' is a fixed warm theme, so it pins its class and background
+        // before paint — it never flashes light or (system-dark) dark first, and the
+        // operator's light/dark tokens do not apply to it: the palette IS the theme.
+        var isPaper = theme === 'paper'
+        var isDark =
+          !isPaper && (theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
+        var modeTokens = isPaper ? {} : (branding.cssVars && branding.cssVars[isDark ? 'dark' : 'light']) || {}
         // Same patterns, theme modes and name limit as shared/branding.ts (prePaintRules);
         // src/prepaint.test.ts keeps them identical.
         var candidate = typeof modeTokens.background === 'string' ? modeTokens.background.trim() : ''
         var isColor =
           /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(candidate) ||
           /^(?:rgba?|hsla?|oklch|oklab)\((?:[\d.\s%,/+-]|deg|none)+\)$/i.test(candidate)
-        var background = isColor ? candidate : isDark ? '#1b1e1f' : '#f5f2ee'
-        document.documentElement.classList.add(isDark ? 'dark' : 'light')
+        var background = isColor ? candidate : isPaper ? '#f0e9dd' : isDark ? '#1b1e1f' : '#f5f2ee'
+        document.documentElement.classList.add(isPaper ? 'paper' : isDark ? 'dark' : 'light')
         document.documentElement.style.backgroundColor = background
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', background)
         var appName = typeof branding.appName === 'string' ? branding.appName.trim() : ''

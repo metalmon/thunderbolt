@@ -63,8 +63,9 @@ type LocalSettingsState = {
    *  Survives reload/crash so the app can re-prompt — the phrase itself is
    *  unrecoverable (AK = PBKDF2(seed, salt)), so the prompt offers a rotation. */
   recoveryPhrasePending: boolean
-  /** Null until the user picks one; ThemeProvider then falls back to the operator default, then 'system'. */
-  theme: 'light' | 'dark' | 'system' | null
+  /** Null until the user picks one; ThemeProvider then falls back to the operator default, then 'system'.
+   *  Fork: 'paper' is a fixed warm palette the user can choose like any other theme. */
+  theme: 'light' | 'dark' | 'system' | 'paper' | null
   voiceProvider: VoiceProviderConfig
 }
 
