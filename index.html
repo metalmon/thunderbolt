@@ -33,10 +33,18 @@
             theme = JSON.parse(raw).state.theme
           }
         } catch (e) {}
-        var isDark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.classList.add(isDark ? 'dark' : 'light')
-        document.documentElement.style.backgroundColor = isDark ? '#1b1e1f' : '#f5f2ee'
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#1b1e1f' : '#f5f2ee')
+        // 'paper' is a fixed warm theme — pin its class/background before paint so it
+        // never flashes the light or (system-dark) dark background first.
+        if (theme === 'paper') {
+          document.documentElement.classList.add('paper')
+          document.documentElement.style.backgroundColor = '#f0e9dd'
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f0e9dd')
+        } else {
+          var isDark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.add(isDark ? 'dark' : 'light')
+          document.documentElement.style.backgroundColor = isDark ? '#1b1e1f' : '#f5f2ee'
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#1b1e1f' : '#f5f2ee')
+        }
       })()
     </script>
     <div id="root"></div>
