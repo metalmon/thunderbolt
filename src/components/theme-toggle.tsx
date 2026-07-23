@@ -6,10 +6,10 @@ import { themeIcons } from '@/components/theme-icons'
 import { useTheme } from '@/lib/theme-provider'
 import { trackEvent } from '@/lib/posthog'
 
-const themeCycle = { light: 'dark', dark: 'system', system: 'light' } as const
+const themeCycle = { light: 'dark', dark: 'system', system: 'paper', paper: 'light' } as const
 
 /**
- * Single-icon theme toggle that cycles light → dark → system on each click.
+ * Single-icon theme toggle that cycles light → dark → system → paper on each click.
  * The icon reflects the current setting; the label announces the action the
  * click performs. Dev-only — rendered in the sidebar footer's collapsed rail
  * and account row (the user-facing picker is `ThemeToggleGroup` on the
