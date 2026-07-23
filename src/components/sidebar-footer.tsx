@@ -15,6 +15,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import { type ReactNode, useState, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import dayjs from 'dayjs'
@@ -154,6 +155,7 @@ export const syncStatusText = (
 }
 
 export const SidebarFooter = ({ className, navToggle }: SidebarFooterProps) => {
+  const { t } = useTranslation('common')
   const authClient = useAuth()
   const navigate = useNavigate()
   const { isMobile, setOpenMobile, state } = useSidebar()

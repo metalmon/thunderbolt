@@ -482,7 +482,7 @@ export default function TasksPage() {
             <PageHeader title={t('pageTitle')}>
               {!showEmptyState && (
                 <>
-                  <PageSearch.Button tooltip={t('searchTooltip')} />
+                  <PageSearch.Button />
                   {/* mr-2 lines the button's center up with the task rows'
                       checkbox column (row px-3 + checkbox p-1 + 20px icon). */}
                   <Button
