@@ -10,3 +10,14 @@ export const getGreeting = (hour: number = new Date().getHours()): string => {
   const timeOfDay = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
   return `Good ${timeOfDay}`
 }
+
+/**
+ * Returns the i18next key (namespace `chat`) for the time-of-day greeting.
+ * The caller resolves it through `t()` so the greeting stays localized.
+ */
+export const getGreetingKey = (hour: number = new Date().getHours()): string => {
+  if (hour < 5) {
+    return 'greeting.upLate'
+  }
+  return hour < 12 ? 'greeting.morning' : hour < 18 ? 'greeting.afternoon' : 'greeting.evening'
+}

@@ -36,7 +36,7 @@ import type { UpdateAgentPatch } from '@/dal/agents'
 import { cn } from '@/lib/utils'
 import { useLibrarySkills } from '@/skills/use-skills'
 import type { Agent } from '@/types/acp'
-import { acpEndpointLabel, agentProvenanceLine } from './agent-provenance'
+import { acpEndpointLabel, translateAgentProvenance } from './agent-provenance'
 import type { TestAcpConnectionFn } from './add-custom-agent-form'
 
 /** On-demand probe result: the panel never polls on open — Status starts at
@@ -132,7 +132,7 @@ export const AgentDetail = ({
         </IconTile>
       }
       title={agent.name}
-      subtitle={agentProvenanceLine(agent)}
+      subtitle={translateAgentProvenance(agent, t)}
       actions={managementMenu}
       onClose={onClose}
     >

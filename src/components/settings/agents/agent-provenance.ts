@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { TFunction } from 'i18next'
+
 import type { Agent } from '@/types/acp'
 
 /**
@@ -36,4 +38,19 @@ export const agentProvenanceLine = (agent: Agent): string => {
     return 'System agent · always available'
   }
   return `Connected agent · ${acpEndpointLabel(agent)}`
+}
+
+/**
+ * Translated provenance line for render sites. Mirrors `agentProvenanceLine`
+ * but resolves through i18next `t` (namespace `settings`) so the row and the
+ * detail header stay localized without duplicating the branch logic.
+ */
+export const translateAgentProvenance = (agent: Agent, t: TFunction): string => {
+  if (agent.type === 'built-in') {
+    return t('agents.provenanceBuiltIn')
+  }
+  if (agent.isSystem === 1) {
+    return t('agents.provenanceSystem')
+  }
+  return t('agents.provenanceConnected', { endpoint: acpEndpointLabel(agent) })
 }

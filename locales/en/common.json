@@ -126,6 +126,7 @@
     "description": "Your message would exceed the model's {{maxTokens}}-token context window.",
     "newChat": "New Chat"
   },
+  "signIn": "Sign in",
   "logout": {
     "title": "Log out",
     "description": "What would you like to do with your local data?",

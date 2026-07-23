@@ -261,7 +261,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
     )
     if (!user) {
       return (
-        <button type="button" aria-label="Sign in" className={controlClass} onClick={openSignInModal}>
+        <button type="button" aria-label={t('signIn')} className={controlClass} onClick={openSignInModal}>
           {stateIcon}
         </button>
       )
@@ -270,7 +270,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="Account menu"
+          aria-label={t('accountMenu.ariaLabel')}
           className={cn(
             controlClass,
             collapsed && menuOpen && 'bg-sidebar-accent',

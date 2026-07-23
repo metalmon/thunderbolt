@@ -6,6 +6,7 @@ import { useIsMobile, useIsNativeMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, m, type Transition } from 'framer-motion'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useChatScrollHandler } from '@/chats/use-chat-scroll-handler'
 import { useScrollToMessage } from '@/chats/use-scroll-to-message'
 import { loadChatMessageList } from './chat-messages-loader'
@@ -17,7 +18,7 @@ import { statusOnlyThrottleMs } from '@/chats/chat-throttle'
 import { useChatAutomation } from '@/chats/use-chat-automation'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { AppLogo } from '../app-logo'
-import { getGreeting } from './chat-ui-greeting'
+import { getGreetingKey } from './chat-ui-greeting'
 
 const ChatMessageList = lazy(() => loadChatMessageList().then((module) => ({ default: module.ChatMessageList })))
 
@@ -27,11 +28,12 @@ const ChatMessageList = lazy(() => loadChatMessageList().then((module) => ({ def
 const firstSendTween: Transition = { type: 'tween', ease: [0.2, 0.9, 0.1, 1], duration: 0.25 }
 
 const EmptyChatGreeting = () => {
+  const { t } = useTranslation('chat')
   return (
     // The logo's transparent padding shifts the combined ink bounds 10px right, so compensate to optically center them.
     <div className="-translate-x-2.5 flex items-center gap-5">
       <AppLogo size={72} className="opacity-60" />
-      <span className="font-heading text-3xl font-medium text-muted-foreground">{getGreeting()}</span>
+      <span className="font-heading text-3xl font-medium text-muted-foreground">{t(getGreetingKey())}</span>
     </div>
   )
 }
