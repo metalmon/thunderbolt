@@ -182,7 +182,7 @@ export const SuggestionChip = ({
           className="min-h-[var(--min-touch-height)] cursor-pointer"
         >
           <SquarePen />
-          Edit skill
+          {t('skills.editSkill')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {

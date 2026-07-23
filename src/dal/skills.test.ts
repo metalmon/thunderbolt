@@ -55,35 +55,40 @@ describe('validateSkillName (AgentSkills spec)', () => {
     expect(validateSkillName('a'.repeat(64))).toBeNull()
   })
 
+  it('accepts lowercase letters from non-Latin scripts', () => {
+    expect(validateSkillName('встреча-заметки')).toBeNull()
+    expect(validateSkillName('café')).toBeNull()
+  })
+
   it('rejects empty', () => {
-    expect(validateSkillName('')).toMatch(/required/i)
+    expect(validateSkillName('')).toBe('required')
   })
 
   it('rejects > 64 chars', () => {
-    expect(validateSkillName('a'.repeat(65))).toMatch(/64 characters/)
+    expect(validateSkillName('a'.repeat(65))).toBe('tooLong')
   })
 
-  it('rejects uppercase letters', () => {
-    expect(validateSkillName('Meeting-Notes')).toMatch(/lowercase/i)
-    expect(validateSkillName('meetingNotes')).toMatch(/lowercase/i)
+  it('rejects uppercase letters (Latin or Cyrillic)', () => {
+    expect(validateSkillName('Meeting-Notes')).toBe('invalidChars')
+    expect(validateSkillName('meetingNotes')).toBe('invalidChars')
+    expect(validateSkillName('Встреча')).toBe('invalidChars')
   })
 
-  it('rejects non-alphanumeric/hyphen characters', () => {
-    expect(validateSkillName('meeting notes')).toMatch(/lowercase letters, numbers, and hyphens/i)
-    expect(validateSkillName('meeting.notes')).toMatch(/lowercase letters, numbers, and hyphens/i)
-    expect(validateSkillName('meeting_notes')).toMatch(/lowercase letters, numbers, and hyphens/i)
-    expect(validateSkillName('café')).toMatch(/lowercase letters, numbers, and hyphens/i)
-    expect(validateSkillName('/meeting-notes')).toMatch(/lowercase letters, numbers, and hyphens/i)
+  it('rejects non-letter/digit/hyphen characters', () => {
+    expect(validateSkillName('meeting notes')).toBe('invalidChars')
+    expect(validateSkillName('meeting.notes')).toBe('invalidChars')
+    expect(validateSkillName('meeting_notes')).toBe('invalidChars')
+    expect(validateSkillName('/meeting-notes')).toBe('invalidChars')
   })
 
   it('rejects leading or trailing hyphen', () => {
-    expect(validateSkillName('-meeting')).toMatch(/start or end/i)
-    expect(validateSkillName('meeting-')).toMatch(/start or end/i)
+    expect(validateSkillName('-meeting')).toBe('edgeHyphen')
+    expect(validateSkillName('meeting-')).toBe('edgeHyphen')
   })
 
   it('rejects consecutive hyphens', () => {
-    expect(validateSkillName('meeting--notes')).toMatch(/consecutive hyphens/i)
-    expect(validateSkillName('a--b')).toMatch(/consecutive hyphens/i)
+    expect(validateSkillName('meeting--notes')).toBe('consecutiveHyphens')
+    expect(validateSkillName('a--b')).toBe('consecutiveHyphens')
   })
 })
 
@@ -112,8 +117,9 @@ describe('slugifySkillName', () => {
     expect(slugifySkillName(`${'a'.repeat(63)} b`)).toBe('a'.repeat(63))
   })
 
-  it('handles unicode by replacing non-ascii letters with hyphens', () => {
-    expect(slugifySkillName('café résumé')).toBe('caf-r-sum')
+  it('preserves lowercase letters from non-Latin scripts', () => {
+    expect(slugifySkillName('café résumé')).toBe('café-résumé')
+    expect(slugifySkillName('Привет Мир')).toBe('привет-мир')
   })
 
   it('returns an empty string when nothing is slugifiable', () => {
