@@ -54,7 +54,7 @@ type LocalSettingsState = {
   isNativeFetchEnabled: boolean
   hapticsEnabled: boolean
   syncEnabled: boolean
-  theme: 'light' | 'dark' | 'system'
+  theme: 'light' | 'dark' | 'system' | 'paper'
   voiceProvider: VoiceProviderConfig
 }
 
