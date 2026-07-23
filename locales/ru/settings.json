@@ -168,6 +168,7 @@
     "toolCount_one": "{{count}} инструмент",
     "toolCount_few": "{{count}} инструмента",
     "toolCount_many": "{{count}} инструментов",
+    "toolCount_other": "{{count}} инструментов",
     "tools": {
       "search": { "name": "Веб-поиск", "description": "Поиск актуальной информации в интернете." },
       "fetch_content": { "name": "Загрузка страницы", "description": "Загрузка и чтение содержимого публичной веб-страницы." },
@@ -236,7 +237,8 @@
     "serverUnknownError": "Сервер ответил неизвестной ошибкой.",
     "failedToLoadModels": "Не удалось загрузить модели",
     "customizedModel": "Вы изменили эту модель.",
-    "modifiedModelAria": "Изменённая модель"
+    "modifiedModelAria": "Изменённая модель",
+    "moreActions": "Ещё"
   },
   "mcpServers": {
     "title": "MCP-серверы",
@@ -346,7 +348,10 @@
     "closeReorder": "Закрыть изменение порядка",
     "back": "К списку навыков",
     "disableDescription": "Отключить навык. ИИ не будет его использовать, и он будет откреплён.",
-    "more": "Ещё"
+    "more": "Ещё",
+    "close": "Закрыть",
+    "labelPlaceholder": "Утренняя сводка",
+    "slug": "Слаг"
   },
   "agents": {
     "title": "Агенты",
@@ -412,7 +417,12 @@
     "urlPlaceholder": "wss://example.com/ws или вставьте iroh-тикет",
     "urlHelper": "WebSocket-эндпоинт или вставьте iroh-тикет с вашего моста для peer-to-peer подключения (голый NodeId работает только если пир доступен для обнаружения).",
     "urlInvalid": "Введите URL вида wss:// или iroh-тикет",
-    "iosRequiresWss": "На iOS нужен защищённый URL (wss://)"
+    "iosRequiresWss": "На iOS нужен защищённый URL (wss://)",
+    "openCli": "Открыть Thunderbolt CLI",
+    "cliProvenance": "Ваш агент · работает в терминале",
+    "cliAboutTitle": "Об агенте",
+    "cliAboutBody": "Используйте Thunderbolt из командной строки.",
+    "cliInstallTitle": "Установка"
   },
   "appVersion": {
     "title": "Версия приложения",
@@ -431,5 +441,57 @@
     "errorDownload": "Не удалось скачать обновление",
     "errorRestart": "Не удалось перезапустить для применения обновления",
     "errorCheck": "Не удалось проверить обновления"
+  },
+  "agentDetail": {
+    "removeError": "Не удалось удалить агента. Попробуйте ещё раз.",
+    "more": "Ещё",
+    "removeAgent": "Удалить агента",
+    "removeConfirmTitle": "Удалить {{name}}?",
+    "removeConfirmDescription": "Это удалит подключение только из Thunderbolt. На удалённом сервере ничего не изменится.",
+    "cancel": "Отмена",
+    "about": "Об агенте",
+    "builtInAbout": "Thunderbolt — это агент, встроенный в приложение: всегда под рукой, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с тем, над чем вы работаете.",
+    "whatItUses": "Что он использует",
+    "skills": "Навыки",
+    "skillCount_one": "{{count}} навык",
+    "skillCount_few": "{{count}} навыка",
+    "skillCount_many": "{{count}} навыков",
+    "skillCount_other": "{{count}} навыков",
+    "mcpServers": "MCP-серверы",
+    "mcpServerCount_one": "{{count}} MCP-сервер",
+    "mcpServerCount_few": "{{count}} MCP-сервера",
+    "mcpServerCount_many": "{{count}} MCP-серверов",
+    "mcpServerCount_other": "{{count}} MCP-серверов",
+    "integrations": "Интеграции",
+    "manageIntegrations": "Управление интеграциями",
+    "connection": "Подключение",
+    "endpoint": "Адрес",
+    "systemManaged": "Управляется вашим развёртыванием — всегда доступен, без настройки.",
+    "updateError": "Не удалось обновить. Попробуйте ещё раз.",
+    "configuration": "Конфигурация",
+    "name": "Имя",
+    "description": "Описание",
+    "optional": "Необязательно",
+    "enabled": "Включён",
+    "enabledHelp": "Отключённые агенты не показываются в выборе агента в чате.",
+    "disableAgent": "Отключить {{name}}",
+    "enableAgent": "Включить {{name}}",
+    "testConnection": "Проверить подключение",
+    "irohConnection": "Одноранговое соединение через iroh — подключение проверяется при запуске чата.",
+    "testing": "Проверка…",
+    "notTested": "Не проверено",
+    "reachable": "Доступен {{time}}",
+    "unreachable": "Недоступен {{time}}"
+  },
+  "agentList": {
+    "yourAgents": "Ваши агенты",
+    "systemAgents": "Системные агенты",
+    "openAgent": "Открыть {{name}}",
+    "disabled": "Отключён"
+  },
+  "editableField": {
+    "saveError": "Не удалось сохранить {{field}}. Попробуйте ещё раз.",
+    "discard": "Отменить",
+    "save": "Сохранить"
   }
 }
