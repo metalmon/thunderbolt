@@ -52,6 +52,8 @@
     "themeDarkAria": "Тёмная тема",
     "themeSystem": "Системная",
     "themeSystemAria": "Системная тема",
+    "themePaper": "Бумажная",
+    "themePaperAria": "Бумажная тема",
     "chatFontSizeLabel": "Размер шрифта чата",
     "chatFontSizeDescription": "Размер текста сообщений в чате.",
     "chatFontSizeSmall": "Мелкий",
