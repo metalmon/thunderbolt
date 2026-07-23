@@ -4,6 +4,7 @@
 
 import '@/lib/dayjs'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ChatFontApplier } from '@/fork/typography/use-chat-font'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { PowerSyncContext } from '@powersync/react'
 
@@ -303,6 +304,7 @@ export const App = () => {
                             <SidebarProvider>
                               <ContentViewProvider>
                                 <ExternalLinkDialogProvider>
+                                  <ChatFontApplier />
                                   <AppContent initData={initData} />
                                 </ExternalLinkDialogProvider>
                               </ContentViewProvider>
