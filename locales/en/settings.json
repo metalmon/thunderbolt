@@ -319,8 +319,8 @@
     "save": "Save",
     "name": "Skill name",
     "nameLabel": "Name",
-    "nameLabelPlaceholder": "Daily Brief",
-    "slugLabel": "Slug",
+    "labelPlaceholder": "Daily Brief",
+    "slug": "Slug",
     "namePlaceholder": "daily-brief",
     "description": "Description",
     "descriptionHelpAria": "What is this for?",
@@ -343,6 +343,17 @@
     "back": "Back to skills",
     "disableDescription": "Disable skill. The AI won't use it, and it will be unpinned.",
     "more": "More"
+  },
+  "agentList": {
+    "yourAgents": "Your agents",
+    "systemAgents": "System agents"
+  },
+  "agentDetail": {
+    "more": "More",
+    "removeAgent": "Delete agent",
+    "removeError": "Couldn't delete the agent. Please try again.",
+    "removeConfirmTitle": "Delete {{name}}?",
+    "removeConfirmDescription": "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
   },
   "agents": {
     "title": "Agents",

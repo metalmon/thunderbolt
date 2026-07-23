@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useReducer, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,6 +71,7 @@ export const EditableField = ({
   onSave: (draft: string) => Promise<void> | void
   inputProps?: InputHTMLAttributes<HTMLInputElement>
 }): ReactNode => {
+  const { t } = useTranslation('settings')
   const [state, dispatch] = useReducer(editableFieldReducer, { draft: value, prevValue: value, saveError: null })
   // Render-time state adjustment (no effect): re-seed when the stored value
   // changes underneath us.
@@ -93,7 +95,7 @@ export const EditableField = ({
       await onSave(trimmed)
     } catch (saveError) {
       console.error(`Failed to save agent ${label.toLowerCase()}`, saveError)
-      dispatch({ type: 'SAVE_FAILED', message: `Couldn't save the ${label.toLowerCase()}. Please try again.` })
+      dispatch({ type: 'SAVE_FAILED', message: t('editableField.saveError', { field: label.toLowerCase() }) })
     }
   }
 
@@ -130,10 +132,10 @@ export const EditableField = ({
       {isDirty && (
         <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={() => dispatch({ type: 'DISCARDED', value })}>
-            Discard
+            {t('editableField.discard')}
           </Button>
           <Button size="sm" disabled={!canSave} onClick={() => void save()}>
-            Save
+            {t('editableField.save')}
           </Button>
         </div>
       )}
