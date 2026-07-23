@@ -41,7 +41,22 @@
  * ChatFontApplier from the synced setting) falls back to the app's sans stack. */
 :root {
   --font-chat: 'Plantin Cyr MT', Georgia, 'Times New Roman', serif;
+
+  /* Chat prose size = body × user scale (chat_font_size) × serif bump. The serif
+   * (Lora) reads a touch small, so it carries a small default bump; the system sans
+   * does not. Consumed as `font-size: var(--font-chat-size)` on the prose container
+   * (MemoizedMarkdown). data-chat-font-size is set by ChatFontApplier. */
+  --font-chat-scale: 1;
+  --font-chat-serif-bump: 1.08;
+  --font-chat-size: calc(var(--font-size-body) * var(--font-chat-scale) * var(--font-chat-serif-bump));
 }
 :root[data-chat-font='system'] {
   --font-chat: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-chat-serif-bump: 1;
+}
+:root[data-chat-font-size='small'] {
+  --font-chat-scale: 0.92;
+}
+:root[data-chat-font-size='large'] {
+  --font-chat-scale: 1.18;
 }
