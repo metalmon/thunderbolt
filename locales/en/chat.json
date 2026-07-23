@@ -76,7 +76,7 @@
     "system": "System",
     "custom": "Custom",
     "cannotChangeDuringReply": "Cannot change agent during reply",
-    "addAgent": "Add Agent",
+    "addAgent": "Add agent",
     "searchPlaceholder": "Search agents",
     "empty": "No agents found"
   },
@@ -84,7 +84,7 @@
     "slashCommands": "Slash commands",
     "pinLimitReached": "Pin limit reached ({{max}}). Unpin one first.",
     "noMoreToPin": "No more skills to pin",
-    "pinASkill": "Pin a skill",
+    "pinASkill": "Add a skill",
     "dismiss": "Dismiss",
     "pinnedSkill": "Pinned skill /{{label}}",
     "addToChat": "Add to chat",
