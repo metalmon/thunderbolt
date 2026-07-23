@@ -21,6 +21,8 @@
     "themeDarkAria": "Dark mode",
     "themeSystem": "System",
     "themeSystemAria": "System theme",
+    "themePaper": "Paper",
+    "themePaperAria": "Paper theme",
     "chatFontSizeLabel": "Chat font size",
     "chatFontSizeDescription": "Text size for chat messages.",
     "chatFontSizeSmall": "Small",
