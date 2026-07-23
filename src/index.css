@@ -298,6 +298,52 @@
   --color-sidebar-ring: #8a8a88;
 }
 
+/* Fork: "Paper" — a fixed, universal warm theme (Claude-Desktop-like). Not tied to
+   light/dark; theme-provider applies `.paper` and treats it as light for native
+   chrome (window/effects/boot bg). Overrides the same tokens .dark does; elevations,
+   charts and the brand gradient shadows inherit the light defaults — they read fine
+   on the warm sand. */
+.paper {
+  color-scheme: light;
+  --color-background: #f0e9dd;
+  --color-foreground: #2b2622;
+  --color-card: #faf6ee;
+  --color-card-foreground: #2b2622;
+  --color-popover: #faf6ee;
+  --color-popover-foreground: #2b2622;
+  --color-primary: #3a332c;
+  --color-primary-foreground: #faf6ee;
+  --color-secondary: #e7ddc9;
+  --color-secondary-foreground: #2b2622;
+  --color-muted: #e8dfcd;
+  --color-muted-foreground: #857a68;
+  --color-accent: #e6dbc6;
+  --color-accent-foreground: #2b2622;
+  --color-brand: #c96442;
+  --color-brand-2: #cf8a3f;
+  --color-brand-foreground: #faf6ee;
+  --color-destructive: #b3402e;
+  --color-destructive-foreground: #faf6ee;
+  --color-success: #5f7d4f;
+  --color-success-foreground: #faf6ee;
+  --color-warning: #bd7d2a;
+  --color-warning-foreground: #2b2622;
+  --color-border: #e0d6c4;
+  --color-border-strong: #c3b498;
+  --color-input: #ddd2bd;
+  --color-ring: #c96442;
+  --color-sidebar: #ece3d4;
+  --color-sidebar-foreground: #6f6556;
+  --color-sidebar-primary: #3a332c;
+  --color-sidebar-primary-foreground: #faf6ee;
+  --color-sidebar-accent: #e2d8c5;
+  --color-sidebar-accent-foreground: #2b2622;
+  --color-sidebar-border: #e0d6c4;
+  --color-sidebar-ring: #c96442;
+  --color-white: #faf6ee;
+  --color-black: #2b2622;
+}
+
 /* macOS desktop app (Tauri) vibrancy — the window is transparent with a
    native NSVisualEffectView blur behind it (src-tauri/src/lib.rs). The body
    goes transparent and the sidebar surface goes translucent so the desktop
