@@ -116,7 +116,7 @@ export const SkillForm = ({
         variant="ghost"
         size="icon"
         onClick={onCancel}
-        aria-label="Close"
+        aria-label={t('skills.close')}
         className={cn('absolute right-2 top-2', mutedIconButtonClass)}
       >
         <X className="size-4" />
@@ -131,7 +131,7 @@ export const SkillForm = ({
           <Input
             id="skill-label"
             ref={nameInputRef}
-            placeholder="Daily Brief"
+            placeholder={t('skills.labelPlaceholder')}
             value={label}
             onChange={(e) => handleLabelChange(e.target.value)}
             className="h-9"
@@ -141,7 +141,7 @@ export const SkillForm = ({
               hover/focus) keeps it from competing with the real fields. */}
           <div className="flex items-center gap-1.5">
             <label htmlFor="skill-slug" className="shrink-0 text-xs text-muted-foreground">
-              Slug
+              {t('skills.slug')}
             </label>
             <div className="relative min-w-0 flex-1">
               {/* Fixed `/` prefix — part of the chat trigger, not the stored

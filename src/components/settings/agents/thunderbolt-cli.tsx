@@ -25,10 +25,6 @@ import { AgentIconTile, AgentListRow } from './agent-list-row'
 const manualBuildCommand = 'cd cli && bun install && bun run build && ./install.sh'
 const cliInstallGuideUrl = 'https://github.com/thunderbird/thunderbolt/blob/main/cli/README.md#install'
 
-/** Secondary line shared by the list row and the detail-header subtitle, the
- *  same pairing rule the agent rows follow via `agentProvenanceLine`. */
-const cliProvenanceLine = 'Your agent · runs in your terminal'
-
 type InstallState =
   | { status: 'idle' }
   | { status: 'success'; result: CliInstallResult }
@@ -61,6 +57,7 @@ export const ThunderboltCliRow = ({
   architecture,
   isTauriEnv: isTauriEnvProp,
 }: ThunderboltCliRowProps) => {
+  const { t } = useTranslation('settings')
   const isTauriEnv = isTauriEnvProp ?? isTauri()
   const runtimeArchitecture = architecture ?? (isTauriEnv ? arch() : 'unknown')
 
@@ -75,10 +72,10 @@ export const ThunderboltCliRow = ({
       testId="agent-row-thunderbolt-cli"
       isSelected={isSelected}
       onOpen={onOpen}
-      ariaLabel="Open Thunderbolt CLI"
+      ariaLabel={t('agents.openCli')}
       icon={<Terminal className="size-5 text-muted-foreground" aria-hidden="true" />}
       title="Thunderbolt CLI"
-      subtitle={cliProvenanceLine}
+      subtitle={t('agents.cliProvenance')}
     />
   )
 }
@@ -130,18 +127,18 @@ export const ThunderboltCliDetail = ({
         </AgentIconTile>
       }
       title="Thunderbolt CLI"
-      subtitle={cliProvenanceLine}
+      subtitle={t('agents.cliProvenance')}
       onClose={onClose}
     >
       <div className="flex shrink-0 flex-col gap-2">
-        <DetailSectionTitle>About</DetailSectionTitle>
-        <p className="text-base leading-snug text-foreground">Use Thunderbolt from the command line.</p>
+        <DetailSectionTitle>{t('agents.cliAboutTitle')}</DetailSectionTitle>
+        <p className="text-base leading-snug text-foreground">{t('agents.cliAboutBody')}</p>
       </div>
 
       <DetailDivider />
 
       <div className="flex flex-col gap-4">
-        <DetailSectionTitle>Install</DetailSectionTitle>
+        <DetailSectionTitle>{t('agents.cliInstallTitle')}</DetailSectionTitle>
         {isTauriEnv ? (
           <>
             <Button variant="secondary" className="self-start" disabled={isPending} onClick={handleInstall}>

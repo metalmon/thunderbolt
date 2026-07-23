@@ -751,7 +751,7 @@ export default function McpServersPage({ deps = {} }: { deps?: McpServersPageDep
           }}
         >
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="bg-card" aria-label="Add MCP server">
+            <Button variant="outline" size="icon" className="bg-card" aria-label={t('mcpServers.addServer')}>
               <Plus />
             </Button>
           </DialogTrigger>

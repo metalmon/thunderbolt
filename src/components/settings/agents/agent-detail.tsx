@@ -7,6 +7,7 @@ import { useQuery } from '@powersync/tanstack-react-query'
 import dayjs from 'dayjs'
 import { Loader2, MoreVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import '@/lib/dayjs'
@@ -87,6 +88,7 @@ export const AgentDetail = ({
   onDelete,
   testAcpConnection = defaultTestAcpConnection,
 }: AgentDetailProps) => {
+  const { t } = useTranslation('settings')
   const Icon = iconForAgent(agent)
   const flavor = agentFlavor(agent)
   const isEditable = flavor === 'custom' && !!currentUserId && agent.userId === currentUserId
@@ -100,7 +102,7 @@ export const AgentDetail = ({
     } catch (error) {
       // Keep the confirm dialog open so the failure is visible and retryable.
       console.error('Failed to remove agent', error)
-      setRemoveError("Couldn't remove the agent. Please try again.")
+      setRemoveError(t('agentDetail.removeError'))
       return
     }
     setConfirmOpen(false)
@@ -110,14 +112,14 @@ export const AgentDetail = ({
   const managementMenu = isEditable && (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="More" className={mutedIconButtonClass}>
+        <Button variant="ghost" size="icon" aria-label={t('agentDetail.more')} className={mutedIconButtonClass}>
           <MoreVertical />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56">
         <DropdownMenuItem onClick={() => setConfirmOpen(true)} className="cursor-pointer">
           <Trash2 />
-          Remove agent
+          {t('agentDetail.removeAgent')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -157,10 +159,8 @@ export const AgentDetail = ({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {agent.name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes the connection from Thunderbolt only. Nothing on the remote server is changed.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('agentDetail.removeConfirmTitle', { name: agent.name })}</AlertDialogTitle>
+            <AlertDialogDescription>{t('agentDetail.removeConfirmDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           {removeError && (
             <p role="alert" className="text-sm text-destructive">
@@ -168,9 +168,9 @@ export const AgentDetail = ({
             </p>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('agentDetail.cancel')}</AlertDialogCancel>
             <Button variant="destructive" onClick={() => void handleRemove()}>
-              Remove agent
+              {t('agentDetail.removeAgent')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -182,6 +182,7 @@ export const AgentDetail = ({
 /** Read-only info view for the built-in Thunderbolt agent: what it is, plus
  *  live links into the Library surfaces it draws on. */
 const BuiltInBody = () => {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const { skills } = useLibrarySkills()
   const enabledSkills = skills.filter((s) => s.enabled === 1).length
@@ -193,43 +194,40 @@ const BuiltInBody = () => {
   return (
     <>
       <div className="flex shrink-0 flex-col gap-2">
-        <DetailSectionTitle>About</DetailSectionTitle>
-        <p className="text-base leading-snug text-foreground">
-          Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have
-          enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on.
-        </p>
+        <DetailSectionTitle>{t('agentDetail.about')}</DetailSectionTitle>
+        <p className="text-base leading-snug text-foreground">{t('agentDetail.builtInAbout')}</p>
       </div>
 
       <DetailDivider />
 
       <div className="flex flex-col gap-4">
-        <DetailSectionTitle>What it uses</DetailSectionTitle>
+        <DetailSectionTitle>{t('agentDetail.whatItUses')}</DetailSectionTitle>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <FieldLabel>Skills</FieldLabel>
+            <FieldLabel>{t('agentDetail.skills')}</FieldLabel>
             <Link
               to="/settings/skills"
               className="w-fit text-base text-primary underline underline-offset-4 transition-colors hover:text-foreground"
             >
-              {enabledSkills} {enabledSkills === 1 ? 'skill' : 'skills'}
+              {t('agentDetail.skillCount', { count: enabledSkills })}
             </Link>
           </div>
           <div className="flex flex-col gap-1">
-            <FieldLabel>MCP servers</FieldLabel>
+            <FieldLabel>{t('agentDetail.mcpServers')}</FieldLabel>
             <Link
               to="/settings/mcp-servers"
               className="w-fit text-base text-primary underline underline-offset-4 transition-colors hover:text-foreground"
             >
-              {mcpServers.length} {mcpServers.length === 1 ? 'MCP server' : 'MCP servers'}
+              {t('agentDetail.mcpServerCount', { count: mcpServers.length })}
             </Link>
           </div>
           <div className="flex flex-col gap-1">
-            <FieldLabel>Integrations</FieldLabel>
+            <FieldLabel>{t('agentDetail.integrations')}</FieldLabel>
             <Link
               to="/settings/integrations"
               className="w-fit text-base text-primary underline underline-offset-4 transition-colors hover:text-foreground"
             >
-              Manage integrations
+              {t('agentDetail.manageIntegrations')}
             </Link>
           </div>
         </div>
@@ -239,27 +237,30 @@ const BuiltInBody = () => {
 }
 
 /** Read-only info view for a deployment-provided system agent. */
-const SystemBody = ({ agent }: { agent: Agent }) => (
-  <>
-    {agent.description && (
-      <>
-        <div className="flex shrink-0 flex-col gap-2">
-          <DetailSectionTitle>About</DetailSectionTitle>
-          <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{agent.description}</p>
+const SystemBody = ({ agent }: { agent: Agent }) => {
+  const { t } = useTranslation('settings')
+  return (
+    <>
+      {agent.description && (
+        <>
+          <div className="flex shrink-0 flex-col gap-2">
+            <DetailSectionTitle>{t('agentDetail.about')}</DetailSectionTitle>
+            <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{agent.description}</p>
+          </div>
+          <DetailDivider />
+        </>
+      )}
+      <div className="flex flex-col gap-4">
+        <DetailSectionTitle>{t('agentDetail.connection')}</DetailSectionTitle>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>{t('agentDetail.endpoint')}</FieldLabel>
+          <p className="truncate text-base text-foreground">{acpEndpointLabel(agent)}</p>
         </div>
-        <DetailDivider />
-      </>
-    )}
-    <div className="flex flex-col gap-4">
-      <DetailSectionTitle>Connection</DetailSectionTitle>
-      <div className="flex flex-col gap-1">
-        <FieldLabel>Endpoint</FieldLabel>
-        <p className="truncate text-base text-foreground">{acpEndpointLabel(agent)}</p>
+        <p className="text-sm text-muted-foreground">{t('agentDetail.systemManaged')}</p>
       </div>
-      <p className="text-sm text-muted-foreground">Managed by your deployment — always available, no setup needed.</p>
-    </div>
-  </>
-)
+    </>
+  )
+}
 
 /** Management view for a user-connected custom agent: inline-editable
  *  configuration plus an on-demand connection test. */
@@ -274,6 +275,7 @@ const CustomBody = ({
   onUpdate: AgentDetailProps['onUpdate']
   testAcpConnection: NonNullable<AgentDetailProps['testAcpConnection']>
 }) => {
+  const { t } = useTranslation('settings')
   const [testResult, setTestResult] = useState<TestState>('idle')
   const [enabledError, setEnabledError] = useState<string | null>(null)
   const isWebSocket = agent.transport === 'websocket'
@@ -285,7 +287,7 @@ const CustomBody = ({
     } catch (error) {
       // The optimistic Switch reverts on the next render; say why.
       console.error('Failed to update agent enabled state', error)
-      setEnabledError("Couldn't update. Please try again.")
+      setEnabledError(t('agentDetail.updateError'))
     }
   }
 
@@ -304,17 +306,17 @@ const CustomBody = ({
   return (
     <>
       <div className="flex flex-col gap-4">
-        <DetailSectionTitle>Configuration</DetailSectionTitle>
+        <DetailSectionTitle>{t('agentDetail.configuration')}</DetailSectionTitle>
         <EditableField
           id="agent-detail-name"
-          label="Name"
+          label={t('agentDetail.name')}
           value={agent.name}
           isEditable={isEditable}
           onSave={(name) => onUpdate({ name })}
         />
         <EditableField
           id="agent-detail-endpoint"
-          label="Endpoint"
+          label={t('agentDetail.endpoint')}
           value={agent.url ?? ''}
           isEditable={isEditable}
           validate={(url) => {
@@ -337,24 +339,28 @@ const CustomBody = ({
         />
         <EditableField
           id="agent-detail-description"
-          label="Description"
+          label={t('agentDetail.description')}
           value={agent.description ?? ''}
           isEditable={isEditable}
           allowEmpty
-          placeholder="Optional"
+          placeholder={t('agentDetail.optional')}
           onSave={(description) => onUpdate({ description: description === '' ? null : description })}
         />
         {isEditable && (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-3">
               <div className="flex flex-col">
-                <FieldLabel>Enabled</FieldLabel>
-                <p className="text-sm text-muted-foreground">Disabled agents stay out of the chat agent picker.</p>
+                <FieldLabel>{t('agentDetail.enabled')}</FieldLabel>
+                <p className="text-sm text-muted-foreground">{t('agentDetail.enabledHelp')}</p>
               </div>
               <Switch
                 checked={agent.enabled === 1}
                 onCheckedChange={(next) => void handleEnabledChange(next)}
-                aria-label={agent.enabled === 1 ? `Disable ${agent.name}` : `Enable ${agent.name}`}
+                aria-label={
+                  agent.enabled === 1
+                    ? t('agentDetail.disableAgent', { name: agent.name })
+                    : t('agentDetail.enableAgent', { name: agent.name })
+                }
               />
             </div>
             {enabledError && (
@@ -369,7 +375,7 @@ const CustomBody = ({
       <DetailDivider />
 
       <div className="flex flex-col gap-3">
-        <DetailSectionTitle>Connection</DetailSectionTitle>
+        <DetailSectionTitle>{t('agentDetail.connection')}</DetailSectionTitle>
         {isWebSocket ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-3">
@@ -381,7 +387,7 @@ const CustomBody = ({
                 disabled={testResult === 'testing'}
                 className="bg-card"
               >
-                Test connection
+                {t('agentDetail.testConnection')}
               </Button>
             </div>
             {typeof testResult === 'object' && testResult.error && (
@@ -389,9 +395,7 @@ const CustomBody = ({
             )}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Peer-to-peer via iroh — the connection is verified when a chat starts.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('agentDetail.irohConnection')}</p>
         )}
       </div>
     </>
@@ -400,16 +404,17 @@ const CustomBody = ({
 
 /** The Status line's dot + label, derived from the last explicit test run. */
 const TestStatus = ({ result }: { result: TestState }) => {
+  const { t } = useTranslation('settings')
   if (result === 'testing') {
     return (
       <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
         <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-        Testing…
+        {t('agentDetail.testing')}
       </span>
     )
   }
   if (result === 'idle') {
-    return <span className="text-sm text-muted-foreground">Not tested</span>
+    return <span className="text-sm text-muted-foreground">{t('agentDetail.notTested')}</span>
   }
   return (
     <span
@@ -422,7 +427,9 @@ const TestStatus = ({ result }: { result: TestState }) => {
         className={cn('inline-block size-2 rounded-full', result.isReachable ? 'bg-green-500' : 'bg-destructive')}
         aria-hidden="true"
       />
-      {`${result.isReachable ? 'Reachable' : 'Unreachable'} ${dayjs(result.testedAt).fromNow()}`}
+      {result.isReachable
+        ? t('agentDetail.reachable', { time: dayjs(result.testedAt).fromNow() })
+        : t('agentDetail.unreachable', { time: dayjs(result.testedAt).fromNow() })}
     </span>
   )
 }

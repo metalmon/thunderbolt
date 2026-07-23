@@ -18,6 +18,7 @@ import type { DeleteAllChatsMutationType, DeleteChatMutationType } from '@/layou
 import { cn } from '@/lib/utils'
 import { CheckSquare, MessageCirclePlus } from 'lucide-react'
 import type { MouseEvent, RefObject } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { ChatList } from './chat-list'
 import { SidebarNavToggle } from './nav-toggle'
@@ -76,6 +77,7 @@ export const ChatSidebarContent = ({
 }: ChatSidebarContentProps) => {
   const { toggleSidebar } = useSidebar()
   const location = useLocation()
+  const { t } = useTranslation('chat')
 
   return (
     <SidebarContent className="flex flex-col h-full overflow-hidden">
@@ -94,24 +96,24 @@ export const ChatSidebarContent = ({
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={onCreateNewChat}
-                tooltip="New Chat"
+                tooltip={t('sidebar.newChat')}
                 className="cursor-pointer"
                 isActive={location.pathname === '/chats/new'}
               >
                 <MessageCirclePlus className="size-[var(--icon-size-default)]" />
-                <span>New Chat</span>
+                <span>{t('sidebar.newChat')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {showTasks && (
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={onTasksClick}
-                  tooltip="Tasks"
+                  tooltip={t('sidebar.tasks')}
                   className="cursor-pointer"
                   isActive={location.pathname.startsWith('/tasks')}
                 >
                   <CheckSquare className="size-[var(--icon-size-default)]" />
-                  <span>Tasks</span>
+                  <span>{t('sidebar.tasks')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
