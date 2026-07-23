@@ -16,7 +16,12 @@
     "noMatches": "No matches for \"{{query}}\"",
     "rename": "Rename",
     "renameTitle": "Rename chat",
-    "chatNamePlaceholder": "Chat name"
+    "chatNamePlaceholder": "Chat name",
+    "newChat": "New Chat",
+    "tasks": "Tasks",
+    "chats": "Chats",
+    "settings": "Settings",
+    "sections": "Sidebar sections"
   },
   "deleteChat": {
     "title": "Delete this chat?",
@@ -85,7 +90,14 @@
     "addToChat": "Add to chat",
     "addInstructionsToChat": "Add instructions to chat",
     "reorder": "Reorder",
-    "unpin": "Unpin"
+    "unpin": "Unpin",
+    "pinFailed": "Couldn't pin {{name}}.",
+    "unpinFailed": "Couldn't unpin {{name}}.",
+    "reorderFailed": "Couldn't save the new order.",
+    "searchSkills": "Search skills",
+    "allPinned": "All skills are pinned",
+    "noMatchingSkills": "No matching skills",
+    "newSkill": "New skill"
   },
   "messages": {
     "scrollToBottom": "Scroll to bottom",

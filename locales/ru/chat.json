@@ -16,7 +16,12 @@
     "noMatches": "Нет совпадений для «{{query}}»",
     "rename": "Переименовать",
     "renameTitle": "Переименовать чат",
-    "chatNamePlaceholder": "Название чата"
+    "chatNamePlaceholder": "Название чата",
+    "newChat": "Новый чат",
+    "tasks": "Задачи",
+    "chats": "Чаты",
+    "settings": "Настройки",
+    "sections": "Разделы боковой панели"
   },
   "deleteChat": {
     "title": "Удалить этот чат?",
@@ -85,7 +90,14 @@
     "addToChat": "Добавить в чат",
     "addInstructionsToChat": "Добавить инструкции в чат",
     "reorder": "Изменить порядок",
-    "unpin": "Открепить"
+    "unpin": "Открепить",
+    "pinFailed": "Не удалось закрепить {{name}}.",
+    "unpinFailed": "Не удалось открепить {{name}}.",
+    "reorderFailed": "Не удалось сохранить новый порядок.",
+    "searchSkills": "Поиск навыков",
+    "allPinned": "Все навыки закреплены",
+    "noMatchingSkills": "Нет подходящих навыков",
+    "newSkill": "Новый навык"
   },
   "messages": {
     "scrollToBottom": "Прокрутить вниз",
