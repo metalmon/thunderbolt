@@ -7,6 +7,7 @@ import { I18nProvider } from '@lingui/react'
 import { useLingui } from '@lingui/react/macro'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/query-client'
+import { ChatFontApplier } from '@/fork/typography/use-chat-font'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { PowerSyncContext } from '@powersync/react'
 
@@ -398,6 +399,7 @@ export const App = () => {
                           <ContentViewProvider>
                             <ExternalLinkDialogProvider>
                               <RecoveryContinuityProvider>
+                                <ChatFontApplier />
                                 <AppContent initData={initData} />
                                 {/* Catches every phrase that was minted but never
                                     confirmed — reload, crash, or a dialog that
