@@ -19,6 +19,15 @@ export type ChatFont = 'lora' | 'system'
 export const useChatFont = (): ChatFont =>
   useSettings({ chat_font: 'lora' }).chatFont.value === 'system' ? 'system' : 'lora'
 
+/** Chat prose size scale. 'medium' (default) is the comfortable base; 'small'/'large'
+ *  nudge the size down/up (see chat-font.css). Synced, not seeded — like chat_font. */
+export type ChatFontSize = 'small' | 'medium' | 'large'
+
+export const useChatFontSize = (): ChatFontSize => {
+  const value = useSettings({ chat_font_size: 'medium' }).chatFontSize.value
+  return value === 'small' ? 'small' : value === 'large' ? 'large' : 'medium'
+}
+
 /**
  * Mount once near the app root. Reflects the chat-font preference onto
  * `<html data-chat-font>`, which flips the `--font-chat` CSS var (see chat-font.css).
@@ -27,8 +36,10 @@ export const useChatFont = (): ChatFont =>
  */
 export const ChatFontApplier = (): null => {
   const font = useChatFont()
+  const size = useChatFontSize()
   useEffect(() => {
     document.documentElement.dataset.chatFont = font
-  }, [font])
+    document.documentElement.dataset.chatFontSize = size
+  }, [font, size])
   return null
 }
