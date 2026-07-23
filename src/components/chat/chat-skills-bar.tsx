@@ -121,7 +121,9 @@ export const ChatSkillsBar = ({
       dispatch({
         type: 'MUTATION_FAILED',
         message:
-          action === 'pin' ? `Couldn't pin ${skillDisplayName(skill)}.` : `Couldn't unpin ${skillDisplayName(skill)}.`,
+          action === 'pin'
+            ? t('skills.pinFailed', { ns: 'chat', name: skillDisplayName(skill) })
+            : t('skills.unpinFailed', { ns: 'chat', name: skillDisplayName(skill) }),
       })
     }
   }
@@ -147,7 +149,7 @@ export const ChatSkillsBar = ({
               trackSkillEvent('skill_reordered', move.id, { from_index: move.from, to_index: move.to })
             } catch (error) {
               console.error('reorderPins failed:', error)
-              dispatch({ type: 'MUTATION_FAILED', message: "Couldn't save the new order." })
+              dispatch({ type: 'MUTATION_FAILED', message: t('skills.reorderFailed', { ns: 'chat' }) })
             }
           }}
           onClose={() => dispatch({ type: 'REORDER_CLOSED' })}
@@ -244,8 +246,8 @@ export const ChatSkillsBar = ({
                   value={addQuery}
                   onChange={(e) => dispatch({ type: 'ADD_QUERY_CHANGED', value: e.target.value })}
                   inputSize="sm"
-                  placeholder="Search skills"
-                  aria-label="Search skills"
+                  placeholder={t('skills.searchSkills', { ns: 'chat' })}
+                  aria-label={t('skills.searchSkills', { ns: 'chat' })}
                   autoFocus={!isMobile}
                 />
               </div>
@@ -253,12 +255,12 @@ export const ChatSkillsBar = ({
             <ul className="max-h-64 overflow-y-auto">
               {pinnable.length === 0 && (
                 <li className="px-2 py-1.5 text-[length:var(--font-size-sm)] text-muted-foreground">
-                  All skills are pinned
+                  {t('skills.allPinned', { ns: 'chat' })}
                 </li>
               )}
               {pinnable.length > 0 && pinnableFiltered.length === 0 && (
                 <li className="px-2 py-1.5 text-[length:var(--font-size-sm)] text-muted-foreground">
-                  No matching skills
+                  {t('skills.noMatchingSkills', { ns: 'chat' })}
                 </li>
               )}
               {pinnableFiltered.map((skill) => (
@@ -303,7 +305,7 @@ export const ChatSkillsBar = ({
                 className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[length:var(--font-size-body)] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <Plus className="size-4" />
-                New skill
+                {t('skills.newSkill', { ns: 'chat' })}
               </button>
             </div>
           </PopoverContent>

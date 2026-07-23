@@ -949,7 +949,7 @@ export default function ModelsPage() {
       <PageHeader title={t('models.title')}>
         <Dialog open={isAddDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="bg-card" aria-label="Add model">
+            <Button variant="outline" size="icon" className="bg-card" aria-label={t('models.addModel')}>
               <Plus />
             </Button>
           </DialogTrigger>
@@ -1213,7 +1213,7 @@ export default function ModelsPage() {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="More" className={mutedIconButtonClass}>
+                        <Button variant="ghost" size="icon" aria-label={t('models.moreActions')} className={mutedIconButtonClass}>
                           <MoreVertical />
                         </Button>
                       </DropdownMenuTrigger>

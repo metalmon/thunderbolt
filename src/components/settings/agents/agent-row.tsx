@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
+
 import { iconForAgent } from '@/components/agent-icon'
 import { cn } from '@/lib/utils'
 import type { Agent } from '@/types/acp'
@@ -26,6 +28,7 @@ type AgentRowProps = {
  * state stays visible without a switch on the row.
  */
 export const AgentRow = ({ agent, isSelected, onOpen }: AgentRowProps) => {
+  const { t } = useTranslation('settings')
   const Icon = iconForAgent(agent)
   const disabled = agent.enabled !== 1
 
@@ -34,7 +37,7 @@ export const AgentRow = ({ agent, isSelected, onOpen }: AgentRowProps) => {
       testId={`agent-row-${agent.id}`}
       isSelected={isSelected}
       onOpen={() => onOpen(agent)}
-      ariaLabel={`Open ${agent.name}`}
+      ariaLabel={t('agentList.openAgent', { name: agent.name })}
       isDimmed={disabled}
       icon={
         // The logo reads slightly smaller than the lucide glyphs at equal
@@ -49,7 +52,7 @@ export const AgentRow = ({ agent, isSelected, onOpen }: AgentRowProps) => {
       subtitle={
         <>
           {agentProvenanceLine(agent)}
-          {disabled && ' · Disabled'}
+          {disabled && ` · ${t('agentList.disabled')}`}
         </>
       }
       chevronTestId={`agent-chevron-${agent.id}`}

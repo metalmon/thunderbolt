@@ -44,7 +44,7 @@ export const ChatActions = ({
         <TooltipTrigger asChild>
           <SidebarMenuButton
             onClick={() => deleteAllChatsDialogRef.current?.open()}
-            aria-label="Clear all chats"
+            aria-label={t('sidebar.clearAll')}
             className="w-fit pr-0 pl-0 aspect-square items-center justify-center cursor-pointer"
             disabled={deleteAllChatsMutation.isPending}
           >
