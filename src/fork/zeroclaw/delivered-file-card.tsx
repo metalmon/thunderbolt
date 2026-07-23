@@ -28,8 +28,14 @@ const downloadRef = async (ref: DeliveredFileRef): Promise<void> => {
   const anchor = document.createElement('a')
   anchor.href = url
   anchor.download = ref.filename
+  // The anchor MUST be in the DOM for a programmatic `.click()` to trigger a save in
+  // Tauri's WebView (a detached anchor silently no-ops there), and the object URL is
+  // revoked on the next macrotask — revoking synchronously cancels the download before
+  // the webview streams the blob to disk. Mirrors lib/export-download.ts#downloadJson.
+  document.body.appendChild(anchor)
   anchor.click()
-  URL.revokeObjectURL(url)
+  anchor.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
 /**
