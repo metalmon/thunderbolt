@@ -133,7 +133,7 @@ export const SuggestionChip = ({
       onSelect: onAddInstruction,
     },
     ...(onEdit
-      ? [{ label: t('skills.edit'), icon: <SquarePen className="size-[var(--icon-size-sm)]" />, onSelect: onEdit }]
+      ? [{ label: t('skills.editSkill'), icon: <SquarePen className="size-[var(--icon-size-sm)]" />, onSelect: onEdit }]
       : []),
     ...(onReorder
       ? [{ label: t('skills.reorder'), icon: <ListOrdered className="size-[var(--icon-size-sm)]" />, onSelect: onReorder }]

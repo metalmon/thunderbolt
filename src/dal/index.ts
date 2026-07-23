@@ -141,6 +141,7 @@ export {
   getSkillByName,
   getSkillsByIds,
   maxPinnedSkills,
+  maxSkillNameLength,
   PinLimitExceededError,
   reorderPins,
   setEnabled as setSkillEnabled,
