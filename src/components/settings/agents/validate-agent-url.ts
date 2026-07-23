@@ -34,18 +34,20 @@ const defaultIsTauriIOS = (): boolean => isTauri() && getPlatform() === 'ios'
 export const validateAgentUrl = (
   url: string,
   isIos: () => boolean = defaultIsTauriIOS,
-): { transport: CustomAgentTransport } | { error: string } => {
+  // `error` is an i18n key code (resolved as `agents.<code>` by the dialog); it must
+  // NOT be a sentence — i18next would split it on the `:`/`.` inside `wss://`.
+): { transport: CustomAgentTransport } | { error: 'urlInvalid' | 'iosRequiresWss' } => {
   const transport = inferTransport(url)
   if (!transport) {
     // ws:// is accepted too (except on iOS, below) for LAN/dev agents without
     // TLS — the copy leads with wss:// because that's what remote endpoints
     // should use.
-    return { error: 'Enter a wss:// or ws:// URL, or an iroh ticket' }
+    return { error: 'urlInvalid' }
   }
   // iroh dials QUIC over an encrypted relay (no cleartext) and its target isn't a
   // URL, so the iOS ATS guard only applies to a `ws://` WebSocket endpoint.
   if (transport === 'websocket' && isIos() && new URL(url).protocol === 'ws:') {
-    return { error: 'iOS requires a secure URL (wss://)' }
+    return { error: 'iosRequiresWss' }
   }
   return { transport }
 }

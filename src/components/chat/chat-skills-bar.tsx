@@ -203,7 +203,7 @@ export const ChatSkillsBar = ({
         {pinned.map((skill) => (
           <SuggestionChip
             key={skill.id}
-            label={translateDefaultField(t, 'skills', skill.id, 'name', skill.name)}
+            label={translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))}
             onClick={() => onAddToChat(skill.name)}
             onAddInstruction={() => onAddInstruction(skill.instruction)}
             onEdit={() => void navigate('/settings/skills', { state: { startEditSkill: skill.id } })}
@@ -281,7 +281,7 @@ export const ChatSkillsBar = ({
                     className="flex w-full cursor-pointer flex-col gap-0.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-accent"
                   >
                     <span className="truncate text-[length:var(--font-size-body)] text-foreground">
-                      /{translateDefaultField(t, 'skills', skill.id, 'name', skill.name)}
+                      /{translateDefaultField(t, 'skills', skill.id, 'name', skillDisplayName(skill))}
                     </span>
                     {skill.description && (
                       <span className="line-clamp-1 text-[length:var(--font-size-sm)] text-muted-foreground">
