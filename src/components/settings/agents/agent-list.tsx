@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
+
 import type { Agent } from '@/types/acp'
 import { SettingsSectionLabel } from '@/components/settings/settings-list'
 import { AgentRow } from './agent-row'
@@ -23,6 +25,7 @@ type AgentListProps = {
  * agents the labels are noise, so the rows render as one flat list.
  */
 export const AgentList = ({ agents, selectedId, onOpenAgent }: AgentListProps) => {
+  const { t } = useTranslation('settings')
   const systemAgents = agents.filter((a) => a.type !== 'built-in' && a.isSystem === 1)
   const yourAgents = agents.filter((a) => a.type === 'built-in' || a.isSystem !== 1)
   const showSections = systemAgents.length > 0 && yourAgents.length > 0
@@ -44,11 +47,11 @@ export const AgentList = ({ agents, selectedId, onOpenAgent }: AgentListProps) =
   return (
     <div className="flex flex-col gap-6" data-testid="agent-list">
       <section className="flex flex-col gap-2" data-testid="agent-section-yours">
-        <SettingsSectionLabel>Your agents</SettingsSectionLabel>
+        <SettingsSectionLabel>{t('agentList.yourAgents')}</SettingsSectionLabel>
         <div className="flex flex-col gap-4">{rows(yourAgents)}</div>
       </section>
       <section className="flex flex-col gap-2" data-testid="agent-section-system">
-        <SettingsSectionLabel>System agents</SettingsSectionLabel>
+        <SettingsSectionLabel>{t('agentList.systemAgents')}</SettingsSectionLabel>
         <div className="flex flex-col gap-4">{rows(systemAgents)}</div>
       </section>
     </div>
