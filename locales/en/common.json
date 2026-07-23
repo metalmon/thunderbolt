@@ -15,6 +15,7 @@
   "tryAgain": "Try again",
   "submit": "Submit",
   "goBack": "Go back",
+  "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
     "clearDatabase": "Clear Local Database",

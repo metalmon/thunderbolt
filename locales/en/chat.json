@@ -56,6 +56,12 @@
     "searchingWeb": "Searching the web…",
     "researching": "Researching…"
   },
+  "greeting": {
+    "upLate": "Up late?",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
   "mode": {
     "defaultBadge": "Default"
   },

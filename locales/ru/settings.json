@@ -47,8 +47,16 @@
     "preferredNamePlaceholder": "Ваше имя",
     "preferredNameDescription": "Как Thunderbolt будет к вам обращаться",
     "themeLight": "Светлая",
+    "themeLightAria": "Светлая тема",
     "themeDark": "Тёмная",
-    "themeSystem": "Системная"
+    "themeDarkAria": "Тёмная тема",
+    "themeSystem": "Системная",
+    "themeSystemAria": "Системная тема",
+    "chatFontSizeLabel": "Размер шрифта чата",
+    "chatFontSizeDescription": "Размер текста сообщений в чате.",
+    "chatFontSizeSmall": "Мелкий",
+    "chatFontSizeMedium": "Средний",
+    "chatFontSizeLarge": "Крупный"
   },
   "network": {
     "title": "Сеть",
@@ -359,6 +367,9 @@
   },
   "agents": {
     "title": "Агенты",
+    "provenanceBuiltIn": "Ваш агент · встроен в приложение",
+    "provenanceSystem": "Системный агент · всегда доступен",
+    "provenanceConnected": "Подключённый агент · {{endpoint}}",
     "addCustomAriaLabel": "Добавить своего агента",
     "builtIn": "Встроенные",
     "system": "Системные",

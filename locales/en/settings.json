@@ -16,8 +16,16 @@
     "preferredNamePlaceholder": "Your name",
     "preferredNameDescription": "How Thunderbolt salutes you",
     "themeLight": "Light",
+    "themeLightAria": "Light mode",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeDarkAria": "Dark mode",
+    "themeSystem": "System",
+    "themeSystemAria": "System theme",
+    "chatFontSizeLabel": "Chat font size",
+    "chatFontSizeDescription": "Text size for chat messages.",
+    "chatFontSizeSmall": "Small",
+    "chatFontSizeMedium": "Medium",
+    "chatFontSizeLarge": "Large"
   },
   "localization": {
     "title": "Localization",
@@ -357,6 +365,9 @@
   },
   "agents": {
     "title": "Agents",
+    "provenanceBuiltIn": "Your agent · built into the app",
+    "provenanceSystem": "System agent · always available",
+    "provenanceConnected": "Connected agent · {{endpoint}}",
     "addCustomAriaLabel": "Add Custom Agent",
     "builtIn": "Built-in",
     "system": "System",
