@@ -23,6 +23,12 @@ const themeOptions = [
     Icon: themeIcons.system,
     labelKey: 'preferences.themeSystem',
   },
+  {
+    value: 'paper',
+    ariaKey: 'preferences.themePaperAria',
+    Icon: themeIcons.paper,
+    labelKey: 'preferences.themePaper',
+  },
 ] as const
 
 export const ThemeToggleGroup = () => {
