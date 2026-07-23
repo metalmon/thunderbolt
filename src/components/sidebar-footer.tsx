@@ -15,6 +15,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import { type ReactNode, useState, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import dayjs from 'dayjs'
 import '@/lib/dayjs'
@@ -150,6 +151,7 @@ export const syncStatusText = (
 }
 
 export const SidebarFooter = ({ className }: SidebarFooterProps) => {
+  const { t } = useTranslation('common')
   const authClient = useAuth()
   const { isMobile, setOpenMobile, state } = useSidebar()
   const { openSignInModal } = useSignInModal()
