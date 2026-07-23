@@ -18,6 +18,7 @@ import type { DeleteAllChatsMutationType, DeleteChatMutationType } from '@/layou
 import { cn } from '@/lib/utils'
 import { CheckSquare, MessageCirclePlus } from 'lucide-react'
 import { type MouseEvent, type RefObject } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { ChatList } from './chat-list'
 import { SidebarNavToggle } from './nav-toggle'
@@ -55,14 +56,17 @@ type TasksMenuItemProps = {
   onClick: () => void
 }
 
-const TasksMenuItem = ({ isActive, onClick }: TasksMenuItemProps) => (
-  <SidebarMenuItem>
-    <SidebarMenuButton onClick={onClick} tooltip="Tasks" className="cursor-pointer" isActive={isActive}>
-      <CheckSquare className="size-[var(--icon-size-default)]" />
-      <span>Tasks</span>
-    </SidebarMenuButton>
-  </SidebarMenuItem>
-)
+const TasksMenuItem = ({ isActive, onClick }: TasksMenuItemProps) => {
+  const { t } = useTranslation('chat')
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton onClick={onClick} tooltip={t('sidebar.tasks')} className="cursor-pointer" isActive={isActive}>
+        <CheckSquare className="size-[var(--icon-size-default)]" />
+        <span>{t('sidebar.tasks')}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  )
+}
 
 export const ChatSidebarContent = ({
   isMobile,
@@ -88,6 +92,7 @@ export const ChatSidebarContent = ({
   onSearchClick,
   onSearchQueryChange,
 }: ChatSidebarContentProps) => {
+  const { t } = useTranslation('chat')
   const { toggleSidebar } = useSidebar()
   const location = useLocation()
 
@@ -111,12 +116,12 @@ export const ChatSidebarContent = ({
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={onCreateNewChat}
-                  tooltip="New Chat"
+                  tooltip={t('sidebar.newChat')}
                   className="cursor-pointer"
                   isActive={location.pathname === '/chats/new'}
                 >
                   <MessageCirclePlus className="size-[var(--icon-size-default)]" />
-                  <span>New Chat</span>
+                  <span>{t('sidebar.newChat')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {showTasks && <TasksMenuItem isActive={location.pathname.startsWith('/tasks')} onClick={onTasksClick} />}

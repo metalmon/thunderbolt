@@ -13,6 +13,9 @@
     "searchPlaceholder": "Search chats...",
     "search": "Search chats",
     "clearAll": "Clear all chats",
+    "newChat": "New Chat",
+    "tasks": "Tasks",
+    "sections": "Sidebar sections",
     "noMatches": "No matches for \"{{query}}\"",
     "rename": "Rename",
     "renameTitle": "Rename chat",
@@ -85,7 +88,13 @@
     "addToChat": "Add to chat",
     "addInstructionsToChat": "Add instructions to chat",
     "reorder": "Reorder",
-    "unpin": "Unpin"
+    "unpin": "Unpin",
+    "reorderFailed": "Couldn't save the new order.",
+    "addASkill": "Add a skill",
+    "searchSkills": "Search skills",
+    "allPinned": "All skills are pinned",
+    "noMatchingSkills": "No matching skills",
+    "newSkill": "New Skill"
   },
   "messages": {
     "scrollToBottom": "Scroll to bottom",

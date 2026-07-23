@@ -120,14 +120,14 @@ export const SkillForm = ({
           <Input
             id="skill-label"
             ref={nameInputRef}
-            placeholder={t('skills.nameLabelPlaceholder')}
+            placeholder={t('skills.labelPlaceholder')}
             value={label}
             onChange={(e) => handleLabelChange(e.target.value)}
             className="md:h-9"
           />
           <div className="mt-1 flex flex-col gap-2">
             <label htmlFor="skill-slug" className="text-base text-foreground">
-              {t('skills.slugLabel')}
+              {t('skills.slug')}
             </label>
             <Input
               id="skill-slug"
