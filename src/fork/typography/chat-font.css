@@ -1,0 +1,47 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Fork-owned (metalmon). New file — do not upstream.
+ * Chat reading font. The bundled serif is Plantin Cyr MT (Latin + Cyrillic); it is
+ * surfaced in the UI as "Lora" (see chat-font-toggle). Applied to the chat prose
+ * container via `font-family: var(--font-chat)` (MemoizedMarkdown seam). */
+
+@font-face {
+  font-family: 'Plantin Cyr MT';
+  src: url('./fonts/plantin-cyr.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plantin Cyr MT';
+  src: url('./fonts/plantin-cyr-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plantin Cyr MT';
+  src: url('./fonts/plantin-cyr-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plantin Cyr MT';
+  src: url('./fonts/plantin-cyr-bolditalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Default (and the "lora" setting) = the serif, so the app's default matches the
+ * shipped default preference with no flash. `[data-chat-font="system"]` (set by
+ * ChatFontApplier from the synced setting) falls back to the app's sans stack. */
+:root {
+  --font-chat: 'Plantin Cyr MT', Georgia, 'Times New Roman', serif;
+}
+:root[data-chat-font='system'] {
+  --font-chat: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+}
