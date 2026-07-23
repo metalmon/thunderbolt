@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, m } from 'framer-motion'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useChatScrollHandler } from '@/chats/use-chat-scroll-handler'
 import { ChatMessages } from './chat-messages'
 import { ChatPromptInput } from './chat-prompt-input'
@@ -16,13 +17,14 @@ import { statusOnlyThrottleMs } from '@/chats/chat-throttle'
 import { useChatAutomation } from '@/chats/use-chat-automation'
 import { ScrollToBottomButton } from './scroll-to-bottom-button'
 import { AppLogo } from '../app-logo'
-import { getGreeting } from './chat-ui-greeting'
+import { getGreetingKey } from './chat-ui-greeting'
 
 const EmptyChatGreeting = () => {
+  const { t } = useTranslation('chat')
   return (
     <div className="flex items-center gap-5">
       <AppLogo size={72} className="opacity-60" />
-      <span className="font-heading text-3xl font-medium text-muted-foreground">{getGreeting()}</span>
+      <span className="font-heading text-3xl font-medium text-muted-foreground">{t(getGreetingKey())}</span>
     </div>
   )
 }

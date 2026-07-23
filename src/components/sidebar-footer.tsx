@@ -244,7 +244,7 @@ export const SidebarFooter = ({ className, navToggle }: SidebarFooterProps) => {
       return (
         <button type="button" className={pillClassName(true)} onClick={handleSignInClick}>
           {stateIcon}
-          <span className="truncate">Sign in</span>
+          <span className="truncate">{t('signIn')}</span>
         </button>
       )
     }
@@ -267,7 +267,7 @@ export const SidebarFooter = ({ className, navToggle }: SidebarFooterProps) => {
   const collapsedButtonClass =
     'flex size-[var(--touch-height-default)] cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-sidebar-accent'
   const collapsedControl = !user ? (
-    <button type="button" aria-label="Sign in" className={collapsedButtonClass} onClick={handleSignInClick}>
+    <button type="button" aria-label={t('signIn')} className={collapsedButtonClass} onClick={handleSignInClick}>
       {stateIcon}
     </button>
   ) : (
