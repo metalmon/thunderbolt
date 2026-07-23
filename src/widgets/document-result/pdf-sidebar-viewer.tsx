@@ -45,6 +45,22 @@ type DocumentPreviewProps = {
 const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPreviewProps) => {
   const { close } = useContentView()
   const [numPages, setNumPages] = useState<number | null>(null)
+  // Render each PDF page at the live width of the scroll container so the
+  // document scales proportionally as the side panel is resized. `contentRect`
+  // is the content box (padding already excluded), i.e. exactly the room a
+  // page has. Callback ref + ResizeObserver (with React 19 ref cleanup) avoids
+  // an effect and re-attaches automatically when the ready-state div mounts.
+  const [pageWidth, setPageWidth] = useState<number | null>(null)
+  const measureRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) {
+      return
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      setPageWidth(Math.floor(entry.contentRect.width))
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   const blobUrl = state.status === 'ready' ? state.blobUrl : null
 
@@ -98,13 +114,13 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
       )}
 
       {state.status === 'ready' && (
-        <div className="flex-1 overflow-auto p-4">
+        <div ref={measureRef} className="flex-1 overflow-auto p-4">
           {fileType === 'pdf' && (
             <Document file={state.blobUrl} onLoadSuccess={onDocumentLoadSuccess} loading={null}>
               {numPages &&
                 Array.from({ length: numPages }, (_, i) => (
                   <div key={i + 1} data-page-number={i + 1}>
-                    <Page pageNumber={i + 1} width={500} className="mb-4" />
+                    <Page pageNumber={i + 1} width={pageWidth ?? 500} className="mb-4" />
                   </div>
                 ))}
             </Document>
