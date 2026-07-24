@@ -41,7 +41,13 @@ export default function Page() {
   // A route that hosts the view itself (`/apps/`) leaves this aside collapsed.
   const drawsDesktopPanel = !isMobile && !routeHostsContentView(pathname)
   const isDesktopPanelOpen = isOpen && drawsDesktopPanel
-  const prevIsDesktopPanelOpen = useRef(isDesktopPanelOpen)
+  // Seed to `false`, not the current open state: this layout unmounts when navigating to
+  // Settings and remounts on return, while the content-view state (held above
+  // the router) stays open. Seeding to the current open state made the size
+  // effect below see "no change" on remount, so the panel rendered at its 0%
+  // defaultSize and had to be dragged back open. Seeding false makes a
+  // remount-with-open run the open path and size the panel to the saved width.
+  const prevIsDesktopPanelOpen = useRef(false)
   const lastSavedWidth = useRef<number | null>(null)
 
   useEffect(() => {
