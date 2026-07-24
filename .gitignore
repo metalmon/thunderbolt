@@ -31,6 +31,9 @@ dist-fork
 # Fork: track the non-secret production build flags (waitlist bypass, anonymous auth, backend URL)
 !.env.production
 
+# Fork: git-ignored demo secrets (OpenRouter key); .example template is tracked
+powersync-service/openrouter.env
+
 # Kubernetes secrets (use secrets.yaml.example as template)
 secrets.yaml
 # Helm chart secrets template is safe to track (contains only template references, not actual secrets)
