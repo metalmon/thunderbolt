@@ -14,6 +14,15 @@ by `dev-local/rebuild-master.ps1`.
 |---|---|---|
 | `PUBLIC_URL` | `http://localhost:3000` | Public origin the demo is served from. Set to your tunnel URL for external access. Drives `APP_URL`, `BETTER_AUTH_URL`, `TRUSTED_ORIGINS`, `CORS_ORIGINS`, and `POWERSYNC_URL` for the compose backend. |
 | `WEB_PORT` | `3000` | Host port the web container's nginx (`:80`) is published on. |
+| `OPENROUTER_API_KEYS` | _(empty)_ | Comma-separated OpenRouter API keys for the free system models. The backend injects them server-side and rotates on rate-limit. Use keys from **different OpenRouter accounts** for the free-tier limit to actually multiply. Empty ⇒ the models return 503 on use. |
+| `OPENROUTER_FREE_RPM` | `10` | Per-user requests/minute cap on the free models (in-memory throttle). |
+
+## Free models (OpenRouter)
+
+Anonymous demo users chat with four free OpenRouter models (Nemotron 3 Super/Ultra,
+Gemma 4 31B, Nemotron Nano 9B) via a backend-held key — no BYOK. Set
+`OPENROUTER_API_KEYS` in `backend/.env` before starting the stack. Real users can
+still add their own BYOK models. Per-user throttle is `OPENROUTER_FREE_RPM`.
 
 ## Local
 
