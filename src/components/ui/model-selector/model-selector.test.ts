@@ -113,6 +113,28 @@ describe('needsApiKey', () => {
     expect(needsApiKey(model)).toBe(false)
   })
 
+  test('system openrouter rows do not need a key (injected by backend proxy)', () => {
+    const model = makeModel({
+      id: 'openrouter-system',
+      name: 'Nemotron 3 Super',
+      provider: 'openrouter',
+      isSystem: 1,
+      apiKey: null,
+    })
+    expect(needsApiKey(model)).toBe(false)
+  })
+
+  test('user-added openrouter rows without a key still need one', () => {
+    const model = makeModel({
+      id: 'openrouter-byok-missing',
+      name: 'My OpenRouter',
+      provider: 'openrouter',
+      isSystem: 0,
+      apiKey: null,
+    })
+    expect(needsApiKey(model)).toBe(true)
+  })
+
   test('user-added tinfoil rows with a key do not need one', () => {
     const model = makeModel({
       id: 'tinfoil-byok-ok',
