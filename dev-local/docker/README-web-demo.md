@@ -48,6 +48,22 @@ PUBLIC_URL=https://demo.example.tld \
 same-origin and reachable through the single tunnel. Magic-link URLs logged by
 the backend point at `PUBLIC_URL` and are clickable end-to-end.
 
+## Web search + scrape (Phase 3)
+
+The demo's web **search** runs on a self-hosted **SearXNG** (free JSON search, no
+keys) and page **fetch/scrape** on the self-hosted **Firecrawl Simple** fork.
+When `SEARXNG_URL` / `FIRECRAWL_URL` are set (in `openrouter.env`), the backend
+routes `/v1/search` and `fetch_content` there; unset ⇒ it falls back to Exa.
+
+- **SearXNG** — `searxng/searxng` image + `searxng/settings.yml` (JSON output on).
+- **Firecrawl** — 4 services (`firecrawl-api`, `-worker`, `-redis`, `-puppeteer`).
+  Images are built locally from `E:\firecrawl-simple`:
+  `docker compose -f E:/firecrawl-simple/docker-compose.yaml build`
+  (tags `trieve/firecrawl` + `trieve/puppeteer-service-ts`). Phase 3a will
+  publish these to `ghcr.io/metalmon` and swap the `image:` refs so no local
+  build is needed.
+- `FIRECRAWL_TOKEN` is any UUID — Firecrawl Simple only validates the format.
+
 ## Notes / limitations
 
 - This backend is now configured for the web origin (`BETTER_AUTH_URL=PUBLIC_URL`).
