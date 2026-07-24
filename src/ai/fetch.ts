@@ -406,6 +406,37 @@ export const createModel = async (modelConfig: Model, getProxyFetch: () => Fetch
       return openaiCompatible(modelConfig.model)
     }
     case 'openrouter': {
+      if (modelConfig.isSystem) {
+        // Fork: system OpenRouter models proxy through the backend, which injects
+        // the server key (rotating across a pool). Placeholder apiKey satisfies
+        // the SDK; the wrapped fetch carries the real Thunderbolt session token
+        // so the route's auth guard passes (Bearer for token auth, cookies for
+        // SSO web). No HPKE client (unlike Tinfoil) — plain OpenAI-compatible.
+        const cloudUrl = getLocalSetting('cloudUrl')
+        const sso = isSsoMode()
+        const token = getAuthToken()
+        const wrappedFetch: typeof fetch = Object.assign(
+          async (input: RequestInfo | URL, init?: RequestInit) => {
+            const headers = new Headers(init?.headers)
+            const upstreamInit: RequestInit = { ...init, headers }
+            if (sso && !token) {
+              upstreamInit.credentials = 'include'
+              headers.delete('authorization')
+            } else if (token) {
+              headers.set('Authorization', `Bearer ${token}`)
+            }
+            return fetch(input, upstreamInit)
+          },
+          { preconnect: fetch.preconnect },
+        )
+        const openrouterSystem = createOpenAICompatible({
+          name: 'openrouter',
+          baseURL: `${cloudUrl}/openrouter`,
+          apiKey: 'thunderbolt-managed',
+          fetch: wrappedFetch,
+        })
+        return openrouterSystem(modelConfig.model)
+      }
       const conn = resolveOpenAiCompatConnection(modelConfig, getProxyFetch)
       if (!conn) {
         throw new Error('No API key provided')
