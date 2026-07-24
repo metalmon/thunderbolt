@@ -4,7 +4,11 @@
 
 export {
   defaultModelProfileDeepseekV4Flash,
+  defaultModelProfileGemma431b,
   defaultModelProfileGlm52,
+  defaultModelProfileNemotron3Super,
+  defaultModelProfileNemotron3Ultra,
+  defaultModelProfileNemotronNano9b,
   defaultModelProfileOpus48,
   defaultModelProfiles,
   hashModelProfile,
