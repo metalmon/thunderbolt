@@ -55,11 +55,21 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
     if (!node) {
       return
     }
+    // Coalesce the burst of callbacks fired while the panel opens (framer
+    // animates its width frame-by-frame) or is dragged: committing the width on
+    // every frame re-rasterises every react-pdf page and is what made resizing
+    // janky. Debounce to the settled width so pages re-render once, at rest.
+    let settle: ReturnType<typeof setTimeout> | undefined
     const observer = new ResizeObserver(([entry]) => {
-      setPageWidth(Math.floor(entry.contentRect.width))
+      const width = Math.floor(entry.contentRect.width)
+      clearTimeout(settle)
+      settle = setTimeout(() => setPageWidth(width), 120)
     })
     observer.observe(node)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      clearTimeout(settle)
+    }
   }, [])
 
   const blobUrl = state.status === 'ready' ? state.blobUrl : null
