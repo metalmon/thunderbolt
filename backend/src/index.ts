@@ -32,6 +32,7 @@ import { createPostHogRoutes } from '@/posthog/routes'
 import { createProToolsRoutes } from '@/pro/routes'
 import { createTinfoilKeepWarm } from '@/tinfoil/keep-warm'
 import { createTinfoilRoutes } from '@/tinfoil/routes'
+import { createOpenrouterRoutes } from '@/fork/openrouter/routes'
 import { createWaitlistRoutes } from '@/waitlist/routes'
 import { createAccountRoutes } from '@/api/account'
 import { createAgentsRoutes } from '@/agents'
@@ -146,6 +147,7 @@ export const createApp = async (deps?: AppDeps) => {
           rateLimit: createInferenceReceiptRateLimit(database, rateLimitSettings),
         }),
       )
+      .use(createOpenrouterRoutes({ auth, fetchFn, rateLimit: proRateLimit }))
       .use(
         createUniversalProxyWsRoutes({
           auth,
