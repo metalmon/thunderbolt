@@ -5,6 +5,7 @@
 import type { Auth } from '@/auth/elysia-plugin'
 import { createAuthMacro } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
+import { forkSearxngSearch, getSearxngUrl } from '@/fork/search/searxng'
 import { getExaClient } from '@/pro/exa'
 import { ensureHttps } from '@/utils/url-validation'
 import { deriveFaviconUrl } from '@shared/url'
@@ -39,6 +40,11 @@ export const createSearchRoutes = (auth: Auth, rateLimit?: AnyElysia, deps: Sear
       return g.get(
         '/search',
         async ({ query, set }): Promise<SearchResponseDto | { error: string }> => {
+          // Fork: self-hosted SearXNG when configured; else fall through to Exa.
+          if (getSearxngUrl()) {
+            return { results: await forkSearxngSearch(query.q, query.limit) }
+          }
+
           const client = deps.exaClient ?? getExaClient()
           if (!client) {
             set.status = 503
