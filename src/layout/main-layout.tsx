@@ -30,7 +30,13 @@ export default function Page() {
     content_view_width: Number,
   })
   const isOpen = state.type !== null
-  const prevIsOpen = useRef(isOpen)
+  // Seed to `false`, not `isOpen`: this layout unmounts when navigating to
+  // Settings and remounts on return, while the content-view state (held above
+  // the router) stays open. Seeding to the current open state made the size
+  // effect below see "no change" on remount, so the panel rendered at its 0%
+  // defaultSize and had to be dragged back open. Seeding false makes a
+  // remount-with-open run the open path and size the panel to the saved width.
+  const prevIsOpen = useRef(false)
   const lastSavedWidth = useRef<number | null>(null)
 
   useEffect(() => {
