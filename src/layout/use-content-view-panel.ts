@@ -18,7 +18,13 @@ type ContentViewPanelOptions = {
 
 /** Animate panel visibility while persisting only settled user layout changes. */
 export const useContentViewPanel = ({ isOpen, panelRef, savedWidth, saveWidth }: ContentViewPanelOptions) => {
-  const previousOpen = useRef(isOpen)
+  // Fork: seeded to `false`, not the current open state. The chat layout unmounts when
+  // navigating to Settings and remounts on return, while the content-view state (held
+  // above the router) stays open. Seeding to the current state made the size effect see
+  // "no change" on remount, so the panel rendered at its 0% defaultSize and had to be
+  // dragged back open. Seeding false makes a remount-with-open run the open path and
+  // size the panel to the saved width.
+  const previousOpen = useRef(false)
   const isAnimating = useRef(false)
   const lastSettledWidth = useRef(savedWidth)
   const pendingWidth = useRef<{ width: number } | null>(null)
