@@ -52,7 +52,7 @@ describe('createOpenrouterRoutes', () => {
       }),
     )
 
-  const post = (app: Elysia) =>
+  const post = (app: ReturnType<typeof build>) =>
     app.handle(
       new Request('http://localhost/openrouter/chat/completions', {
         method: 'POST',
