@@ -39,6 +39,11 @@ services:
       CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
       AUTH_ALLOW_ANONYMOUS: "true"
+      # Free OpenRouter models for the demo (server-side key, rotated). Comma-
+      # separated keys; ideally from DIFFERENT OpenRouter accounts so the
+      # per-account free-tier limit actually multiplies. Empty ⇒ models 503 on use.
+      OPENROUTER_API_KEYS: ${OPENROUTER_API_KEYS:-}
+      OPENROUTER_FREE_RPM: ${OPENROUTER_FREE_RPM:-10}
     ports:
       - 8000:8000
 
