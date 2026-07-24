@@ -29,7 +29,7 @@ describe('forkFirecrawlScrape', () => {
     process.env.FIRECRAWL_TOKEN = '11111111-1111-4111-8111-111111111111'
     const fetchFn = mock(() => Promise.resolve(scrapeResponse('# Hello world')))
     const res = await forkFirecrawlScrape('https://x/y', 16000, fetchFn as unknown as typeof fetch)
-    const [url, init] = fetchFn.mock.calls[0] as [string, RequestInit]
+    const [url, init] = fetchFn.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toBe('http://fc:3002/v1/scrape')
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer 11111111-1111-4111-8111-111111111111')
     expect(JSON.parse(init.body as string).formats).toEqual(['markdown'])
