@@ -4,6 +4,7 @@
 
 @import 'tailwindcss';
 @import './fork/typography/chat-font.css';
+@import './fork/perf/message-perf.css';
 
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
