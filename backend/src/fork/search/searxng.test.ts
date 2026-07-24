@@ -25,7 +25,7 @@ describe('forkSearxngSearch', () => {
       Promise.resolve(jsonResults([{ url: 'https://a.com/p', title: 'A', img_src: 'https://a.com/i.png' }])),
     )
     const out = await forkSearxngSearch('cats', 10, fetchFn as unknown as typeof fetch)
-    const [url] = fetchFn.mock.calls[0] as [string]
+    const [url] = fetchFn.mock.calls[0] as unknown as [string]
     expect(url).toContain('http://searxng:8080/search?q=cats')
     expect(url).toContain('format=json')
     expect(out[0]).toEqual({
