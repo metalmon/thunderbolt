@@ -7,10 +7,22 @@ import type { ModelProfile } from '@/types'
 import { defaultModelProfileGlm53Flash } from './glm-flash'
 import { defaultModelProfileGlm53 } from './glm'
 import { defaultModelProfileOpus5 } from './opus'
+import {
+  defaultModelProfileGemma431b,
+  defaultModelProfileNemotron3Super,
+  defaultModelProfileNemotron3Ultra,
+  defaultModelProfileNemotronNano9b,
+} from './openrouter'
 
 export { defaultModelProfileGlm53Flash } from './glm-flash'
 export { defaultModelProfileGlm53 } from './glm'
 export { defaultModelProfileOpus5 } from './opus'
+export {
+  defaultModelProfileGemma431b,
+  defaultModelProfileNemotron3Super,
+  defaultModelProfileNemotron3Ultra,
+  defaultModelProfileNemotronNano9b,
+} from './openrouter'
 
 /**
  * Compute hash of user-editable fields for a model profile.
@@ -46,4 +58,7 @@ export const defaultModelProfiles: ReadonlyArray<ModelProfile> = [
   defaultModelProfileOpus5,
   defaultModelProfileGlm53Flash,
   defaultModelProfileGlm53,
+  defaultModelProfileNemotron3Super,
+  defaultModelProfileNemotron3Ultra,
+  defaultModelProfileNemotronNano9b,
 ] as const
