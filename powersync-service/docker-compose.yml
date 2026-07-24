@@ -1,4 +1,18 @@
 services:
+  web:
+    restart: unless-stopped
+    # Fork web container: builds the frontend (demo/consumer/anonymous flags) and
+    # serves it via nginx same-origin proxy for /v1 and /powersync. See
+    # dev-local/docker/README-web-demo.md.
+    build:
+      context: ../
+      dockerfile: dev-local/docker/web.Dockerfile
+    depends_on:
+      - backend
+      - powersync
+    ports:
+      - "${WEB_PORT:-3000}:80"
+
   backend:
     restart: unless-stopped
     depends_on:
@@ -13,9 +27,18 @@ services:
     environment:
       # backend/.env points at the host-mapped localhost:5433, unreachable from
       # inside the compose network — use the service-name host instead.
-      # POWERSYNC_URL stays localhost:8080: it's returned to the client, which
-      # connects from the host.
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
+      # Web-demo origin. All auth/callback/CORS/PowerSync URLs derive from
+      # ${PUBLIC_URL} so the SPA, /v1, and /powersync are same-origin behind one
+      # tunnel. Default localhost:3000 for local use; set PUBLIC_URL to the tunnel
+      # URL for external access. POWERSYNC_URL is returned to the browser, so it
+      # must be the public origin (not the internal service host).
+      APP_URL: ${PUBLIC_URL:-http://localhost:3000}
+      BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3000}
+      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
+      POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
+      AUTH_ALLOW_ANONYMOUS: "true"
     ports:
       - 8000:8000
 
