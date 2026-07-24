@@ -105,6 +105,18 @@ describe('createOpenrouterRoutes', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
+  it('round-robins keys across successive successful requests', async () => {
+    const seen: (string | null)[] = []
+    mockFetch.mockImplementation((_url: string, init: RequestInit) => {
+      seen.push((init.headers as Headers).get('authorization'))
+      return Promise.resolve(ok())
+    })
+    const app = build({ apiKeys: ['k1', 'k2'], now: () => 1000 })
+    await drain(await post(app))
+    await drain(await post(app))
+    expect(seen).toEqual(['Bearer k1', 'Bearer k2'])
+  })
+
   it('returns 429 when every key is rate-limited', async () => {
     mockFetch.mockImplementation(() => Promise.resolve(status(429)))
     const res = await drain(await post(build({ apiKeys: ['k1', 'k2'], now: () => 1000 })))
