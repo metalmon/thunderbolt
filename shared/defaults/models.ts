@@ -163,10 +163,103 @@ export const defaultModelGlm52: SharedModel = {
  * Retired in V5: direct Flash (`019f227e-d640-727d-ba12-d51bd7d0a3d6`),
  * replaced by confidential Flash under a fresh id with the same cleanup policy.
  */
+/**
+ * Fork (metalmon) free-tier catalog. These replace the upstream defaults in the
+ * picker: they are served through the backend's server-side OpenRouter key
+ * (backend/src/fork/openrouter/routes.ts) so anonymous demo users chat without
+ * bringing their own key. All `provider:'openrouter', isSystem:1` under fresh
+ * ids — the reconciler freezes `provider`, so a new provider ships a new id.
+ * The upstream consts above stay exported (referenced by automations/eval) but
+ * are dropped from `defaultModels`, so reconcile soft-deletes their rows.
+ */
+export const defaultModelNemotron3Super: SharedModel = {
+  id: '38e10634-2fbc-4323-b86d-3a5a6c0ca824',
+  name: 'Nemotron 3 Super',
+  provider: 'openrouter',
+  model: 'nvidia/nemotron-3-super-120b-a12b:free',
+  isSystem: 1,
+  enabled: 1,
+  isConfidential: 0,
+  contextWindow: 262144,
+  toolUsage: 1,
+  startWithReasoning: 0,
+  supportsParallelToolCalls: 0,
+  deletedAt: null,
+  url: null,
+  defaultHash: null,
+  vendor: 'nvidia',
+  description: 'Free via OpenRouter — NVIDIA Nemotron 3 Super (120B)',
+  userId: null,
+}
+
+export const defaultModelNemotron3Ultra: SharedModel = {
+  id: 'd30990db-4d18-4713-8b08-ca8cabd206bb',
+  name: 'Nemotron 3 Ultra',
+  provider: 'openrouter',
+  model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+  isSystem: 1,
+  enabled: 1,
+  isConfidential: 0,
+  contextWindow: 1000000,
+  toolUsage: 1,
+  startWithReasoning: 0,
+  supportsParallelToolCalls: 0,
+  deletedAt: null,
+  url: null,
+  defaultHash: null,
+  vendor: 'nvidia',
+  description: 'Free via OpenRouter — NVIDIA Nemotron 3 Ultra (550B, 1M ctx)',
+  userId: null,
+}
+
+export const defaultModelGemma431b: SharedModel = {
+  id: '8a86bbe0-42a2-444c-aacf-7a8448262bb4',
+  name: 'Gemma 4 31B',
+  provider: 'openrouter',
+  model: 'google/gemma-4-31b-it:free',
+  isSystem: 1,
+  enabled: 1,
+  isConfidential: 0,
+  contextWindow: 262144,
+  toolUsage: 1,
+  startWithReasoning: 0,
+  supportsParallelToolCalls: 0,
+  deletedAt: null,
+  url: null,
+  defaultHash: null,
+  vendor: 'google',
+  description: 'Free via OpenRouter — Google Gemma 4 (31B)',
+  userId: null,
+}
+
+export const defaultModelNemotronNano9b: SharedModel = {
+  id: 'b4db7251-0475-45bb-8dfa-05dbbaa961ca',
+  name: 'Nemotron Nano 9B',
+  provider: 'openrouter',
+  model: 'nvidia/nemotron-nano-9b-v2:free',
+  isSystem: 1,
+  enabled: 1,
+  isConfidential: 0,
+  contextWindow: 128000,
+  toolUsage: 1,
+  startWithReasoning: 0,
+  supportsParallelToolCalls: 0,
+  deletedAt: null,
+  url: null,
+  defaultHash: null,
+  vendor: 'nvidia',
+  description: 'Free via OpenRouter — NVIDIA Nemotron Nano (9B)',
+  userId: null,
+}
+
 export const defaultModels: ReadonlyArray<SharedModel> = [
   defaultModelOpus5,
   defaultModelDeepseekV4Flash,
   defaultModelGlm52,
+  defaultModelNemotron3Super,
+  defaultModelNemotron3Ultra,
+  defaultModelGemma431b,
+  defaultModelNemotronNano9b,
 ] as const
 
 /**
