@@ -61,22 +61,31 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
   const cooldownUntil = new Map<string, number>()
   const buckets = new Map<string, { tokens: number; last: number }>()
   let roundRobin = 0
+  let lastSweep = now()
 
-  const availableKeys = (): string[] => {
+  /** Round-robin over the FULL key pool, then drop keys still in cooldown — so
+   *  the rotation index maps to stable per-key ordering regardless of which
+   *  keys are currently cooling down. */
+  const rotateAvailable = (): string[] => {
+    if (keys.length === 0) return []
     const t = now()
-    return keys.filter((k) => (cooldownUntil.get(k) ?? 0) <= t)
-  }
-
-  const rotate = (arr: string[]): string[] => {
-    if (arr.length === 0) return arr
-    const start = roundRobin++ % arr.length
-    return arr.map((_, i) => arr[(start + i) % arr.length])
+    const start = roundRobin++ % keys.length
+    return keys.map((_, i) => keys[(start + i) % keys.length]).filter((k) => (cooldownUntil.get(k) ?? 0) <= t)
   }
 
   const takeToken = (userId: string): boolean => {
     const cap = Math.max(1, freeRpm)
     const perMs = cap / REFILL_WINDOW_MS
     const t = now()
+    // Bound memory on a public demo: a bucket untouched for a full refill window
+    // has returned to cap and carries no state — sweep those out periodically so
+    // the map tracks only recently-active users, not every anonymous visitor.
+    if (t - lastSweep >= REFILL_WINDOW_MS) {
+      for (const [uid, bk] of buckets) {
+        if (t - bk.last >= REFILL_WINDOW_MS) buckets.delete(uid)
+      }
+      lastSweep = t
+    }
     const b = buckets.get(userId) ?? { tokens: cap, last: t }
     b.tokens = Math.min(cap, b.tokens + (t - b.last) * perMs)
     b.last = t
@@ -119,10 +128,12 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
     const method = request.method.toUpperCase()
     if (!allowedMethods.has(method)) return textResponse(405, 'Method not allowed')
     if (keys.length === 0) return textResponse(503, 'OpenRouter provider not configured')
-    if (!takeToken(userId)) return textResponse(429, 'Rate limit exceeded', { 'Retry-After': '60' })
 
-    const avail = availableKeys()
-    if (avail.length === 0) return textResponse(429, 'All keys rate-limited', { 'Retry-After': '60' })
+    // Pick keys before spending a throttle token, so a global cooldown storm
+    // doesn't also drain the user's per-minute budget for a request that 429s.
+    const ordered = rotateAvailable()
+    if (ordered.length === 0) return textResponse(429, 'All keys rate-limited', { 'Retry-After': '60' })
+    if (!takeToken(userId)) return textResponse(429, 'Rate limit exceeded', { 'Retry-After': '60' })
 
     const subpath = wildcard.startsWith('/') ? wildcard : `/${wildcard}`
     const search = new URL(request.url).search
@@ -132,8 +143,7 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
     const body = bodylessMethods.has(method) ? null : await request.arrayBuffer()
     const headers = buildHeaders(request)
 
-    let lastFailover: Response | null = null
-    for (const key of rotate(avail)) {
+    for (const key of ordered) {
       headers.set('Authorization', `Bearer ${key}`)
       const upstream = await fetchFn(upstreamUrl, {
         method,
@@ -146,12 +156,13 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
       if (failoverStatuses.has(upstream.status)) {
         cooldownUntil.set(key, now() + COOLDOWN_MS)
         await upstream.body?.cancel()
-        lastFailover = upstream
         continue
       }
       return streamBack(upstream)
     }
-    return textResponse(lastFailover?.status ?? 429, 'All keys rate-limited', { 'Retry-After': '60' })
+    // Every available key we tried failed over — always 429 (never surface a
+    // 401/402 as "rate-limited"), so the client's Retry-After is meaningful.
+    return textResponse(429, 'All keys rate-limited', { 'Retry-After': '60' })
   }
 
   return new Elysia({ prefix: '/openrouter' })
