@@ -158,11 +158,11 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
     .onError(safeErrorHandler)
     .use(createAuthMacro(auth))
     .guard({ auth: true }, (g) => {
-      const handler = (ctx: { request: Request; params: Record<string, string | undefined>; user: { id: string } }) =>
-        proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id)
       if (rateLimit) {
-        return g.use(rateLimit).all('/*', handler, { parse: 'none' })
+        return g
+          .use(rateLimit)
+          .all('/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
       }
-      return g.all('/*', handler, { parse: 'none' })
+      return g.all('/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
     })
 }
