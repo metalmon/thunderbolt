@@ -14,6 +14,9 @@ RUN bun install --frozen-lockfile
 
 # Frontend source
 COPY src ./src
+# Fork i18n catalogs — src/i18n/i18n.ts imports ../../locales/**; present on the
+# assembled master (fork/i18n + fork/i18n-locales), absent from upstream.
+COPY locales ./locales
 COPY public ./public
 COPY index.html ./
 COPY vite.config.ts tsconfig.json tsconfig.node.json ./
