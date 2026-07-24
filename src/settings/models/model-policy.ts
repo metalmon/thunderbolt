@@ -59,7 +59,12 @@ export const needsApiKey = (model: Pick<Model, 'provider' | 'isSystem' | 'apiKey
   if (!providerRequiresApiKey(model.provider)) {
     return false
   }
-  if (model.provider === 'tinfoil' && (model.isSystem === 1 || model.oauthProvider === 'tinfoil')) {
+  // System Tinfoil / OpenRouter models proxy through the backend, which injects
+  // the server key — no user key required (see src/ai/fetch.ts).
+  if (
+    (model.provider === 'tinfoil' && (model.isSystem === 1 || model.oauthProvider === 'tinfoil')) ||
+    (model.provider === 'openrouter' && model.isSystem === 1)
+  ) {
     return false
   }
   return !model.apiKey
