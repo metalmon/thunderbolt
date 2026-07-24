@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Fork-owned (metalmon). New file — do not upstream.
+ * Scroll perf: skip layout/paint for chat messages outside the viewport.
+ *
+ * Every message wrapper carries a stable `data-message-id` (assistant-message,
+ * desktop-user-message). `content-visibility: auto` lets the engine skip the
+ * rendering work for off-screen messages — a large win in WebView2 for long,
+ * non-virtualized threads — and relaxes containment the instant a message
+ * scrolls into view, so on-screen hover / citation UI is never clipped.
+ * `contain-intrinsic-size: auto <fallback>` caches each message's last real
+ * height, keeping the scrollbar stable instead of jumping as rows are skipped. */
+[data-message-id] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
