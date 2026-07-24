@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getSettings } from '@/config/settings'
+import { forkFirecrawlScrape, getFirecrawlUrl } from '@/fork/firecrawl/scrape'
 import { memoize } from '@/lib/memoize'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { Elysia, t } from 'elysia'
@@ -27,6 +28,11 @@ export const exaPlugin = new Elysia({ name: 'exa' })
   .post(
     '/fetch-content',
     async ({ body, store }): Promise<FetchContentResponse> => {
+      // Fork: self-hosted Firecrawl when configured; else fall through to Exa.
+      if (getFirecrawlUrl()) {
+        return forkFirecrawlScrape(body.url, body.max_length)
+      }
+
       if (!store.exaClient) {
         throw new Error('Fetch content service is not configured.')
       }
