@@ -5,6 +5,9 @@
 export {
   defaultModelProfileDeepSeekV41Flash,
   defaultModelProfileGlm53,
+  defaultModelProfileNemotron3Super,
+  defaultModelProfileNemotron3Ultra,
+  defaultModelProfileNemotronNano9b,
   defaultModelProfileOpus55,
   defaultModelProfiles,
   hashModelProfile,
