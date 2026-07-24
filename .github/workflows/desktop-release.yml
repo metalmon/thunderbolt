@@ -102,6 +102,11 @@ jobs:
             build_name: 'Windows (ARM64)'
 
     runs-on: ${{ matrix.os }}
+    # macOS legs need Apple Developer signing + notarization secrets that this
+    # fork hasn't set up yet. Tolerate their failure so the Linux/Windows legs
+    # still build and the draft still publishes; the macOS artifacts simply
+    # won't be attached. Drop this once the Apple secrets are configured.
+    continue-on-error: ${{ contains(matrix.target, 'apple-darwin') }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
