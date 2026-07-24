@@ -99,7 +99,7 @@ describe('createOpenrouterRoutes', () => {
       const auth = (init.headers as Headers).get('authorization')
       return Promise.resolve(auth === 'Bearer k1' ? status(429) : ok('from-k2'))
     })
-    const res = await drain(await post(build({ apiKeys: ['k1', 'k2'], now: () => 1000 })))
+    const res = await post(build({ apiKeys: ['k1', 'k2'], now: () => 1000 }))
     expect(res.status).toBe(200)
     expect(await res.text()).toBe('from-k2')
     expect(mockFetch).toHaveBeenCalledTimes(2)
