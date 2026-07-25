@@ -65,7 +65,7 @@ type LocalSettingsStore = LocalSettingsState & LocalSettingsActions
 export const initialLocalSettings: LocalSettingsState = {
   cloudUrl: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL || 'http://localhost:8000/v1',
   debugPosthog: false,
-  isNativeFetchEnabled: false,
+  isNativeFetchEnabled: true,
   hapticsEnabled: true,
   syncEnabled: false,
   theme: 'system',
