@@ -240,6 +240,49 @@ export const ChatList = ({
       <SidebarGroup className={cn('flex-1 flex flex-col min-h-0 pb-0', (isMobile || isCollapsed) && 'pt-0')}>
         {isMobile ? mobileChrome : desktopChrome}
         {isMobile && mobileSearchInput}
+              <div className="flex items-center justify-between flex-shrink-0">
+                <SidebarGroupLabel>{t('sidebar.recentChats')}</SidebarGroupLabel>
+                {chatActions}
+              </div>
+            )}
+            {searchInput}
+          </>
+        )}
+        {isCollapsed && hasListContent && (
+          <SidebarMenu className="flex-shrink-0">
+            {/* Search works by expanding the sidebar to reveal the input, so
+                it's hidden while a narrow window pins the sidebar collapsed. */}
+            {!forceCollapsed && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={(e) => onSearchClick(e)}
+                  tooltip={t('sidebar.search')}
+                  className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
+                >
+                  <Search className={`size-[var(--icon-size-default)] ${debouncedSearchQuery ? 'text-primary' : ''}`} />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => deleteAllChatsDialogRef.current?.open()}
+                disabled={deleteAllChatsMutation.isPending}
+                tooltip={t('sidebar.clearAll')}
+                className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
+              >
+                {deleteAllChatsMutation.isPending ? (
+                  <Loader2 className="size-[var(--icon-size-default)] animate-spin" />
+                ) : (
+                  <Flame className="size-[var(--icon-size-default)]" />
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* my-1.5 + the menu's gap-0.5 ≈ the 8px rhythm of the rail's other dividers. */}
+            <li aria-hidden>
+              <RailDivider className="my-1.5" />
+            </li>
+          </SidebarMenu>
+        )}
         <div
           ref={scrollContainerRef}
           data-slot="chat-list-scroll"
@@ -295,7 +338,7 @@ export const ChatList = ({
           )}
           {chatThreads.length === 0 && debouncedSearchQuery && !isCollapsed && (
             <div className="text-center text-sm py-12 px-4 text-muted-foreground">
-              No matches for "{debouncedSearchQuery}"
+              {t('sidebar.noMatches', { query: debouncedSearchQuery })}
             </div>
           )}
         </div>

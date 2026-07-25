@@ -157,6 +157,8 @@
     "emptyTitle": "No integrations available",
     "emptyDescription": "Check back later for new integrations",
     "disconnectFailed": "Failed to disconnect integration",
+    "updateFailed": "Failed to update integration",
+    "proNotAvailable": "Thunderbolt Pro is not available yet. Stay tuned!",
     "availableTools": "Available Tools",
     "toolCount_one": "{{count}} tool",
     "toolCount_other": "{{count}} tools",
@@ -173,6 +175,25 @@
       "microsoft_search_onedrive": { "name": "Search OneDrive", "description": "Search OneDrive files by name or content." },
       "microsoft_get_onedrive_file_content": { "name": "Read OneDrive File", "description": "Read text content from a OneDrive file." }
     }
+  },
+  "connections": {
+    "title": "Connections",
+    "newConnection": "New Connection",
+    "searchConnections": "Search connections",
+    "mcpServers": "MCP servers",
+    "emptyDescription": "Connect your own MCP servers to give agents more tools.",
+    "addFirstServer": "Add your first server",
+    "noMatching": "No matching connections.",
+    "openConnection": "Open {{title}}",
+    "enableConnection": "Enable {{name}}",
+    "disableConnection": "Disable {{name}}",
+    "account": "Account",
+    "connectedTo": "Connected to {{name}}",
+    "connectAccount": "Connect your account to make these tools available to agents.",
+    "deleteServer": "Delete Server",
+    "deleteServerDescription": "Delete this MCP server and its saved credentials?",
+    "deleting": "Deleting…",
+    "delete": "Delete"
   },
   "models": {
     "title": "Models",
@@ -205,8 +226,8 @@
     "adding": "Adding...",
     "encrypted": "Encrypted",
     "apiKeyNotConfigured": "API key not configured",
-    "disableModel": "Disable model",
-    "enableModel": "Enable model",
+    "disableModel": "Disable {{name}}",
+    "enableModel": "Enable {{name}}",
     "usesCloudService": "Uses Thunderbolt cloud service",
     "emptyTitle": "No models configured",
     "emptyDescription": "Get started by adding your first AI model.",
@@ -228,7 +249,19 @@
     "serverUnknownError": "Server responded with an unknown error.",
     "failedToLoadModels": "Failed to load models",
     "customizedModel": "You've customized this model.",
-    "modifiedModelAria": "Modified model"
+    "modifiedModelAria": "Modified model",
+    "newModel": "New Model",
+    "openModel": "Open {{name}}",
+    "privacy": "Privacy",
+    "customizedModelLabel": "Customized model",
+    "refreshingModels": "Refreshing models…",
+    "refreshModelCatalog": "Refresh model catalog",
+    "name": "Name",
+    "refreshing": "Refreshing…",
+    "refresh": "Refresh",
+    "keepSavedApiKey": "Keep saved API key",
+    "clearSavedApiKey": "Clear saved API key",
+    "builtInCantEditOrRemove": "Built-in models can't be edited or removed"
   },
   "mcpServers": {
     "title": "MCP Servers",
@@ -254,7 +287,7 @@
     "saveChanges": "Save Changes",
     "importServers": "Import Servers",
     "addAuthorize": "Add & Authorize",
-    "addServerButton": "Add Server",
+    "addServerButton": "Add server",
     "connected": "Connected",
     "connecting": "Connecting...",
     "disconnected": "Disconnected",
@@ -291,7 +324,18 @@
     "importFailedTitle": "Import failed",
     "saveFailedTitle": "Save failed",
     "authorizationErrorTitle": "Authorization error",
-    "serverUrlPlaceholder": "http://localhost:8000/mcp/"
+    "addFailedTitle": "Add failed",
+    "adding": "Adding…",
+    "saving": "Saving…",
+    "importing": "Importing…",
+    "serverUrlPlaceholder": "http://localhost:8000/mcp/",
+    "clearSavedCredential": "Clear saved credential",
+    "keepSavedCredential": "Keep saved credential",
+    "status": "Status",
+    "disabled": "Disabled",
+    "bridgeTarget": "Bridge target",
+    "copyUrl": "Copy URL",
+    "copyBridgeTarget": "Copy bridge target"
   },
   "skills": {
     "title": "Skills",
@@ -342,7 +386,10 @@
     "closeReorder": "Close reorder",
     "back": "Back to skills",
     "disableDescription": "Disable skill. The AI won't use it, and it will be unpinned.",
-    "more": "More"
+    "more": "More",
+    "createSkillTitle": "Create Skill",
+    "editSkillTitle": "Edit Skill",
+    "saveError": "Couldn't save the skill. Please try again."
   },
   "agentList": {
     "yourAgents": "Your agents",
@@ -419,7 +466,8 @@
     "urlPlaceholder": "wss://example.com/ws or paste an iroh ticket",
     "urlHelper": "A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable).",
     "urlInvalid": "Enter a wss:// URL or an iroh ticket",
-    "iosRequiresWss": "iOS requires a secure URL (wss://)"
+    "iosRequiresWss": "iOS requires a secure URL (wss://)",
+    "addFailed": "Couldn't add the agent. Please try again."
   },
   "appVersion": {
     "title": "App Version",

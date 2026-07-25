@@ -4,6 +4,7 @@
 
 import { Check, LockKeyhole, X } from 'lucide-react'
 import type { ComponentProps, KeyboardEvent, ReactNode } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 
 import { IrohPairingPanel } from '@/components/settings/iroh-pairing-panel'
 import { Button } from '@/components/ui/button'
@@ -62,36 +63,37 @@ const ResultStatusCard = ({
 
 /**
  * The non-success test-result panels are pure data — each maps a result `kind`
- * to its tone, icon, title, and body copy. `success` is rendered separately
- * because it carries a tools list as the panel's children.
+ * to its tone, icon, and the i18n keys for its title and body copy. `success`
+ * is rendered separately because it carries a tools list as the panel's
+ * children.
  */
 const testResultPanels: Record<
   Exclude<TestConnectionResult['kind'], 'success'>,
-  { tone: StatusTone; icon: ReactNode; title: string; body: string }
+  { tone: StatusTone; icon: ReactNode; titleKey: string; bodyKey: string }
 > = {
   'needs-oauth': {
     tone: 'warning',
     icon: <LockKeyhole className="h-4 w-4" />,
-    title: 'Authorization required',
-    body: 'This server uses OAuth. Add it and authorize to connect.',
+    titleKey: 'mcpServers.needsOAuthTitle',
+    bodyKey: 'mcpServers.needsOAuthBody',
   },
   'needs-token': {
     tone: 'warning',
     icon: <LockKeyhole className="h-4 w-4" />,
-    title: 'Access token required',
-    body: 'This server needs a personal access token or API key. Paste it in the Credential field above, then test again.',
+    titleKey: 'mcpServers.needsTokenTitle',
+    bodyKey: 'mcpServers.needsTokenBody',
   },
   'token-rejected': {
     tone: 'destructive',
     icon: <X className="h-4 w-4" />,
-    title: 'Token rejected',
-    body: 'The server rejected the credential. Check your bearer token or API key.',
+    titleKey: 'mcpServers.tokenRejectedTitle',
+    bodyKey: 'mcpServers.tokenRejectedBody',
   },
   error: {
     tone: 'destructive',
     icon: <X className="h-4 w-4" />,
-    title: 'Connection failed',
-    body: 'Could not connect to the MCP server. Please check the URL and try again.',
+    titleKey: 'mcpServers.connectionFailedTitle',
+    bodyKey: 'mcpServers.connectionFailedBody',
   },
 }
 
@@ -147,6 +149,7 @@ export const McpServerForm = ({
   onAddAndAuthorize: () => void
   onUrlKeyDown: (e: KeyboardEvent) => void
 }) => {
+  const { t } = useTranslation('settings')
   const {
     name: newServerName,
     url: newServerUrl,
@@ -183,19 +186,14 @@ export const McpServerForm = ({
           // OAuth edits keep the existing credential valid.
           disabled={!isSaveReady || (!isEditProbeWaived && testResult.kind !== 'success')}
         >
-          Save Changes
+          {isSavePending ? t('mcpServers.saving') : t('mcpServers.saveChanges')}
         </Button>
       )
     }
     if (mode === 'advanced') {
       return (
-        <Button
-          onClick={onImportConfig}
-          isLoading={isImportPending}
-          loadingLabel="Importing…"
-          disabled={!jsonText.trim()}
-        >
-          Import Servers
+        <Button onClick={onImportConfig} disabled={!jsonText.trim() || isImportPending}>
+          {isImportPending ? t('mcpServers.importing') : t('mcpServers.importServers')}
         </Button>
       )
     }
@@ -208,7 +206,7 @@ export const McpServerForm = ({
           disabled={!isUrlReady}
         >
           <LockKeyhole className="h-3.5 w-3.5 mr-1.5" />
-          Add &amp; Authorize
+          {t('mcpServers.addAuthorize')}
         </Button>
       )
     }
@@ -219,7 +217,7 @@ export const McpServerForm = ({
         loadingLabel="Adding…"
         disabled={!isSaveReady || (!isIroh && testResult.kind !== 'success')}
       >
-        Add Server
+        {isSavePending ? t('mcpServers.adding') : t('mcpServers.addServerButton')}
       </Button>
     )
   }
@@ -241,10 +239,10 @@ export const McpServerForm = ({
           className="w-full flex-shrink-0 rounded-lg"
         >
           <ToggleGroupItem value="simple" className={modeToggleItemClass}>
-            Simple
+            {t('mcpServers.simple')}
           </ToggleGroupItem>
           <ToggleGroupItem value="advanced" className={modeToggleItemClass}>
-            Advanced (JSON)
+            {t('mcpServers.advancedJson')}
           </ToggleGroupItem>
         </ToggleGroup>
       )}
@@ -253,21 +251,21 @@ export const McpServerForm = ({
         {mode === 'simple' ? (
           <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
             <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('mcpServers.name')}</Label>
               <Input
                 id="name"
                 ref={nameInputRef}
-                placeholder="Server name (used to prefix tools)"
+                placeholder={t('mcpServers.serverNamePlaceholder')}
                 value={newServerName}
                 onChange={(e) => form.changeName(e.target.value)}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="url">Server URL</Label>
+              <Label htmlFor="url">{t('mcpServers.serverUrl')}</Label>
               <Input
                 id="url"
-                placeholder="http://localhost:8000/mcp/"
+                placeholder={t('mcpServers.serverUrlPlaceholder')}
                 value={newServerUrl}
                 onChange={(e) => form.changeUrl(e.target.value)}
                 onBlur={handleUrlBlur}
@@ -281,8 +279,7 @@ export const McpServerForm = ({
                 <p className="text-[length:var(--font-size-xs)] text-destructive">{urlValidation.reason}</p>
               )}
               <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                A URL, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only
-                if the peer is discoverable).
+                {t('mcpServers.urlOrIrohHelper')}
               </p>
             </div>
 
@@ -294,7 +291,7 @@ export const McpServerForm = ({
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-2">
-                  <Label htmlFor="transport">Transport</Label>
+                  <Label htmlFor="transport">{t('mcpServers.transport')}</Label>
                   <Select
                     value={newServerTransport}
                     onValueChange={(value) => form.changeTransport(value as MCPTransportType)}
@@ -310,36 +307,42 @@ export const McpServerForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 gap-2">
-                  <Label htmlFor="token">Credential (optional)</Label>
+                  <Label htmlFor="token">{t('mcpServers.credentialOptional')}</Label>
                   <Input
                     id="token"
                     type="password"
                     placeholder={
                       form.hasStoredBearerToken && !form.isClearingStoredToken
                         ? '••••••••••••••••'
-                        : 'Bearer token or API key'
+                        : t('mcpServers.credentialPlaceholder')
                     }
                     value={newServerToken}
                     onChange={(e) => form.changeToken(e.target.value)}
                   />
                   {form.hasStoredBearerToken && !newServerToken && (
                     <Button type="button" variant="ghost" className="mt-1" onClick={form.toggleClearStoredToken}>
-                      {form.isClearingStoredToken ? 'Keep saved credential' : 'Clear saved credential'}
+                      {form.isClearingStoredToken
+                        ? t('mcpServers.keepSavedCredential')
+                        : t('mcpServers.clearSavedCredential')}
                     </Button>
                   )}
                 </div>
 
                 {isUrlReady && (
                   <Button onClick={testConnection} disabled={isTestingConnection} variant="outline" className="w-full">
-                    {isTestingConnection ? 'Testing connection…' : 'Test connection'}
+                    {isTestingConnection ? t('mcpServers.testingConnection') : t('mcpServers.testConnection')}
                   </Button>
                 )}
 
                 {testResult.kind === 'success' && (
-                  <ResultStatusCard tone="success" icon={<Check className="h-4 w-4" />} title="Connection successful!">
+                  <ResultStatusCard
+                    tone="success"
+                    icon={<Check className="h-4 w-4" />}
+                    title={t('mcpServers.connectionSuccessful')}
+                  >
                     {serverCapabilities.length > 0 && (
                       <div className="mt-3">
-                        <p className="text-sm font-medium text-foreground">Available tools:</p>
+                        <p className="text-sm font-medium text-foreground">{t('mcpServers.availableTools')}</p>
                         <ul className="text-sm text-muted-foreground mt-1 space-y-1 max-h-40 overflow-y-auto">
                           {serverCapabilities.map((capability, index) => (
                             <li key={index} className="flex items-center gap-2">
@@ -354,8 +357,8 @@ export const McpServerForm = ({
                 )}
 
                 {failurePanel && (
-                  <ResultStatusCard tone={failurePanel.tone} icon={failurePanel.icon} title={failurePanel.title}>
-                    <p className="text-sm mt-1 text-muted-foreground">{failurePanel.body}</p>
+                  <ResultStatusCard tone={failurePanel.tone} icon={failurePanel.icon} title={t(failurePanel.titleKey)}>
+                    <p className="text-sm mt-1 text-muted-foreground">{t(failurePanel.bodyKey)}</p>
                   </ResultStatusCard>
                 )}
               </>
@@ -364,7 +367,7 @@ export const McpServerForm = ({
         ) : (
           <div className="grid grid-cols-1 gap-4 pt-4 pb-2">
             <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="json-config">Servers JSON</Label>
+              <Label htmlFor="json-config">{t('mcpServers.serversJson')}</Label>
               <Textarea
                 id="json-config"
                 className="font-mono text-[length:var(--font-size-xs)] min-h-48 max-h-[40vh] overflow-y-auto resize-none"
@@ -375,8 +378,7 @@ export const McpServerForm = ({
                 onChange={(e) => onJsonTextChange(e.target.value)}
               />
               <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                Paste an <code>mcpServers</code> config. Only remote (http/sse) servers are supported; non-Bearer auth
-                headers are ignored.
+                <Trans t={t} i18nKey="mcpServers.pasteConfig" components={{ code: <code /> }} />
               </p>
             </div>
           </div>
@@ -392,7 +394,7 @@ export const McpServerForm = ({
       </div>
 
       <FormFooter>
-        <ResponsiveModalCancel onClick={onCancel}>Cancel</ResponsiveModalCancel>
+        <ResponsiveModalCancel onClick={onCancel}>{t('mcpServers.cancel')}</ResponsiveModalCancel>
         {renderPrimaryAction()}
       </FormFooter>
     </div>

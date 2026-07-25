@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Check, Copy, LockKeyhole, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { AvailableTools } from '@/components/available-tools'
@@ -14,13 +15,6 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import type { OAuthCardState } from '@/hooks/use-mcp-server-oauth'
 import type { McpServer } from '@/types'
 import { cleanServerUrl, serverDisplayName } from './display'
-
-const statusLabels: Record<string, string> = {
-  connected: 'Connected',
-  connecting: 'Connecting…',
-  disconnected: 'Disconnected',
-  error: 'Connection error',
-}
 
 const transportLabels: Record<string, string> = {
   http: 'HTTP',
@@ -63,7 +57,15 @@ export const McpServerDetail = ({
   onDelete: () => void
   onClose: () => void
 }) => {
+  const { t } = useTranslation('settings')
   const { copy, isCopied } = useCopyToClipboard()
+
+  const statusLabels: Record<string, string> = {
+    connected: t('mcpServers.connected'),
+    connecting: t('mcpServers.connecting'),
+    disconnected: t('mcpServers.disconnected'),
+    error: t('mcpServers.connectionError'),
+  }
 
   const handleCopyUrl = async () => {
     try {
@@ -93,23 +95,23 @@ export const McpServerDetail = ({
       onClose={onClose}
     >
       <div className="flex shrink-0 flex-col gap-2">
-        <DetailSectionTitle>Status</DetailSectionTitle>
+        <DetailSectionTitle>{t('mcpServers.status')}</DetailSectionTitle>
         <div className="flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-2 text-base text-foreground">
             <StatusIndicator status={effectiveStatus} size="sm" />
-            {effectiveStatus === 'neutral' ? 'Disabled' : statusLabels[effectiveStatus]}
+            {effectiveStatus === 'neutral' ? t('mcpServers.disabled') : statusLabels[effectiveStatus]}
           </span>
           <span className="flex items-center gap-2">
             {connectionError && (
               <Button variant="outline" size="sm" disabled={isRetrying} onClick={onRetry}>
                 <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRetrying ? 'animate-spin' : ''}`} />
-                {isRetrying ? 'Retrying…' : 'Retry connection'}
+                {isRetrying ? t('mcpServers.retrying') : t('mcpServers.retryConnection')}
               </Button>
             )}
             {(showAuthorize || isAuthorizing) && (
               <Button variant="outline" size="sm" disabled={isAuthorizing} onClick={onAuthorize}>
                 <LockKeyhole className="h-3.5 w-3.5 mr-1.5" />
-                {isAuthorizing ? 'Authorizing…' : 'Authorize'}
+                {isAuthorizing ? t('mcpServers.authorizing') : t('mcpServers.authorize')}
               </Button>
             )}
             {isAuthorized && (
@@ -117,11 +119,11 @@ export const McpServerDetail = ({
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="sm" onClick={onAuthorize}>
                     <Check className="h-3.5 w-3.5 mr-1.5 text-success" />
-                    Re-authorize
+                    {t('mcpServers.reAuthorize')}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Authorized. Re-run the OAuth flow if access was revoked.</p>
+                  <p>{t('mcpServers.authorizedDescription')}</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -130,9 +132,7 @@ export const McpServerDetail = ({
         {connectionError && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <p className="text-sm text-destructive cursor-default">
-                Could not connect to this server. Check the URL and that the server is reachable.
-              </p>
+              <p className="text-sm text-destructive cursor-default">{t('mcpServers.couldNotConnect')}</p>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p className="max-w-xs break-words">{connectionError.message}</p>
@@ -142,7 +142,7 @@ export const McpServerDetail = ({
         {actionError && <p className="text-sm text-destructive">{actionError}</p>}
         {oauthState?.phase === 'needs-auth' && (
           <p className="text-sm text-muted-foreground">
-            {oauthState.message ?? 'This server requires authorization. Click Authorize to connect.'}
+            {oauthState.message ?? t('mcpServers.requiresAuthorization')}
           </p>
         )}
         {oauthState?.phase === 'error' && <p className="text-sm text-destructive">{oauthState.message}</p>}
@@ -151,13 +151,15 @@ export const McpServerDetail = ({
       <DetailDivider />
 
       <div className="flex shrink-0 flex-col gap-2">
-        <DetailSectionTitle>{server.type === 'iroh' ? 'Bridge target' : 'Server URL'}</DetailSectionTitle>
+        <DetailSectionTitle>
+          {server.type === 'iroh' ? t('mcpServers.bridgeTarget') : t('mcpServers.serverUrl')}
+        </DetailSectionTitle>
         <div className="flex items-center gap-2">
           <p className="min-w-0 flex-1 break-all font-mono text-sm text-foreground">{server.url}</p>
           <Button
             variant="ghost"
             size="icon"
-            aria-label={server.type === 'iroh' ? 'Copy bridge target' : 'Copy URL'}
+            aria-label={server.type === 'iroh' ? t('mcpServers.copyBridgeTarget') : t('mcpServers.copyUrl')}
             className={mutedIconButtonClass}
             onClick={handleCopyUrl}
             disabled={isCopied}
@@ -166,7 +168,7 @@ export const McpServerDetail = ({
           </Button>
         </div>
         <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-          Transport: {transportLabels[server.type ?? 'http'] ?? server.type}
+          {t('mcpServers.transport')}: {transportLabels[server.type ?? 'http'] ?? server.type}
         </p>
       </div>
 

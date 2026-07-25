@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailDivider, DetailPanel } from '@/components/detail-panel'
 import { ModificationIndicator } from '@/components/modification-indicator'
@@ -26,7 +27,9 @@ type ModelDetailProps = {
 }
 
 /** Read-only detail panel for one model: provider identity, config fields, and the ⋯ actions menu. */
-export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: ModelDetailProps) => (
+export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: ModelDetailProps) => {
+  const { t } = useTranslation('settings')
+  return (
   <DetailPanel
     icon={<ModelProviderIconTile model={model} />}
     title={model.name}
@@ -35,7 +38,7 @@ export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: Model
       <DetailActionsMenu>
         {model.isSystem === 1 ? (
           <div className="px-2 py-1.5 text-[length:var(--font-size-sm)] text-muted-foreground">
-            {systemModelMenuMessage}
+            {t('models.builtInCantEditOrRemove')}
           </div>
         ) : (
           <DetailEditDeleteMenuItems onEdit={onEdit} onDelete={onDelete} />
@@ -45,16 +48,16 @@ export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: Model
     onClose={onClose}
   >
     <div className="flex flex-col gap-4">
-      <DetailField label="Model">
+      <DetailField label={t('models.model')}>
         <p className="truncate text-base text-foreground">{model.model}</p>
       </DetailField>
       {model.url && (
-        <DetailField label="URL">
+        <DetailField label={t('models.url')}>
           <p className="truncate text-base text-foreground">{model.url}</p>
         </DetailField>
       )}
       {!!model.isConfidential && (
-        <DetailField label="Privacy">
+        <DetailField label={t('models.privacy')}>
           <div>
             <PrivateBadge />
           </div>
@@ -67,7 +70,7 @@ export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: Model
         <DetailDivider />
         <div className="flex items-center gap-2 text-sm text-amber-600">
           <AlertTriangle className="size-4 shrink-0" />
-          API key not configured
+          {t('models.apiKeyNotConfigured')}
         </div>
       </>
     )}
@@ -78,13 +81,14 @@ export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: Model
         <ModificationIndicator
           hasModifications
           onReset={onReset}
-          customMessage="You've customized this model."
-          ariaLabel="Modified model"
+          customMessage={t('models.customizedModel')}
+          ariaLabel={t('models.modifiedModelAria')}
           requireConfirmation={false}
         >
-          Customized model
+          {t('models.customizedModelLabel')}
         </ModificationIndicator>
       </>
     )}
   </DetailPanel>
-)
+  )
+}

@@ -10,6 +10,7 @@
     "toggle": "Toggle Sidebar",
     "open": "Open Sidebar",
     "recentChats": "Recent Chats",
+    "noChatsYet": "No chats yet",
     "searchPlaceholder": "Search chats...",
     "search": "Search chats",
     "clearAll": "Clear all chats",
@@ -52,6 +53,7 @@
     "searchingWeb": "Searching the web…",
     "researching": "Researching…"
   },
+  "contextUsage": "Using {{used}} of {{max}} Context Window",
   "mode": {
     "defaultBadge": "Default"
   },

@@ -4,6 +4,7 @@
 
 import { Loader2, X } from 'lucide-react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
@@ -64,6 +65,7 @@ export const AddModelForm = ({
   onSelectModel,
   onTestConnection,
 }: AddModelFormProps) => {
+  const { t } = useTranslation('settings')
   const provider = form.watch('provider')
   const apiKey = form.watch('apiKey')
   const url = form.watch('url')
@@ -85,7 +87,7 @@ export const AddModelForm = ({
           name="provider"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Provider</FormLabel>
+              <FormLabel>{t('models.provider')}</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value: Model['provider']) => {
@@ -94,7 +96,7 @@ export const AddModelForm = ({
                   value={field.value}
                 >
                   <SelectTrigger ref={providerTriggerRef} className="w-full rounded-lg">
-                    <SelectValue placeholder="Select provider" />
+                    <SelectValue placeholder={t('models.selectProvider')} />
                   </SelectTrigger>
                   <SelectContent>
                     {providerOptions.map((provider) => (
@@ -115,7 +117,7 @@ export const AddModelForm = ({
             name="url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL</FormLabel>
+                <FormLabel>{t('models.url')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
@@ -144,7 +146,10 @@ export const AddModelForm = ({
             name="apiKey"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>API Key{provider === 'custom' ? ' (Optional)' : ''}</FormLabel>
+                <FormLabel>
+                  {t('models.apiKey')}
+                  {provider === 'custom' ? ` (${t('models.optional')})` : ''}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -165,21 +170,29 @@ export const AddModelForm = ({
             )}
           />
         )}
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isLoadingCatalog || (catalogRequiresApiKey(provider) && !apiKey) || (provider === 'custom' && !url)}
+          onClick={onRefreshCatalog}
+        >
+          {isLoadingCatalog ? t('models.refreshingModels') : t('models.refreshModelCatalog')}
+        </Button>
         {showModelSelection && (
           <FormField
             control={form.control}
             name="model"
             render={() => (
               <FormItem className="flex flex-col">
-                <FormLabel>Model</FormLabel>
+                <FormLabel>{t('models.model')}</FormLabel>
                 <FormControl>
                   <Combobox
                     items={modelItems}
                     value={selectedModelId || undefined}
                     onValueChange={onSelectModel}
-                    placeholder="Select model…"
-                    searchPlaceholder="Search models…"
-                    emptyMessage="No models found."
+                    placeholder={t('models.selectModel')}
+                    searchPlaceholder={t('models.searchModels')}
+                    emptyMessage={t('models.noModelsFound')}
                     loading={isLoadingCatalog}
                   />
                 </FormControl>
@@ -194,7 +207,7 @@ export const AddModelForm = ({
             name="customModel"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Model</FormLabel>
+                <FormLabel>{t('models.model')}</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -217,7 +230,7 @@ export const AddModelForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Display Name</FormLabel>
+                <FormLabel>{t('models.displayName')}</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="e.g., GPT-4 Turbo" className="rounded-lg" />
                 </FormControl>
@@ -229,8 +242,8 @@ export const AddModelForm = ({
         {!supportsTools && (model || selectedModelId === 'custom') && (
           <StatusCard
             icon={<X className="h-4 w-4 text-warning" />}
-            title="Model may not be compatible"
-            description="This model does not seem to support tool usage."
+            title={t('models.modelMayNotBeCompatible')}
+            description={t('models.modelNoToolSupport')}
           />
         )}
         <ConnectionTestSection
@@ -245,7 +258,7 @@ export const AddModelForm = ({
         {submitError && (
           <StatusCard
             icon={<X className="h-4 w-4 text-destructive" />}
-            title="Something went wrong"
+            title={t('errorGeneric', { ns: 'common' })}
             description={submitError}
           />
         )}
@@ -262,7 +275,7 @@ export const AddModelForm = ({
               connectionStatus,
             })}
           >
-            Add Model
+            {isPending ? t('models.adding') : t('models.addModel')}
           </Button>
         </FormFooter>
       </form>
