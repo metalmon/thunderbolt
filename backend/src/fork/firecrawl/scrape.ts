@@ -39,7 +39,7 @@ export const forkFirecrawlScrape = async (
   const res = await fetchFn(`${base}/v1/scrape`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ url, formats: ['markdown'], timeout: 30_000, blockMedia: true }),
+    body: JSON.stringify({ url, formats: ['markdown'], timeout: 60_000, blockMedia: true }),
   })
   if (!res.ok) {
     return { data: null, success: false, error: `Firecrawl scrape failed (${res.status})` }
