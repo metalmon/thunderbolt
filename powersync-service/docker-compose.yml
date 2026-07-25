@@ -46,7 +46,10 @@ services:
       APP_URL: ${PUBLIC_URL:-http://localhost:3000}
       BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3000}
       TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
-      CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
+      # Web-demo origin (${PUBLIC_URL}) plus the Tauri desktop origins, so the
+      # standalone binary (origin http://tauri.localhost) can call /v1 directly
+      # when native-fetch is off. Desktop native-fetch bypasses CORS entirely.
+      CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://tauri.localhost,tauri://localhost,http://localhost:1420
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
       AUTH_ALLOW_ANONYMOUS: "true"
       # OPENROUTER_API_KEYS / OPENROUTER_FREE_RPM come from the git-ignored
