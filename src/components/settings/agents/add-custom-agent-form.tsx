@@ -167,7 +167,7 @@ export const AddCustomAgentForm = ({
     } catch (error) {
       // Keep the form intact so the user can retry — and say why nothing happened.
       console.error('Failed to add custom agent', error)
-      dispatch({ type: 'SUBMIT_FAILED', message: "Couldn't add the agent. Please try again." })
+      dispatch({ type: 'SUBMIT_FAILED', message: t('agents.addFailed') })
       return
     }
     // The parent unmounts the form on close, so state resets by remount.

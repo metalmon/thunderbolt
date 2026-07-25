@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation } from 'react-router'
 
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
@@ -76,6 +77,7 @@ export type ConnectionsPageDeps = {
 }
 
 const ConnectionsPage = ({ deps = {} }: { deps?: ConnectionsPageDeps } = {}) => {
+  const { t } = useTranslation('settings')
   const probeTools = deps.probeMcpServerTools ?? probeMcpServerTools
   const classifyAuth = deps.classifyMcpServerAuth ?? classifyMcpServerAuth
   const db = useDatabase()
@@ -150,10 +152,10 @@ const ConnectionsPage = ({ deps = {} }: { deps?: ConnectionsPageDeps } = {}) => 
   // so a message is always labeled by its own context (switching modes clears
   // the other sources, see `changeMode`).
   const formErrorSources = [
-    { title: 'Import failed', body: importError },
-    { title: 'Add failed', body: addError },
-    { title: 'Save failed', body: updateError },
-    { title: 'Authorization error', body: dialogError },
+    { title: t('mcpServers.importFailedTitle'), body: importError },
+    { title: t('mcpServers.addFailedTitle'), body: addError },
+    { title: t('mcpServers.saveFailedTitle'), body: updateError },
+    { title: t('mcpServers.authorizationErrorTitle'), body: dialogError },
   ]
   const formError =
     formErrorSources.find((source): source is { title: string; body: string } => source.body != null) ?? null
@@ -270,7 +272,7 @@ const ConnectionsPage = ({ deps = {} }: { deps?: ConnectionsPageDeps } = {}) => 
     if (form.isAddFormOpen) {
       return (
         <DetailPanel
-          title={form.editingServerId ? 'Edit MCP Server' : 'Add MCP Server'}
+          title={form.editingServerId ? t('mcpServers.editServer') : t('mcpServers.addServer')}
           onClose={formController.cancel}
         >
           <McpServerForm
@@ -403,18 +405,20 @@ const ConnectionsPage = ({ deps = {} }: { deps?: ConnectionsPageDeps } = {}) => 
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Server</AlertDialogTitle>
-            <AlertDialogDescription>Delete this MCP server and its saved credentials?</AlertDialogDescription>
+            <AlertDialogTitle>{t('connections.deleteServer')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('connections.deleteServerDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={formController.deleteMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={formController.deleteMutation.isPending}>
+              {t('mcpServers.cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               disabled={formController.deleteMutation.isPending}
               // Fire-and-forget: the mutation's onError/onSuccess own the outcome.
               onClick={() => pendingDelete && formController.deleteMutation.mutate(pendingDelete.id)}
             >
-              {formController.deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {formController.deleteMutation.isPending ? t('connections.deleting') : t('connections.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

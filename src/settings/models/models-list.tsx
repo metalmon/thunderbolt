@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AlertTriangle, Cpu, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { SettingsEmptyState } from '@/components/settings/settings-empty-state'
 import { SettingsListBody, settingsListBodyRowsClass, SettingsSelectableRow } from '@/components/settings/settings-list'
@@ -23,7 +24,9 @@ type ModelsListProps = {
 }
 
 /** Presentational list of configured models with enable toggles and the add affordance. */
-export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }: ModelsListProps) => (
+export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }: ModelsListProps) => {
+  const { t } = useTranslation('settings')
+  return (
   <SettingsListBody className={settingsListBodyRowsClass}>
     {models.map((model) => {
       const isEnabled = model.enabled === 1
@@ -31,7 +34,7 @@ export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }:
         <SettingsSelectableRow
           key={model.id}
           onSelect={() => onSelect(model.id)}
-          ariaLabel={`Open ${model.name}`}
+          ariaLabel={t('models.openModel', { name: model.name })}
           isSelected={activeModelId === model.id}
           leading={<ModelProviderIconTile model={model} />}
           title={
@@ -43,7 +46,7 @@ export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }:
                       <AlertTriangle className="size-3.5 shrink-0 text-amber-500" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
-                      <p>API key not configured</p>
+                      <p>{t('models.apiKeyNotConfigured')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -58,7 +61,9 @@ export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }:
               checked={isEnabled}
               onCheckedChange={(checked) => onToggle(model.id, checked)}
               className="cursor-pointer"
-              aria-label={isEnabled ? `Disable ${model.name}` : `Enable ${model.name}`}
+              aria-label={
+                isEnabled ? t('models.disableModel', { name: model.name }) : t('models.enableModel', { name: model.name })
+              }
             />
           }
         />
@@ -67,15 +72,16 @@ export const ModelsList = ({ models, activeModelId, onSelect, onToggle, onAdd }:
     {models.length === 0 && (
       <SettingsEmptyState
         icon={<Cpu className="size-10 text-muted-foreground" />}
-        title="No models configured"
-        description="Get started by adding your first AI model."
+        title={t('models.emptyTitle')}
+        description={t('models.emptyDescription')}
         action={
           <Button onClick={onAdd} variant="outline">
             <Plus className="mr-2 size-4" />
-            Add Model
+            {t('models.addModel')}
           </Button>
         }
       />
     )}
   </SettingsListBody>
-)
+  )
+}

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useMemo, type Dispatch } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { AppLogo } from '@/components/app-logo'
@@ -31,6 +32,7 @@ const isOAuthProvider = (provider: Integration['provider']): provider is OAuthPr
 
 /** Owns integration queries, status derivation, OAuth completion, and mutations. */
 export const useIntegrationsController = ({ db, dispatch }: IntegrationsControllerOptions) => {
+  const { t } = useTranslation('settings')
   const queryClient = useQueryClient()
   const integrationSettings = useSettings({ integrations_pro_is_enabled: false })
   const { data: status, isLoading: isStatusLoading } = useIntegrationStatus()
@@ -45,7 +47,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
         id: 'thunderbolt',
         name: 'Thunderbolt',
         provider: 'thunderbolt-pro',
-        connectLabel: 'Get Pro',
+        connectLabel: t('integrations.getPro'),
         icon: <AppLogo size={20} />,
         isEnabled: isProUser && integrationSettings.integrationsProIsEnabled.value,
         isConnected: isProUser,
@@ -54,7 +56,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
         id: 'google',
         name: 'Google',
         provider: 'google',
-        connectLabel: 'Connect Google',
+        connectLabel: t('integrations.connectGoogle'),
         icon: <GoogleIcon />,
         isEnabled: status?.googleEnabled ?? false,
         isConnected: status?.googleConnected ?? false,
@@ -64,14 +66,14 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
         id: 'microsoft',
         name: 'Microsoft',
         provider: 'microsoft',
-        connectLabel: 'Connect Microsoft',
+        connectLabel: t('integrations.connectMicrosoft'),
         icon: <MicrosoftIcon />,
         isEnabled: status?.microsoftEnabled ?? false,
         isConnected: status?.microsoftConnected ?? false,
         userEmail: status?.microsoftEmail ?? undefined,
       },
     ]
-  }, [integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status])
+  }, [integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status, t])
 
   const toolConfigsByProvider: Record<Integration['provider'], { name: string; description: string }[]> = {
     'thunderbolt-pro': proToolConfigs,
@@ -104,7 +106,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
       console.error('Failed to disconnect integration', error)
       dispatch({
         type: 'INTEGRATION_FAILED',
-        error: error instanceof Error ? error.message : 'Failed to disconnect integration',
+        error: error instanceof Error ? error.message : t('integrations.disconnectFailed'),
       })
     }
   }
@@ -121,7 +123,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
       console.error('Failed to update integration', error)
       dispatch({
         type: 'INTEGRATION_FAILED',
-        error: error instanceof Error ? error.message : 'Failed to update integration',
+        error: error instanceof Error ? error.message : t('integrations.updateFailed'),
       })
     }
   }
@@ -129,7 +131,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
   // Placeholder until the real upgrade flow exists (billing not built yet).
   // Devs: pro status comes from getProStatus in src/integrations/thunderbolt-pro/utils.ts.
   const getPro = () => {
-    alert('Thunderbolt Pro is not available yet. Stay tuned!')
+    alert(t('integrations.proNotAvailable'))
   }
 
   return { integrations, areIntegrationsReady, toolsFor, processCallback, disconnect, toggle, getPro }

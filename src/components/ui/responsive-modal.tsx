@@ -5,6 +5,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 import { createContext, useContext, type ComponentProps, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   Dialog,
@@ -301,19 +302,22 @@ export const ResponsiveModalContent = ({ className, centered, ...props }: Respon
 
 /** Standard secondary action for dismissing a responsive modal form. */
 export const ResponsiveModalCancel = ({
-  children = 'Cancel',
+  children,
   className,
   ...props
-}: Omit<ComponentProps<typeof Button>, 'type' | 'variant'>) => (
-  <Button
-    type="button"
-    variant="outline"
-    className={cn('max-md:bg-background/80 max-md:backdrop-blur-md max-md:dark:bg-card/80', className)}
-    {...props}
-  >
-    {children}
-  </Button>
-)
+}: Omit<ComponentProps<typeof Button>, 'type' | 'variant'>) => {
+  const { t } = useTranslation('common')
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className={cn('max-md:bg-background/80 max-md:backdrop-blur-md max-md:dark:bg-card/80', className)}
+      {...props}
+    >
+      {children ?? t('cancel')}
+    </Button>
+  )
+}
 
 // =============================================================================
 // Composable pattern exports (for trigger-based modals)
