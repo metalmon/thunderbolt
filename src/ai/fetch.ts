@@ -433,7 +433,15 @@ export const createModel = async (modelConfig: Model, getProxyFetch: () => Fetch
         // the SDK; the wrapped fetch carries the real Thunderbolt session token
         // so the route's auth guard passes (Bearer for token auth, cookies for
         // SSO web). No HPKE client (unlike Tinfoil) — plain OpenAI-compatible.
-        const cloudUrl = getLocalSetting('cloudUrl')
+        //
+        // On the web demo cloudUrl is same-origin-relative (e.g. "/v1"); the AI
+        // SDK builds request URLs with `new URL()`, which rejects a relative
+        // base ("Failed to construct 'URL'"). Resolve to absolute against the
+        // page origin — desktop cloudUrl is already absolute and passes through.
+        const rawCloudUrl = getLocalSetting('cloudUrl')
+        const cloudUrl = URL.canParse(rawCloudUrl)
+          ? rawCloudUrl
+          : new URL(rawCloudUrl, window.location.origin).toString().replace(/\/$/, '')
         const sso = isSsoMode()
         const token = getAuthToken()
         const wrappedFetch: typeof fetch = Object.assign(
