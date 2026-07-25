@@ -13,6 +13,10 @@ import type {
 } from './schemas'
 
 const requestTimeout = 10000
+// fetch_content drives a headless-browser scrape (Firecrawl/puppeteer) that can
+// legitimately take 30–60s on heavy pages; the 10s request timeout aborted those
+// mid-scrape ("signal is aborted without reason"). Give it a scrape-sized window.
+const fetchContentTimeout = 70000
 
 /**
  * Search the web via the universal /v1/search endpoint.
@@ -39,7 +43,7 @@ export const fetchContent = async (params: FetchContentParams, httpClient: HttpC
   try {
     const response = await httpClient
       .post('pro/fetch-content', {
-        timeout: requestTimeout,
+        timeout: fetchContentTimeout,
         json: {
           url: params.url,
           ...(params.max_length !== undefined && { max_length: params.max_length }),
