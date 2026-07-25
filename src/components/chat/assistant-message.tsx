@@ -71,7 +71,6 @@ export const mountMessageParts = (
   sources?: SourceMetadata[],
   haystackReferences?: HaystackReferenceMeta[],
   mcpTools?: UIMessageMetadata['mcpTools'],
-  loadingMessage?: string,
   collapseReasoning?: boolean,
 ) => {
   const partElements: ReactNode[] = []
@@ -186,7 +185,6 @@ export const AssistantMessage = memo(
           sources,
           haystackReferences,
           mcpTools,
-          loadingMessage,
           collapseReasoning,
         ),
       [
@@ -198,7 +196,6 @@ export const AssistantMessage = memo(
         sources,
         haystackReferences,
         mcpTools,
-        loadingMessage,
         collapseReasoning,
       ],
     )
