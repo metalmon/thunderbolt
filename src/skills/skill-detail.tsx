@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { DetailActionsMenu, DetailEditDeleteMenuItems } from '@/components/settings/detail-actions-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { translateDefaultField } from '@/i18n/translate-default'
 
 /**
  * Detail panel for a single skill. Pinning is managed from the chat composer
@@ -15,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
  * skill's content plus edit/delete controls when the skill is editable.
  */
 export const SkillDetail = ({
+  id,
   name,
   description,
   instruction,
@@ -23,6 +25,8 @@ export const SkillDetail = ({
   onDelete,
   onClose,
 }: {
+  /** Skill id — used to translate built-in skills' name/description at render. */
+  id: string
   /** Display name (the human label). */
   name: string
   description: string
@@ -34,6 +38,9 @@ export const SkillDetail = ({
   onClose: () => void
 }) => {
   const { t } = useTranslation('settings')
+  const { t: translateDefault } = useTranslation('defaults')
+  const displayName = translateDefaultField(translateDefault, 'skills', id, 'name', name)
+  const displayDescription = translateDefaultField(translateDefault, 'skills', id, 'description', description)
   const actionsMenu = !readOnly && (
     <DetailActionsMenu>
       <DetailEditDeleteMenuItems onEdit={onEdit} onDelete={onDelete} />
@@ -42,7 +49,7 @@ export const SkillDetail = ({
 
   return (
     <DetailPanel
-      title={name}
+      title={displayName}
       subtitle={readOnly ? 'Built-in skill · Read-only' : undefined}
       actions={actionsMenu}
       onClose={onClose}
@@ -63,7 +70,7 @@ export const SkillDetail = ({
             <TooltipContent>{t('skills.descriptionHelp')}</TooltipContent>
           </Tooltip>
         </DetailSectionTitle>
-        <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{description}</p>
+        <p className="whitespace-pre-wrap text-base leading-snug text-foreground">{displayDescription}</p>
       </div>
 
       <DetailDivider />
