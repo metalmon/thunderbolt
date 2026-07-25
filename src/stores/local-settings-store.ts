@@ -92,7 +92,7 @@ export const initialLocalSettings: LocalSettingsState = {
   serverHasAuthenticated: !!initialCloudUrl,
   externalLinkBehavior: 'ask',
   debugPosthog: false,
-  isNativeFetchEnabled: false,
+  isNativeFetchEnabled: true,
   hapticsEnabled: true,
   syncEnabled: false,
   recoveryPhrasePending: false,
