@@ -197,7 +197,7 @@ export const SkillsView = () => {
       // silently as an unhandled rejection.
       handleSkillSaveError(error, {
         onSlugRejected: (message) => dispatch({ type: 'SLUG_REJECTED', message }),
-        onFailed: () => dispatch({ type: 'SUBMIT_FAILED', message: skillSaveFailedMessage }),
+        onFailed: () => dispatch({ type: 'SUBMIT_FAILED', message: t('skills.saveError') }),
       })
     }
   }
@@ -216,8 +216,22 @@ export const SkillsView = () => {
 
   const createForm = (
     // The panel's close X behaves as Cancel, including the dirty guard.
-    <DetailPanel title="Create Skill" onClose={sharedFormProps.onCancel}>
-      <SkillForm key="create" mode="create" {...sharedFormProps} />
+    <DetailPanel title={t('skills.createSkillTitle')} onClose={sharedFormProps.onCancel}>
+      <SkillForm
+        key={createInitialName ? `create:${createInitialName}` : 'create'}
+        mode="create"
+        initialValues={
+          createInitialName
+            ? {
+                name: createInitialName,
+                label: titleCaseFromSlug(createInitialName),
+                description: '',
+                instruction: '',
+              }
+            : undefined
+        }
+        {...sharedFormProps}
+      />
     </DetailPanel>
   )
 
@@ -243,7 +257,7 @@ export const SkillsView = () => {
       )
     }
     return (
-      <DetailPanel title="Edit Skill" onClose={sharedFormProps.onCancel}>
+      <DetailPanel title={t('skills.editSkillTitle')} onClose={sharedFormProps.onCancel}>
         <SkillForm
           key={`edit:${activeSkill.id}`}
           mode="edit"

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Check, Loader2, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { StatusCard } from '@/components/ui/status-card'
@@ -37,6 +38,7 @@ export const ConnectionTestSection = ({
   status,
   error,
 }: ConnectionTestSectionProps) => {
+  const { t } = useTranslation('settings')
   const canTest = canTestModelConnection(provider, model, apiKey)
   const showApiKeyHint = !canTest && Boolean(model) && providerRequiresApiKey(provider)
 
@@ -47,30 +49,30 @@ export const ConnectionTestSection = ({
           {isTesting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Testing model…
+              {t('models.testingModel')}
             </>
           ) : (
-            'Test model'
+            t('models.testModel')
           )}
         </Button>
       )}
       {showApiKeyHint && (
         <p className="text-center text-sm text-muted-foreground">
-          Enter an API key to test the connection before saving.
+          {t('models.enterApiKey')}
         </p>
       )}
       {status === 'success' && (
         <StatusCard
           icon={<Check className="h-4 w-4 text-success" />}
-          title="Test successful!"
-          description="Successfully got a response from the model."
+          title={t('models.testSuccessful')}
+          description={t('models.testSuccessDescription')}
         />
       )}
       {status === 'error' && (
         <StatusCard
           icon={<X className="h-4 w-4 text-destructive" />}
-          title="Test failed"
-          description={error || 'Received an error while testing the model.'}
+          title={t('models.testFailed')}
+          description={error || t('models.testFailureDescription')}
         />
       )}
     </>

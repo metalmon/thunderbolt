@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
+
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { AvailableTools, type ToolItem } from '@/components/available-tools'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -35,6 +37,7 @@ export const IntegrationDetail = ({
   onError: (error: Error) => void
   onClose: () => void
 }) => {
+  const { t } = useTranslation('settings')
   const isPro = integration.provider === 'thunderbolt-pro'
 
   return (
@@ -45,15 +48,15 @@ export const IntegrationDetail = ({
       onClose={onClose}
     >
       <div className="flex shrink-0 flex-col gap-2">
-        <DetailSectionTitle>Account</DetailSectionTitle>
+        <DetailSectionTitle>{t('connections.account')}</DetailSectionTitle>
         {integration.isConnected ? (
           <div className="flex items-center justify-between gap-3">
             <p className="min-w-0 truncate text-base text-foreground">
-              {integration.userEmail ?? `Connected to ${integration.name}`}
+              {integration.userEmail ?? t('connections.connectedTo', { name: integration.name })}
             </p>
             {!isPro && (
               <Button variant="outline" size="sm" onClick={onDisconnect}>
-                Disconnect
+                {t('integrations.disconnect')}
               </Button>
             )}
           </div>
@@ -85,7 +88,7 @@ export const IntegrationDetail = ({
         <AvailableTools tools={tools} />
         {!integration.isConnected && (
           <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-            Connect your account to make these tools available to agents.
+            {t('connections.connectAccount')}
           </p>
         )}
       </div>

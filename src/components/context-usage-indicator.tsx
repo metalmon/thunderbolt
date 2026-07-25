@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
+
 import { cn, formatNumber } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
 
@@ -15,6 +17,7 @@ type ContextUsageIndicatorProps = {
  * Context usage indicator component showing token usage as a progress ring
  */
 export const ContextUsageIndicator = ({ usedTokens = 0, maxTokens, className }: ContextUsageIndicatorProps) => {
+  const { t } = useTranslation('chat')
   const percentage = Math.min((usedTokens / maxTokens) * 100, 100)
   const roundedPercentage = Math.round(percentage)
 
@@ -64,7 +67,7 @@ export const ContextUsageIndicator = ({ usedTokens = 0, maxTokens, className }: 
           </TooltipTrigger>
           <TooltipContent>
             <p>
-              Using {formatNumber(usedTokens)} of {formatNumber(maxTokens)} Context Window
+              {t('contextUsage', { used: formatNumber(usedTokens), max: formatNumber(maxTokens) })}
             </p>
           </TooltipContent>
         </Tooltip>

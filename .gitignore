@@ -80,3 +80,6 @@ Pulumi.*.yaml
 
 # Astro
 .astro/
+
+# Git-ignored demo secrets (OpenRouter key, etc.)
+powersync-service/openrouter.env

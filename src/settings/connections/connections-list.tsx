@@ -4,6 +4,7 @@
 
 import { Plug, Plus } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { EditDeleteContextMenuContent } from '@/components/settings/edit-delete-context-menu'
 import { SettingsEmptyState, SettingsNoResults } from '@/components/settings/settings-empty-state'
@@ -42,18 +43,21 @@ const ConnectionRow = ({
   isDimmed?: boolean
   onSelect: () => void
   trailing: ReactNode
-}) => (
-  <SettingsSelectableRow
-    title={title}
-    subtitle={subtitle}
-    leading={<span className="flex size-5 items-center justify-center">{leading}</span>}
-    isSelected={isActive}
-    isDimmed={isDimmed}
-    onSelect={onSelect}
-    ariaLabel={`Open ${title}`}
-    trailing={trailing}
-  />
-)
+}) => {
+  const { t } = useTranslation('settings')
+  return (
+    <SettingsSelectableRow
+      title={title}
+      subtitle={subtitle}
+      leading={<span className="flex size-5 items-center justify-center">{leading}</span>}
+      isSelected={isActive}
+      isDimmed={isDimmed}
+      onSelect={onSelect}
+      ariaLabel={t('connections.openConnection', { title })}
+      trailing={trailing}
+    />
+  )
+}
 
 const IntegrationRow = ({
   integration,
@@ -65,28 +69,33 @@ const IntegrationRow = ({
   isActive: boolean
   onSelect: () => void
   onToggleEnabled: (next: boolean) => void
-}) => (
-  <li>
-    <ConnectionRow
-      title={integration.name}
-      subtitle={integration.isConnected ? integration.userEmail : undefined}
-      leading={integration.icon}
-      isActive={isActive}
-      isDimmed={!integration.isConnected}
-      onSelect={onSelect}
-      trailing={
-        <Switch
-          checked={integration.isEnabled}
-          // Enabling only makes sense once the account is connected — the aside
-          // holds the connect flow.
-          disabled={!integration.isConnected}
-          onCheckedChange={onToggleEnabled}
-          aria-label={`${integration.isEnabled ? 'Disable' : 'Enable'} ${integration.name}`}
-        />
-      }
-    />
-  </li>
-)
+}) => {
+  const { t } = useTranslation('settings')
+  return (
+    <li>
+      <ConnectionRow
+        title={integration.name}
+        subtitle={integration.isConnected ? integration.userEmail : undefined}
+        leading={integration.icon}
+        isActive={isActive}
+        isDimmed={!integration.isConnected}
+        onSelect={onSelect}
+        trailing={
+          <Switch
+            checked={integration.isEnabled}
+            // Enabling only makes sense once the account is connected — the aside
+            // holds the connect flow.
+            disabled={!integration.isConnected}
+            onCheckedChange={onToggleEnabled}
+            aria-label={t(integration.isEnabled ? 'connections.disableConnection' : 'connections.enableConnection', {
+              name: integration.name,
+            })}
+          />
+        }
+      />
+    </li>
+  )
+}
 
 const ServerRow = ({
   server,
@@ -105,6 +114,7 @@ const ServerRow = ({
   onEdit: () => void
   onDelete: () => void
 }) => {
+  const { t } = useTranslation('settings')
   const title = serverDisplayName(server)
   const url = cleanServerUrl(server.url ?? '')
   const isEnabled = server.enabled === 1
@@ -126,7 +136,9 @@ const ServerRow = ({
                 <Switch
                   checked={isEnabled}
                   onCheckedChange={onToggleEnabled}
-                  aria-label={`${isEnabled ? 'Disable' : 'Enable'} ${title}`}
+                  aria-label={t(isEnabled ? 'connections.disableConnection' : 'connections.enableConnection', {
+                    name: title,
+                  })}
                 />
               }
             />
@@ -175,6 +187,7 @@ export const ConnectionsList = ({
   onEditServer: (id: string) => void
   onDeleteServer: (id: string) => void
 }) => {
+  const { t } = useTranslation('settings')
   const [search, setSearch] = useState('')
   const query = search.trim()
 
@@ -194,12 +207,12 @@ export const ConnectionsList = ({
   return (
     <SettingsListPane>
       <PageSearch onSearch={setSearch}>
-        <PageHeader title="Connections">
+        <PageHeader title={t('connections.title')}>
           <PageSearch.Button />
-          <PageCreateAction label="New Connection" onClick={onAdd} />
+          <PageCreateAction label={t('connections.newConnection')} onClick={onAdd} />
         </PageHeader>
 
-        <PageSearch.Input placeholder="Search connections" onSearch={setSearch} />
+        <PageSearch.Input placeholder={t('connections.searchConnections')} onSearch={setSearch} />
       </PageSearch>
 
       <SettingsListBody>
@@ -219,7 +232,7 @@ export const ConnectionsList = ({
 
         {filteredServers.length > 0 && (
           <div className="mt-5 flex flex-col gap-2">
-            <SettingsSectionLabel>MCP servers</SettingsSectionLabel>
+            <SettingsSectionLabel>{t('connections.mcpServers')}</SettingsSectionLabel>
             <ul className="flex flex-col gap-4">
               {filteredServers.map((server) => (
                 <ServerRow
@@ -241,17 +254,17 @@ export const ConnectionsList = ({
           <SettingsEmptyState
             className="mt-1"
             icon={<Plug className="size-8 text-muted-foreground" aria-hidden="true" />}
-            description="Connect your own MCP servers to give agents more tools."
+            description={t('connections.emptyDescription')}
             action={
               <Button size="sm" variant="outline" onClick={onAdd}>
                 <Plus />
-                Add your first server
+                {t('connections.addFirstServer')}
               </Button>
             }
           />
         )}
 
-        {nothingMatches && query && <SettingsNoResults>No matching connections.</SettingsNoResults>}
+        {nothingMatches && query && <SettingsNoResults>{t('connections.noMatching')}</SettingsNoResults>}
       </SettingsListBody>
     </SettingsListPane>
   )

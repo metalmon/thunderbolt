@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailPanel, DetailPanelSurface } from '@/components/detail-panel'
 import { SettingsListPane } from '@/components/settings/settings-list'
@@ -27,6 +28,7 @@ import { ModelsList } from './models-list'
 import { useModelsPageState } from './use-models-page-state'
 
 const ModelsPage = () => {
+  const { t } = useTranslation('settings')
   const page = useModelsPageState()
   const { activeModel, editingModel } = page
 
@@ -48,7 +50,7 @@ const ModelsPage = () => {
   const renderPanel = () => {
     if (page.isAddPanelOpen) {
       return (
-        <DetailPanel title="Add Model" onClose={page.addForm.onCancel}>
+        <DetailPanel title={t('models.addModel')} onClose={page.addForm.onCancel}>
           <AddModelForm {...page.addForm} />
         </DetailPanel>
       )
@@ -56,7 +58,7 @@ const ModelsPage = () => {
     if (activeModel && editingModel) {
       return (
         <DetailPanel
-          title="Edit Model"
+          title={t('models.editModel')}
           subtitle={editingModel.name}
           onClose={() => page.closeEditPanel(editingModel.id)}
         >
@@ -89,13 +91,13 @@ const ModelsPage = () => {
     <div className="relative flex h-full">
       <div className="min-w-0 flex-1 overflow-hidden">
         <SettingsListPane className="gap-6 md:pb-12">
-          <PageHeader title="Models">
-            <PageCreateAction label="New Model" onClick={page.openAddPanel} />
+          <PageHeader title={t('models.title')}>
+            <PageCreateAction label={t('models.newModel')} onClick={page.openAddPanel} />
           </PageHeader>
           {showPageLevelError && (
             <StatusCard
               icon={<X className="h-4 w-4 text-destructive" />}
-              title="Something went wrong"
+              title={t('errorGeneric', { ns: 'common' })}
               description={page.mutationError}
             />
           )}
@@ -116,14 +118,14 @@ const ModelsPage = () => {
       <AlertDialog open={Boolean(page.deleteConfirmId)} onOpenChange={(open) => !open && page.requestDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Model</AlertDialogTitle>
-            <AlertDialogDescription>Delete this model from your configured models?</AlertDialogDescription>
+            <AlertDialogTitle>{t('models.removeModel')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('models.removeModelDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           {page.mutationError && <p className="text-sm text-destructive">{page.mutationError}</p>}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={page.isDeletePending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={page.isDeletePending}>{t('models.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={page.confirmDelete} disabled={page.isDeletePending} variant="destructive">
-              {page.isDeletePending ? 'Deleting…' : 'Delete'}
+              {page.isDeletePending ? t('models.removing') : t('models.remove')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
