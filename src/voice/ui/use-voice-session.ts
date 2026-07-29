@@ -141,27 +141,54 @@ export const useVoiceSession = () => {
       // bundle. Read the flag authoritatively from the DB here too (not via a
       // reactive hook that returns `false` until its query resolves) so a custom
       // provider is never bypassed for the hardwired engine on a cold start.
-      const [{ createVoiceSession }, { createVoiceEngine }, { createChatReply }, { experimentalFeatureVoice }] =
-        await Promise.all([
-          import('@/voice/session'),
-          import('@/voice/engine/router'),
-          import('@/voice/chat-reply'),
-          getSettings(db, { experimental_feature_voice: false }),
-        ])
-      const voice = createVoiceSession({
-        engine: createVoiceEngine(experimentalFeatureVoice),
-        // The transcript + reply render as normal chat bubbles via sendMessage, so
-        // the UI itself only needs the session state.
-        reply: createChatReply(toReplyChat(session.chatInstance, session.id)),
-        onState: (state) => patch({ state }),
-        onError: (error) => {
-          console.error('[voice]', error)
-          patch({ error: toVoiceOverlayError(error) })
-        },
-        onLevel: (level) => {
-          levelRef.current = level
-        },
-      })
+      const [
+        { createVoiceSession },
+        { createRealtimeSession },
+        { createVoiceEngine },
+        { createChatReply },
+        { experimentalFeatureVoice },
+      ] = await Promise.all([
+        import('@/voice/session'),
+        import('@/voice/realtime-session'),
+        import('@/voice/engine/router'),
+        import('@/voice/chat-reply'),
+        getSettings(db, { experimental_feature_voice: false }),
+      ])
+
+      const engineResult = createVoiceEngine(experimentalFeatureVoice)
+
+      let voice: VoiceSession
+      if (engineResult.kind === 'realtime') {
+        // Realtime (bidi) engine — server handles STT/LLM/TTS over WebSocket.
+        voice = createRealtimeSession({
+          engine: engineResult.engine,
+          systemPrompt: 'You are a helpful assistant.',
+          onState: (state) => patch({ state }),
+          onError: (error) => {
+            console.error('[voice]', error)
+            patch({ error: toVoiceOverlayError(error) })
+          },
+          onLevel: (level) => {
+            levelRef.current = level
+          },
+        })
+      } else {
+        // Pipeline engine — STT → LLM → TTS. The transcript + reply render as normal
+        // chat bubbles via sendMessage, so the UI itself only needs the session state.
+        voice = createVoiceSession({
+          engine: engineResult.engine,
+          reply: createChatReply(toReplyChat(session.chatInstance, session.id)),
+          onState: (state) => patch({ state }),
+          onError: (error) => {
+            console.error('[voice]', error)
+            patch({ error: toVoiceOverlayError(error) })
+          },
+          onLevel: (level) => {
+            levelRef.current = level
+          },
+        })
+      }
+
       sessionRef.current = voice
       await voice.start()
     } catch (error) {
