@@ -178,15 +178,31 @@ export const useVoiceSession = () => {
       // bundle. Read the flag authoritatively from the DB here too (not via a
       // reactive hook that returns `false` until its query resolves) so a custom
       // provider is never bypassed for the hardwired engine on a cold start.
-      const [{ createVoiceSession }, { createVoiceEngine }, { createChatReply }, { experimentalFeatureVoice }] =
-        await Promise.all([
-          import('@/voice/session'),
-          import('@/voice/engine/router'),
-          import('@/voice/chat-reply'),
-          getSettings(db, { experimental_feature_voice: false }),
-        ])
+      const [
+        { createVoiceSession },
+        { createRealtimeSession },
+        { createVoiceEngine },
+        { createChatReply },
+        { experimentalFeatureVoice },
+      ] = await Promise.all([
+        import('@/voice/session'),
+        import('@/voice/realtime-session'),
+        import('@/voice/engine/router'),
+        import('@/voice/chat-reply'),
+        getSettings(db, { experimental_feature_voice: false }),
+      ])
       signal.throwIfAborted()
-      const engine = createVoiceEngine(experimentalFeatureVoice)
+      const engineResult = createVoiceEngine(experimentalFeatureVoice)
+      if (engineResult.kind === 'realtime') {
+        // Realtime (bidi) engine — the server does STT/LLM/TTS over one WebSocket, so
+        // there is no chat-reply pipeline to wire.
+        return createRealtimeSession({
+          engine: engineResult.engine,
+          systemPrompt: 'You are a helpful assistant.',
+          ...callbacks,
+        })
+      }
+      const engine = engineResult.engine
       if (engine.id === 'thunderbolt' && (!getLocalSetting('cloudUrl') || !hasServerAuthentication())) {
         window.dispatchEvent(new CustomEvent(showSignInModalEvent))
         return null
