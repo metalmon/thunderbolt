@@ -21,7 +21,10 @@ import type { SessionState, VoiceSession } from './session'
 
 export type RealtimeSessionOptions = {
   engine: RealtimeEngine
+  /** Static system prompt (fallback). */
   systemPrompt: string
+  /** Dynamic system prompt getter — called at session start to get the current chat's prompt. */
+  getSystemPrompt?: () => string
   model?: string
   voice?: string
   onState?: (state: SessionState) => void
@@ -33,7 +36,7 @@ export type RealtimeSessionOptions = {
 const tick = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
-  const { engine, systemPrompt, onState, onTranscript, onError, onLevel } = options
+  const { engine, onState, onTranscript, onError, onLevel } = options
   const playback = createPlaybackQueue()
   let state: SessionState = 'idle'
   let session: ReturnType<RealtimeEngine['openSession']> | null = null
@@ -51,7 +54,8 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
     if (state !== 'thinking' && state !== 'speaking') {
       return
     }
-    // Abort the current turn's event processing.
+    // Send interrupt to server so it stops generation/synthesis.
+    session?.sendInterrupt()
     turnAbort?.abort()
     playback.flush()
     setState('listening')
@@ -115,12 +119,15 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
       return
     }
 
+    // Get the current system prompt — prefer dynamic getter, fallback to static.
+    const currentPrompt = options.getSystemPrompt?.() ?? options.systemPrompt
+
     // Open bidi session.
     const ac = new AbortController()
     turnAbort = ac
 
     session = engine.openSession({
-      systemPrompt,
+      systemPrompt: currentPrompt,
       model: options.model ?? 'gemini-2.0-flash-live-001',
       voice: options.voice ?? 'Kore',
       signal: ac.signal,
