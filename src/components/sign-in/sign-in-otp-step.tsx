@@ -169,17 +169,6 @@ export const SignInOtpStep = ({
       </div>
 
       <div className="mt-6 w-full shrink-0">
-          )}
-
-          {errorLine}
-
-          {renderResendButton()}
-
-          {!isLocalhost && <p className="text-xs text-muted-foreground">Or click the magic link in your email</p>}
-        </div>
-      </div>
-
-      <div className="mt-6 w-full shrink-0">
         <Button variant="outline" className="w-full" onClick={onCancel}>
           {t('cancel', { ns: 'common' })}
         </Button>
