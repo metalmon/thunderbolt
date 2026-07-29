@@ -17,7 +17,7 @@ import { z } from 'zod'
  * A schema because the ownership record keeps a copy per account (see `local-data-owner.ts`).
  */
 export const voiceProviderSchema = z.object({
-  kind: z.enum(['thunderbolt', 'openai-compatible']),
+  kind: z.enum(['thunderbolt', 'openai-compatible', 'gemini-live']),
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
   baseUrl: z.string(),
   apiKey: z.string(),
