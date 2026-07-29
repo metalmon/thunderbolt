@@ -300,7 +300,6 @@ export default function DevicesSettingsPage() {
       )}
 
       {hasPendingDevices && (
-<<<<<<< HEAD
         <section className="flex flex-col gap-2">
           <SettingsSectionLabel>{t('devices.pendingApprovalsTitle')}</SettingsSectionLabel>
           <ul className="flex flex-col gap-4">
