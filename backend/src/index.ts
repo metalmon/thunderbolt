@@ -24,6 +24,7 @@ import { createPreviewRoutes } from '@/api/preview'
 import { createPostHogRoutes } from '@/posthog/routes'
 import { createProToolsRoutes } from '@/pro/routes'
 import { createTinfoilKeepWarm } from '@/tinfoil/keep-warm'
+import { createGeminiLiveRoutes } from '@/fork/gemini-live/routes'
 import { createTinfoilRoutes } from '@/tinfoil/routes'
 import { createOpenrouterRoutes } from '@/fork/openrouter/routes'
 import { createWaitlistRoutes } from '@/waitlist/routes'
@@ -122,6 +123,7 @@ export const createApp = async (deps?: AppDeps) => {
       )
       .use(createTinfoilRoutes({ auth, fetchFn, logger: appLogger, rateLimit: proRateLimit }))
       .use(createOpenrouterRoutes({ auth, fetchFn, rateLimit: proRateLimit }))
+      .use(createGeminiLiveRoutes({ auth, rateLimit: proRateLimit }))
       .use(
         createUniversalProxyWsRoutes({
           auth,
