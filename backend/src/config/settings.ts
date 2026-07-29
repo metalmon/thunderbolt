@@ -106,6 +106,8 @@ const settingsSchema = z
     // Include the `/v1` API prefix — Tinfoil's OpenAI-compatible endpoints live
     // under `/v1/chat/completions`, `/v1/models`, etc.
     tinfoilEnclaveUrl: z.string().default('https://inference.tinfoil.sh/v1'),
+    // Gemini API key for the voice realtime proxy (Google AI Studio).
+    geminiApiKey: z.string().default(''),
 
     // Health Check Configuration
     monitoringToken: z.string().default(''),
@@ -575,6 +577,7 @@ const parseSettings = (): Settings => {
     exaApiKey: process.env.EXA_API_KEY || '',
     tinfoilApiKey: process.env.TINFOIL_API_KEY || '',
     tinfoilEnclaveUrl: process.env.TINFOIL_ENCLAVE_URL || 'https://inference.tinfoil.sh/v1',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
     monitoringToken: process.env.MONITORING_TOKEN || '',
     integrationOAuthAllowPublic: process.env.INTEGRATION_OAUTH_ALLOW_PUBLIC === 'true',
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
