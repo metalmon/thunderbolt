@@ -1169,7 +1169,6 @@ export default function PreferencesSettingsPage() {
                     {deleteAccountError}
                   </p>
                 )}
-<<<<<<< HEAD
                 {/* Secondary on the page; the red danger styling lives on the
                     confirm button inside the dialog. */}
                 <Button
