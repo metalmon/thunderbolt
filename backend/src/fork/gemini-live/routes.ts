@@ -25,6 +25,13 @@ export type CreateGeminiLiveRoutesOptions = {
   apiKey?: string
 }
 
+/** Per-connection state: the upstream WebSocket to Google. */
+type UpstreamState = {
+  upstream: WebSocket | null
+  pending: Array<string | ArrayBuffer | Uint8Array>
+  upstreamReady: boolean
+}
+
 export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) => {
   const { auth, rateLimit } = options
   const apiKey = options.apiKey ?? process.env.GEMINI_API_KEY
@@ -37,72 +44,80 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
         g.use(rateLimit)
       }
 
-      return g.get('/', async (ctx) => {
-        if (!apiKey) {
-          return new Response('Gemini provider not configured', { status: 503, headers: { 'Content-Type': 'text/plain' } })
-        }
+      return g.ws('/', {
+        open(ws) {
+          if (!apiKey) {
+            ws.close(1008, 'Gemini provider not configured')
+            return
+          }
 
-        // Extract model from query params for the upstream URL.
-        const url = new URL(ctx.request.url)
-        const model = url.searchParams.get('model') || 'gemini-2.0-flash-live-001'
+          // Extract model from query params on the original request URL.
+          const data = ws.data as { query?: Record<string, string> }
+          const model = data?.query?.model || 'gemini-2.0-flash-live-001'
 
-        const upstreamUrl = `${GEMINI_WS_BASE}?key=${apiKey}&model=${model}`
+          const upstreamUrl = `${GEMINI_WS_BASE}?key=${apiKey}&model=${model}`
 
-        // Bridge: open a WebSocket to Google and pipe messages between client ↔ upstream.
-        const upstreamWs = new WebSocket(upstreamUrl)
+          const state: UpstreamState = {
+            upstream: null,
+            pending: [],
+            upstreamReady: false,
+          }
+          ;(ws.data as Record<string, unknown>).relay = state
 
-        // Wait for upstream to open, then upgrade the client.
-        await new Promise<void>((resolve, reject) => {
-          upstreamWs.onopen = () => resolve()
-          upstreamWs.onerror = () => reject(new Error('Failed to connect to Gemini'))
-          // Timeout after 10s.
-          setTimeout(() => reject(new Error('Gemini connection timeout')), 10_000)
-        })
+          try {
+            const upstream = new WebSocket(upstreamUrl)
+            state.upstream = upstream
 
-        // Bridge messages bidirectionally.
-        // Client → upstream: forward as-is (client already sends the right format).
-        // Upstream → client: forward as-is (Google's format is what the client expects).
-        upstreamWs.onmessage = (event) => {
-          // The client socket is not directly accessible in Elysia's upgrade context,
-          // so we use the server's built-in WebSocket handling.
-          // In Bun, the upgraded socket is available via ctx.server.upgrade().
-        }
-
-        // For Bun's WebSocket upgrade, we return the upgrade response.
-        // The actual bridging happens in the WebSocket event handlers.
-        const upgraded = ctx.server?.upgrade(ctx.request, {
-          websocket: {
-            open(ws) {
-              // Client connected — bridge to upstream.
-              upstreamWs.onmessage = (event) => {
-                ws.send(event.data)
+            upstream.onopen = () => {
+              state.upstreamReady = true
+              for (const msg of state.pending) {
+                upstream.send(msg as never)
               }
-              upstreamWs.onclose = () => {
-                ws.close(1000, 'Upstream closed')
-              }
-              upstreamWs.onerror = () => {
-                ws.close(1011, 'Upstream error')
-              }
-            },
-            message(ws, message) {
-              // Client → upstream.
-              if (upstreamWs.readyState === WebSocket.OPEN) {
-                upstreamWs.send(message)
-              }
-            },
-            close(ws, code, reason) {
-              // Client disconnected — close upstream.
-              if (upstreamWs.readyState === WebSocket.OPEN) {
-                upstreamWs.close(code, reason)
-              }
-            },
-          },
-        })
+              state.pending = []
+            }
 
-        if (!upgraded) {
-          upstreamWs.close()
-          return new Response('WebSocket upgrade failed', { status: 500 })
-        }
+            upstream.onmessage = (event) => {
+              ws.send(event.data as never)
+            }
+
+            upstream.onerror = () => {
+              ws.close(1011, 'Upstream connection error')
+            }
+
+            upstream.onclose = (event) => {
+              ws.close(event.code, event.reason || 'Upstream closed')
+            }
+          } catch {
+            ws.close(1011, 'Failed to connect to Gemini')
+          }
+        },
+
+        message(ws, message) {
+          const state = (ws.data as Record<string, unknown>).relay as UpstreamState | undefined
+          if (!state?.upstream) {
+            return
+          }
+
+          // Coerce Elysia's parsed message back to raw bytes/string for forwarding.
+          const payload =
+            typeof message === 'string' || message instanceof ArrayBuffer || message instanceof Uint8Array
+              ? message
+              : String(message)
+
+          if (state.upstreamReady) {
+            state.upstream.send(payload as never)
+            return
+          }
+
+          state.pending.push(payload as never)
+        },
+
+        close(ws, code, reason) {
+          const state = (ws.data as Record<string, unknown>).relay as UpstreamState | undefined
+          if (state?.upstream && state.upstream.readyState === WebSocket.OPEN) {
+            state.upstream.close(code, typeof reason === 'string' ? reason : undefined)
+          }
+        },
       })
     })
 }
