@@ -195,6 +195,14 @@ export const createGeminiLiveEngine = (): RealtimeEngine => {
           }
           audioBuffer.push(float32ToPcm16(frame))
         },
+        sendInterrupt: () => {
+          if (ws.readyState !== WebSocket.OPEN || sessionAc.signal.aborted) {
+            return
+          }
+          // Flush any pending audio first so the interrupt applies to what was sent.
+          flushAudio()
+          ws.send(JSON.stringify({ type: 'interrupt' }))
+        },
         events,
         close: () => {
           sessionAc.abort()

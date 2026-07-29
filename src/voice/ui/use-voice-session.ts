@@ -198,7 +198,17 @@ export const useVoiceSession = () => {
         // there is no chat-reply pipeline to wire.
         return createRealtimeSession({
           engine: engineResult.engine,
-          systemPrompt: 'You are a helpful assistant.',
+          getSystemPrompt: () => {
+            // Pull the current system prompt from the chat's agent configuration.
+            const agent = session.selectedAgent
+            const parts: string[] = []
+            if (agent?.description) {
+              parts.push(`You are ${agent.name || 'an assistant'}. ${agent.description}`)
+            }
+            return parts.join('
+
+') || 'You are a helpful assistant.'
+          },
           ...callbacks,
         })
       }
