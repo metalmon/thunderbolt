@@ -107,6 +107,7 @@ export const VoiceSettingsPage = () => {
 
   const update = (patch: Partial<VoiceProviderConfig>) => setLocalSetting('voiceProvider', { ...config, ...patch })
   const isCustom = config.kind === 'openai-compatible'
+  const isGeminiLive = config.kind === 'gemini-live'
   const canTest = isCustom && config.baseUrl.trim().length > 0
 
   const runTest = async () => {
@@ -138,12 +139,17 @@ export const VoiceSettingsPage = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="thunderbolt">Volt (hosted, private)</SelectItem>
+                <SelectItem value="thunderbolt">{t('voice.voltOption')}</SelectItem>
+                <SelectItem value="gemini-live">{t('voice.geminiOption')}</SelectItem>
                 <SelectItem value="openai-compatible">{t('voice.customEndpointOption')}</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-              {isCustom ? t('voice.customHint') : t('voice.enclaveHint')}
+              {isGeminiLive
+                ? t('voice.geminiHint')
+                : isCustom
+                  ? t('voice.customHint')
+                  : t('voice.enclaveHint')}
             </p>
           </div>
 
@@ -225,6 +231,30 @@ export const VoiceSettingsPage = () => {
                 )}
               </div>
             </>
+          )}
+
+          {isGeminiLive && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="voice-gemini-voice">Voice</Label>
+                <Select
+                  value={config.ttsVoice || 'Kore'}
+                  onValueChange={(ttsVoice) => update({ ttsVoice })}
+                >
+                  <SelectTrigger id="voice-gemini-voice" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr'].map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                  Gemini Live voice character. API key is managed server-side.
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </SectionCard>
