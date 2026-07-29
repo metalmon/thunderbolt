@@ -32,6 +32,7 @@ import { createPreviewRoutes } from '@/api/preview'
 import { createPostHogRoutes } from '@/posthog/routes'
 import { createProToolsRoutes } from '@/pro/routes'
 import { createTinfoilKeepWarm } from '@/tinfoil/keep-warm'
+import { createGeminiLiveRoutes } from '@/fork/gemini-live/routes'
 import { createTinfoilRoutes } from '@/tinfoil/routes'
 import { createWaitlistRoutes } from '@/waitlist/routes'
 import { createAccountRoutes } from '@/api/account'
@@ -152,6 +153,7 @@ export const createApp = async (deps?: AppDeps) => {
           rateLimit: createUserTierRateLimit(database, rateLimitSettings, 'receipt'),
         }),
       )
+      .use(createGeminiLiveRoutes({ auth, rateLimit: proRateLimit }))
       .use(
         createUniversalProxyWsRoutes({
           auth,
