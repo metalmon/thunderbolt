@@ -12,7 +12,7 @@ import { persist } from 'zustand/middleware'
  * Device-local (not synced): holds a key and a machine-specific URL.
  */
 export type VoiceProviderConfig = {
-  kind: 'thunderbolt' | 'openai-compatible'
+  kind: 'thunderbolt' | 'openai-compatible' | 'gemini-live'
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
   baseUrl: string
   apiKey: string
