@@ -103,6 +103,15 @@ export const useVoiceSession = () => {
         voice = createRealtimeSession({
           engine: engineResult.engine,
           systemPrompt: 'You are a helpful assistant.',
+          getSystemPrompt: () => {
+            // Pull the current system prompt from the chat's agent configuration.
+            const agent = session.selectedAgent
+            const parts: string[] = []
+            if (agent?.description) {
+              parts.push(`You are ${agent.name || 'an assistant'}. ${agent.description}`)
+            }
+            return parts.join('\n\n') || 'You are a helpful assistant.'
+          },
           onState: (state) => patch({ state }),
           onError: (error) => {
             console.error('[voice]', error)

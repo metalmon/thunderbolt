@@ -31,6 +31,8 @@ export type RealtimeSessionConfig = {
 export type RealtimeSession = {
   /** Send captured mic frames (16 kHz mono float PCM). */
   sendAudio: (frame: Float32Array) => void
+  /** Send an interrupt signal to stop server-side generation/synthesis. */
+  sendInterrupt: () => void
   /** Receive events from the server. */
   events: AsyncIterable<RealtimeEvent>
   /** Gracefully close the session. */
