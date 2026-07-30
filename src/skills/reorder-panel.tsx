@@ -78,7 +78,7 @@ export const ReorderPanel = ({
   lockedIds = new Set<string>(),
 }: {
   pinned: Skill[]
-  onReorder: (ids: string[], move: ReorderMove) => void
+  onReorder: (ids: string[], move: ReorderMove) => void | Promise<void>
   onClose: () => void
   embedded?: boolean
   lockedIds?: ReadonlySet<string>
