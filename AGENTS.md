@@ -63,6 +63,18 @@ The canonical list lives in `dev-local/fork-branches.ps1`.
 - Run the rebuild with `HUSKY=0` so lint-staged does not reformat the tree
   mid-rebuild.
 
+## Tauri transparent window on Windows (mouse wheel fix)
+
+`transparent: true` in `tauri.conf.json` forces `WS_EX_LAYERED` on Windows,
+which breaks `WM_MOUSEWHEEL` delivery to WebView2 — mouse scroll stops working
+everywhere.
+
+**Fix:** macOS-only settings (transparent, windowEffects, titleBarStyle, hiddenTitle,
+trafficLightPosition, macOSPrivateApi) live in `tauri.macos.conf.json` instead of
+the base config. Remove them from `tauri.conf.json` on rebase if upstream adds them.
+If you add a new macOS-specific window property, add it to `tauri.macos.conf.json`,
+not the base config.
+
 ---
 
 # Upstream project instructions (thunderbird/thunderbolt)
