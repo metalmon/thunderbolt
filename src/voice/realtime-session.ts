@@ -5,171 +5,177 @@
 /**
  * Realtime (bidi WebSocket) voice session orchestrator.
  *
- * Unlike the pipeline `createVoiceSession` (VAD → STT → LLM → TTS),
- * this session streams mic audio directly into the realtime engine's WebSocket
- * and receives events (transcripts, audio, text) from the server. The server
- * handles turn detection, STT, LLM, and TTS simultaneously.
+ * Unlike the pipeline `createVoiceSession` (VAD → STT → LLM → TTS), this
+ * session streams mic audio directly into the realtime engine's WebSocket and
+ * receives events (transcripts, audio, tool calls) from the server, which
+ * handles turn detection, STT, LLM, and TTS itself.
  *
- * Barge-in: the user starts speaking → we send an interrupt message to the
- * server to stop generation, while the mic continues streaming.
+ * HARD INVARIANT: the mic is never gated, muted, or paused. Every captured
+ * frame is forwarded to `engine.sendAudio` continuously from `start()` until
+ * `stop()` — there is no local VAD/endpointer on this path (that's
+ * `createVadGate`, used only by the pipeline session). Turn detection and
+ * barge-in are entirely server-side (see `gemini-live-engine.ts`'s
+ * `automaticActivityDetection`); this file only pipes audio in and renders
+ * events out.
+ *
+ * Scope note: the `engine` passed in is already fully configured (model,
+ * voice, system prompt, tools) at construction time (see `engine/router.ts`)
+ * — `connect()` takes no session-level config. Proactive-greeting / barge-in
+ * on `{type:'interrupted'}` and `submit_prompt` tool-call handling are left as
+ * TODOs below (later tasks); this task only wires the continuous mic path and
+ * a minimal, compiling event consumer.
  */
 import { createPlaybackQueue } from '@/voice/audio/playback'
-import { createVadGate } from '@/voice/audio/vad'
+import { createMicCapture } from '@/voice/audio/mic-capture'
 import type { RealtimeEngine, RealtimeEvent } from '@/voice/engine/realtime-types'
 import { isHallucinatedTranscript } from '@/voice/transcript-filter'
 import type { SessionState, VoiceSession } from './session'
 
+/** Sample rate Gemini Live returns model audio at (see `gemini-live-engine.ts`). */
+const modelAudioSampleRate = 24000
+
 export type RealtimeSessionOptions = {
   engine: RealtimeEngine
-  /** Static system prompt (fallback). */
-  systemPrompt: string
-  /** Dynamic system prompt getter — called at session start to get the current chat's prompt. */
-  getSystemPrompt?: () => string
-  model?: string
-  voice?: string
   onState?: (state: SessionState) => void
   onTranscript?: (text: string, role: 'user' | 'assistant') => void
   onError?: (error: unknown) => void
+  /** Live mic level [0,1] per frame — for the reactive waveform. */
   onLevel?: (level: number) => void
 }
 
 const tick = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
+/** Frame RMS — a plain amplitude measurement, not endpointing (no gating decision
+ *  is made from it; it only drives the live waveform). */
+const frameRms = (frame: Float32Array): number => {
+  let sum = 0
+  for (let i = 0; i < frame.length; i++) {
+    sum += frame[i] * frame[i]
+  }
+  return Math.sqrt(sum / frame.length)
+}
+
+/** Quantize a 16 kHz mono float frame ([-1,1]) to signed PCM16 for `sendAudio`. */
+const float32ToInt16 = (frame: Float32Array): Int16Array => {
+  const pcm16 = new Int16Array(frame.length)
+  for (let i = 0; i < frame.length; i++) {
+    const s = Math.max(-1, Math.min(1, frame[i]))
+    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff
+  }
+  return pcm16
+}
+
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
   const { engine, onState, onTranscript, onError, onLevel } = options
   const playback = createPlaybackQueue()
   let state: SessionState = 'idle'
-  let session: ReturnType<RealtimeEngine['openSession']> | null = null
-  let vadGate: Awaited<ReturnType<typeof createVadGate>> | null = null
+  let mic: ReturnType<typeof createMicCapture> | null = null
+  let drainWatch: Promise<void> | null = null
   let stopped = false
 
   const setState = (next: SessionState) => {
     state = next
-    vadGate?.setListening(next !== 'idle')
     onState?.(next)
   }
 
-  /** Barge-in: user started speaking while assistant is thinking/speaking. */
-  const onSpeechStart = () => {
-    if (state !== 'thinking' && state !== 'speaking') {
+  /** Once queued model audio finishes playing, drop back to `listening` — a
+   *  single idempotent watcher per speaking spell (not a barge-in mechanism;
+   *  see the `interrupted` TODO below for that). */
+  const watchDrain = () => {
+    if (drainWatch) {
       return
     }
-    // Send interrupt to server so it stops generation/synthesis.
-    session?.sendInterrupt()
-    turnAbort?.abort()
-    playback.flush()
-    setState('listening')
+    drainWatch = (async () => {
+      while (playback.isPlaying && !stopped) {
+        await tick(80)
+      }
+      drainWatch = null
+      if (!stopped && state === 'speaking') {
+        setState('listening')
+      }
+    })()
   }
 
-  let turnAbort: AbortController | null = null
+  /** Every mic frame reaches the engine unconditionally — no gating, ever. */
+  const onFrame = (frame: Float32Array) => {
+    onLevel?.(frameRms(frame))
+    engine.sendAudio(float32ToInt16(frame))
+  }
 
-  /** Process events from the realtime engine's WebSocket. */
-  const processEvents = async (events: AsyncIterable<RealtimeEvent>, signal: AbortSignal) => {
+  const processEvents = async (events: AsyncIterable<RealtimeEvent>) => {
     try {
       for await (const event of events) {
-        if (signal.aborted || stopped) {
+        if (stopped) {
           return
         }
         switch (event.type) {
-          case 'transcript':
-            if (event.role === 'user' && event.isFinal) {
-              if (isHallucinatedTranscript(event.text)) {
-                continue
-              }
-              onTranscript?.(event.text, 'user')
-              setState('thinking')
-            }
-            if (event.role === 'assistant' && event.isFinal) {
-              onTranscript?.(event.text, 'assistant')
-            }
+          case 'ready':
             break
           case 'audio':
             setState('speaking')
-            playback.enqueue({ pcm: event.pcm, sampleRate: event.sampleRate })
+            playback.enqueue({ pcm: event.pcm, sampleRate: modelAudioSampleRate })
+            watchDrain()
             break
-          case 'text':
-            // Assistant text delta — optional UI display.
+          case 'input_transcript':
+            if (!isHallucinatedTranscript(event.text)) {
+              onTranscript?.(event.text, 'user')
+            }
+            break
+          case 'output_transcript':
+            onTranscript?.(event.text, 'assistant')
+            break
+          case 'interrupted':
+            // TODO(Task 6): barge-in — the server signals the user interrupted
+            // the model's turn; flush queued playback and return to listening.
+            break
+          case 'tool_call':
+            // TODO(Task 7): submit_prompt / tool handling — dispatch event.call
+            // and reply via engine.sendToolResponse once the tool contract lands.
             break
           case 'error':
-            onError?.(new Error(event.error))
+            onError?.(new Error(event.message))
             break
+          case 'closed':
+            if (!stopped) {
+              setState('idle')
+            }
+            return
         }
-      }
-      // Events ended — wait for playback to finish.
-      if (playback.isPlaying) {
-        while (playback.isPlaying && !signal.aborted && !stopped) {
-          await tick(80)
-        }
-      }
-      if (!signal.aborted && !stopped) {
-        setState('listening')
       }
     } catch (error) {
-      if (!signal.aborted && !stopped) {
+      if (!stopped) {
         onError?.(error)
-        setState('listening')
       }
     }
   }
 
   const start = async () => {
     stopped = false
-    await engine.load()
+    await engine.connect()
     if (stopped) {
       return
     }
 
-    // Get the current system prompt — prefer dynamic getter, fallback to static.
-    const currentPrompt = options.getSystemPrompt?.() ?? options.systemPrompt
-
-    // Open bidi session.
-    const ac = new AbortController()
-    turnAbort = ac
-
-    session = engine.openSession({
-      systemPrompt: currentPrompt,
-      model: options.model ?? 'gemini-2.0-flash-live-001',
-      voice: options.voice ?? 'Kore',
-      signal: ac.signal,
-    })
-
-    // Start processing server events in background.
+    // Process server events in the background for the lifetime of the session.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    processEvents(session.events, ac.signal)
+    processEvents(engine.events())
 
-    // Start VAD for local level metering and barge-in detection.
-    const gate = await createVadGate({
-      onSpeechStart,
-      // For bidi, audio frames go directly to the engine — no onUtterance needed.
-      onUtterance: () => {},
-      onLevel,
-    })
+    const capture = createMicCapture(onFrame)
+    await capture.start()
     if (stopped) {
-      ac.abort()
-      await gate.destroy()
+      await capture.destroy()
       return
     }
-    vadGate = gate
-    await vadGate.start()
-    if (stopped) {
-      ac.abort()
-      await vadGate.destroy()
-      vadGate = null
-      return
-    }
+    mic = capture
     setState('listening')
   }
 
   const stop = async () => {
     stopped = true
-    turnAbort?.abort()
-    turnAbort = null
-    session?.close()
-    session = null
+    engine.close()
     playback.close()
-    engine.dispose()
-    await vadGate?.destroy()
-    vadGate = null
+    await mic?.destroy()
+    mic = null
     setState('idle')
   }
 
