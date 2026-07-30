@@ -40,7 +40,7 @@ export const defaultTaskSetPreferences: Task = {
 
 export const defaultTaskExplorePro: Task = {
   id: '0198ecc5-cc2b-735b-b478-99e9874d61ba',
-  item: 'Explore Thunderbolt Pro tools to extend capabilities',
+  item: 'Explore Volt Pro tools to extend capabilities',
   order: 300,
   isComplete: 0,
   defaultHash: null,
