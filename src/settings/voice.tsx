@@ -19,6 +19,7 @@ import { type DiscoveredModels, fetchOpenAiModels, testOpenAiConnection } from '
 import { type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type ConnState = { status: 'idle' | 'testing' | 'ok' | 'error'; detail?: string }
 
@@ -95,6 +96,7 @@ const ComboField = ({
 }
 
 export const VoiceSettingsPage = () => {
+  const { t } = useTranslation('settings')
   const config = useLocalSettingsStore((s) => s.voiceProvider)
   const setLocalSetting = useLocalSettingsStore((s) => s.setLocalSetting)
   const [ui, setUi] = useState<{ conn: ConnState; models: DiscoveredModels | null; loadingModels: boolean }>({
@@ -125,9 +127,9 @@ export const VoiceSettingsPage = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 p-4 pb-12">
-      <PageHeader title="Voice" />
+      <PageHeader title={t('voice.title')} />
 
-      <SectionCard title="Voice engine">
+        <SectionCard title={t('voice.engine')}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="voice-provider">Provider</Label>
