@@ -15,7 +15,7 @@
   },
   "privacy": {
     "title": "Welcome to <bold>Thunderbolt</bold>!",
-    "subtitle": "Your privacy-first AI assistant",
+    "subtitle": "Your private AI assistant",
     "zeroLogsTitle": "Zero Logs",
     "zeroLogsDescription": "We don't keep logs of your conversations.",
     "zeroTrainingTitle": "Zero Training",
@@ -50,6 +50,6 @@
     "selectFromDropdown": "Please select a location from the dropdown to get coordinates."
   },
   "celebration": {
-    "allSet": "You're all set! 🎉"
+    "allSet": "You're all set!"
   }
 }
