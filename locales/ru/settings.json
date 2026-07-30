@@ -197,7 +197,7 @@
       "microsoft_get_onedrive_file_content": { "name": "Чтение файла OneDrive", "description": "Чтение текстового содержимого файла OneDrive." }
     },
     "updateFailed": "Не удалось обновить интеграцию",
-    "proNotAvailable": "Volt Pro пока недоступен. Следите за новостями!"
+    "proNotAvailable": "VoltPro пока недоступен. Следите за новостями!"
   },
   "models": {
     "title": "Модели",
