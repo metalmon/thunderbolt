@@ -53,7 +53,7 @@ fn initialize(app: &AppHandle, show_label: &str, quit_label: &str) -> tauri::Res
     let native_menu = Menu::with_items(app, &[&show, &quit])?;
     let mut builder = TrayIconBuilder::with_id("main-tray")
         .menu(&native_menu)
-        .tooltip("Thunderbolt")
+        .tooltip("Volt")
         .icon_as_template(true)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "tray-show" => {
