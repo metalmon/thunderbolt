@@ -8,5 +8,7 @@
   "emptyTitle": "No tasks yet",
   "emptyAddFirst": "Add Your First Task",
   "noSearchResults": "No tasks found matching \"{{query}}\"",
-  "showingLimited": "Showing 50 of {{count}} tasks"
+  "showingLimited": "Showing 50 of {{count}} tasks",
+  "completeTask": "Complete {{item}}",
+  "completeNewTask": "Complete new task"
 }
