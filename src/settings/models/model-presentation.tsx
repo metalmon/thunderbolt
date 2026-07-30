@@ -16,7 +16,7 @@ import type { Model } from '@/types'
  *  Key order is the provider-picker menu order (the add form derives its options
  *  from these keys, so a new provider can't silently drop out of the picker). */
 export const providerLabels: Record<Model['provider'], string> = {
-  thunderbolt: 'Thunderbolt',
+  thunderbolt: 'Volt',
   tinfoil: 'Tinfoil',
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
@@ -59,4 +59,4 @@ export const ModelProviderIconTile = ({ model }: { model: Pick<Model, 'provider'
 
 /** Provider label for display — system-managed Tinfoil models brand as Thunderbolt. */
 export const getProviderDisplay = (model: Pick<Model, 'provider' | 'isSystem'>): string =>
-  isThunderboltManagedModel(model) ? 'Thunderbolt' : providerLabels[model.provider]
+  isThunderboltManagedModel(model) ? 'Volt' : providerLabels[model.provider]
