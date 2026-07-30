@@ -1,28 +1,39 @@
 {
   "modes": {
-    "mode-chat": { "label": "Чат" },
-    "mode-search": { "label": "Поиск" },
-    "mode-research": { "label": "Исследование" }
+    "mode-chat": {
+      "label": "Чат"
+    },
+    "mode-search": {
+      "label": "Поиск"
+    },
+    "mode-research": {
+      "label": "Исследование"
+    }
   },
   "skills": {
     "01996330-0000-7000-8000-000000000001": {
       "name": "daily-brief",
-      "description": "Use this skill when the user asks for a daily brief, a morning rundown, or a summary of weather, news, inbox, and calendar."
+      "description": "Используйте этот навык, когда пользователь просит ежедневную сводку, утренний обзор или краткое резюме погоды, новостей, почты и календаря."
     },
     "01996330-0000-7000-8000-000000000002": {
       "name": "important-emails",
-      "description": "Use this skill when the user wants to triage their inbox, see what needs attention, or surface the most important emails of the day."
+      "description": "Используйте этот навык, когда пользователь хочет разобрать входящие, понять, что требует внимания, или увидеть самые важные письма за день."
     }
   },
   "tasks": {
     "0198ecc5-cc2b-735b-b478-93f8db7202ce": {
-      "item": "Connect your email account to get started"
+      "item": "Подключите почтовый аккаунт, чтобы начать"
     },
     "0198ecc5-cc2b-735b-b478-96071aa92f62": {
-      "item": "Set your name and location in preferences for better AI responses"
+      "item": "Укажите имя и местоположение в настройках — ответы ИИ станут точнее"
     },
     "0198ecc5-cc2b-735b-b478-99e9874d61ba": {
-      "item": "Explore Thunderbolt Pro tools to extend capabilities"
+      "item": "Изучите инструменты Thunderbolt Pro, чтобы расширить возможности"
+    }
+  },
+  "agents": {
+    "thunderbolt-built-in": {
+      "description": "Встроенный ИИ-ассистент"
     }
   }
 }
