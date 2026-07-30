@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { TFunction } from 'i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useReducer } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { v7 as uuidv7 } from 'uuid'
 import { z } from 'zod'
 
@@ -18,28 +20,29 @@ import type { Model } from '@/types'
 import type { CatalogRequest } from './model-catalog'
 import { catalogToComboboxItems, createCustomModelItem, useAutoCatalogFetch, useModelCatalog } from './use-model-catalog'
 
-export const addModelFormSchema = z
-  .object({
-    provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
-    name: z.string().min(1, { message: 'Name is required.' }),
-    model: z.string().min(1, { message: 'Model name is required.' }),
-    customModel: z.string().optional(),
-    url: z.string().optional(),
-    apiKey: z.string().optional(),
-  })
-  .refine((data) => data.provider !== 'custom' || Boolean(data.url), {
-    message: 'URL is required for Custom providers',
-    path: ['url'],
-  })
-  .refine(
-    (data) =>
-      data.provider === 'thunderbolt' ||
-      data.provider === 'custom' ||
-      (data.apiKey !== undefined && data.apiKey.length > 0),
-    { message: 'API Key is required for this provider', path: ['apiKey'] },
-  )
+export const createAddModelFormSchema = (t: TFunction) =>
+  z
+    .object({
+      provider: z.enum(['thunderbolt', 'anthropic', 'openai', 'custom', 'openrouter', 'tinfoil']),
+      name: z.string().min(1, { message: t('models.nameRequired') }),
+      model: z.string().min(1, { message: t('models.modelNameRequired') }),
+      customModel: z.string().optional(),
+      url: z.string().optional(),
+      apiKey: z.string().optional(),
+    })
+    .refine((data) => data.provider !== 'custom' || Boolean(data.url), {
+      message: t('models.urlRequiredCustom'),
+      path: ['url'],
+    })
+    .refine(
+      (data) =>
+        data.provider === 'thunderbolt' ||
+        data.provider === 'custom' ||
+        (data.apiKey !== undefined && data.apiKey.length > 0),
+      { message: t('models.apiKeyRequired'), path: ['apiKey'] },
+    )
 
-export type AddModelFormValues = z.infer<typeof addModelFormSchema>
+export type AddModelFormValues = z.infer<ReturnType<typeof createAddModelFormSchema>>
 
 type AddModelState = {
   selectedModelId: string
@@ -96,13 +99,14 @@ type UseAddModelFormOptions = {
 /** Owns the reusable add-model form, catalog, connection test, and mutation. */
 export const useAddModelForm = ({ isOpen, onClose, onMutationStart }: UseAddModelFormOptions) => {
   const { t } = useTranslation('settings')
+  const schema = useMemo(() => createAddModelFormSchema(t), [t])
   const db = useDatabase()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(addModelReducer, initialState)
   const { selectedModelId, submitError } = state
   const catalog = useModelCatalog()
   const form = useForm<AddModelFormValues>({
-    resolver: zodResolver(addModelFormSchema),
+    resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
       provider: 'thunderbolt',
