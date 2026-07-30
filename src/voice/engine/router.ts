@@ -13,7 +13,7 @@
  * start, so a settings change applies on the next voice turn.
  */
 import { getLocalSetting } from '@/stores/local-settings-store'
-import { createGeminiLiveEngine } from './gemini-live-engine'
+import { createGeminiLiveEngine, type ToolDeclaration } from './gemini-live-engine'
 import { createOpenAiCompatibleEngine } from './openai-compatible-engine'
 import type { RealtimeEngine } from './realtime-types'
 import { createThunderboltEngine } from './thunderbolt-engine'
@@ -21,21 +21,37 @@ import type { VoiceEngine } from './types'
 
 export type VoiceEngineResult = { kind: 'pipeline'; engine: VoiceEngine } | { kind: 'realtime'; engine: RealtimeEngine }
 
+/** Function declaration for the `submit_prompt` tool (Task 7): the model calls
+ *  this once it has synthesized the user's request from the voice discussion,
+ *  and `realtime-session.ts` hands the resulting prompt to the normal chat
+ *  agent. */
+const submitPromptTool: ToolDeclaration = {
+  name: 'submit_prompt',
+  description: 'The finalized request to the model, synthesized from the discussion (not a verbatim transcript).',
+  parameters: {
+    type: 'object',
+    properties: {
+      prompt: { type: 'string' },
+    },
+    required: ['prompt'],
+  },
+}
+
 export const createVoiceEngine = (customProviderEnabled: boolean): VoiceEngineResult => {
   const config = getLocalSetting('voiceProvider')
 
   // Realtime engine: Gemini Live (gated behind custom provider flag).
   if (customProviderEnabled && config.kind === 'gemini-live') {
-    // TODO(THU voice tasks 6/7/10): wire real model/voice/persona from settings
-    // and the submit_prompt tool declaration — placeholder keeps this call site
-    // compiling against the Task 3 RealtimeEngine interface in the meantime.
+    // TODO(THU voice task 10): wire real model/voice/persona from settings —
+    // placeholder keeps this call site compiling against the Task 3
+    // RealtimeEngine interface in the meantime.
     return {
       kind: 'realtime',
       engine: createGeminiLiveEngine({
         model: 'gemini-live-2.5-flash-preview',
         voiceName: 'Kore',
         systemInstruction: '',
-        tools: [],
+        tools: [submitPromptTool],
       }),
     }
   }
