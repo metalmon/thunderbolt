@@ -15,20 +15,19 @@ type CreateItemRequestInput = SkillPanelRequestInput | { kind: 'agent' } | { kin
 // intersection distributes over the union, keeping `kind` narrowing intact.
 export type CreateItemRequest = CreateItemRequestInput & { id: number }
 
-/** Panel titles by kind — one source for both the loaded panels and the
- *  host's Suspense fallback header, so they can never disagree. */
-export const createItemTitles: Record<CreateItemRequest['kind'], string> = {
-  skill: 'Create Skill',
-  agent: 'Add Agent',
-  model: 'Add Model',
+/** Panel titles by kind — translation keys for i18n. */
+export const createItemTitleKeys: Record<CreateItemRequest['kind'], string> = {
+  skill: 'skills.createSkillTitle',
+  agent: 'agents.addAgent',
+  model: 'models.addModel',
 }
 
 /** Title for the skill panel's edit mode, which the kind map can't express. */
-export const editSkillTitle = 'Edit Skill'
+export const editSkillTitleKey = 'skills.editSkillTitle'
 
-/** Returns the route-preserving panel title for create and edit requests. */
-export const createItemTitle = (request: CreateItemRequest): string =>
-  request.kind === 'skill' && request.skillId ? editSkillTitle : createItemTitles[request.kind]
+/** Returns the route-preserving panel title key for create and edit requests. */
+export const createItemTitleKey = (request: CreateItemRequest): string =>
+  request.kind === 'skill' && request.skillId ? editSkillTitleKey : createItemTitleKeys[request.kind]
 
 type CreateItemContextValue = {
   request: CreateItemRequest | null

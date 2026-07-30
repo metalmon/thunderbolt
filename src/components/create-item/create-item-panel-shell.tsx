@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { DetailPanel, DetailPanelSurface } from '@/components/detail-panel'
-import { createItemTitles, type CreateItemRequest } from './context'
+import { createItemTitleKeys, type CreateItemRequest } from './context'
 
 type CreateItemPanelShellProps = {
   kind: CreateItemRequest['kind']
@@ -24,7 +24,7 @@ type CreateItemPanelShellProps = {
  */
 export const CreateItemPanelShell = ({
   kind,
-  title = createItemTitles[kind],
+  title = createItemTitleKeys[kind],
   open,
   onClose,
   onCloseComplete,

@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { lazy, Suspense, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { createItemTitle, type CreateItemRequest, useCreateItem } from './context'
+import { createItemTitleKey, type CreateItemRequest, useCreateItem } from './context'
 import { CreateItemLoadingPanel } from './create-item-panel-shell'
 
 const CreateSkillPanel = lazy(() =>
@@ -22,6 +23,7 @@ const CreateModelPanel = lazy(() =>
  * request id remounts its form so reopening always starts clean.
  */
 export const CreateItemHost = () => {
+  const { t } = useTranslation('settings')
   const { request, isSurfaceOpen, closeCreateItem } = useCreateItem()
   const [renderedRequest, setRenderedRequest] = useState<CreateItemRequest | null>(request)
 
@@ -68,7 +70,7 @@ export const CreateItemHost = () => {
       fallback={
         <CreateItemLoadingPanel
           kind={renderedRequest.kind}
-          title={createItemTitle(renderedRequest)}
+          title={t(createItemTitleKey(renderedRequest))}
           open={isSurfaceOpen}
           onClose={closeCreateItem}
           onCloseComplete={handleCloseComplete}

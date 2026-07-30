@@ -4,6 +4,7 @@
 
 import { v7 as uuidv7 } from 'uuid'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import { testAcpConnection } from '@/acp'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
@@ -11,7 +12,7 @@ import { DetailPanel } from '@/components/detail-panel'
 import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { createAgent } from '@/dal'
 import { fireAndForgetSelfEnrollment, selfEnrollIrohNodeId } from '@/lib/iroh-enrollment'
-import { createItemTitles } from '@/components/create-item/context'
+import { createItemTitleKeys } from '@/components/create-item/context'
 import { AddCustomAgentForm, type AddCustomAgentPayload } from './add-custom-agent-form'
 
 type CreateAgentDetailPanelProps = {
@@ -24,6 +25,7 @@ type CreateAgentDetailPanelProps = {
 
 /** Shared custom-agent creation controller used in settings and quick create. */
 export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: CreateAgentDetailPanelProps) => {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const queryClient = useQueryClient()
   const authClient = useAuth()
@@ -56,7 +58,7 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
   }
 
   return (
-    <DetailPanel title={createItemTitles.agent} onClose={onClose}>
+    <DetailPanel title={t(createItemTitleKeys.agent)} onClose={onClose}>
       <AddCustomAgentForm
         onClose={onClose}
         onSubmit={handleAdd}
