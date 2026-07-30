@@ -1,5 +1,5 @@
 {
-  "appName": "Thunderbolt",
+  "appName": "Volt",
   "loading": "Loading…",
   "cancel": "Cancel",
   "save": "Save",
@@ -31,13 +31,13 @@
   },
   "upgradeRequired": {
     "title": "Update required",
-    "description": "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing.",
+    "description": "This version of Volt is no longer supported. Update the app to keep chatting and syncing.",
     "versions": "Installed: {{currentVersion}} · Minimum required: {{minVersion}}"
   },
   "storageUnavailable": {
     "title": "Storage is disabled",
-    "description": "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled.",
-    "lockdownHint": "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app.",
+    "description": "Volt needs browser storage (IndexedDB) to work, but it's currently disabled.",
+    "lockdownHint": "If you are using iOS Lockdown Mode, exclude Volt from the \"Configure Web Browsing\" setting, then reopen the app.",
     "genericHint": "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
   },
   "notFound": {
@@ -92,7 +92,7 @@
     "completeTitle": "You're all set!",
     "completeDescription": "This device has been approved and sync is now enabled across your devices.",
     "approvalTitle": "Approve this device",
-    "approvalDescription": "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device.",
+    "approvalDescription": "Open Volt on one of your trusted devices and go to Settings → Devices to approve this device.",
     "checkingAutomatically": "Checking automatically…",
     "checking": "Checking…",
     "checkNow": "Check now",
@@ -171,7 +171,7 @@
     "disable": "Disable Telemetry"
   },
   "downloadApp": {
-    "title": "Get Thunderbolt free app",
+    "title": "Get Volt free app",
     "subtitle": "One app, every AI model",
     "downloadApp": "Download App",
     "download": "Download",
