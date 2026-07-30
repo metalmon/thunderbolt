@@ -7,6 +7,8 @@ import type { PlaybackQueue } from '@/voice/audio/playback'
 import type { VadGate, VadHandlers } from '@/voice/audio/vad'
 import type { AudioChunk } from '@/voice/engine/types'
 import type { RealtimeEngine, RealtimeEvent } from '@/voice/engine/realtime-types'
+import { getClock } from '@/testing-library'
+import type { SessionState } from '@/voice/session'
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
 // The session must capture the mic *continuously* (no VAD gate) — mock the mic
@@ -49,15 +51,31 @@ mock.module('@/voice/audio/vad', () => ({
 }))
 
 let enqueued: AudioChunk[] = []
+let flushCalls = 0
+let playing = false
+
+const resetPlayback = () => {
+  enqueued = []
+  flushCalls = 0
+  playing = false
+}
+
 mock.module('@/voice/audio/playback', () => ({
   createPlaybackQueue: (): PlaybackQueue =>
     ({
-      enqueue: (chunk: AudioChunk) => enqueued.push(chunk),
-      flush: () => {},
+      // Mirror the real queue: enqueuing starts playback; flush stops it.
+      enqueue: (chunk: AudioChunk) => {
+        enqueued.push(chunk)
+        playing = true
+      },
+      flush: () => {
+        flushCalls++
+        playing = false
+      },
       close: () => {},
       getLevel: () => 0,
       get isPlaying() {
-        return false
+        return playing
       },
     }) as unknown as PlaybackQueue,
 }))
@@ -66,15 +84,20 @@ const { createRealtimeSession } = await import('@/voice/realtime-session')
 
 /** A spy `RealtimeEngine` — records every `sendAudio` call in order and lets
  *  the test control when `events()` resolves. */
-const makeEngine = (overrides: Partial<RealtimeEngine> = {}): { engine: RealtimeEngine; sendAudioCalls: Int16Array[] } => {
+const makeEngine = (
+  overrides: Partial<RealtimeEngine> = {},
+): { engine: RealtimeEngine; sendAudioCalls: Int16Array[]; sendTextCalls: string[] } => {
   const sendAudioCalls: Int16Array[] = []
+  const sendTextCalls: string[] = []
   const engine: RealtimeEngine = {
     id: 'test-engine',
     connect: async () => {},
     sendAudio: (frame) => {
       sendAudioCalls.push(frame)
     },
-    sendText: () => {},
+    sendText: (text) => {
+      sendTextCalls.push(text)
+    },
     sendToolResponse: () => {},
     events: () =>
       (async function* () {
@@ -83,7 +106,7 @@ const makeEngine = (overrides: Partial<RealtimeEngine> = {}): { engine: Realtime
     close: () => {},
     ...overrides,
   }
-  return { engine, sendAudioCalls }
+  return { engine, sendAudioCalls, sendTextCalls }
 }
 
 /** Build a distinctive Float32 frame so converted Int16 values are order-verifiable. */
@@ -110,7 +133,7 @@ describe('createRealtimeSession — continuous mic capture', () => {
   beforeEach(() => {
     resetMic()
     createVadGateSpy.mockClear()
-    enqueued = []
+    resetPlayback()
   })
 
   test('pipes every mic frame to engine.sendAudio, in order, with no drops', async () => {
@@ -195,5 +218,94 @@ describe('createRealtimeSession — continuous mic capture', () => {
     expect(enqueued[0]?.pcm).toBe(audioEvent.pcm)
 
     await session.stop()
+  })
+})
+
+describe('createRealtimeSession — proactive greeting + barge-in', () => {
+  beforeEach(() => {
+    resetMic()
+    createVadGateSpy.mockClear()
+    resetPlayback()
+  })
+
+  test('fires the new-chat greeting trigger exactly once after `ready`', async () => {
+    const { engine, sendTextCalls } = makeEngine({
+      // Emit `ready` twice to prove the greeting is a one-shot, not per-event.
+      events: () =>
+        (async function* () {
+          yield { type: 'ready' } as RealtimeEvent
+          yield { type: 'ready' } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendTextCalls).toEqual(['Начни разговор: коротко поздоровайся и спроси, чем заняться.'])
+
+    await session.stop()
+  })
+
+  test('fires the continuation greeting trigger when chat history is present', async () => {
+    const { engine, sendTextCalls } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield { type: 'ready' } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine, hasChatHistory: true })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendTextCalls).toEqual(['Продолжи разговор: коротко поздоровайся и предложи, чем продолжить.'])
+
+    await session.stop()
+  })
+
+  test('on `interrupted`, flushes queued playback (barge-in)', async () => {
+    const { engine } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield { type: 'audio', pcm: new Float32Array([0.5, -0.5]) } as RealtimeEvent
+          yield { type: 'interrupted' } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine })
+
+    await session.start()
+    await flushMicrotasks()
+
+    // Audio was enqueued, then the barge-in flushed it exactly once.
+    expect(enqueued.length).toBe(1)
+    expect(flushCalls).toBe(1)
+    expect(playing).toBe(false)
+
+    await session.stop()
+  })
+
+  test('drain watcher returns to `listening` and terminates under fake timers', async () => {
+    let states: SessionState[] = []
+    const { engine } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield { type: 'audio', pcm: new Float32Array([0.1]) } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine, onState: (s) => states.push(s) })
+
+    await session.start()
+    await flushMicrotasks()
+    expect(session.state).toBe('speaking')
+
+    // Playback drains, then advance the sinon fake clock so the drain poll fires
+    // and the session drops back to listening — no real wall-clock wait.
+    playing = false
+    getClock().tick(200)
+    expect(session.state).toBe('listening')
+
+    await session.stop()
+    void states
   })
 })
