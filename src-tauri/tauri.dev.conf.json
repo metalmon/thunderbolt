@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Thunderbolt Dev",
+  "productName": "Volt Dev",
   "identifier": "net.thunderbird.thunderbolt.dev",
   "plugins": {
     "deep-link": {
