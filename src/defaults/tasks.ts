@@ -40,7 +40,7 @@ export const defaultTaskSetPreferences: Task = {
 
 export const defaultTaskExplorePro: Task = {
   id: '0198ecc5-cc2b-735b-b478-99e9874d61ba',
-  item: 'Explore Volt Pro tools to extend capabilities',
+  item: 'Explore VoltPro tools to extend capabilities',
   order: 300,
   isComplete: 0,
   defaultHash: null,
@@ -67,4 +67,4 @@ export const defaultTasks: ReadonlyArray<Task> = [
  * The paired snapshot test in `tasks.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultTasksVersion = 1
+export const defaultTasksVersion = 2
