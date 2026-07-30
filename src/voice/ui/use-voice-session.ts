@@ -100,18 +100,12 @@ export const useVoiceSession = () => {
       let voice: VoiceSession
       if (engineResult.kind === 'realtime') {
         // Realtime (bidi) engine — server handles STT/LLM/TTS over WebSocket.
+        // The system prompt/model/voice are baked into `engineResult.engine` at
+        // construction time (see `engine/router.ts`) rather than passed here —
+        // TODO(Task 6/7/10): wire the chat's agent description into that
+        // construction site (mirrors the `getSystemPrompt` logic this replaced).
         voice = createRealtimeSession({
           engine: engineResult.engine,
-          systemPrompt: 'You are a helpful assistant.',
-          getSystemPrompt: () => {
-            // Pull the current system prompt from the chat's agent configuration.
-            const agent = session.selectedAgent
-            const parts: string[] = []
-            if (agent?.description) {
-              parts.push(`You are ${agent.name || 'an assistant'}. ${agent.description}`)
-            }
-            return parts.join('\n\n') || 'You are a helpful assistant.'
-          },
           onState: (state) => patch({ state }),
           onError: (error) => {
             console.error('[voice]', error)
