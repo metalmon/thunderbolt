@@ -5,6 +5,7 @@
 import type { MicCapture } from '@/voice/audio/mic-capture'
 import type { PlaybackQueue } from '@/voice/audio/playback'
 import type { VadGate, VadHandlers } from '@/voice/audio/vad'
+import type { ReplyChat } from '@/voice/chat-reply'
 import type { AudioChunk } from '@/voice/engine/types'
 import type { RealtimeEngine, RealtimeEvent } from '@/voice/engine/realtime-types'
 import { getClock } from '@/testing-library'
@@ -39,12 +40,14 @@ mock.module('@/voice/audio/mic-capture', () => ({
   },
 }))
 
-const createVadGateSpy = mock((_handlers: VadHandlers): VadGate => ({
-  start: async () => {},
-  pause: async () => {},
-  destroy: async () => {},
-  setListening: () => {},
-}))
+const createVadGateSpy = mock(
+  (_handlers: VadHandlers): VadGate => ({
+    start: async () => {},
+    pause: async () => {},
+    destroy: async () => {},
+    setListening: () => {},
+  }),
+)
 
 mock.module('@/voice/audio/vad', () => ({
   createVadGate: createVadGateSpy,
@@ -86,9 +89,15 @@ const { createRealtimeSession } = await import('@/voice/realtime-session')
  *  the test control when `events()` resolves. */
 const makeEngine = (
   overrides: Partial<RealtimeEngine> = {},
-): { engine: RealtimeEngine; sendAudioCalls: Int16Array[]; sendTextCalls: string[] } => {
+): {
+  engine: RealtimeEngine
+  sendAudioCalls: Int16Array[]
+  sendTextCalls: string[]
+  sendToolResponseCalls: Array<{ id: string; name: string; response: Record<string, unknown> }>
+} => {
   const sendAudioCalls: Int16Array[] = []
   const sendTextCalls: string[] = []
+  const sendToolResponseCalls: Array<{ id: string; name: string; response: Record<string, unknown> }> = []
   const engine: RealtimeEngine = {
     id: 'test-engine',
     connect: async () => {},
@@ -98,7 +107,9 @@ const makeEngine = (
     sendText: (text) => {
       sendTextCalls.push(text)
     },
-    sendToolResponse: () => {},
+    sendToolResponse: (id, name, response) => {
+      sendToolResponseCalls.push({ id, name, response })
+    },
     events: () =>
       (async function* () {
         // No events — this test only exercises the mic → sendAudio path.
@@ -106,7 +117,7 @@ const makeEngine = (
     close: () => {},
     ...overrides,
   }
-  return { engine, sendAudioCalls, sendTextCalls }
+  return { engine, sendAudioCalls, sendTextCalls, sendToolResponseCalls }
 }
 
 /** Build a distinctive Float32 frame so converted Int16 values are order-verifiable. */
@@ -307,5 +318,106 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
 
     await session.stop()
     void states
+  })
+})
+
+describe('createRealtimeSession — submit_prompt tool-call', () => {
+  beforeEach(() => {
+    resetMic()
+    createVadGateSpy.mockClear()
+    resetPlayback()
+  })
+
+  test('routes submit_prompt to chat.sendMessage, then acks via sendToolResponse — no other chat messages (ephemeral)', async () => {
+    const sendMessageCalls: string[] = []
+    const sendToolResponseCalls: Array<{ id: string; name: string; response: Record<string, unknown> }> = []
+    const callOrder: string[] = []
+
+    const chat: ReplyChat = {
+      sendMessage: async (message) => {
+        sendMessageCalls.push(message.text)
+        callOrder.push('sendMessage')
+      },
+      messages: [],
+      stop: async () => {},
+    }
+
+    const { engine } = makeEngine({
+      sendToolResponse: (id, name, response) => {
+        sendToolResponseCalls.push({ id, name, response })
+        callOrder.push('sendToolResponse')
+      },
+      events: () =>
+        (async function* () {
+          // Greeting + tool-call in the same turn — proves the greeting's
+          // `sendText` never touches chat and the tool-call is the *only*
+          // chat message the whole voice turn produces.
+          yield { type: 'ready' } as RealtimeEvent
+          yield {
+            type: 'tool_call',
+            call: { id: 'call-1', name: 'submit_prompt', args: { prompt: 'draft a plan' } },
+          } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine, chat })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendMessageCalls).toEqual(['draft a plan'])
+    expect(sendToolResponseCalls).toEqual([{ id: 'call-1', name: 'submit_prompt', response: { status: 'ok' } }])
+    expect(callOrder).toEqual(['sendMessage', 'sendToolResponse'])
+
+    await session.stop()
+  })
+
+  test('ignores tool-calls for unknown tool names — no chat message, no ack', async () => {
+    const sendMessageCalls: string[] = []
+    const chat: ReplyChat = {
+      sendMessage: async (message) => {
+        sendMessageCalls.push(message.text)
+      },
+      messages: [],
+      stop: async () => {},
+    }
+
+    const { engine, sendToolResponseCalls } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield {
+            type: 'tool_call',
+            call: { id: 'call-2', name: 'execute_code', args: {} },
+          } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine, chat })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendMessageCalls).toEqual([])
+    expect(sendToolResponseCalls).toEqual([])
+
+    await session.stop()
+  })
+
+  test('tolerates a missing `chat` option — still acks the tool-call', async () => {
+    const { engine, sendToolResponseCalls } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield {
+            type: 'tool_call',
+            call: { id: 'call-3', name: 'submit_prompt', args: { prompt: 'no chat wired' } },
+          } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendToolResponseCalls).toEqual([{ id: 'call-3', name: 'submit_prompt', response: { status: 'ok' } }])
+
+    await session.stop()
   })
 })
