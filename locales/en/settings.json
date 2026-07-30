@@ -179,7 +179,7 @@
     "emptyDescription": "Check back later for new integrations",
     "disconnectFailed": "Failed to disconnect integration",
     "updateFailed": "Failed to update integration",
-    "proNotAvailable": "Volt Pro is not available yet. Stay tuned!",
+    "proNotAvailable": "VoltPro is not available yet. Stay tuned!",
     "availableTools": "Available Tools",
     "toolCount_one": "{{count}} tool",
     "toolCount_other": "{{count}} tools",
