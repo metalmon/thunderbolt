@@ -136,14 +136,14 @@ export const VoiceSettingsPage = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="thunderbolt">Thunderbolt (hosted, private)</SelectItem>
+                <SelectItem value="thunderbolt">Volt (hosted, private)</SelectItem>
                 <SelectItem value="openai-compatible">Custom — OpenAI-compatible endpoint</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
               {isCustom
                 ? 'Point at any server exposing /v1/audio/transcriptions and /v1/audio/speech. Its CORS must allow this app’s origin.'
-                : 'Speech-to-text and text-to-speech run in Thunderbolt’s confidential enclave.'}
+                : 'Speech-to-text and text-to-speech run in Volt’s confidential enclave.'}
             </p>
           </div>
 

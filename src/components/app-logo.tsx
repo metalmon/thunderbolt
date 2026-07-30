@@ -16,7 +16,7 @@ export const AppLogo = ({ size = 16, className, ...props }: AppLogoProps) => {
       src={logoSrc}
       width={size}
       height={size}
-      alt="Thunderbolt"
+      alt="Volt"
       draggable={false}
       className={cn('shrink-0', className)}
       {...props}

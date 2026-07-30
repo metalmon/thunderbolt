@@ -191,7 +191,7 @@ const DeviceApprovalContent = ({ initialCode }: { initialCode: string }) => {
             </div>
             <DialogTitle className="text-center text-xl">Approve CLI sign-in?</DialogTitle>
             <DialogDescription className="text-center">
-              A device wants to sign in to your account as the Thunderbolt CLI. Only approve if you just started this
+              A device wants to sign in to your account as the Volt CLI. Only approve if you just started this
               from your own terminal.
             </DialogDescription>
           </DialogHeader>

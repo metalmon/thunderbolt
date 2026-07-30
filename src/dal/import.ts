@@ -205,7 +205,7 @@ export const importUserData = async (
   }
   if (payload.format !== exportFormat) {
     throw new ImportFormatError(
-      `Import file is not a Thunderbolt export (expected format "${exportFormat}", got "${String(payload.format)}").`,
+      `Import file is not a Volt export (expected format "${exportFormat}", got "${String(payload.format)}").`,
     )
   }
   if (payload.schemaVersion !== exportSchemaVersion) {
