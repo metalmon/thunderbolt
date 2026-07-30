@@ -627,6 +627,7 @@ const useTasksPageState = () => {
 
 // Main Tasks Page Component
 const TasksPage = () => {
+  const { t } = useTranslation('tasks')
   const {
     activeTask,
     cancelAddingTask,
