@@ -17,7 +17,6 @@ import {
   type ReactNode,
 } from 'react'
 import { CitationSourcesDrawer } from './citation-sources-drawer'
-import { useTranslation } from 'react-i18next'
 import { SourceList } from './source-list'
 
 type PopoverData = {
@@ -64,7 +63,6 @@ export const CitationPopoverProvider = ({ children }: { children: ReactNode }) =
 
 const CitationOverlay = memo(({ popover, close }: { popover: PopoverData | null; close: () => void }) => {
   const { isMobile } = useIsMobile()
-  const { t } = useTranslation('chat')
   const anchorRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {

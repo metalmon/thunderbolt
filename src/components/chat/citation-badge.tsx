@@ -106,7 +106,6 @@ ManagedBadge.displayName = 'ManagedBadge'
 const StandaloneBadge = memo(({ sources }: { sources: CitationSource[] }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { isMobile } = useIsMobile()
-  const { t } = useTranslation('chat')
   const close = () => setIsOpen(false)
   const badge = <BadgeButton sources={sources} isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
 
