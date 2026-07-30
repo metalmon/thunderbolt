@@ -4,7 +4,7 @@
 
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { mockAuth } from '@/test-utils/mock-auth'
-import { createGeminiLiveRoutes } from './routes'
+import { createGeminiLiveRoutes, upstreamUrlFor } from './routes'
 
 describe('Gemini Live routes', () => {
   const originalEnv = { ...process.env }
@@ -31,5 +31,18 @@ describe('Gemini Live routes', () => {
     const app = createGeminiLiveRoutes({ auth: mockAuth })
     const res = await app.handle(new Request('http://localhost/gemini-live/'))
     expect(res).toBeDefined()
+  })
+})
+
+describe('upstreamUrlFor', () => {
+  it('uses v1beta BidiGenerateContent path for half-cascade + no model query', () => {
+    const u = upstreamUrlFor('gemini-live-2.5-flash-preview', 'KEY123')
+    expect(u).toBe(
+      'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=KEY123',
+    )
+  })
+  it('uses v1alpha for native-audio models', () => {
+    const u = upstreamUrlFor('gemini-2.5-flash-native-audio-preview', 'KEY123')
+    expect(u).toContain('v1alpha.GenerativeService.BidiGenerateContent')
   })
 })
