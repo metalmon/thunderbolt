@@ -380,8 +380,6 @@ export const getVisibleOptimisticTask = (
 
 const useTasksPageState = () => {
   const db = useDatabase()
-  const { t: tDefaults } = useTranslation('defaults')
-  const { t } = useTranslation('tasks')
 
   const [state, dispatch] = useReducer(tasksPageReducer, initialTasksPageState)
   const { isAddingNew, completingTasks, activeId, optimisticOrder, searchQuery, optimisticTask } = state
@@ -627,6 +625,7 @@ const useTasksPageState = () => {
 // Main Tasks Page Component
 const TasksPage = () => {
   const { t } = useTranslation('tasks')
+  const { t: tDefaults } = useTranslation('defaults')
   const {
     activeTask,
     cancelAddingTask,

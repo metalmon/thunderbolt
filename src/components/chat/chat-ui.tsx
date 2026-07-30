@@ -38,6 +38,7 @@ const EmptyChatGreeting = () => {
 }
 
 export default function ChatUI() {
+  const { t } = useTranslation('chat')
   const { chatInstance } = useCurrentChatSession()
 
   // ChatUI only needs the structural "are there any messages" signal (to switch
@@ -128,7 +129,7 @@ export default function ChatUI() {
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
               <AppLogo size={72} className="opacity-60" />
-              <span className="font-heading text-2xl font-medium text-muted-foreground">{getGreeting()}</span>
+              <span className="font-heading text-2xl font-medium text-muted-foreground">{t(getGreetingKey())}</span>
             </m.div>
           ) : null}
         </AnimatePresence>

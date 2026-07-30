@@ -17,7 +17,7 @@ import { StatusCard } from '@/components/ui/status-card'
 import { useAutofocusOnMount } from '@/hooks/use-autofocus-on-mount'
 import type { Model } from '@/types'
 import { ConnectionTestSection } from './connection-test-section'
-import { providerAutoFetchesCatalog, shouldDisableAddModel } from './model-policy'
+import { catalogRequiresApiKey, providerAutoFetchesCatalog, shouldDisableAddModel } from './model-policy'
 import { providerLabels } from './model-presentation'
 import type { AddModelFormValues } from './use-add-model-form'
 
@@ -174,7 +174,7 @@ export const AddModelForm = ({
           type="button"
           variant="outline"
           disabled={isLoadingCatalog || (catalogRequiresApiKey(provider) && !apiKey) || (provider === 'custom' && !url)}
-          onClick={onRefreshCatalog}
+          onClick={onCatalogInvalidated}
         >
           {isLoadingCatalog ? t('models.refreshingModels') : t('models.refreshModelCatalog')}
         </Button>
