@@ -194,21 +194,11 @@ export const useVoiceSession = () => {
       signal.throwIfAborted()
       const engineResult = createVoiceEngine(experimentalFeatureVoice)
       if (engineResult.kind === 'realtime') {
-        // Realtime (bidi) engine — the server does STT/LLM/TTS over one WebSocket, so
-        // there is no chat-reply pipeline to wire.
+        // Realtime (bidi) engine — the server handles STT/LLM/TTS over one WebSocket.
+        // The system prompt, model and voice are baked into `engineResult.engine` at
+        // construction time (see `engine/router.ts`) rather than passed here.
         return createRealtimeSession({
           engine: engineResult.engine,
-          getSystemPrompt: () => {
-            // Pull the current system prompt from the chat's agent configuration.
-            const agent = session.selectedAgent
-            const parts: string[] = []
-            if (agent?.description) {
-              parts.push(`You are ${agent.name || 'an assistant'}. ${agent.description}`)
-            }
-            return parts.join('
-
-') || 'You are a helpful assistant.'
-          },
           ...callbacks,
         })
       }
