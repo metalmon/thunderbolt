@@ -45,7 +45,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
     return [
       {
         id: 'thunderbolt',
-        name: 'Thunderbolt',
+        name: 'Volt',
         provider: 'thunderbolt-pro',
         connectLabel: t`Get Pro`,
         icon: <AppLogo size={20} />,
