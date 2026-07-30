@@ -24,11 +24,13 @@
  * `{type:'ready'}` the session fires a one-shot proactive greeting so the model
  * speaks first, routes model `{type:'audio'}` to playback, and flushes playback
  * on `{type:'interrupted'}` (server-signalled barge-in). `submit_prompt`
- * tool-call handling is left as a TODO below (Task 7).
+ * tool-calls (Task 7) hand the synthesized prompt to the normal chat agent as
+ * a real, ephemeral-to-voice chat turn — see `handleToolCall` below.
  */
 import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
-import type { RealtimeEngine, RealtimeEvent } from '@/voice/engine/realtime-types'
+import type { ReplyChat } from '@/voice/chat-reply'
+import type { RealtimeEngine, RealtimeEvent, RealtimeToolCall } from '@/voice/engine/realtime-types'
 import { isHallucinatedTranscript } from '@/voice/transcript-filter'
 import type { SessionState, VoiceSession } from './session'
 
@@ -46,6 +48,10 @@ export type RealtimeSessionOptions = {
    *  trigger instead of the fresh-start one (the chat history itself reaches the
    *  model via the system prompt, threaded in a later task). */
   hasChatHistory?: boolean
+  /** The active chat instance — a `submit_prompt` tool-call routes its
+   *  synthesized prompt into this as a real (but voice-ephemeral) chat turn.
+   *  Optional so tests/callers without a chat context can omit it. */
+  chat?: ReplyChat
 }
 
 /** Poll interval used to detect when queued model audio has finished playing. */
@@ -80,7 +86,7 @@ const float32ToInt16 = (frame: Float32Array): Int16Array => {
 }
 
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
-  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false } = options
+  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false, chat } = options
   const playback = createPlaybackQueue()
   let state: SessionState = 'idle'
   let mic: ReturnType<typeof createMicCapture> | null = null
@@ -128,6 +134,26 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
     engine.sendAudio(float32ToInt16(frame))
   }
 
+  /**
+   * Route a server tool-call. Only `submit_prompt` is handled today — it
+   * hands the model's synthesized request to the normal chat agent as a real
+   * chat turn, exactly like a typed message. This is fire-and-forget: the
+   * tool response acks immediately rather than waiting on the full chat
+   * completion, so Gemini's own turn isn't held open for however long the
+   * chat agent takes to answer, and the assistant's reply surfaces in the
+   * chat UI on its own — never routed back through this session's TTS/audio
+   * path. That keeps voice turns from producing any chat message beyond this
+   * single hand-off (ephemeral).
+   */
+  const handleToolCall = (call: RealtimeToolCall) => {
+    if (call.name !== 'submit_prompt') {
+      return
+    }
+    const prompt = typeof call.args.prompt === 'string' ? call.args.prompt : ''
+    void chat?.sendMessage({ text: prompt }).catch((error) => onError?.(error))
+    engine.sendToolResponse(call.id, 'submit_prompt', { status: 'ok' })
+  }
+
   const processEvents = async (events: AsyncIterable<RealtimeEvent>) => {
     try {
       for await (const event of events) {
@@ -167,8 +193,7 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
             }
             break
           case 'tool_call':
-            // TODO(Task 7): submit_prompt / tool handling — dispatch event.call
-            // and reply via engine.sendToolResponse once the tool contract lands.
+            handleToolCall(event.call)
             break
           case 'error':
             onError?.(new Error(event.message))
