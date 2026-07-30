@@ -12,12 +12,23 @@
  * events out.
  */
 
-/** Events emitted by a realtime engine session. */
+/** Tool call from the server (e.g., submit_prompt, execute_code). */
+export type RealtimeToolCall = {
+  id: string
+  name: string
+  args: Record<string, unknown>
+}
+
+/** Events emitted by a realtime engine. */
 export type RealtimeEvent =
-  | { type: 'transcript'; text: string; role: 'user' | 'assistant'; isFinal: boolean }
-  | { type: 'audio'; pcm: Float32Array; sampleRate: number }
-  | { type: 'text'; text: string }
-  | { type: 'error'; error: string }
+  | { type: 'ready' }
+  | { type: 'audio'; pcm: Float32Array }
+  | { type: 'input_transcript'; text: string }
+  | { type: 'output_transcript'; text: string }
+  | { type: 'interrupted' }
+  | { type: 'tool_call'; call: RealtimeToolCall }
+  | { type: 'error'; message: string }
+  | { type: 'closed' }
 
 /** Configuration for a realtime engine session. */
 export type RealtimeSessionConfig = {
@@ -47,11 +58,11 @@ export type RealtimeSession = {
  * or the other based on the engine type.
  */
 export type RealtimeEngine = {
-  readonly id: string
-  /** Load and warm the engine. Idempotent. */
-  load: () => Promise<void>
-  /** Open a bidi session. Caller streams audio in and reads events out. */
-  openSession: (config: RealtimeSessionConfig) => RealtimeSession
-  /** Release resources. */
-  dispose: () => void
+  id: string
+  connect(): Promise<void>
+  sendAudio(frame: Int16Array): void
+  sendText(text: string): void
+  sendToolResponse(id: string, name: string, response: Record<string, unknown>): void
+  events(): AsyncIterable<RealtimeEvent>
+  close(): void
 }
