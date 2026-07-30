@@ -19,16 +19,25 @@ import type { RealtimeEngine } from './realtime-types'
 import { createThunderboltEngine } from './thunderbolt-engine'
 import type { VoiceEngine } from './types'
 
-export type VoiceEngineResult =
-  | { kind: 'pipeline'; engine: VoiceEngine }
-  | { kind: 'realtime'; engine: RealtimeEngine }
+export type VoiceEngineResult = { kind: 'pipeline'; engine: VoiceEngine } | { kind: 'realtime'; engine: RealtimeEngine }
 
 export const createVoiceEngine = (customProviderEnabled: boolean): VoiceEngineResult => {
   const config = getLocalSetting('voiceProvider')
 
   // Realtime engine: Gemini Live (gated behind custom provider flag).
   if (customProviderEnabled && config.kind === 'gemini-live') {
-    return { kind: 'realtime', engine: createGeminiLiveEngine() }
+    // TODO(THU voice tasks 6/7/10): wire real model/voice/persona from settings
+    // and the submit_prompt tool declaration — placeholder keeps this call site
+    // compiling against the Task 3 RealtimeEngine interface in the meantime.
+    return {
+      kind: 'realtime',
+      engine: createGeminiLiveEngine({
+        model: 'gemini-live-2.5-flash-preview',
+        voiceName: 'Kore',
+        systemInstruction: '',
+        tools: [],
+      }),
+    }
   }
 
   // Pipeline engines: OpenAI-compatible or Thunderbolt.
