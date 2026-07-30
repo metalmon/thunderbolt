@@ -86,14 +86,19 @@ export const useVoiceSession = () => {
       // bundle. Read the flag authoritatively from the DB here too (not via a
       // reactive hook that returns `false` until its query resolves) so a custom
       // provider is never bypassed for the hardwired engine on a cold start.
-      const [{ createVoiceSession }, { createRealtimeSession }, { createVoiceEngine }, { createChatReply }, { experimentalFeatureVoice }] =
-        await Promise.all([
-          import('@/voice/session'),
-          import('@/voice/realtime-session'),
-          import('@/voice/engine/router'),
-          import('@/voice/chat-reply'),
-          getSettings(db, { experimental_feature_voice: false }),
-        ])
+      const [
+        { createVoiceSession },
+        { createRealtimeSession },
+        { createVoiceEngine },
+        { createChatReply },
+        { experimentalFeatureVoice },
+      ] = await Promise.all([
+        import('@/voice/session'),
+        import('@/voice/realtime-session'),
+        import('@/voice/engine/router'),
+        import('@/voice/chat-reply'),
+        getSettings(db, { experimental_feature_voice: false }),
+      ])
 
       const engineResult = createVoiceEngine(experimentalFeatureVoice)
 
@@ -102,10 +107,12 @@ export const useVoiceSession = () => {
         // Realtime (bidi) engine — server handles STT/LLM/TTS over WebSocket.
         // The system prompt/model/voice are baked into `engineResult.engine` at
         // construction time (see `engine/router.ts`) rather than passed here —
-        // TODO(Task 6/7/10): wire the chat's agent description into that
+        // TODO(Task 10): wire the chat's agent description into that
         // construction site (mirrors the `getSystemPrompt` logic this replaced).
         voice = createRealtimeSession({
           engine: engineResult.engine,
+          chat: toReplyChat(session.chatInstance),
+          hasChatHistory: session.chatInstance.messages.length > 0,
           onState: (state) => patch({ state }),
           onError: (error) => {
             console.error('[voice]', error)
