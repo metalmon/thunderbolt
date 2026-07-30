@@ -95,6 +95,7 @@ type UseAddModelFormOptions = {
 
 /** Owns the reusable add-model form, catalog, connection test, and mutation. */
 export const useAddModelForm = ({ isOpen, onClose, onMutationStart }: UseAddModelFormOptions) => {
+  const { t } = useTranslation('settings')
   const db = useDatabase()
   const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(addModelReducer, initialState)
