@@ -13,7 +13,7 @@ import type { Agent } from '@/types/acp'
  */
 export const builtInAgent: Agent = {
   id: 'thunderbolt-built-in',
-  name: 'Thunderbolt',
+  name: 'Volt',
   type: 'built-in',
   transport: 'in-process',
   url: null,
