@@ -16,7 +16,13 @@ import { createAuthMacro } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { Elysia, type AnyElysia } from 'elysia'
 
-const GEMINI_WS_BASE = 'wss://generativelanguage.googleapis.com/ws'
+const NATIVE_AUDIO = /native-audio/
+
+export const upstreamUrlFor = (model: string, apiKey: string): string => {
+  const version = NATIVE_AUDIO.test(model) ? 'v1alpha' : 'v1beta'
+  const svc = `google.ai.generativelanguage.${version}.GenerativeService.BidiGenerateContent`
+  return `wss://generativelanguage.googleapis.com/ws/${svc}?key=${encodeURIComponent(apiKey)}`
+}
 
 export type CreateGeminiLiveRoutesOptions = {
   auth: Auth
@@ -55,7 +61,7 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
           const data = ws.data as { query?: Record<string, string> }
           const model = data?.query?.model || 'gemini-2.0-flash-live-001'
 
-          const upstreamUrl = `${GEMINI_WS_BASE}?key=${apiKey}&model=${model}`
+          const upstreamUrl = upstreamUrlFor(model, apiKey)
 
           const state: UpstreamState = {
             upstream: null,
