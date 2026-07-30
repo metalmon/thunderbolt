@@ -188,7 +188,7 @@ export class TrayManager {
           // macOS template mode: alpha-only render that inverts with the menu
           // bar. No-op on Windows/Linux (they show the icon as-is).
           iconAsTemplate: true,
-          tooltip: 'Thunderbolt',
+          tooltip: 'Volt',
           menu,
         })
       } catch (error) {

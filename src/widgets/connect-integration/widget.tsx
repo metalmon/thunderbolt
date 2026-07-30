@@ -362,7 +362,7 @@ export const ConnectIntegrationWidget = memo(
 
             <div className="text-center space-y-2">
               <h3 className="text-lg font-semibold">
-                Thunderbolt wants to connect to {providerName} {serviceName}
+                Volt wants to connect to {providerName} {serviceName}
               </h3>
             </div>
 
