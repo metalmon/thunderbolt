@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Flame, Loader2, Search } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type Ref } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Virtualizer, type CustomContainerComponentProps, type CustomItemComponentProps } from 'virtua'
 import { ChatActions } from './chat-actions'
 import { ChatListItem } from './chat-list-item'
@@ -103,6 +104,7 @@ export const ChatList = ({
   onSearchClick,
   onSearchQueryChange,
 }: ChatListProps) => {
+  const { t } = useTranslation('chat')
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { forceCollapsed } = useSidebar()
   const {
@@ -225,7 +227,7 @@ export const ChatList = ({
     <>
       {hasListContent && (
         <div className="flex items-center justify-between flex-shrink-0">
-          <SidebarGroupLabel>Recent Chats</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.recentChats')}</SidebarGroupLabel>
           {chatActions}
         </div>
       )}
@@ -260,7 +262,7 @@ export const ChatList = ({
                 style={{ height: mobileListMetrics.headerHeight }}
               />
               <SidebarGroupLabel ref={mobileLabelRef} className="mt-1">
-                {hasListContent ? 'Recent Chats' : 'No chats yet'}
+                {hasListContent ? t('sidebar.recentChats') : t('sidebar.noChatsYet')}
               </SidebarGroupLabel>
             </>
           )}

@@ -210,21 +210,7 @@ export const SkillsView = () => {
   const createForm = (
     // The panel's close X behaves as Cancel, including the dirty guard.
     <DetailPanel title={t('skills.createSkillTitle')} onClose={sharedFormProps.onCancel}>
-      <SkillForm
-        key={createInitialName ? `create:${createInitialName}` : 'create'}
-        mode="create"
-        initialValues={
-          createInitialName
-            ? {
-                name: createInitialName,
-                label: titleCaseFromSlug(createInitialName),
-                description: '',
-                instruction: '',
-              }
-            : undefined
-        }
-        {...sharedFormProps}
-      />
+      <SkillForm key="create" mode="create" {...sharedFormProps} />
     </DetailPanel>
   )
 
