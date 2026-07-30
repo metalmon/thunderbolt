@@ -132,7 +132,7 @@ export const ChatList = ({
       ref={searchInputRef}
       containerClassName={isMobile ? undefined : 'mb-1'}
       className="rounded-xl border-transparent bg-sidebar-accent focus-visible:border-border dark:bg-sidebar-accent"
-      placeholder="Search chats..."
+      placeholder={t('sidebar.searchPlaceholder')}
       value={searchQuery}
       onChange={(e) => onSearchQueryChange(e.target.value)}
     />
@@ -196,7 +196,7 @@ export const ChatList = ({
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={(e) => onSearchClick(e)}
-              tooltip="Search chats"
+              tooltip={t('sidebar.search')}
               className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
             >
               <Search className={`size-[var(--icon-size-default)] ${debouncedSearchQuery ? 'text-primary' : ''}`} />
@@ -207,7 +207,7 @@ export const ChatList = ({
           <SidebarMenuButton
             onClick={() => deleteAllChatsDialogRef.current?.open()}
             disabled={deleteAllChatsMutation.isPending}
-            tooltip="Clear all chats"
+            tooltip={t('sidebar.clearAll')}
             className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
           >
             {deleteAllChatsMutation.isPending ? (
