@@ -76,7 +76,7 @@ export const ThunderboltCliRow = ({
       onOpen={onOpen}
       ariaLabel="Open Thunderbolt CLI"
       icon={<Terminal className="size-5 text-muted-foreground" aria-hidden="true" />}
-      title="Thunderbolt CLI"
+      title="Volt CLI"
       subtitle={cliProvenanceLine}
     />
   )
@@ -127,7 +127,7 @@ export const ThunderboltCliDetail = ({
           <Terminal className="size-5 text-muted-foreground" aria-hidden="true" />
         </IconTile>
       }
-      title="Thunderbolt CLI"
+      title="Volt CLI"
       subtitle={cliProvenanceLine}
       onClose={onClose}
     >
