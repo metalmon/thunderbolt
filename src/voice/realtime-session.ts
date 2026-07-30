@@ -20,10 +20,11 @@
  *
  * Scope note: the `engine` passed in is already fully configured (model,
  * voice, system prompt, tools) at construction time (see `engine/router.ts`)
- * — `connect()` takes no session-level config. Proactive-greeting / barge-in
- * on `{type:'interrupted'}` and `submit_prompt` tool-call handling are left as
- * TODOs below (later tasks); this task only wires the continuous mic path and
- * a minimal, compiling event consumer.
+ * — `connect()` takes no session-level config. Once the engine emits
+ * `{type:'ready'}` the session fires a one-shot proactive greeting so the model
+ * speaks first, routes model `{type:'audio'}` to playback, and flushes playback
+ * on `{type:'interrupted'}` (server-signalled barge-in). `submit_prompt`
+ * tool-call handling is left as a TODO below (Task 7).
  */
 import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
@@ -41,9 +42,22 @@ export type RealtimeSessionOptions = {
   onError?: (error: unknown) => void
   /** Live mic level [0,1] per frame — for the reactive waveform. */
   onLevel?: (level: number) => void
+  /** True when the chat already has history — selects the continuation greeting
+   *  trigger instead of the fresh-start one (the chat history itself reaches the
+   *  model via the system prompt, threaded in a later task). */
+  hasChatHistory?: boolean
 }
 
-const tick = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+/** Poll interval used to detect when queued model audio has finished playing. */
+const drainPollMs = 80
+
+/** The proactive-greeting trigger: a text turn that tells the model to speak
+ *  first. New chat → open cold; existing chat → open as a continuation (the
+ *  model already has the conversation as context via its system prompt). */
+const greetingTrigger = (hasChatHistory: boolean): string =>
+  hasChatHistory
+    ? 'Продолжи разговор: коротко поздоровайся и предложи, чем продолжить.'
+    : 'Начни разговор: коротко поздоровайся и спроси, чем заняться.'
 
 /** Frame RMS — a plain amplitude measurement, not endpointing (no gating decision
  *  is made from it; it only drives the live waveform). */
@@ -66,11 +80,12 @@ const float32ToInt16 = (frame: Float32Array): Int16Array => {
 }
 
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
-  const { engine, onState, onTranscript, onError, onLevel } = options
+  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false } = options
   const playback = createPlaybackQueue()
   let state: SessionState = 'idle'
   let mic: ReturnType<typeof createMicCapture> | null = null
-  let drainWatch: Promise<void> | null = null
+  let drainTimer: ReturnType<typeof setTimeout> | null = null
+  let greeted = false
   let stopped = false
 
   const setState = (next: SessionState) => {
@@ -78,22 +93,33 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
     onState?.(next)
   }
 
-  /** Once queued model audio finishes playing, drop back to `listening` — a
-   *  single idempotent watcher per speaking spell (not a barge-in mechanism;
-   *  see the `interrupted` TODO below for that). */
+  /** Cancel any in-flight drain poll (on barge-in or stop). */
+  const stopDrainWatch = () => {
+    if (drainTimer !== null) {
+      clearTimeout(drainTimer)
+      drainTimer = null
+    }
+  }
+
+  /** Once queued model audio finishes playing, drop back to `listening`. A
+   *  self-rescheduling timer (not an awaited wall-clock loop, so it stays
+   *  cancellable and fake-timer-safe) that runs at most once per speaking
+   *  spell. Barge-in is handled separately by the `interrupted` event. */
   const watchDrain = () => {
-    if (drainWatch) {
+    if (drainTimer !== null) {
       return
     }
-    drainWatch = (async () => {
-      while (playback.isPlaying && !stopped) {
-        await tick(80)
+    const poll = () => {
+      if (stopped || !playback.isPlaying) {
+        drainTimer = null
+        if (!stopped && state === 'speaking') {
+          setState('listening')
+        }
+        return
       }
-      drainWatch = null
-      if (!stopped && state === 'speaking') {
-        setState('listening')
-      }
-    })()
+      drainTimer = setTimeout(poll, drainPollMs)
+    }
+    drainTimer = setTimeout(poll, drainPollMs)
   }
 
   /** Every mic frame reaches the engine unconditionally — no gating, ever. */
@@ -110,6 +136,12 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
         }
         switch (event.type) {
           case 'ready':
+            // Proactive greeting: fire a one-shot text turn so the model speaks
+            // first (no user turn required). Exactly once per session.
+            if (!greeted) {
+              greeted = true
+              engine.sendText(greetingTrigger(hasChatHistory))
+            }
             break
           case 'audio':
             setState('speaking')
@@ -125,8 +157,14 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
             onTranscript?.(event.text, 'assistant')
             break
           case 'interrupted':
-            // TODO(Task 6): barge-in — the server signals the user interrupted
-            // the model's turn; flush queued playback and return to listening.
+            // Barge-in: the server signals the user interrupted the model's
+            // turn. Drop all queued/playing model audio immediately and return
+            // to listening.
+            stopDrainWatch()
+            playback.flush()
+            if (!stopped) {
+              setState('listening')
+            }
             break
           case 'tool_call':
             // TODO(Task 7): submit_prompt / tool handling — dispatch event.call
@@ -172,6 +210,7 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
 
   const stop = async () => {
     stopped = true
+    stopDrainWatch()
     engine.close()
     playback.close()
     await mic?.destroy()
