@@ -1,0 +1,22 @@
+{
+  "app": {
+    "windows": [
+      {
+        "transparent": true,
+        "windowEffects": {
+          "effects": [
+            "hudWindow"
+          ],
+          "state": "followsWindowActiveState"
+        },
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": {
+          "x": 16,
+          "y": 26
+        }
+      }
+    ],
+    "macOSPrivateApi": true
+  }
+}
