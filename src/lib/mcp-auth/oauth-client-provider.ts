@@ -127,7 +127,7 @@ class McpOAuthClientProvider implements OAuthClientProvider {
 
   get clientMetadata(): OAuthClientMetadata {
     return {
-      client_name: 'Thunderbolt',
+      client_name: 'Volt',
       redirect_uris: [this.redirectUrl],
       token_endpoint_auth_method: 'none',
       grant_types: ['authorization_code', 'refresh_token'],

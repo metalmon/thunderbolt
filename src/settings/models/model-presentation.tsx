@@ -21,7 +21,7 @@ import type { Model } from '@/types'
 // which is real copy — callers substitute a translated label for it (see
 // `customProviderLabel`).
 export const providerLabels: Record<Model['provider'], string> = {
-  thunderbolt: 'Thunderbolt',
+  thunderbolt: 'Volt',
   tinfoil: 'Tinfoil',
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
@@ -65,10 +65,10 @@ export const ModelProviderIconTile = ({ model }: { model: Pick<Model, 'provider'
 /** The one provider label that is copy rather than a brand name. */
 export const customProviderLabel = msg`Custom`
 
-/** Provider label for display — system-managed Tinfoil models brand as Thunderbolt. */
+/** Provider label for display — system-managed Tinfoil models brand as Volt. */
 export const getProviderDisplay = (i18n: I18n, model: Pick<Model, 'provider' | 'isSystem'>): string => {
   if (isThunderboltManagedModel(model)) {
-    return 'Thunderbolt'
+    return 'Volt'
   }
   return model.provider === 'custom' ? i18n._(customProviderLabel) : providerLabels[model.provider]
 }
