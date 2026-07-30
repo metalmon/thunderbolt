@@ -15,7 +15,7 @@ import {
 } from '@/skills/skill-save'
 import { useSkillTelemetry } from '@/skills/telemetry'
 import { useLibrarySkills } from '@/skills/use-skills'
-import { editSkillTitle } from './context'
+import { editSkillTitleKey } from './context'
 import { CreateItemLoadingPanel, CreateItemPanelShell } from './create-item-panel-shell'
 
 type CreateSkillState = {
@@ -74,7 +74,7 @@ export const CreateSkillPanel = ({ open, onClose, onCloseComplete, initialName, 
   const [state, dispatch] = useReducer(createSkillReducer, initialState)
   const activeSkill = skillId ? skills.find((skill) => skill.id === skillId) : undefined
   const isEditing = skillId !== undefined
-  const title = isEditing ? editSkillTitle : undefined
+  const title = isEditing ? editSkillTitleKey : undefined
 
   if (isEditing && !activeSkill && !isLoading) {
     throw new Error(`CreateSkillPanel could not find skill ${skillId}`)
