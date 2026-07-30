@@ -1,20 +1,20 @@
 {
   "dialog": {
     "title": "Onboarding Wizard",
-    "description": "Complete the setup process to get started with Thunderbolt"
+    "description": "Complete the setup process to get started with Volt"
   },
   "actions": {
     "continue": "Continue",
     "skip": "Skip",
     "completing": "Completing...",
-    "startUsing": "Start Using Thunderbolt"
+    "startUsing": "Start Using Volt"
   },
   "welcome": {
     "title": "Welcome",
     "description": "Sign-in successful"
   },
   "privacy": {
-    "title": "Welcome to <bold>Thunderbolt</bold>!",
+    "title": "Welcome to <bold>Volt</bold>!",
     "subtitle": "Your private AI assistant",
     "zeroLogsTitle": "Zero Logs",
     "zeroLogsDescription": "We don't keep logs of your conversations.",

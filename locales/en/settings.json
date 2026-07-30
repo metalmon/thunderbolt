@@ -14,7 +14,7 @@
     "personalizationTitle": "Personalization",
     "preferredNameLabel": "Preferred Name",
     "preferredNamePlaceholder": "Your name",
-    "preferredNameDescription": "How Thunderbolt salutes you",
+    "preferredNameDescription": "How Volt salutes you",
     "themeLight": "Light",
     "themeLightAria": "Light mode",
     "themeDark": "Dark",
@@ -63,12 +63,12 @@
   "network": {
     "title": "Network",
     "proxyLabel": "Use Cloud Proxy",
-    "proxyDescription": "When enabled, requests are routed through Thunderbolt's cloud proxy.",
+    "proxyDescription": "When enabled, requests are routed through Volt's cloud proxy.",
     "proxyWebOnlyDescription": "Proxying is required in the web app to bypass browser CORS restrictions.",
     "proxySignInDescription": "Sign in to enable cloud proxy."
   },
   "telemetry": {
-    "title": "Help Thunderbolt Improve",
+    "title": "Help Volt Improve",
     "previewFeaturesLabel": "Preview Features",
     "tasksLabel": "Tasks",
     "anonymousUsageDataLabel": "Anonymous Usage Data",
@@ -95,7 +95,7 @@
     "importExportedBy": " exported by {{email}}",
     "importExportedOn": " on {{date}}",
     "importAccountMismatch": "⚠ This export was made by a different account ({{email}}). Importing it here will mix that data into your account — confirm only if you intend to.",
-    "invalidExportFile": "This file doesn't look like a Thunderbolt export.",
+    "invalidExportFile": "This file doesn't look like a Volt export.",
     "couldNotReadImportFile": "Could not read the import file.",
     "mustSignInToImport": "You must be signed in to import data.",
     "importSuccess": "Imported {{count}} rows. The app may take a moment to reflect new chats.",
@@ -158,7 +158,7 @@
   "developer": {
     "title": "Developer Settings",
     "cloudUrlLabel": "Cloud URL",
-    "cloudUrlDescription": "The URL of the Thunderbolt backend",
+    "cloudUrlDescription": "The URL of the Volt backend",
     "nativeFetchLabel": "Use Native Fetch",
     "nativeFetchDescription": "Proxy HTTP requests through Tauri to bypass CORS",
     "nativeFetchUnavailableDescription": "This feature is only available on some desktop versions of the app that were built with the native_fetch feature flag.",
@@ -179,7 +179,7 @@
     "emptyDescription": "Check back later for new integrations",
     "disconnectFailed": "Failed to disconnect integration",
     "updateFailed": "Failed to update integration",
-    "proNotAvailable": "Thunderbolt Pro is not available yet. Stay tuned!",
+    "proNotAvailable": "Volt Pro is not available yet. Stay tuned!",
     "availableTools": "Available Tools",
     "toolCount_one": "{{count}} tool",
     "toolCount_other": "{{count}} tools",
@@ -249,7 +249,7 @@
     "apiKeyNotConfigured": "API key not configured",
     "disableModel": "Disable {{name}}",
     "enableModel": "Enable {{name}}",
-    "usesCloudService": "Uses Thunderbolt cloud service",
+    "usesCloudService": "Uses Volt cloud service",
     "emptyTitle": "No models configured",
     "emptyDescription": "Get started by adding your first AI model.",
     "removeModel": "Remove Model",
@@ -420,7 +420,7 @@
     "removeAgent": "Delete agent",
     "removeError": "Couldn't delete the agent. Please try again.",
     "removeConfirmTitle": "Delete {{name}}?",
-    "removeConfirmDescription": "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
+    "removeConfirmDescription": "This removes the connection from Volt only. Nothing on the remote server is changed."
   },
   "connections": {
     "title": "Connections",
@@ -493,7 +493,7 @@
     "copyAllowCommand": "Copy allow command",
     "pairingIdentityFailed": "Couldn't load this app's pairing identity: {{error}}",
     "loadingPairingIdentity": "Loading this app's pairing identity…",
-    "cliTitle": "Thunderbolt CLI",
+    "cliTitle": "Volt CLI",
     "cliDescriptionTauri": "Install the standalone thunderbolt terminal agent to ~/.local/bin.",
     "cliDescriptionWeb": "Install the standalone thunderbolt terminal agent from your shell.",
     "installing": "Installing…",
