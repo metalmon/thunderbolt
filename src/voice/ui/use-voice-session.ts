@@ -162,10 +162,12 @@ export const useVoiceSession = () => {
         // Realtime (bidi) engine — server handles STT/LLM/TTS over WebSocket.
         // The system prompt/model/voice are baked into `engineResult.engine` at
         // construction time (see `engine/router.ts`) rather than passed here —
-        // TODO(Task 6/7/10): wire the chat's agent description into that
+        // TODO(Task 10): wire the chat's agent description into that
         // construction site (mirrors the `getSystemPrompt` logic this replaced).
         voice = createRealtimeSession({
           engine: engineResult.engine,
+          chat: toReplyChat(session.chatInstance),
+          hasChatHistory: session.chatInstance.messages.length > 0,
           onState: (state) => patch({ state }),
           onError: (error) => {
             console.error('[voice]', error)
