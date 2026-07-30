@@ -1,20 +1,20 @@
 {
   "dialog": {
     "title": "Мастер настройки",
-    "description": "Пройдите настройку, чтобы начать работу с Thunderbolt"
+    "description": "Пройдите настройку, чтобы начать работу с Volt"
   },
   "actions": {
     "continue": "Продолжить",
     "skip": "Пропустить",
     "completing": "Завершение…",
-    "startUsing": "Начать работу с Thunderbolt"
+    "startUsing": "Начать работу с Volt"
   },
   "welcome": {
     "title": "Добро пожаловать",
     "description": "Вход выполнен успешно"
   },
   "privacy": {
-    "title": "Добро пожаловать в <bold>Thunderbolt</bold>!",
+    "title": "Добро пожаловать в <bold>Volt</bold>!",
     "subtitle": "ИИ-помощник с приоритетом конфиденциальности",
     "zeroLogsTitle": "Без логов",
     "zeroLogsDescription": "Мы не храним логи ваших разговоров.",
