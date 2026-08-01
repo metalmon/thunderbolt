@@ -247,7 +247,7 @@
     "connect": "Подключить {{provider}}",
     "laterInSettings": "Вы можете подключить интеграции позже в настройках.",
     "loading": "Загрузка...",
-    "wantsToConnect": "Thunderbolt хочет подключиться к {{provider}} {{service}}",
+    "wantsToConnect": "Volt хочет подключиться к {{provider}} {{service}}",
     "connectedTo": "Подключено к {{provider}} {{service}}",
     "connected": "Подключено",
     "serviceEmail": "Почта",
