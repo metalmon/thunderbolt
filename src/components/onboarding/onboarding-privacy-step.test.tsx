@@ -55,7 +55,7 @@ describe('OnboardingPrivacyStep', () => {
       renderComponent()
 
       expect(screen.getByText(/Welcome to/)).toBeInTheDocument()
-      expect(screen.getByText(/Thunderbolt/)).toBeInTheDocument()
+      expect(screen.getByText(/Volt/)).toBeInTheDocument()
       expect(screen.getByText(/Your private AI assistant/)).toBeInTheDocument()
     })
 

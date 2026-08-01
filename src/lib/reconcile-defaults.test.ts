@@ -13,7 +13,6 @@ import { modelProfilesTable, modelsTable, promptsTable, settingsTable, skillsTab
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
 import { defaultModelProfiles, hashModelProfile } from '../defaults/model-profiles'
 import {
-  defaultModelGlm52,
   defaultModels,
   defaultModelsVersion,
   hashModel,
@@ -905,10 +904,11 @@ describe('reconcileDefaults version gate (THU-637)', () => {
   test('newer bundle updates server-owned model metadata excluded from the user-edit hash', async () => {
     const db = getDb()
     await reconcileDefaults(db)
+    const seeded = defaultModels[0]
     await db
       .update(modelsTable)
-      .set({ description: 'Confidential chat via Tinfoil' })
-      .where(eq(modelsTable.id, defaultModelGlm52.id))
+      .set({ description: 'Stale server-owned description' })
+      .where(eq(modelsTable.id, seeded.id))
     await db
       .update(settingsTable)
       .set({ value: String(defaultModelsVersion - 1) })
@@ -916,10 +916,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     await reconcileDefaults(db)
 
-    const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelGlm52.id)).get()
-    expect(upgraded?.description).toBe('Confidential chat via Thunderbolt')
-    expect(upgraded?.provider).toBe('tinfoil')
-    expect(upgraded?.isConfidential).toBe(1)
+    const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, seeded.id)).get()
+    expect(upgraded?.description).toBe(seeded.description)
+    expect(upgraded?.provider).toBe(seeded.provider)
+    expect(upgraded?.isConfidential).toBe(seeded.isConfidential)
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
 
