@@ -135,7 +135,7 @@ export const PermissionDialog = ({
             disabled={responded}
             onClick={() => handleSelect(option)}
           >
-            {option.name}
+            {t(`permission.option.${option.kind}`, { defaultValue: option.name })}
           </Button>
         ))}
       </div>
