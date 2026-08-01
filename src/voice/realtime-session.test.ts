@@ -258,6 +258,23 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
     await session.stop()
   })
 
+  test('fires the English greeting trigger when lang is "en"', async () => {
+    const { engine, sendTextCalls } = makeEngine({
+      events: () =>
+        (async function* () {
+          yield { type: 'ready' } as RealtimeEvent
+        })(),
+    })
+    const session = createRealtimeSession({ engine, lang: 'en' })
+
+    await session.start()
+    await flushMicrotasks()
+
+    expect(sendTextCalls).toEqual(['Start the conversation: greet the user briefly and ask what they want to do.'])
+
+    await session.stop()
+  })
+
   test('fires the continuation greeting trigger when chat history is present', async () => {
     const { engine, sendTextCalls } = makeEngine({
       events: () =>
