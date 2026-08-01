@@ -10,20 +10,24 @@
  */
 import { Button } from '@/components/ui/button'
 import { AudioLines } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type VoiceModeButtonProps = {
   onStart: () => void
 }
 
-export const VoiceModeButton = ({ onStart }: VoiceModeButtonProps) => (
-  <Button
-    type="button"
-    variant="default"
-    onClick={onStart}
-    aria-label="Start voice mode"
-    title="Start voice mode"
-    className="size-[var(--touch-height-control)] rounded-[var(--radius-control)] flex items-center justify-center flex-shrink-0"
-  >
-    <AudioLines className="size-[var(--icon-size-default)]" />
-  </Button>
-)
+export const VoiceModeButton = ({ onStart }: VoiceModeButtonProps) => {
+  const { t } = useTranslation('chat')
+  return (
+    <Button
+      type="button"
+      variant="default"
+      onClick={onStart}
+      aria-label={t('voiceMode.start')}
+      title={t('voiceMode.start')}
+      className="size-[var(--touch-height-control)] rounded-[var(--radius-control)] flex items-center justify-center flex-shrink-0"
+    >
+      <AudioLines className="size-[var(--icon-size-default)]" />
+    </Button>
+  )
+}
