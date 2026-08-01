@@ -179,8 +179,12 @@
     "emptyDescription": "Check back later for new integrations",
     "disconnectFailed": "Failed to disconnect integration",
     "updateFailed": "Failed to update integration",
-    "proNotAvailable": "VoltPro is not available yet. Stay tuned!",
+    "proNotAvailable": "Volt Pro is not available yet. Stay tuned!",
     "availableTools": "Available Tools",
+    "toolDescriptions": {
+      "search": "Search the web. Each result has a [Source N] label. Cite with [N] at end of sentence.",
+      "fetch_content": "Fetch and parse content from a PUBLIC webpage URL. Result has a [Source N] label. Cite with [N] at end of sentence. Do NOT use for Google Drive, Docs, Sheets, or Slides links. Do NOT use for OneDrive or SharePoint links (use microsoft_get_onedrive_file_content instead)."
+    },
     "toolCount_one": "{{count}} tool",
     "toolCount_other": "{{count}} tools",
     "tools": {

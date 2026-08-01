@@ -179,6 +179,10 @@
     "emptyDescription": "Загляните позже — появятся новые интеграции",
     "disconnectFailed": "Не удалось отключить интеграцию",
     "availableTools": "Доступные инструменты",
+    "toolDescriptions": {
+      "search": "Поиск в интернете. У каждого результата есть метка [Источник N]. Ссылайтесь через [N] в конце предложения.",
+      "fetch_content": "Загрузка и разбор содержимого ПУБЛИЧНОЙ веб-страницы по URL. У результата есть метка [Источник N]. Ссылайтесь через [N] в конце предложения. НЕ используйте для ссылок Google Drive, Docs, Sheets или Slides. НЕ используйте для ссылок OneDrive или SharePoint (используйте microsoft_get_onedrive_file_content)."
+    },
     "toolCount_one": "{{count}} инструмент",
     "toolCount_few": "{{count}} инструмента",
     "toolCount_many": "{{count}} инструментов",
@@ -197,7 +201,7 @@
       "microsoft_get_onedrive_file_content": { "name": "Чтение файла OneDrive", "description": "Чтение текстового содержимого файла OneDrive." }
     },
     "updateFailed": "Не удалось обновить интеграцию",
-    "proNotAvailable": "VoltPro пока недоступен. Следите за новостями!"
+    "proNotAvailable": "Volt Pro пока недоступен. Следите за новостями!"
   },
   "models": {
     "title": "Модели",
