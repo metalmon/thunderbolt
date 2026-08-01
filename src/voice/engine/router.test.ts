@@ -37,11 +37,21 @@ describe('resolveGeminiEngineOptions', () => {
   })
 
   it('falls back to the model family first voice when the stored voice is invalid for that model', () => {
-    // `Autonoe` is a half-cascade voice but NOT in the native-audio catalog —
+    // `Autonoe` is a native-audio voice but NOT in the half-cascade catalog —
     // a stale value left over from switching models must not reach Gemini.
-    const opts = resolveGeminiEngineOptions(config({ model: 'native-audio', voiceName: 'Autonoe' }), '')
+    const opts = resolveGeminiEngineOptions(config({ model: 'half-cascade', voiceName: 'Autonoe' }), '')
 
-    expect(geminiVoices['native-audio']).not.toContain('Autonoe')
-    expect(opts.voiceName).toBe(geminiVoices['native-audio'][0])
+    expect(geminiVoices['half-cascade']).not.toContain('Autonoe')
+    expect(opts.voiceName).toBe(geminiVoices['half-cascade'][0])
+  })
+
+  it('the default store voiceName is valid for the default model family', () => {
+    expect(geminiVoices[defaultVoiceProvider.model]).toContain(defaultVoiceProvider.voiceName)
+  })
+
+  it("every model family's first voice is itself a real (non-empty) voice name", () => {
+    for (const model of Object.keys(geminiVoices) as (keyof typeof geminiVoices)[]) {
+      expect(geminiVoices[model][0]).toBeTruthy()
+    }
   })
 })
