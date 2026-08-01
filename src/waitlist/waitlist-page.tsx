@@ -41,7 +41,7 @@ export const WaitlistPage = () => {
         <div className="flex w-full flex-1 flex-col items-center p-4">
           <WaitlistHeader />
 
-          <div className="my-auto flex flex-col items-center text-center">
+          <div className="mt-auto flex flex-col items-center text-center md:my-auto">
             <p className="font-sans text-[28px] font-medium leading-normal text-foreground">
               {t('waitlist.checkEmail')}
             </p>
@@ -51,7 +51,7 @@ export const WaitlistPage = () => {
             </p>
           </div>
 
-          <div className="flex w-full flex-col items-center gap-4">
+          <div className="mb-auto mt-8 flex w-full flex-col items-center gap-4 md:mb-0 md:mt-0">
             <p className="text-sm text-muted-foreground">{t('waitlist.enterCodeHint')}</p>
             <InputOTP
               maxLength={otpLength}
