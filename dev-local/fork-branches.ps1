@@ -10,6 +10,9 @@
 #     skeleton that fork/i18n's i18next-init commit creates);
 #   - fork/i18n before fork/hooks (hooks' UI seams merge with i18n t() wraps on the
 #     shared components; rerere replays the merge);
+#   - fork/voice-gemini-live after fork/hooks (its invasive seams — backend route
+#     mount, ai/fetch voice-skill filter, voice.tsx co-pilot UI, local-settings
+#     fields — layer on top of the hook + i18n edits to the same files);
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -18,6 +21,7 @@ $ForkBranches = @(
     "fork/i18n",
     "fork/i18n-locales",
     "fork/hooks",
+    "fork/voice-gemini-live",
     "fork/dev"
 )
 
@@ -29,5 +33,6 @@ $ForkMainRangeBranches = @(
     "fork/rebrand",
     "fork/i18n",
     "fork/hooks",
+    "fork/voice-gemini-live",
     "fork/dev"
 )
