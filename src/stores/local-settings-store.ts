@@ -42,7 +42,7 @@ export const defaultVoiceProvider: VoiceProviderConfig = {
   ttsModel: 'qwen3-tts',
   ttsVoice: 'aiden',
   model: 'half-cascade',
-  voiceName: 'Autonoe',
+  voiceName: 'Kore',
   personalityPrompt: '',
 }
 
