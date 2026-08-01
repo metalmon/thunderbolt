@@ -100,7 +100,7 @@ describe('AgentSelector', () => {
     fireEvent.click(screen.getByTestId('agent-selector-trigger'))
 
     // Built-in appears in both the trigger and the dropdown item; assert at least one match.
-    expect(screen.getAllByText('Thunderbolt').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Volt').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('RAG Chat')).toBeInTheDocument()
     expect(screen.getByText('My Remote Agent')).toBeInTheDocument()
   })
@@ -181,6 +181,6 @@ describe('AgentSelector', () => {
     const onSelect = mock(() => {})
     render(<AgentSelector selectedAgent={builtInAgent} agents={[builtInAgent]} onSelect={onSelect} />)
 
-    expect(screen.getByTestId('agent-selector-trigger')).toHaveTextContent('Thunderbolt')
+    expect(screen.getByTestId('agent-selector-trigger')).toHaveTextContent('Volt')
   })
 })
