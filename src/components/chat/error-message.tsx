@@ -3,10 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { maxRetries } from '@/chats/chat-instance'
-import { getInferenceQuotaWindow, isContextOverflowError, isRateLimitError } from '@/lib/error-utils'
+import {
+  getChatErrorKind,
+  getInferenceQuotaWindow,
+  isContextOverflowError,
+  isRateLimitError,
+  type ChatErrorKind,
+} from '@/lib/error-utils'
 import { Loader2 } from 'lucide-react'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+
+/** i18n keys (chat ns) for cause-specific error guidance, keyed by ChatErrorKind.
+ *  rate-limit is handled separately (isRateLimitError) and has no entry. */
+const causeSpecificErrorKeys: Partial<Record<ChatErrorKind, string>> = {
+  attestation: 'errors.attestation',
+  timeout: 'errors.timeout',
+  provider: 'errors.provider',
+  network: 'errors.network',
+  'connection-lost': 'errors.connectionLost',
+}
 
 type ErrorMessageProps = {
   retryCount: number
@@ -23,6 +39,8 @@ export const ErrorMessage = memo(
     const { t } = useTranslation('chat')
     const rateLimited = isRateLimitError(error)
     const inferenceQuotaWindow = getInferenceQuotaWindow(error)
+    const errorKind = getChatErrorKind(error)
+    const causeSpecificErrorKey = errorKind ? causeSpecificErrorKeys[errorKind] : undefined
 
     // Show rate limit message immediately — don't auto-retry since the server told us to slow down
     if (rateLimited) {
@@ -74,7 +92,11 @@ export const ErrorMessage = memo(
       <div className="px-4 py-3 rounded-2xl bg-destructive/10 mr-auto w-full mt-2">
         <div className="flex items-center justify-between gap-2 min-h-[var(--touch-height-sm)]">
           <p className="text-destructive/80 text-[length:var(--font-size-body)]">
-            {deliveryExhausted ? t('errors.deliveryExhausted') : t('errors.generic')}
+            {deliveryExhausted
+              ? t('errors.deliveryExhausted')
+              : causeSpecificErrorKey
+                ? t(causeSpecificErrorKey)
+                : t('errors.generic')}
           </p>
           <div className="flex shrink-0 items-center gap-2">
             {/* No Retry when delivery is exhausted — re-running identical input fails
