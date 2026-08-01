@@ -392,6 +392,7 @@
     "save": "Save",
     "name": "Name",
     "nameLabel": "Name",
+    "slug": "Slug",
     "namePlaceholder": "daily-brief",
     "description": "Description",
     "descriptionHelpAria": "What is this for?",
@@ -468,6 +469,7 @@
   },
   "agents": {
     "title": "Agents",
+    "newAgent": "New Agent",
     "provenanceBuiltIn": "Your agent · built into the app",
     "provenanceSystem": "System agent · always available",
     "provenanceConnected": "Connected agent · {{endpoint}}",
