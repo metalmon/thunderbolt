@@ -15,7 +15,7 @@ import {
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { eq } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
-import { defaultModelOpus5, hashModel } from '@shared/defaults/models'
+import { defaultModelNemotron3Super, defaultModelOpus5, hashModel } from '@shared/defaults/models'
 import { isModelModified } from '@/defaults/utils'
 import type { Model } from '@/types'
 import {
@@ -1046,22 +1046,22 @@ describe('Models DAL', () => {
     it('should auto-create a default profile for a known seeded model', async () => {
       const db = getDb()
 
-      // Create a model with the same ID as a seeded default (Opus 5)
+      // Create a model with the same ID as a seeded default (Nemotron 3 Super)
       await createModel(getDb(), {
-        id: defaultModelOpus5.id,
-        provider: 'thunderbolt',
-        name: 'Opus 5',
-        model: 'opus-5',
+        id: defaultModelNemotron3Super.id,
+        provider: 'openrouter',
+        name: 'Nemotron 3 Super',
+        model: 'nvidia/nemotron-3-super-120b-a12b:free',
       })
 
       // Verify a profile was auto-created
       const profile = await db
         .select()
         .from(modelProfilesTable)
-        .where(eq(modelProfilesTable.modelId, defaultModelOpus5.id))
+        .where(eq(modelProfilesTable.modelId, defaultModelNemotron3Super.id))
         .get()
       expect(profile).not.toBeUndefined()
-      expect(profile?.temperature).toBeNull()
+      expect(profile?.temperature).toBe(0.2)
     })
 
     it('should not create a profile for an unknown model ID', async () => {
