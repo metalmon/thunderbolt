@@ -290,6 +290,20 @@ const widgetSkillIds = new Set([
 /** Whether a skill id belongs to a model-facing widget rendering contract. */
 export const isWidgetSkillId = (id: string): boolean => widgetSkillIds.has(id)
 
+/**
+ * Drop the `say` widget skill from a skill list unless the voice co-pilot
+ * feature is enabled. `say` ships `enabled: 1` like every other widget
+ * contract — its row always exists for reconciliation/UI purposes — but it
+ * must never be *disclosed* to an agent without a live realtime voice session
+ * to speak it. Shared by every skill-advertisement path so they can't drift:
+ * the ACP `_meta` skills payload (`src/acp/connect.ts`) and the built-in
+ * agent's skill tool + system-prompt catalog (`src/ai/fetch.ts`).
+ */
+export const filterVoiceOnlySkills = <T extends { name: string }>(
+  skills: readonly T[],
+  voiceCoPilotEnabled: boolean,
+): T[] => (voiceCoPilotEnabled ? [...skills] : skills.filter((skill) => skill.name !== defaultSkillSay.name))
+
 export const defaultSkills: ReadonlyArray<Skill> = [
   defaultSkillDailyBrief,
   defaultSkillImportantEmails,
