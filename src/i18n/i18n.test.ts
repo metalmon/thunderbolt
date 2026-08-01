@@ -9,7 +9,7 @@ import { detectUiLanguage } from './languages'
 describe('i18n init', () => {
   test('loads english common strings', () => {
     setUiLanguage('en')
-    expect(i18n.t('common:appName')).toBe('Thunderbolt')
+    expect(i18n.t('common:appName')).toBe('Volt')
   })
 
   test('switches to russian settings keys', async () => {

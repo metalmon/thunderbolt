@@ -80,7 +80,7 @@
     "confidentialDisabledSubtitle": "Only available in private chats.",
     "selectModel": "Select Model",
     "apiKeyMissing": "API key not configured",
-    "addModels": "Add Models",
+    "addModels": "Add Model",
     "searchPlaceholder": "Search Models",
     "empty": "No models found",
     "mobileTitle": "Choose model"
@@ -90,7 +90,7 @@
     "system": "System",
     "custom": "Custom",
     "cannotChangeDuringReply": "Cannot change agent during reply",
-    "addAgent": "Add agent",
+    "addAgent": "Add Agent",
     "searchPlaceholder": "Search agents",
     "empty": "No agents found",
     "mobileTitle": "Choose agent"
