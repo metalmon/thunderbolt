@@ -253,7 +253,7 @@ export const VoiceSettingsPage = () => {
           {isGeminiLive && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="voice-gemini-model">Model</Label>
+                <Label htmlFor="voice-gemini-model">{t('voice.geminiModel')}</Label>
                 <Select
                   value={config.model}
                   onValueChange={(model) => {
@@ -271,18 +271,15 @@ export const VoiceSettingsPage = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="half-cascade">Half-cascade (STT → LLM → TTS)</SelectItem>
-                    <SelectItem value="native-audio">Native audio (end-to-end)</SelectItem>
+                    <SelectItem value="half-cascade">{t('voice.geminiModelHalfCascade')}</SelectItem>
+                    <SelectItem value="native-audio">{t('voice.geminiModelNativeAudio')}</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                  Native audio generates speech directly for lower latency and more expressive tone; half-cascade
-                  transcribes and synthesizes as separate steps.
-                </p>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('voice.geminiModelHint')}</p>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="voice-gemini-voice">Voice</Label>
+                <Label htmlFor="voice-gemini-voice">{t('voice.geminiVoiceLabel')}</Label>
                 <Select value={config.voiceName} onValueChange={(voiceName) => update({ voiceName })}>
                   <SelectTrigger id="voice-gemini-voice" className="w-full">
                     <SelectValue />
@@ -293,23 +290,18 @@ export const VoiceSettingsPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                  Gemini Live voice character. API key is managed server-side.
-                </p>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('voice.geminiVoiceHint')}</p>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="voice-gemini-personality">Personality prompt</Label>
+                <Label htmlFor="voice-gemini-personality">{t('voice.geminiPersonality')}</Label>
                 <Textarea
                   id="voice-gemini-personality"
                   value={config.personalityPrompt}
-                  placeholder="e.g. Speak concisely and warmly, like a helpful coworker."
+                  placeholder={t('voice.geminiPersonalityPlaceholder')}
                   onChange={(e) => update({ personalityPrompt: e.target.value })}
                 />
-                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                  Optional instructions appended to the assistant's system prompt to shape its tone and style during
-                  voice conversations.
-                </p>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('voice.geminiPersonalityHint')}</p>
               </div>
             </div>
           )}
