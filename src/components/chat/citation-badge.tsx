@@ -40,13 +40,13 @@ CitationBadge.displayName = 'CitationBadge'
 const badgeClass =
   'inline-flex max-w-48 items-center gap-1 px-2 pt-0.5 pb-1 text-xs font-normal rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1'
 
-const getBadgeLabel = (sources: CitationSource[], viewSourceLabel: (name: string) => string) => {
+const getBadgeLabel = (sources: CitationSource[], viewSourcesLabel: (name: string, count: number) => string) => {
   const primary = sources.find((s) => s.isPrimary) || sources[0]
   const name = primary.siteName || primary.title
   return {
     displayName: name,
     additionalCount: sources.length > 1 ? `+${sources.length - 1}` : null,
-    ariaLabel: viewSourceLabel(name),
+    ariaLabel: viewSourcesLabel(name, sources.length),
   }
 }
 
@@ -58,8 +58,10 @@ type BadgeButtonProps = {
 
 const BadgeButton = ({ sources, isOpen, onToggle }: BadgeButtonProps) => {
   const { t } = useTranslation('chat')
-  const { displayName, additionalCount, ariaLabel } = getBadgeLabel(sources, (name) =>
-    t('sources.viewSource', { name }),
+  const { displayName, additionalCount, ariaLabel } = getBadgeLabel(sources, (name, count) =>
+    count === 1
+      ? t('sources.viewSource', { name })
+      : t('sources.viewSources', { count, name, remaining: count - 1 }),
   )
   return (
     <button
