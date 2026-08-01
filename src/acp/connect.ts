@@ -22,9 +22,10 @@
 import type { HttpClient } from '@/lib/http'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import type { Agent, AgentAdapter } from '@/types/acp'
-import { getAllSkills } from '@/dal'
+import { getAllSkills, getSettings } from '@/dal'
 import { getDb } from '@/db/database'
 import { selectEnabledSkillDefinitions } from '@/skills/skill-tool'
+import { isVoiceCoPilotEnabled } from '@/voice/voice-mode'
 import { connectAcpAdapter, type AcpAdapterDeps } from './acp-adapter'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
 import { createBuiltInAdapter, type BuiltInAdapterOptions } from './built-in-adapter'
@@ -43,8 +44,32 @@ export type ConnectToAgentContext = {
 
 export type ConnectToAgentDeps = BuiltInAdapterOptions & AcpAdapterDeps
 
-/** Read enabled skills from same DAL source used by built-in agent. */
-const getEnabledSkills = async () => selectEnabledSkillDefinitions(await getAllSkills(getDb()))
+/** Name of the voice-only skill, withheld from the advertised set unless the
+ *  voice co-pilot feature is enabled (see {@link getEnabledSkills}). */
+const voiceOnlySkillName = 'say'
+
+/**
+ * Read enabled skills from the same DAL source used by the built-in agent,
+ * withholding the `say` widget skill unless the voice co-pilot feature is on
+ * — advertising `<widget:say>` without a live realtime session running would
+ * tell the agent to speak into a session that doesn't exist.
+ *
+ * Session-start limitation: this is only evaluated when a thread's ACP
+ * session is first resolved (`session/new`, or the first `resume`/`load` of
+ * that thread — see `resolveThreadSession` in `acp-adapter.ts`), then cached
+ * for the thread's lifetime. Toggling voice mid-thread does not re-advertise
+ * skills to an already-resolved session; a new thread (or a fresh session for
+ * this one) picks up the change. ACP has no server-initiated "skills changed"
+ * push, so there is no cheap way to re-advertise sooner.
+ */
+const getEnabledSkills = async () => {
+  const db = getDb()
+  const skills = selectEnabledSkillDefinitions(await getAllSkills(db))
+  const { experimentalFeatureVoice } = await getSettings(db, { experimental_feature_voice: false })
+  return isVoiceCoPilotEnabled(experimentalFeatureVoice)
+    ? skills
+    : skills.filter((skill) => skill.name !== voiceOnlySkillName)
+}
 
 /** Build an `AgentAdapter` for the given agent. */
 export const connectToAgent = async (
