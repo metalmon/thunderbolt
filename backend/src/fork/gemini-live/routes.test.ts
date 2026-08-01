@@ -4,7 +4,13 @@
 
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { mockAuth } from '@/test-utils/mock-auth'
+import { encodeWsBearer } from '@shared/ws-bearer'
 import { createGeminiLiveRoutes, upstreamUrlFor, maxFrameBytes, maxPending } from './routes'
+
+/** Offer the carrier + a bearer subprotocol, exactly as the real client does
+ *  (see `createProxyWebSocket` / `gemini-live-engine.ts`). `mockAuth` accepts
+ *  any token, so the exact value only needs to be non-empty and decodable. */
+const bearerProtocols = (token: string): string[] => ['thunderbolt.v1', `thunderbolt.bearer.${encodeWsBearer(token)}`]
 
 describe('Gemini Live routes', () => {
   const originalEnv = { ...process.env }
@@ -202,13 +208,26 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     return `ws://127.0.0.1:${port}/gemini-live/`
   }
 
+  it('closes 4001 when no bearer subprotocol is offered (a bare WebSocket is unauthenticated)', async () => {
+    const upstream = startMockUpstream()
+    upstreams.push(upstream)
+    const relayUrl = await bootRelay(upstream.url)
+
+    // A bare socket — no `thunderbolt.bearer.*` entry — is exactly what the
+    // pre-fix client sent. The server accepts the upgrade (echoing the carrier)
+    // then rejects in `open()` with the app-defined unauthorized close code.
+    const client = new WebSocket(relayUrl)
+    const { code } = await waitForClose(client)
+    expect([4001, 1006]).toContain(code)
+  })
+
   it('forwards a client text frame to upstream verbatim', async () => {
     const received: Array<string | Buffer> = []
     const upstream = startMockUpstream({ message: (_ws, msg) => received.push(msg) })
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     client.send('hello gemini')
     await waitFor(() => received.length > 0, { label: 'upstream to receive text frame' })
@@ -226,7 +245,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     const setupMessage = JSON.stringify({ setup: { model: 'gemini-2.0-flash-live-001' } })
     client.send(setupMessage)
@@ -241,7 +260,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     const msg = nextMessage(client)
     await waitForOpen(client)
 
@@ -260,10 +279,10 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     const firstFromUpstream = nextMessage(client)
     await waitForOpen(client)
-    expect(Array.from(new Uint8Array(await firstFromUpstream as Buffer))).toEqual(Array.from(upstreamBytes))
+    expect(Array.from(new Uint8Array((await firstFromUpstream) as Buffer))).toEqual(Array.from(upstreamBytes))
 
     client.send(clientBytes)
     await waitFor(() => received.length > 0, { label: 'upstream to receive binary frame' })
@@ -279,7 +298,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     client.send('a')
     client.send('b')
@@ -295,7 +314,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     const closed = waitForClose(client)
     client.send('x'.repeat(maxFrameBytes + 10))
@@ -315,7 +334,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     const closed = waitForClose(client)
     for (let i = 0; i < maxPending + 5; i++) {
@@ -338,7 +357,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     await waitForOpen(client)
     // Downstream open fires before the relay's upstream socket necessarily
     // finishes its own handshake — wait for the upstream side to actually
@@ -356,7 +375,7 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     upstreams.push(upstream)
     const relayUrl = await bootRelay(upstream.url)
 
-    const client = new WebSocket(relayUrl)
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
     const closed = waitForClose(client)
 
     const { code, reason } = await closed
