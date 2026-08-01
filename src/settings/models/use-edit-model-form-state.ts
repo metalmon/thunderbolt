@@ -18,7 +18,7 @@ import {
   providerRequiresConnectionTest,
   type ApiKeyEdit,
 } from './model-policy'
-import { catalogToComboboxItems, createCustomModelItem, useAutoCatalogFetch, useModelCatalog } from './use-model-catalog'
+import { catalogToComboboxItems, customModelItem, useAutoCatalogFetch, useModelCatalog } from './use-model-catalog'
 
 const editModelFormSchema = z.object({
   name: z.string().min(1, { message: 'Name is required.' }),
