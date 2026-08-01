@@ -208,6 +208,7 @@ describe('Model Profiles DAL', () => {
   describe('resetModelProfileToDefault', () => {
     it('should restore default values for a known model', async () => {
       const db = getDb()
+      const { defaultModelProfileNemotron3Super } = await import('@/defaults/model-profiles')
 
       // Insert the actual default model first to satisfy FK constraint
       await db.insert(modelsTable).values({
@@ -228,7 +229,7 @@ describe('Model Profiles DAL', () => {
       })
 
       // Reset to defaults
-      await resetModelProfileToDefault(getDb(), defaultModelOpus55.id)
+      await resetModelProfileToDefault(getDb(), defaultModelOpus55.id, [defaultModelProfileOpus55])
 
       const profile = await getModelProfile(getDb(), defaultModelOpus55.id)
       expect(profile).not.toBe(null)
@@ -270,6 +271,7 @@ describe('Model Profiles DAL', () => {
   describe('createDefaultModelProfile', () => {
     it('should create a profile for a known default model', async () => {
       const db = getDb()
+      const { defaultModelProfileNemotron3Super, hashModelProfile } = await import('@/defaults/model-profiles')
 
       await db.insert(modelsTable).values({
         id: defaultModelOpus55.id,
@@ -280,7 +282,7 @@ describe('Model Profiles DAL', () => {
         enabled: defaultModelOpus55.enabled,
       })
 
-      await createDefaultModelProfile(getDb(), defaultModelOpus55.id)
+      await createDefaultModelProfile(getDb(), defaultModelOpus55.id, [defaultModelProfileOpus55])
 
       const profile = await getModelProfile(getDb(), defaultModelOpus55.id)
       expect(profile).not.toBe(null)
@@ -334,7 +336,7 @@ describe('Model Profiles DAL', () => {
       })
 
       // Calling createDefaultModelProfile should not overwrite
-      await createDefaultModelProfile(getDb(), defaultModelOpus55.id)
+      await createDefaultModelProfile(getDb(), defaultModelOpus55.id, [defaultModelProfileOpus55])
 
       const profile = await getModelProfile(getDb(), defaultModelOpus55.id)
       expect(profile?.temperature).toBe(0.99)

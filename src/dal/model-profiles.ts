@@ -37,8 +37,15 @@ export const upsertModelProfile = async (
 }
 
 /** Create default profile for a model using seed data */
-export const createDefaultModelProfile = async (db: AnyDrizzleDatabase, modelId: string): Promise<void> => {
-  const defaultProfile = defaultModelProfiles.find((p) => p.modelId === modelId)
+export const createDefaultModelProfile = async (
+  db: AnyDrizzleDatabase,
+  modelId: string,
+  /** The profiles to resolve a model's default from. Defaults to the shipped bundle, which this
+   *  fork ships EMPTY (system models arrive from the backend) — so callers that must resolve one
+   *  regardless, tests included, pass their own. */
+  profiles: ReadonlyArray<ModelProfile> = defaultModelProfiles,
+): Promise<void> => {
+  const defaultProfile = profiles.find((p) => p.modelId === modelId)
   if (!defaultProfile) {
     return
   }
@@ -61,8 +68,15 @@ export const deleteModelProfileForModel = async (db: AnyDrizzleDatabase, modelId
 }
 
 /** Reset a profile to its default values */
-export const resetModelProfileToDefault = async (db: AnyDrizzleDatabase, modelId: string): Promise<void> => {
-  const defaultProfile = defaultModelProfiles.find((p) => p.modelId === modelId)
+export const resetModelProfileToDefault = async (
+  db: AnyDrizzleDatabase,
+  modelId: string,
+  /** The profiles to resolve a model's default from. Defaults to the shipped bundle, which this
+   *  fork ships EMPTY (system models arrive from the backend) — so callers that must resolve one
+   *  regardless, tests included, pass their own. */
+  profiles: ReadonlyArray<ModelProfile> = defaultModelProfiles,
+): Promise<void> => {
+  const defaultProfile = profiles.find((p) => p.modelId === modelId)
   if (!defaultProfile) {
     return
   }
