@@ -1146,6 +1146,7 @@ export default function PreferencesSettingsPage() {
                   title={t('data.resetDatabaseDialogTitle')}
                   description={t('data.resetDatabaseDialogDescription')}
                   confirmLabel={t('data.resetDatabase')}
+                  cancelLabel={t('common:cancel')}
                   isPending={isResetting}
                   onConfirm={() => {
                     dispatch({ type: 'SET_RESET_DIALOG_OPEN', payload: false })
@@ -1183,6 +1184,7 @@ export default function PreferencesSettingsPage() {
                   title={t('data.deleteAccountDialogTitle')}
                   description={t('data.deleteAccountDialogDescription')}
                   confirmLabel={t('common:delete')}
+                  cancelLabel={t('common:cancel')}
                   isPending={isDeletingAccount}
                   onConfirm={() => {
                     dispatch({ type: 'SET_DELETE_ACCOUNT_DIALOG_OPEN', payload: false })

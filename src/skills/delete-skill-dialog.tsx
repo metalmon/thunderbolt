@@ -25,6 +25,7 @@ export const DeleteSkillDialog = ({
       title={t('skills.deleteTitle', { name: skillName })}
       description={t('skills.deleteDescription')}
       confirmLabel={t('skills.delete')}
+      cancelLabel={t('common:cancel')}
       onConfirm={onConfirm}
       onCancel={() => onOpenChange(false)}
     />

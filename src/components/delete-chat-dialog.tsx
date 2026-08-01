@@ -24,6 +24,7 @@ export const DeleteChatDialog = forwardRef<DeleteChatDialogRef, DeleteChatDialog
       title={t('deleteChat.title')}
       description={t('deleteChat.description')}
       confirmLabel={t('deleteChat.confirm')}
+      cancelLabel={t('cancel', { ns: 'common' })}
       {...props}
     />
   )
