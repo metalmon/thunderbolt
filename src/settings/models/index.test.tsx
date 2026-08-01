@@ -395,7 +395,7 @@ describe('model card action menu', () => {
     expect(screen.getByLabelText('More')).toBeInTheDocument()
   })
 
-  it('brands system-managed Tinfoil transport models as Thunderbolt', async () => {
+  it('brands system-managed Tinfoil transport models as Volt', async () => {
     const db = getDb()
     await createModel(db, {
       id: uuidv7(),
@@ -411,7 +411,7 @@ describe('model card action menu', () => {
     await waitForElement(() => screen.queryByText('GLM 5.2'))
 
     const card = screen.getByText('GLM 5.2').closest('[data-slot="card"]') as HTMLElement
-    expect(within(card).getByText('Thunderbolt')).toBeInTheDocument()
+    expect(within(card).getByText('Volt')).toBeInTheDocument()
     expect(within(card).queryByText('Tinfoil')).not.toBeInTheDocument()
   })
 
