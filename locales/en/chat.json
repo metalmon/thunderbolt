@@ -160,7 +160,12 @@
     "generic": "Something went wrong. Please try again.",
     "inferenceQuotaTitle": "AI usage limit reached",
     "inferenceQuota_5h": "You've reached your AI usage limit for the current 5-hour window. Try again later.",
-    "inferenceQuota_7d": "You've reached your AI usage limit for the current 7-day window. Try again later."
+    "inferenceQuota_7d": "You've reached your AI usage limit for the current 7-day window. Try again later.",
+    "attestation": "Couldn't verify the secure AI connection. This is usually temporary — try again in a moment.",
+    "timeout": "The AI provider took too long to respond. Try again.",
+    "provider": "The AI provider is having trouble right now. Try again in a moment.",
+    "network": "Connection problem. Check your internet and try again.",
+    "connectionLost": "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
   },
   "artifact": {
     "fallbackTitle": "Artifact",
@@ -217,7 +222,8 @@
     "sources": "Sources",
     "noneAvailable": "No sources available",
     "unknown": "Unknown",
-    "viewSource": "View source: {{name}}"
+    "viewSource": "View source: {{name}}",
+    "viewSources": "View {{count}} sources: {{name}} and {{remaining}} more"
   },
   "externalLink": {
     "title": "Open External Link",
