@@ -145,16 +145,21 @@ export const formatAskResponsesNote = (entries: AskCacheEntry[]): string | null 
 
 /**
  * The user-turn text to dispatch when an ask is submitted, or `null` if none
- * should be sent. `choice` (an action pick) is a conversational response the
- * model should act on, so it produces a turn; graded `single`/`multiple`
- * reveal the answer client-side and produce none (auto-sending them would
- * goad single-prompt backends into endlessly asking the next question).
- * Empty input produces `null`.
+ * should be sent. `choice` (an action pick) dispatches the chosen option text.
+ * Graded `single`/`multiple` dispatch the user's answer together with the
+ * client-evaluated verdict (`matched`), so the answering becomes part of the
+ * conversation and the agent can react to a right/wrong choice. Empty input
+ * produces `null`.
  */
-export const turnTextForAnswer = (mode: AskMode, chosen: string[]): string | null => {
-  if (mode !== 'choice') {
+export const turnTextForAnswer = (mode: AskMode, chosen: string[], matched: boolean | null): string | null => {
+  const picked = chosen.map((c) => c.trim()).filter((c) => c.length > 0)
+  if (picked.length === 0) {
     return null
   }
-  const answer = (chosen[0] ?? '').trim()
-  return answer || null
+  if (mode === 'choice') {
+    return picked[0] ?? null
+  }
+  const answer = picked.map((c) => `«${c}»`).join(', ')
+  const verdict = matched === true ? ' — верно' : matched === false ? ' — неверно' : ''
+  return `Мой ответ: ${answer}${verdict}`
 }
