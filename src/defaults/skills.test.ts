@@ -8,6 +8,7 @@ import { instructions as askWidgetInstruction } from '@/widgets/ask/instructions
 import { instructions as connectIntegrationWidgetInstruction } from '@/widgets/connect-integration/instructions'
 import { instructions as linkPreviewWidgetInstruction } from '@/widgets/link-preview/instructions'
 import { instructions as mapWidgetInstruction } from '@/widgets/map/instructions'
+import { instructions as sayWidgetInstruction } from '@/widgets/say/instructions'
 import { instructions as weatherForecastWidgetInstruction } from '@/widgets/weather-forecast/instructions'
 import {
   defaultSkillDailyBrief,
@@ -18,6 +19,7 @@ import {
   defaultSkillMap,
   defaultSkillResearch,
   defaultSkills,
+  defaultSkillSay,
   defaultSkillSearch,
   defaultSkillsVersion,
   defaultSkillWeather,
@@ -42,8 +44,8 @@ const computeSnapshotHash = () =>
   defaultSkills.map((skill, index) => `${index}:${skill.id}:${hashSkill(skill)}`).join('|')
 
 const expectedSnapshot = {
-  version: 5,
-  hash: '0:01996330-0000-7000-8000-000000000001:mfmi05|1:01996330-0000-7000-8000-000000000002:-669lkj|2:01996330-0000-7000-8000-000000000003:-30vmih|3:01996330-0000-7000-8000-000000000004:-cz2tdq|4:01996330-0000-7000-8000-000000000005:-hc6mv3|5:01996330-0000-7000-8000-000000000006:-o0c0ul|6:01996330-0000-7000-8000-000000000007:atrnpq|7:01996330-0000-7000-8000-000000000008:ejr8vn|8:01996330-0000-7000-8000-000000000009:o1nire',
+  version: 6,
+  hash: '0:01996330-0000-7000-8000-000000000001:mfmi05|1:01996330-0000-7000-8000-000000000002:-669lkj|2:01996330-0000-7000-8000-000000000003:-30vmih|3:01996330-0000-7000-8000-000000000004:-cz2tdq|4:01996330-0000-7000-8000-000000000005:-hc6mv3|5:01996330-0000-7000-8000-000000000006:-o0c0ul|6:01996330-0000-7000-8000-000000000007:atrnpq|7:01996330-0000-7000-8000-000000000008:ejr8vn|8:01996330-0000-7000-8000-000000000009:o1nire|9:01996330-0000-7000-8000-00000000000a:-f5til9',
 }
 
 describe('defaultSkills version snapshot', () => {
@@ -86,6 +88,12 @@ describe('defaultSkills', () => {
           'Use this skill when the user asks to see locations, routes, regions, or other geographic results on an interactive map.',
         instruction: mapWidgetInstruction,
       },
+      {
+        skill: defaultSkillSay,
+        description:
+          'Use this skill when replying to a request that arrived via voice, to speak the answer aloud through the live voice session.',
+        instruction: sayWidgetInstruction,
+      },
     ]
 
     for (const { skill, description, instruction } of widgetSkills) {
@@ -117,6 +125,7 @@ describe('defaultSkills', () => {
       defaultSkillConnectIntegration,
       defaultSkillAsk,
       defaultSkillMap,
+      defaultSkillSay,
     ]) {
       expect(isWidgetSkillId(skill.id)).toBe(true)
     }

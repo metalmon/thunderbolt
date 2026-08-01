@@ -8,6 +8,7 @@ import { instructions as askWidgetInstruction } from '@/widgets/ask/instructions
 import { instructions as connectIntegrationWidgetInstruction } from '@/widgets/connect-integration/instructions'
 import { instructions as linkPreviewWidgetInstruction } from '@/widgets/link-preview/instructions'
 import { instructions as mapWidgetInstruction } from '@/widgets/map/instructions'
+import { instructions as sayWidgetInstruction } from '@/widgets/say/instructions'
 import { instructions as weatherForecastWidgetInstruction } from '@/widgets/weather-forecast/instructions'
 
 /**
@@ -256,12 +257,34 @@ export const defaultSkillMap: Skill = {
   userId: null,
 }
 
+/**
+ * Ships enabled like every other widget contract, but is only ever disclosed
+ * to an agent when the voice co-pilot feature is on — see the gating filter
+ * in `src/acp/connect.ts`. Without a live realtime voice session running,
+ * `<widget:say>` would speak to nowhere, so the skill row exists for
+ * reconciliation/UI purposes but is withheld from the advertised set.
+ */
+export const defaultSkillSay: Skill = {
+  id: '01996330-0000-7000-8000-00000000000a',
+  name: 'say',
+  label: 'Say',
+  description:
+    'Use this skill when replying to a request that arrived via voice, to speak the answer aloud through the live voice session.',
+  instruction: sayWidgetInstruction,
+  enabled: 1,
+  pinnedOrder: null,
+  deletedAt: null,
+  defaultHash: null,
+  userId: null,
+}
+
 const widgetSkillIds = new Set([
   defaultSkillWeather.id,
   defaultSkillLinkPreview.id,
   defaultSkillConnectIntegration.id,
   defaultSkillAsk.id,
   defaultSkillMap.id,
+  defaultSkillSay.id,
 ])
 
 /** Whether a skill id belongs to a model-facing widget rendering contract. */
@@ -277,6 +300,7 @@ export const defaultSkills: ReadonlyArray<Skill> = [
   defaultSkillConnectIntegration,
   defaultSkillAsk,
   defaultSkillMap,
+  defaultSkillSay,
 ] as const
 
 /**
@@ -290,4 +314,4 @@ export const defaultSkills: ReadonlyArray<Skill> = [
  * The paired snapshot test in `skills.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSkillsVersion = 5
+export const defaultSkillsVersion = 6
