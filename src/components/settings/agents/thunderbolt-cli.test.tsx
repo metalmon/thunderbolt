@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import '@/i18n/i18n'
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock } from 'bun:test'
@@ -100,7 +101,7 @@ describe('ThunderboltCliDetail', () => {
     )
     expect(guideLink).toHaveAttribute('target', '_blank')
     expect(guideLink).toHaveAttribute('rel', 'noopener noreferrer')
-    expect(screen.getByText('Use Thunderbolt from the command line.')).toBeInTheDocument()
+    expect(screen.getByText('Use Volt from the command line.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /install cli/i })).not.toBeInTheDocument()
   })
 
@@ -110,7 +111,7 @@ describe('ThunderboltCliDetail', () => {
 
     await clickInstall()
 
-    expect(screen.getByText('/home/u/.local/bin/thunderbolt')).toBeInTheDocument()
+    expect(screen.getByText('Installed to /home/u/.local/bin/thunderbolt')).toBeInTheDocument()
     expect(screen.queryByText(/add.*to your PATH/i)).not.toBeInTheDocument()
   })
 
