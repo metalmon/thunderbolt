@@ -18,6 +18,7 @@ import type { StoredFile } from '@/lib/file-blob-storage'
 import { buildAttachmentPart } from '@/lib/attachments'
 import { buildQuotePart } from '@/lib/quotes'
 import { buildPromptBlocks, type PromptBlockDeps } from './acp-adapter'
+import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 // PDF has a text transformer; everything else (e.g. images) has none. The
 // transformer ignores the file bytes, so any non-null StoredFile will do.
@@ -37,6 +38,10 @@ const pdf = () => buildAttachmentPart({ localFileId: 'f1', filename: 'doc.pdf', 
 const png = () => buildAttachmentPart({ localFileId: 'f2', filename: 'pic.png', mimeType: 'image/png' })
 const textPart = (text: string) => ({ type: 'text', text })
 
+// The fork always prepends the deliver cite note as the first prompt block
+// (composeAcpPrompt, always-on for ACP). First-text-block expectations carry it.
+const withCiteNote = (text: string) => `${ZEROCLAW_DELIVER_CITE_NOTE}\n\n${text}`
+
 type ResourceBlock = { type: string; text?: string; resource?: { uri: string; mimeType: string; blob: string } }
 
 describe('buildPromptBlocks — no embeddedContext', () => {
@@ -44,7 +49,7 @@ describe('buildPromptBlocks — no embeddedContext', () => {
     const blocks = (await buildPromptBlocks(initWith([textPart('hi'), pdf()]), undefined, false, deps)) as Block[]
 
     expect(blocks).toHaveLength(2)
-    expect(blocks[0]).toEqual({ type: 'text', text: 'hi' })
+    expect(blocks[0]).toEqual({ type: 'text', text: withCiteNote('hi') })
     expect(blocks[1]?.type).toBe('text')
     expect(blocks[1]?.text).toBe('[Attachment: doc.pdf]\n\nEXTRACTED PDF TEXT')
   })
@@ -75,7 +80,7 @@ describe('buildPromptBlocks — no embeddedContext', () => {
     const blocks = (await buildPromptBlocks(initWith([textPart('just text')]), undefined, false, deps)) as Block[]
 
     expect(blocks).toHaveLength(1)
-    expect(blocks[0]).toEqual({ type: 'text', text: 'just text' })
+    expect(blocks[0]).toEqual({ type: 'text', text: withCiteNote('just text') })
   })
 })
 
@@ -89,7 +94,7 @@ describe('buildPromptBlocks — embeddedContext', () => {
     )) as ResourceBlock[]
 
     expect(blocks).toHaveLength(2)
-    expect(blocks[0]).toEqual({ type: 'text', text: 'hi' })
+    expect(blocks[0]).toEqual({ type: 'text', text: withCiteNote('hi') })
     expect(blocks[1]?.type).toBe('resource')
     expect(blocks[1]?.resource?.uri).toBe('attachment://f1/doc.pdf')
     expect(blocks[1]?.resource?.mimeType).toBe('application/pdf')
@@ -106,7 +111,7 @@ describe('buildPromptBlocks — embeddedContext', () => {
     const blocks = (await buildPromptBlocks(initWith([textPart('hi'), remediated]), undefined, true, deps)) as Block[]
 
     expect(blocks).toHaveLength(2)
-    expect(blocks[0]).toEqual({ type: 'text', text: 'hi' })
+    expect(blocks[0]).toEqual({ type: 'text', text: withCiteNote('hi') })
     expect(blocks[1]?.type).toBe('text')
     expect(blocks[1]?.text).toBe('[Attachment: doc.pdf]\n\nEXTRACTED PDF TEXT')
   })
@@ -133,14 +138,14 @@ describe('buildPromptBlocks — quotes', () => {
     )) as Block[]
 
     expect(blocks).toHaveLength(1)
-    expect(blocks[0]?.text).toBe('> the mitochondria is the powerhouse of the cell\n\nis this right?')
+    expect(blocks[0]?.text).toBe(withCiteNote('> the mitochondria is the powerhouse of the cell\n\nis this right?'))
   })
 
   test('sends a quote-only reply (no typed text) as the blockquote alone', async () => {
     const blocks = (await buildPromptBlocks(initWith([quote('quoted line')]), undefined, false, deps)) as Block[]
 
     expect(blocks).toHaveLength(1)
-    expect(blocks[0]?.text).toBe('> quoted line')
+    expect(blocks[0]?.text).toBe(withCiteNote('> quoted line'))
   })
 
   test('carries quotes through the embeddedContext path alongside attachments', async () => {
@@ -151,7 +156,7 @@ describe('buildPromptBlocks — quotes', () => {
       deps,
     )) as Block[]
 
-    expect(blocks[0]?.text).toBe('> context\n\nsummarize')
+    expect(blocks[0]?.text).toBe(withCiteNote('> context\n\nsummarize'))
     expect(blocks[1]?.type).toBe('resource')
   })
 })
