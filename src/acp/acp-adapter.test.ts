@@ -496,7 +496,7 @@ describe('connectAcpAdapter — skills capability', () => {
       await readSse(response)
     })
 
-    expect(sentPromptText(calls)).toBe('Gather current weather and calendar details.\n\n/daily-brief')
+    expect(sentPromptText(calls)).toBe(withCiteNote('Gather current weather and calendar details.\n\n/daily-brief'))
     expect(sentPromptText(calls)).not.toContain('Extract decisions and action items.')
   })
 
