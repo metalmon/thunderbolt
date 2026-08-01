@@ -226,7 +226,8 @@ export const useVoiceSession = () => {
       // Per-language functional base + the user's persona + recent chat history,
       // assembled most-stable-first so a prefix-caching backend can reuse the
       // base+persona prefix across turns. Threaded into `createVoiceEngine`, which
-      // bakes it into the Gemini Live setup frame (see `engine/router.ts`).
+      // bakes it into the Gemini Live setup frame — together with the model and voice
+      // from device-local voice settings (see `engine/router.ts`, `resolveGeminiEngineOptions`).
       const systemInstruction = buildSystemInstruction({
         lang: resolveVoiceLang(),
         personality: getLocalSetting('voiceProvider').personalityPrompt,
