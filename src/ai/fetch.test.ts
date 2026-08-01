@@ -5,7 +5,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { assembleBuiltInModelInput, createPrompt } from '@/ai/prompt'
 import { createTurnTelemetry } from '@/ai/turn-telemetry'
-import { defaultSkillResearch, defaultSkillWeather } from '@/defaults/skills'
+import { defaultSkillResearch, defaultSkillSay, defaultSkillWeather, filterVoiceOnlySkills } from '@/defaults/skills'
 import { defaultModelGlm52 } from '@shared/defaults/models'
 import { fetch as baseFetch } from '@/lib/fetch'
 import { createAuthenticatedClient } from '@/lib/http'
@@ -288,6 +288,69 @@ describe('buildVolatileSystemNotes', () => {
     expect(input.system).toBe(`stable prompt\n\n${notes.join('\n\n')}`)
     expect(messages.slice(1).every(({ role }) => role !== 'system')).toBeTrue()
     expect(input.messages.at(-1)).toEqual(currentUserMessage)
+  })
+})
+
+// Regression coverage for the built-in agent leak found in Task 9 review: the
+// `say` widget skill must never reach the built-in agent's skill tool or
+// system-prompt catalog unless the voice co-pilot feature is enabled — mirrors
+// `filterVoiceOnlySkills(storedSkills, voiceCoPilotEnabled)`, the exact call
+// `prepareAiRequestConfig` makes before deriving both `config.skills` (feeds
+// the `skill` tool + slash-token resolution) and the prompt's skill listing.
+describe('built-in agent skill catalog — voice co-pilot gating', () => {
+  const storedSkills: Skill[] = [
+    { ...defaultSkillWeather, instruction: 'WEATHER_WIDGET_CONTRACT_BODY' },
+    { ...defaultSkillSay, instruction: 'SAY_WIDGET_CONTRACT_BODY' },
+  ]
+
+  const basePromptConfig = {
+    modelName: 'Test Model',
+    profile: null,
+    preferredName: '',
+    location: {},
+    localization: {
+      distanceUnit: 'imperial' as const,
+      temperatureUnit: 'f' as const,
+      dateFormat: 'MM/DD/YYYY',
+      timeFormat: '12h' as const,
+      currency: 'USD',
+    },
+    integrationStatus: 'READY',
+    hasWebTools: false,
+  }
+
+  const buildForVoiceState = (voiceCoPilotEnabled: boolean) => {
+    const visibleSkills = filterVoiceOnlySkills(storedSkills, voiceCoPilotEnabled)
+    return {
+      skillDefinitionNames: selectEnabledSkillDefinitions(visibleSkills).map((skill) => skill.name),
+      toolCapablePrompt: createPrompt({
+        ...basePromptConfig,
+        skills: selectPromptSkillDefinitions(visibleSkills, true),
+        supportsTools: true,
+      }),
+      nonToolPrompt: createPrompt({
+        ...basePromptConfig,
+        skills: selectPromptSkillDefinitions(visibleSkills, false),
+        supportsTools: false,
+      }),
+    }
+  }
+
+  it('voice disabled: say is absent from the skill definitions and both system-prompt shapes', () => {
+    const { skillDefinitionNames, toolCapablePrompt, nonToolPrompt } = buildForVoiceState(false)
+
+    expect(skillDefinitionNames).not.toContain('say')
+    expect(skillDefinitionNames).toContain('weather') // sanity: unrelated skills unaffected
+    expect(toolCapablePrompt).not.toContain('- say:')
+    expect(nonToolPrompt).not.toContain('SAY_WIDGET_CONTRACT_BODY')
+  })
+
+  it('voice enabled: say is present in the skill definitions and both system-prompt shapes', () => {
+    const { skillDefinitionNames, toolCapablePrompt, nonToolPrompt } = buildForVoiceState(true)
+
+    expect(skillDefinitionNames).toContain('say')
+    expect(toolCapablePrompt).toContain('- say:')
+    expect(nonToolPrompt).toContain('### say\nSAY_WIDGET_CONTRACT_BODY')
   })
 })
 

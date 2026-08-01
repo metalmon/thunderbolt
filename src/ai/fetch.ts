@@ -21,10 +21,10 @@ import {
 } from '@/ai/step-logic'
 import { getAllSkills, getIntegrationStatus, getModel, getModelProfile, getSettings } from '@/dal'
 import { getMessage } from '@/dal/chat-messages'
-import { isWidgetSkillId } from '@/defaults/skills'
+import { filterVoiceOnlySkills, isWidgetSkillId } from '@/defaults/skills'
 import { extractLastUserText, resolveSkillTokenInstructions } from '@/skills/resolve-skill-system-messages'
 import { createSkillTool, selectEnabledSkillDefinitions } from '@/skills/skill-tool'
-import { isVoiceModeActive, voiceModeSystemNote } from '@/voice/voice-mode'
+import { isVoiceCoPilotEnabled, isVoiceModeActive, voiceModeSystemNote } from '@/voice/voice-mode'
 import { collectAskEntriesFromCache, formatAskResponsesNote } from '@/widgets/ask/lib'
 import { getDb } from '@/db/database'
 import { getLocalSetting } from '@/stores/local-settings-store'
@@ -645,6 +645,7 @@ export const prepareAiRequestConfig = async ({
     currency: 'USD',
     integrations_do_not_ask_again: false,
     experimental_feature_tasks: false,
+    experimental_feature_voice: false,
     integrations_pro_is_enabled: false,
   })
   const integrationStatus = await getIntegrationStatus(db)
@@ -653,7 +654,13 @@ export const prepareAiRequestConfig = async ({
     throw new Error('Model not found')
   }
   const profile = await getModelProfile(db, modelId)
-  const storedSkills = await getAllSkills(db)
+  // Withhold the `say` widget skill from the built-in agent's skill tool and
+  // system-prompt catalog (below) unless the voice co-pilot feature is on —
+  // mirrors the ACP `_meta` gating in `src/acp/connect.ts` via the same
+  // `filterVoiceOnlySkills`/`isVoiceCoPilotEnabled` pair, so both advertisement
+  // paths agree on when an agent may be told to emit `<widget:say>`.
+  const voiceCoPilotEnabled = isVoiceCoPilotEnabled(settings.experimentalFeatureVoice)
+  const storedSkills = filterVoiceOnlySkills(await getAllSkills(db), voiceCoPilotEnabled)
   telemetry?.endPhase('request_config')
   const skills = selectEnabledSkillDefinitions(storedSkills)
   const supportsTools = model.toolUsage !== 0
