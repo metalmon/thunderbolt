@@ -17,9 +17,9 @@ describe('local-settings-store — Gemini Live voiceProvider fields (Task 10)', 
     useLocalSettingsStore.setState({ voiceProvider: defaultVoiceProvider })
   })
 
-  it('defaults model to half-cascade, voiceName to Autonoe, personalityPrompt to empty', () => {
+  it('defaults model to half-cascade, voiceName to Kore, personalityPrompt to empty', () => {
     expect(defaultVoiceProvider.model).toBe('half-cascade')
-    expect(defaultVoiceProvider.voiceName).toBe('Autonoe')
+    expect(defaultVoiceProvider.voiceName).toBe('Kore')
     expect(defaultVoiceProvider.personalityPrompt).toBe('')
     expect(getLocalSetting('voiceProvider')).toEqual(defaultVoiceProvider)
   })
