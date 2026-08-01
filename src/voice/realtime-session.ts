@@ -32,6 +32,7 @@ import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
 import type { ReplyChat } from '@/voice/chat-reply'
 import type { RealtimeEngine, RealtimeEvent, RealtimeToolCall } from '@/voice/engine/realtime-types'
+import type { VoiceLang } from '@/voice/gemini/prompts'
 import { isHallucinatedTranscript } from '@/voice/transcript-filter'
 import type { SessionState, VoiceSession } from './session'
 
@@ -49,6 +50,11 @@ export type RealtimeSessionOptions = {
    *  trigger instead of the fresh-start one (the chat history itself reaches the
    *  model via the system prompt, threaded in a later task). */
   hasChatHistory?: boolean
+  /** Language of the greeting trigger text — must match the `lang` passed to
+   *  `buildSystemInstruction` (`voice/gemini/prompts.ts`) so the model isn't
+   *  told to speak one language while greeted in another. Defaults to `'ru'`
+   *  to match the session's original (Russian-only) behavior. */
+  lang?: VoiceLang
   /** The active chat instance — a `submit_prompt` tool-call routes its
    *  synthesized prompt into this as a real (but voice-ephemeral) chat turn.
    *  Optional so tests/callers without a chat context can omit it. */
@@ -60,11 +66,20 @@ const drainPollMs = 80
 
 /** The proactive-greeting trigger: a text turn that tells the model to speak
  *  first. New chat → open cold; existing chat → open as a continuation (the
- *  model already has the conversation as context via its system prompt). */
-const greetingTrigger = (hasChatHistory: boolean): string =>
-  hasChatHistory
+ *  model already has the conversation as context via its system prompt).
+ *  Language-matched to the system instruction's `lang` (see
+ *  `buildSystemInstruction`) so the trigger and the model's instructed
+ *  language always agree. */
+const greetingTrigger = (lang: VoiceLang, hasChatHistory: boolean): string => {
+  if (lang === 'en') {
+    return hasChatHistory
+      ? 'Continue the conversation: greet the user briefly and offer to keep going.'
+      : 'Start the conversation: greet the user briefly and ask what they want to do.'
+  }
+  return hasChatHistory
     ? 'Продолжи разговор: коротко поздоровайся и предложи, чем продолжить.'
     : 'Начни разговор: коротко поздоровайся и спроси, чем заняться.'
+}
 
 /** Frame RMS — a plain amplitude measurement, not endpointing (no gating decision
  *  is made from it; it only drives the live waveform). */
@@ -87,7 +102,7 @@ const float32ToInt16 = (frame: Float32Array): Int16Array => {
 }
 
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
-  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false, chat } = options
+  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false, lang = 'ru', chat } = options
   const playback = createPlaybackQueue()
   let state: SessionState = 'idle'
   let mic: ReturnType<typeof createMicCapture> | null = null
@@ -167,7 +182,7 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
             // first (no user turn required). Exactly once per session.
             if (!greeted) {
               greeted = true
-              engine.sendText(greetingTrigger(hasChatHistory))
+              engine.sendText(greetingTrigger(lang, hasChatHistory))
             }
             break
           case 'audio':
