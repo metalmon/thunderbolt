@@ -27,6 +27,7 @@
  * tool-calls (Task 7) hand the synthesized prompt to the normal chat agent as
  * a real, ephemeral-to-voice chat turn — see `handleToolCall` below.
  */
+import { setActiveVoiceSpeaker } from '@/voice/active-speaker'
 import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
 import type { ReplyChat } from '@/voice/chat-reply'
@@ -230,11 +231,16 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
       return
     }
     mic = capture
+    // Register this engine as the target for `<widget:say>` tags the chat agent
+    // emits while this voice session is live (see `active-speaker.ts`) — the
+    // widget executor reaches it through that registry, not a direct reference.
+    setActiveVoiceSpeaker({ sendText: (text) => engine.sendText(text) })
     setState('listening')
   }
 
   const stop = async () => {
     stopped = true
+    setActiveVoiceSpeaker(null)
     stopDrainWatch()
     engine.close()
     playback.close()
