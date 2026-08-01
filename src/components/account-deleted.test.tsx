@@ -37,9 +37,9 @@ describe('AccountDeleted', () => {
       expect(screen.getByText('Your account has been deleted and local data has been cleared.')).toBeInTheDocument()
     })
 
-    it('renders Thunderbolt branding', () => {
+    it('renders Volt branding', () => {
       renderComponent()
-      expect(screen.getByText('Thunderbolt')).toBeInTheDocument()
+      expect(screen.getByText('Volt')).toBeInTheDocument()
     })
 
     it('renders Back to App button', () => {
