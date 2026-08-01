@@ -11,6 +11,12 @@ import { persist } from 'zustand/middleware'
  * `/v1/audio/*` endpoint — another provider or a self-hosted local server.
  * Device-local (not synced): holds a key and a machine-specific URL.
  */
+/** The two Gemini Live model families (THU-718 voice co-pilot): `half-cascade`
+ *  transcribes/synthesizes via a cascaded STT→LLM→TTS pipeline; `native-audio`
+ *  generates speech end-to-end for lower latency and more expressive tone.
+ *  Each supports its own prebuilt voice catalog — see `geminiVoices`. */
+export type GeminiLiveModel = 'native-audio' | 'half-cascade'
+
 export type VoiceProviderConfig = {
   kind: 'thunderbolt' | 'openai-compatible' | 'gemini-live'
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
@@ -19,6 +25,13 @@ export type VoiceProviderConfig = {
   sttModel: string
   ttsModel: string
   ttsVoice: string
+  /** Gemini Live model family. */
+  model: GeminiLiveModel
+  /** Gemini Live prebuilt voice name (must be a member of `geminiVoices[model]`). */
+  voiceName: string
+  /** Free-text system-instruction fragment appended to shape the assistant's
+   *  tone/style during Gemini Live voice conversations. Empty means none. */
+  personalityPrompt: string
 }
 
 export const defaultVoiceProvider: VoiceProviderConfig = {
@@ -28,6 +41,9 @@ export const defaultVoiceProvider: VoiceProviderConfig = {
   sttModel: 'whisper-large-v3-turbo',
   ttsModel: 'qwen3-tts',
   ttsVoice: 'aiden',
+  model: 'half-cascade',
+  voiceName: 'Autonoe',
+  personalityPrompt: '',
 }
 
 type LocalSettingsState = {
