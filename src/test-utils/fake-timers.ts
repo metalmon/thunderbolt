@@ -21,10 +21,14 @@ const guardedTick = (fn: (clock: Clock) => void) => () => {
   if (activeClock) fn(activeClock)
 }
 
-bunJest.advanceTimersByTime = ((ms: number) => activeClock?.tick(ms)) as typeof bunJest.advanceTimersByTime
-bunJest.runAllTimers = guardedTick((clock) => clock.runAll()) as typeof bunJest.runAllTimers
-bunJest.runOnlyPendingTimers = guardedTick((clock) => clock.runToLast()) as typeof bunJest.runOnlyPendingTimers
-bunJest.clearAllTimers = guardedTick((clock) => clock.reset()) as typeof bunJest.clearAllTimers
+// bun's jest timer methods are typed to return the chainable jest object; our
+// guarded replacements return void/number, so cast through `unknown`.
+bunJest.advanceTimersByTime = ((ms: number) => activeClock?.tick(ms)) as unknown as typeof bunJest.advanceTimersByTime
+bunJest.runAllTimers = guardedTick((clock) => clock.runAll()) as unknown as typeof bunJest.runAllTimers
+bunJest.runOnlyPendingTimers = guardedTick((clock) =>
+  clock.runToLast(),
+) as unknown as typeof bunJest.runOnlyPendingTimers
+bunJest.clearAllTimers = guardedTick((clock) => clock.reset()) as unknown as typeof bunJest.clearAllTimers
 
 /**
  * Creates and installs fake timers for testing.
