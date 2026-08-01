@@ -237,7 +237,8 @@
     "selectAll": "Select all that apply",
     "chooseOne": "Choose one",
     "yourCall": "Your call",
-    "answer": "Answer"
+    "answer": "Answer",
+    "submit": "Submit"
   },
   "connect": {
     "chooseProvider": "Choose your email provider to access your email and calendar",
