@@ -241,7 +241,7 @@
     "connect": "Connect {{provider}}",
     "laterInSettings": "You can connect integrations later in Settings.",
     "loading": "Loading...",
-    "wantsToConnect": "Thunderbolt wants to connect to {{provider}} {{service}}",
+    "wantsToConnect": "Volt wants to connect to {{provider}} {{service}}",
     "connectedTo": "Connected to {{provider}} {{service}}",
     "connected": "Connected",
     "serviceEmail": "Email",
