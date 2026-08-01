@@ -219,7 +219,7 @@ export const Ask = ({
           {state.submitted && mode === 'choice' && (
             <div className="flex items-center gap-2 text-[length:var(--font-size-sm)] text-muted-foreground">
               <Lightbulb className="size-[var(--icon-size-sm)] shrink-0" />
-              <span>Got it, working on that next.</span>
+              <span>{t('ask.gotIt')}</span>
             </div>
           )}
         </div>
