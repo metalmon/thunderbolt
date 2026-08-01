@@ -202,7 +202,7 @@ export const Ask = ({
               onClick={() => commit(state.selected)}
               className="w-full md:w-auto md:self-end"
             >
-              Submit
+              {t('ask.submit')}
             </Button>
           )}
 
