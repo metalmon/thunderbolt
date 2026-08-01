@@ -32,7 +32,9 @@
  * this engine performs no local VAD and sends no activity-start/end signals.
  */
 
+import { getAuthToken } from '@/lib/auth-token'
 import { type GeminiLiveModel, getLocalSetting } from '@/stores/local-settings-store'
+import { encodeWsBearer, wsBearerSubprotocolPrefix, wsCarrierSubprotocol } from '@shared/ws-bearer'
 import type { RealtimeEngine, RealtimeEvent } from './realtime-types'
 
 const geminiLivePath = '/v1/gemini-live'
@@ -112,7 +114,25 @@ export type WebSocketLike = {
 
 export type WebSocketFactory = (url: string) => WebSocketLike
 
-const defaultWebSocketFactory: WebSocketFactory = (url) => new WebSocket(url) as unknown as WebSocketLike
+/**
+ * Open the real backend relay socket with handshake-time bearer auth. Browsers
+ * (and the Tauri webview) can't set an `Authorization` header on
+ * `new WebSocket()`, and the app authenticates with a bearer token, not a
+ * cookie — so the relay's `/v1/gemini-live` route (which authorizes in its WS
+ * `open()` via `authorizeWsBearer`) would reject a bare socket. We carry the
+ * same signed bearer the REST channel uses as a `thunderbolt.bearer.<token>`
+ * subprotocol entry alongside the `thunderbolt.v1` carrier the server echoes
+ * back — identical to `createProxyWebSocket` / the haystack ACP transport
+ * (see `@shared/ws-bearer`). The auth entry is never echoed, so it never lands
+ * on `WebSocket.protocol` or in proxy logs.
+ */
+const defaultWebSocketFactory: WebSocketFactory = (url) => {
+  const token = getAuthToken()
+  const protocols = token
+    ? [wsCarrierSubprotocol, `${wsBearerSubprotocolPrefix}${encodeWsBearer(token)}`]
+    : [wsCarrierSubprotocol]
+  return new WebSocket(url, protocols) as unknown as WebSocketLike
+}
 
 const wsOpen = 1
 
