@@ -5,7 +5,9 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { convertTemperature, getWeatherMetadata, type WeatherForecastData } from './lib'
 
 type WeatherForecastProps = WeatherForecastData
@@ -14,6 +16,10 @@ const temperatureUnitItemClass =
   'h-full aspect-square flex-none rounded-xl px-0 text-[length:var(--font-size-sm)] text-muted-foreground hover:bg-transparent hover:text-foreground focus-visible:ring-2 data-[state=on]:bg-accent data-[state=on]:text-foreground'
 
 export const WeatherForecast = ({ days = [], temperature_unit }: WeatherForecastProps) => {
+  const { i18n } = useTranslation()
+  // dayjs formats day/month names from its own locale registry, not from i18next —
+  // keep it in sync with the UI language so "Monday, Jan 5" localizes too.
+  dayjs.locale(i18n.language === 'ru' ? 'ru' : 'en')
   const [temperatureUnit, setTemperatureUnit] = useState<'c' | 'f'>(temperature_unit)
   const today = days[0]
   const forecastDays = days.slice(1)
