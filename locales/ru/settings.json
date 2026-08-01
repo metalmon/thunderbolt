@@ -437,6 +437,7 @@
   },
   "agents": {
     "title": "Агенты",
+    "newAgent": "Новый агент",
     "provenanceBuiltIn": "Ваш агент · встроен в приложение",
     "provenanceSystem": "Системный агент · всегда доступен",
     "provenanceConnected": "Подключённый агент · {{endpoint}}",
