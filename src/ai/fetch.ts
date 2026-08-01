@@ -24,6 +24,7 @@ import { getMessage } from '@/dal/chat-messages'
 import { filterVoiceOnlySkills, isWidgetSkillId } from '@/defaults/skills'
 import { extractLastUserText, resolveSkillTokenInstructions } from '@/skills/resolve-skill-system-messages'
 import { createSkillTool, selectEnabledSkillDefinitions } from '@/skills/skill-tool'
+import { speakSayWidgets } from '@/voice/say-loop'
 import { isVoiceCoPilotEnabled, isVoiceModeActive, voiceModeSystemNote } from '@/voice/voice-mode'
 import { collectAskEntriesFromCache, formatAskResponsesNote } from '@/widgets/ask/lib'
 import { getDb } from '@/db/database'
@@ -893,6 +894,19 @@ export const aiFetchStreamingResponse = async ({
           } catch {
             // Receipt submission failures must not interrupt the chat stream.
           }
+        },
+        onFinish: (finish) => {
+          console.info('finish', {
+            text: finish.text,
+            finishReason: finish.finishReason,
+            toolCallCount: finish.toolCalls?.length || 0,
+            usage: finish.totalUsage,
+          })
+
+          // Speak any `<widget:say>` tag the reply carries through the live
+          // realtime voice session (no-op when voice isn't active). See
+          // `say-loop.ts` — reuses the widget extractor, no bespoke parsing.
+          speakSayWidgets(finish.text)
         },
         onError: ({ error }) => {
           console.error('streamText error', { kind: classifyErrorKind(error) ?? 'unknown' })
