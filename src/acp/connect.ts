@@ -23,6 +23,7 @@ import type { HttpClient } from '@/lib/http'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import type { Agent, AgentAdapter } from '@/types/acp'
 import { getAgentSecrets, getAllSkills, getSettings } from '@/dal'
+import { filterVoiceOnlySkills } from '@/defaults/skills'
 import { getDb } from '@/db/database'
 import { selectEnabledSkillDefinitions } from '@/skills/skill-tool'
 import { isVoiceCoPilotEnabled } from '@/voice/voice-mode'
@@ -44,15 +45,12 @@ export type ConnectToAgentContext = {
 
 export type ConnectToAgentDeps = BuiltInAdapterOptions & AcpAdapterDeps
 
-/** Name of the voice-only skill, withheld from the advertised set unless the
- *  voice co-pilot feature is enabled (see {@link getEnabledSkills}). */
-const voiceOnlySkillName = 'say'
-
 /**
  * Read enabled skills from the same DAL source used by the built-in agent,
  * withholding the `say` widget skill unless the voice co-pilot feature is on
- * — advertising `<widget:say>` without a live realtime session running would
- * tell the agent to speak into a session that doesn't exist.
+ * (see {@link filterVoiceOnlySkills}) — advertising `<widget:say>` without a
+ * live realtime session running would tell the agent to speak into a session
+ * that doesn't exist.
  *
  * Session-start limitation: this is only evaluated when a thread's ACP
  * session is first resolved (`session/new`, or the first `resume`/`load` of
@@ -66,9 +64,7 @@ const getEnabledSkills = async () => {
   const db = getDb()
   const skills = selectEnabledSkillDefinitions(await getAllSkills(db))
   const { experimentalFeatureVoice } = await getSettings(db, { experimental_feature_voice: false })
-  return isVoiceCoPilotEnabled(experimentalFeatureVoice)
-    ? skills
-    : skills.filter((skill) => skill.name !== voiceOnlySkillName)
+  return filterVoiceOnlySkills(skills, isVoiceCoPilotEnabled(experimentalFeatureVoice))
 }
 
 /** Resolve a remote-acp agent's stored bearer token, if any. `oauth` (or no
