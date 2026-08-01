@@ -259,4 +259,4 @@ export const defaultModels: ReadonlyArray<SharedModel> = [
  * The paired snapshot test in `models.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultModelsVersion = 3
+export const defaultModelsVersion = 4
