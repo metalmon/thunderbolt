@@ -132,20 +132,18 @@ export const VoiceSettingsPage = () => {
         <SectionCard title={t('voice.engine')}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="voice-provider">Provider</Label>
+            <Label htmlFor="voice-provider">{t('voice.provider')}</Label>
             <Select value={config.kind} onValueChange={(kind) => update({ kind: kind as VoiceProviderConfig['kind'] })}>
               <SelectTrigger id="voice-provider" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="thunderbolt">Volt (hosted, private)</SelectItem>
-                <SelectItem value="openai-compatible">Custom — OpenAI-compatible endpoint</SelectItem>
+                <SelectItem value="openai-compatible">{t('voice.customEndpointOption')}</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-              {isCustom
-                ? 'Point at any server exposing /v1/audio/transcriptions and /v1/audio/speech. Its CORS must allow this app’s origin.'
-                : 'Speech-to-text and text-to-speech run in Volt’s confidential enclave.'}
+              {isCustom ? t('voice.customHint') : t('voice.enclaveHint')}
             </p>
           </div>
 
@@ -153,24 +151,24 @@ export const VoiceSettingsPage = () => {
             <>
               <Field
                 id="voice-base-url"
-                label="Base URL"
+                label={t('voice.baseUrl')}
                 placeholder="http://localhost:8880/v1"
-                hint="Include the version prefix (e.g. /v1). Then hit “Load models” to populate the pickers below."
+                hint={t('voice.baseUrlHint')}
                 value={config.baseUrl}
                 onChange={(baseUrl) => update({ baseUrl })}
               />
               <Field
                 id="voice-api-key"
-                label="API key"
+                label={t('voice.apiKey')}
                 type="password"
-                hint="Optional — leave blank for local servers that don’t require auth."
+                hint={t('voice.apiKeyHint')}
                 value={config.apiKey}
                 onChange={(apiKey) => update({ apiKey })}
               />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <ComboField
                   id="voice-stt-model"
-                  label="STT model"
+                  label={t('voice.sttModel')}
                   placeholder="whisper-large-v3-turbo"
                   options={sttOptions}
                   value={config.sttModel}
@@ -178,7 +176,7 @@ export const VoiceSettingsPage = () => {
                 />
                 <ComboField
                   id="voice-tts-model"
-                  label="TTS model"
+                  label={t('voice.ttsModel')}
                   placeholder="kokoro"
                   options={ttsOptions}
                   value={config.ttsModel}
