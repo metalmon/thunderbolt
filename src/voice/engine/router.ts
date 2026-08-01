@@ -38,20 +38,26 @@ const submitPromptTool: ToolDeclaration = {
   },
 }
 
-export const createVoiceEngine = (customProviderEnabled: boolean): VoiceEngineResult => {
+/**
+ * @param systemInstruction The fully assembled Gemini Live system instruction
+ *   (per-language base + persona + chat context — see
+ *   `voice/gemini/prompts.ts`'s `buildSystemInstruction`, Task 11), built by
+ *   the caller and threaded straight into the realtime engine's setup frame.
+ */
+export const createVoiceEngine = (customProviderEnabled: boolean, systemInstruction = ''): VoiceEngineResult => {
   const config = getLocalSetting('voiceProvider')
 
   // Realtime engine: Gemini Live (gated behind custom provider flag).
   if (isVoiceCoPilotEnabled(customProviderEnabled)) {
-    // TODO(THU voice task 10): wire real model/voice/persona from settings —
-    // placeholder keeps this call site compiling against the Task 3
-    // RealtimeEngine interface in the meantime.
+    // TODO(THU voice task 12): read model/voiceName from `config` (currently
+    // hardcoded) — systemInstruction is already threaded in from the caller
+    // (Task 11).
     return {
       kind: 'realtime',
       engine: createGeminiLiveEngine({
         model: 'gemini-live-2.5-flash-preview',
         voiceName: 'Kore',
-        systemInstruction: '',
+        systemInstruction,
         tools: [submitPromptTool],
       }),
     }
