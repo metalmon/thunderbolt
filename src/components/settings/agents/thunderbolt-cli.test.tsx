@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import '@/i18n/i18n'
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock } from 'bun:test'
@@ -40,7 +41,7 @@ describe('ThunderboltCliRow', () => {
     const onOpen = mock(() => {})
     renderRow({ onOpen })
 
-    const row = screen.getByRole('button', { name: 'Open Thunderbolt CLI' })
+    const row = screen.getByRole('button', { name: 'Open Volt CLI' })
     expect(row).toBeInTheDocument()
     expect(screen.getByText('Your agent · runs in your terminal')).toBeInTheDocument()
 
@@ -50,12 +51,12 @@ describe('ThunderboltCliRow', () => {
 
   it('marks the row as selected while its panel is open', () => {
     renderRow({ isSelected: true })
-    expect(screen.getByRole('button', { name: 'Open Thunderbolt CLI' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Open Volt CLI' })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('renders on web builds (install guide lives in the detail)', () => {
     renderRow({ isTauriEnv: false })
-    expect(screen.getByRole('button', { name: 'Open Thunderbolt CLI' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Open Volt CLI' })).toBeInTheDocument()
   })
 
   it('renders nothing on unsupported Tauri platforms', () => {
@@ -96,7 +97,7 @@ describe('ThunderboltCliDetail', () => {
     )
     expect(guideLink).toHaveAttribute('target', '_blank')
     expect(guideLink).toHaveAttribute('rel', 'noopener noreferrer')
-    expect(screen.getByText('Use Thunderbolt from the command line.')).toBeInTheDocument()
+    expect(screen.getByText('Use Volt from the command line.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /install cli/i })).not.toBeInTheDocument()
   })
 
@@ -106,7 +107,7 @@ describe('ThunderboltCliDetail', () => {
 
     await clickInstall()
 
-    expect(screen.getByText('/home/u/.local/bin/thunderbolt')).toBeInTheDocument()
+    expect(screen.getByText('Installed to /home/u/.local/bin/thunderbolt')).toBeInTheDocument()
     expect(screen.queryByText(/add.*to your PATH/i)).not.toBeInTheDocument()
   })
 
