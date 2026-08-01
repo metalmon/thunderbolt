@@ -4,6 +4,7 @@
 
 import { Loader2 } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailPanel, DetailPanelSurface } from '@/components/detail-panel'
 import { createItemTitleKeys, type CreateItemRequest } from './context'
@@ -29,13 +30,18 @@ export const CreateItemPanelShell = ({
   onClose,
   onCloseComplete,
   children,
-}: CreateItemPanelShellProps) => (
-  <DetailPanelSurface open={open} onClose={onClose} onCloseComplete={onCloseComplete} topInset>
-    <DetailPanel title={title} onClose={onClose}>
-      {children}
-    </DetailPanel>
-  </DetailPanelSurface>
-)
+}: CreateItemPanelShellProps) => {
+  // `title` is an i18n key (default from createItemTitleKeys, or a *TitleKey the
+  // caller passes) — translate it here so it never leaks to the DetailPanel raw.
+  const { t } = useTranslation('settings')
+  return (
+    <DetailPanelSurface open={open} onClose={onClose} onCloseComplete={onCloseComplete} topInset>
+      <DetailPanel title={title ? t(title) : title} onClose={onClose}>
+        {children}
+      </DetailPanel>
+    </DetailPanelSurface>
+  )
+}
 
 /**
  * The shell with a centered spinner body — shared by the host's Suspense
