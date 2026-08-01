@@ -85,7 +85,10 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
     const enabled = integration.isConnected && integration.isEnabled
     return toolConfigsByProvider[integration.provider].map((config) => ({
       name: config.name,
-      description: config.description,
+      // Display description is translatable; the raw English description stays
+      // the LLM-facing one (in each provider's tool configs). Falls back to it
+      // when no localized string is defined for this tool.
+      description: t(`integrations.toolDescriptions.${config.name}`, { defaultValue: config.description }),
       enabled,
     }))
   }
