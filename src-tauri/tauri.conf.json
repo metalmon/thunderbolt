@@ -80,9 +80,9 @@
     },
     "updater": {
       "endpoints": [
-        "https://cdn.crabnebula.app/update/thunderbird/thunderbolt/{{target}}-{{arch}}/{{current_version}}"
+        "https://cdn.crabnebula.app/update/metalmon/thunderbolt/{{target}}-{{arch}}/{{current_version}}"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdDN0YxQTRGM0Y1QkZCNEYKUldSUCsxcy9UeHAvZkZHOWVQMzhGaWxFakFhT3JoUUFXUnJUbG9HNWRMYkoxM2NIanZENnlrd3YK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZEMjA3NjczRTM5MEY0MjgKUldRbzlKRGpjM1lnL1JCTHlMcnNybUZSSWJWN25YcGpaR0FuK3FGTm1Yd3RUNTJpZFVRUVE0bDgK"
     }
   }
 }
