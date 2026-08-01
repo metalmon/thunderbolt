@@ -127,7 +127,11 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
       }
 
       // Model selects the upstream endpoint version only — never forwarded upstream.
-      const model = data.query?.model || 'gemini-2.0-flash-live-001'
+      // The client always sends `?model=` (see `resolveGeminiEngineOptions` in
+      // `src/voice/engine/router.ts`), so this default is only a defensive
+      // fallback — kept as one of the two currently-supported model ids
+      // (half-cascade) rather than a removed one.
+      const model = data.query?.model || 'gemini-live-2.5-flash-preview'
       const upstreamUrl = upstreamUrlFor(model, apiKey)
 
       const state: RelayState = {
