@@ -23,8 +23,10 @@ import {
   type OAuthProviderOrEmpty,
   useConnectIntegrationWidgetState,
 } from '@/hooks/use-connect-integration-widget-state'
+import type { TFunction } from 'i18next'
 import { ArrowLeft, Check } from 'lucide-react'
 import { memo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
 type ConnectIntegrationWidgetProps = {
@@ -36,19 +38,34 @@ type ConnectIntegrationWidgetProps = {
   override: 'true' | ''
 }
 
-const getProviderName = (provider: OAuthProvider): string => {
-  return provider === 'google' ? 'Google' : 'Microsoft'
+const getProviderName = (provider: OAuthProvider, t: TFunction): string => {
+  return provider === 'google' ? t('connect.google') : t('connect.microsoft')
 }
 
-const getServiceName = (service: 'email' | 'calendar' | 'both'): string => {
+const getServiceName = (service: 'email' | 'calendar' | 'both', t: TFunction): string => {
   switch (service) {
     case 'email':
-      return 'Email'
+      return t('connect.serviceEmail')
     case 'calendar':
-      return 'Calendar'
+      return t('connect.serviceCalendar')
     case 'both':
-      return 'Email and Calendar'
+      return t('connect.serviceBoth')
   }
+}
+
+/** Provider card subtitle: which app(s) the provider connects, per requested service. */
+const getProviderSubtitle = (
+  provider: OAuthProvider,
+  service: 'email' | 'calendar' | 'both',
+  t: TFunction,
+): string => {
+  if (service === 'calendar') {
+    return t('connect.calendar')
+  }
+  if (service === 'email') {
+    return provider === 'google' ? t('connect.gmail') : t('connect.outlook')
+  }
+  return provider === 'google' ? t('connect.gmailCalendar') : t('connect.outlookCalendar')
 }
 
 const getIconComponent = (provider: OAuthProvider, service: 'email' | 'calendar' | 'both') => {
@@ -59,11 +76,6 @@ const getIconComponent = (provider: OAuthProvider, service: 'email' | 'calendar'
     return provider === 'google' ? GoogleCalendarIcon : MicrosoftCalendarIcon
   }
   return provider === 'google' ? GoogleIcon : MicrosoftIcon
-}
-
-const getDefaultReason = (service: 'email' | 'calendar' | 'both'): string => {
-  const serviceName = getServiceName(service)
-  return `to access your ${serviceName.toLowerCase()}`
 }
 
 /**
@@ -83,14 +95,14 @@ const isProviderConnected = (
  * Widget that prompts users to connect their email/calendar accounts
  */
 export const ConnectIntegrationWidget = memo(
-  ({ provider, service, reason, messageId, override }: ConnectIntegrationWidgetProps) => {
+  ({ provider, service, messageId, override }: ConnectIntegrationWidgetProps) => {
+    const { t } = useTranslation('chat')
     const location = useLocation()
     const navigate = useNavigate()
     const { integrationsDoNotAskAgain } = useSettings({ integrations_do_not_ask_again: false })
     const [state, dispatch] = useConnectIntegrationWidgetState(provider)
     const { data: integrationStatus, isLoading: isLoadingIntegrationStatus } = useIntegrationStatus()
     const queryClient = useQueryClient()
-    const displayReason = reason === '' ? getDefaultReason(service) : reason
 
     // Use widget-specific connecting key (messageId is unique per widget instance)
     const connectingKey = `widget_${messageId}`
@@ -193,20 +205,20 @@ export const ConnectIntegrationWidget = memo(
       return (
         <Card className="w-full border border-border rounded-lg my-4">
           <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground text-center">You can connect integrations later in Settings.</p>
+            <p className="text-sm text-muted-foreground text-center">{t('connect.laterInSettings')}</p>
           </CardContent>
         </Card>
       )
     }
 
-    const serviceName = getServiceName(service)
+    const serviceName = getServiceName(service, t)
 
     if (isLoadingIntegrationStatus) {
       return (
         <Card className="w-full border border-border rounded-lg my-4">
           <CardContent className="p-6">
             <div className="flex items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">{t('connect.loading')}</p>
             </div>
           </CardContent>
         </Card>
@@ -238,7 +250,7 @@ export const ConnectIntegrationWidget = memo(
           <CardContent className="p-6 flex flex-col min-h-[400px]">
             <div className="flex flex-col items-center space-y-4 flex-1">
               <div className="text-center space-y-2">
-                <h3 className="text-lg font-semibold">Choose your email provider {displayReason}</h3>
+                <h3 className="text-lg font-semibold">{t('connect.chooseProvider')}</h3>
               </div>
 
               <div className="w-full grid grid-cols-2 gap-3">
@@ -252,10 +264,8 @@ export const ConnectIntegrationWidget = memo(
                       <GoogleIconComp />
                     </div>
                   </div>
-                  <span className="text-sm font-medium">Google</span>
-                  <span className="text-xs text-muted-foreground">
-                    {service === 'email' ? 'Gmail' : service === 'calendar' ? 'Calendar' : 'Gmail & Calendar'}
-                  </span>
+                  <span className="text-sm font-medium">{t('connect.google')}</span>
+                  <span className="text-xs text-muted-foreground">{getProviderSubtitle('google', service, t)}</span>
                 </button>
 
                 <button
@@ -268,10 +278,8 @@ export const ConnectIntegrationWidget = memo(
                       <MicrosoftIconComp />
                     </div>
                   </div>
-                  <span className="text-sm font-medium">Microsoft</span>
-                  <span className="text-xs text-muted-foreground">
-                    {service === 'email' ? 'Outlook' : service === 'calendar' ? 'Calendar' : 'Outlook & Calendar'}
-                  </span>
+                  <span className="text-sm font-medium">{t('connect.microsoft')}</span>
+                  <span className="text-xs text-muted-foreground">{getProviderSubtitle('microsoft', service, t)}</span>
                 </button>
               </div>
             </div>
@@ -279,10 +287,10 @@ export const ConnectIntegrationWidget = memo(
             <div className="mt-auto w-full">
               <div className="w-full flex gap-2">
                 <Button onClick={handleNotNow} disabled={isConnecting} variant="ghost" className="flex-1">
-                  Not now
+                  {t('connect.notNow')}
                 </Button>
                 <Button onClick={handleDoNotAskAgain} disabled={isConnecting} variant="ghost" className="flex-1">
-                  Do not ask again
+                  {t('connect.doNotAskAgain')}
                 </Button>
               </div>
             </div>
@@ -295,11 +303,11 @@ export const ConnectIntegrationWidget = memo(
       return null
     }
 
-    const providerName = getProviderName(state.selectedProvider)
+    const providerName = getProviderName(state.selectedProvider, t)
     const IconComponent = getIconComponent(state.selectedProvider, service)
 
     if (state.isConnected && state.connectedProvider && state.showConnectedState) {
-      const connectedProviderName = getProviderName(state.connectedProvider)
+      const connectedProviderName = getProviderName(state.connectedProvider, t)
       const ConnectedIconComponent = getIconComponent(state.connectedProvider, service)
 
       return (
@@ -314,14 +322,14 @@ export const ConnectIntegrationWidget = memo(
 
               <div className="text-center space-y-2">
                 <h3 className="text-lg font-semibold">
-                  Connected to {connectedProviderName} {serviceName}
+                  {t('connect.connectedTo', { provider: connectedProviderName, service: serviceName })}
                 </h3>
               </div>
 
               <div className="w-full">
                 <Button variant="ghost" className="w-full" disabled>
                   <Check className="w-4 h-4 mr-2 text-green-600" />
-                  Connected
+                  {t('connect.connected')}
                 </Button>
               </div>
             </div>
@@ -362,7 +370,7 @@ export const ConnectIntegrationWidget = memo(
 
             <div className="text-center space-y-2">
               <h3 className="text-lg font-semibold">
-                Volt wants to connect to {providerName} {serviceName}
+                {t('connect.wantsToConnect', { provider: providerName, service: serviceName })}
               </h3>
             </div>
 
@@ -380,7 +388,7 @@ export const ConnectIntegrationWidget = memo(
                 className="w-full"
                 size="lg"
               >
-                {isConnecting ? 'Connecting...' : `Connect ${providerName}`}
+                {isConnecting ? t('connect.connecting') : t('connect.connect', { provider: providerName })}
               </Button>
             </div>
           </div>
@@ -388,10 +396,10 @@ export const ConnectIntegrationWidget = memo(
           <div className="self-end w-full">
             <div className="w-full flex gap-2">
               <Button onClick={handleNotNow} disabled={isConnecting} variant="ghost" className="flex-1">
-                Not now
+                {t('connect.notNow')}
               </Button>
               <Button onClick={handleDoNotAskAgain} disabled={isConnecting} variant="ghost" className="flex-1">
-                Do not ask again
+                {t('connect.doNotAskAgain')}
               </Button>
             </div>
           </div>
