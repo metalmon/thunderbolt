@@ -16,6 +16,14 @@ import { z } from 'zod'
  * Device-local (not synced): holds a key and a machine-specific URL.
  * A schema because the ownership record keeps a copy per account (see `local-data-owner.ts`).
  */
+/** The two Gemini Live model families (THU-718 voice co-pilot): `half-cascade`
+ *  transcribes/synthesizes via a cascaded STT→LLM→TTS pipeline; `native-audio`
+ *  generates speech end-to-end for lower latency and more expressive tone.
+ *  Each supports its own prebuilt voice catalog — see `geminiVoices`. */
+export const geminiLiveModelSchema = z.enum(['native-audio', 'half-cascade'])
+
+export type GeminiLiveModel = z.infer<typeof geminiLiveModelSchema>
+
 export const voiceProviderSchema = z.object({
   kind: z.enum(['thunderbolt', 'openai-compatible', 'gemini-live']),
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
@@ -24,6 +32,13 @@ export const voiceProviderSchema = z.object({
   sttModel: z.string(),
   ttsModel: z.string(),
   ttsVoice: z.string(),
+  /** Gemini Live model family. */
+  model: geminiLiveModelSchema,
+  /** Gemini Live prebuilt voice name (must be a member of `geminiVoices[model]`). */
+  voiceName: z.string(),
+  /** Free-text system-instruction fragment appended to shape the assistant's
+   *  tone/style during Gemini Live voice conversations. Empty means none. */
+  personalityPrompt: z.string(),
 })
 
 export type VoiceProviderConfig = z.infer<typeof voiceProviderSchema>
@@ -35,6 +50,9 @@ export const defaultVoiceProvider: VoiceProviderConfig = {
   sttModel: 'whisper-large-v3-turbo',
   ttsModel: 'qwen3-tts',
   ttsVoice: 'aiden',
+  model: 'half-cascade',
+  voiceName: 'Autonoe',
+  personalityPrompt: '',
 }
 
 /**
