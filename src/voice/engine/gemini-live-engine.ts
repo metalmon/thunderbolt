@@ -32,10 +32,54 @@
  * this engine performs no local VAD and sends no activity-start/end signals.
  */
 
-import { getLocalSetting } from '@/stores/local-settings-store'
+import { type GeminiLiveModel, getLocalSetting } from '@/stores/local-settings-store'
 import type { RealtimeEngine, RealtimeEvent } from './realtime-types'
 
 const geminiLivePath = '/v1/gemini-live'
+
+/**
+ * Prebuilt voice names available per Gemini Live model family, used by the
+ * voice settings page (`src/settings/voice.tsx`) to populate the voice picker
+ * and swap its options when the model changes. `half-cascade` exposes the
+ * full prebuilt-voice catalog shared with the Gemini TTS API; `native-audio`
+ * currently supports a smaller curated set. Source: Gemini API docs — update
+ * if Google changes voice availability per model.
+ */
+export const geminiVoices: Record<GeminiLiveModel, string[]> = {
+  'half-cascade': [
+    'Autonoe',
+    'Callirrhoe',
+    'Puck',
+    'Kore',
+    'Charon',
+    'Fenrir',
+    'Aoede',
+    'Leda',
+    'Orus',
+    'Zephyr',
+    'Enceladus',
+    'Iapetus',
+    'Umbriel',
+    'Algieba',
+    'Despina',
+    'Erinome',
+    'Algenib',
+    'Rasalgethi',
+    'Laomedeia',
+    'Achernar',
+    'Alnilam',
+    'Schedar',
+    'Gacrux',
+    'Pulcherrima',
+    'Achird',
+    'Zubenelgenubi',
+    'Vindemiatrix',
+    'Sadachbia',
+    'Sadaltager',
+    'Sulafat',
+  ],
+  'native-audio': ['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr'],
+}
 
 /** A Gemini function declaration — the subset of the Gemini API's
  *  `FunctionDeclaration` schema needed to advertise a callable tool

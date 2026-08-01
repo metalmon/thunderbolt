@@ -16,8 +16,10 @@ import { Label } from '@/components/ui/label'
 import { PageHeader } from '@/components/ui/page-header'
 import { SectionCard } from '@/components/ui/section-card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { geminiVoices } from '@/voice/engine/gemini-live-engine'
 import { type DiscoveredModels, fetchOpenAiModels, testOpenAiConnection } from '@/voice/engine/openai-compatible-engine'
-import { type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
+import { type GeminiLiveModel, type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
@@ -251,22 +253,62 @@ export const VoiceSettingsPage = () => {
           {isGeminiLive && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="voice-gemini-voice">Voice</Label>
+                <Label htmlFor="voice-gemini-model">Model</Label>
                 <Select
-                  value={config.ttsVoice || 'Kore'}
-                  onValueChange={(ttsVoice) => update({ ttsVoice })}
+                  value={config.model}
+                  onValueChange={(model) => {
+                    const nextModel = model as GeminiLiveModel
+                    const voices = geminiVoices[nextModel]
+                    // Swap the voice picker's options for the new model, keeping
+                    // the current voice only if it's still valid there.
+                    update({
+                      model: nextModel,
+                      voiceName: voices.includes(config.voiceName) ? config.voiceName : voices[0],
+                    })
+                  }}
                 >
+                  <SelectTrigger id="voice-gemini-model" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="half-cascade">Half-cascade (STT → LLM → TTS)</SelectItem>
+                    <SelectItem value="native-audio">Native audio (end-to-end)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                  Native audio generates speech directly for lower latency and more expressive tone; half-cascade
+                  transcribes and synthesizes as separate steps.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="voice-gemini-voice">Voice</Label>
+                <Select value={config.voiceName} onValueChange={(voiceName) => update({ voiceName })}>
                   <SelectTrigger id="voice-gemini-voice" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr'].map((v) => (
+                    {geminiVoices[config.model].map((v) => (
                       <SelectItem key={v} value={v}>{v}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
                   Gemini Live voice character. API key is managed server-side.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="voice-gemini-personality">Personality prompt</Label>
+                <Textarea
+                  id="voice-gemini-personality"
+                  value={config.personalityPrompt}
+                  placeholder="e.g. Speak concisely and warmly, like a helpful coworker."
+                  onChange={(e) => update({ personalityPrompt: e.target.value })}
+                />
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                  Optional instructions appended to the assistant's system prompt to shape its tone and style during
+                  voice conversations.
                 </p>
               </div>
             </div>
