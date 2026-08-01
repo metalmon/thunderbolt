@@ -4,8 +4,7 @@
 
 import { getDb } from '@/db/database'
 import { modelProfilesTable, modelsTable } from '@/db/tables'
-import { defaultModelProfileOpus5, hashModelProfile } from '@/defaults/model-profiles'
-import { defaultModelOpus5 } from '@shared/defaults/models'
+import { defaultModelNemotron3Super } from '@shared/defaults/models'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { eq } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
@@ -208,36 +207,35 @@ describe('Model Profiles DAL', () => {
   describe('resetModelProfileToDefault', () => {
     it('should restore default values for a known model', async () => {
       const db = getDb()
+      const { defaultModelProfileNemotron3Super } = await import('@/defaults/model-profiles')
 
       // Insert the actual default model first to satisfy FK constraint
       await db.insert(modelsTable).values({
-        id: defaultModelOpus5.id,
-        provider: defaultModelOpus5.provider,
-        name: defaultModelOpus5.name,
-        model: defaultModelOpus5.model,
-        isSystem: defaultModelOpus5.isSystem,
-        enabled: defaultModelOpus5.enabled,
+        id: defaultModelNemotron3Super.id,
+        provider: defaultModelNemotron3Super.provider,
+        name: defaultModelNemotron3Super.name,
+        model: defaultModelNemotron3Super.model,
+        isSystem: defaultModelNemotron3Super.isSystem,
+        enabled: defaultModelNemotron3Super.enabled,
       })
 
       // Insert a profile with modified values
       await db.insert(modelProfilesTable).values({
-        modelId: defaultModelOpus5.id,
+        modelId: defaultModelNemotron3Super.id,
         temperature: 0.99,
         maxSteps: 1,
         deletedAt: new Date().toISOString(),
       })
 
       // Reset to defaults
-      await resetModelProfileToDefault(getDb(), defaultModelOpus5.id)
+      await resetModelProfileToDefault(getDb(), defaultModelNemotron3Super.id)
 
-      const profile = await getModelProfile(getDb(), defaultModelOpus5.id)
+      const profile = await getModelProfile(getDb(), defaultModelNemotron3Super.id)
       expect(profile).not.toBe(null)
-      expect(defaultModelProfileOpus5.modelId).toBe(defaultModelOpus5.id)
-      expect(defaultModelProfileOpus5.temperature).toBeNull()
-      expect(profile?.temperature).toBeNull()
-      expect(profile?.maxSteps).toBe(defaultModelProfileOpus5.maxSteps)
-      expect(profile?.maxAttempts).toBe(defaultModelProfileOpus5.maxAttempts)
-      expect(profile?.nudgeThreshold).toBe(defaultModelProfileOpus5.nudgeThreshold)
+      expect(profile?.temperature).toBe(defaultModelProfileNemotron3Super.temperature)
+      expect(profile?.maxSteps).toBe(defaultModelProfileNemotron3Super.maxSteps)
+      expect(profile?.maxAttempts).toBe(defaultModelProfileNemotron3Super.maxAttempts)
+      expect(profile?.nudgeThreshold).toBe(defaultModelProfileNemotron3Super.nudgeThreshold)
       expect(profile?.deletedAt).toBe(null)
     })
 
@@ -270,30 +268,31 @@ describe('Model Profiles DAL', () => {
   describe('createDefaultModelProfile', () => {
     it('should create a profile for a known default model', async () => {
       const db = getDb()
+      const { defaultModelProfileNemotron3Super, hashModelProfile } = await import('@/defaults/model-profiles')
 
       await db.insert(modelsTable).values({
-        id: defaultModelOpus5.id,
-        provider: defaultModelOpus5.provider,
-        name: defaultModelOpus5.name,
-        model: defaultModelOpus5.model,
-        isSystem: defaultModelOpus5.isSystem,
-        enabled: defaultModelOpus5.enabled,
+        id: defaultModelNemotron3Super.id,
+        provider: defaultModelNemotron3Super.provider,
+        name: defaultModelNemotron3Super.name,
+        model: defaultModelNemotron3Super.model,
+        isSystem: defaultModelNemotron3Super.isSystem,
+        enabled: defaultModelNemotron3Super.enabled,
       })
 
-      await createDefaultModelProfile(getDb(), defaultModelOpus5.id)
+      await createDefaultModelProfile(getDb(), defaultModelNemotron3Super.id)
 
-      const profile = await getModelProfile(getDb(), defaultModelOpus5.id)
+      const profile = await getModelProfile(getDb(), defaultModelNemotron3Super.id)
       expect(profile).not.toBe(null)
-      expect(profile?.modelId).toBe(defaultModelOpus5.id)
-      expect(profile?.temperature).toBeNull()
+      expect(profile?.modelId).toBe(defaultModelNemotron3Super.id)
+      expect(profile?.temperature).toBe(defaultModelProfileNemotron3Super.temperature)
 
       // Should store the defaultHash
       const rawProfile = await db
         .select()
         .from(modelProfilesTable)
-        .where(eq(modelProfilesTable.modelId, defaultModelOpus5.id))
+        .where(eq(modelProfilesTable.modelId, defaultModelNemotron3Super.id))
         .get()
-      expect(rawProfile?.defaultHash).toBe(hashModelProfile(defaultModelProfileOpus5))
+      expect(rawProfile?.defaultHash).toBe(hashModelProfile(defaultModelProfileNemotron3Super))
     })
 
     it('should do nothing for a model without seed data', async () => {
@@ -319,24 +318,24 @@ describe('Model Profiles DAL', () => {
       const db = getDb()
 
       await db.insert(modelsTable).values({
-        id: defaultModelOpus5.id,
-        provider: defaultModelOpus5.provider,
-        name: defaultModelOpus5.name,
-        model: defaultModelOpus5.model,
-        isSystem: defaultModelOpus5.isSystem,
-        enabled: defaultModelOpus5.enabled,
+        id: defaultModelNemotron3Super.id,
+        provider: defaultModelNemotron3Super.provider,
+        name: defaultModelNemotron3Super.name,
+        model: defaultModelNemotron3Super.model,
+        isSystem: defaultModelNemotron3Super.isSystem,
+        enabled: defaultModelNemotron3Super.enabled,
       })
 
       // Insert a custom profile first
       await db.insert(modelProfilesTable).values({
-        modelId: defaultModelOpus5.id,
+        modelId: defaultModelNemotron3Super.id,
         temperature: 0.99,
       })
 
       // Calling createDefaultModelProfile should not overwrite
-      await createDefaultModelProfile(getDb(), defaultModelOpus5.id)
+      await createDefaultModelProfile(getDb(), defaultModelNemotron3Super.id)
 
-      const profile = await getModelProfile(getDb(), defaultModelOpus5.id)
+      const profile = await getModelProfile(getDb(), defaultModelNemotron3Super.id)
       expect(profile?.temperature).toBe(0.99)
     })
   })
