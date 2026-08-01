@@ -4,6 +4,7 @@
 
 import { Check, Lightbulb, Sparkles, X } from 'lucide-react'
 import { useReducer, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -98,6 +99,7 @@ export const Ask = ({
   initialSubmitted,
   onSubmit,
 }: AskProps) => {
+  const { t } = useTranslation('chat')
   const [state, dispatch] = useReducer(askUiReducer, undefined, () => ({
     selected: new Set(initialSelectedIds),
     submitted: initialSubmitted ?? false,
@@ -135,7 +137,7 @@ export const Ask = ({
     dispatch({ type: 'OPTION_TOGGLED', id, isMultiple })
   }
 
-  const label = isGraded ? (isMultiple ? 'Select all that apply' : 'Choose one') : 'Your call'
+  const label = isGraded ? (isMultiple ? t('ask.selectAll') : t('ask.chooseOne')) : t('ask.yourCall')
 
   return (
     <div className="my-4 w-full">
@@ -208,7 +210,7 @@ export const Ask = ({
             <div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3 text-[length:var(--font-size-sm)]">
               <Lightbulb className="mt-0.5 size-[var(--icon-size-sm)] shrink-0 text-muted-foreground" />
               <div className="flex flex-col gap-1">
-                <span className="font-medium">Answer</span>
+                <span className="font-medium">{t('ask.answer')}</span>
                 <span className="text-foreground/80">{explanation}</span>
               </div>
             </div>
