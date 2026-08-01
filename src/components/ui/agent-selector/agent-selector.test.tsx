@@ -100,7 +100,7 @@ describe('AgentSelector', () => {
     fireEvent.click(screen.getByTestId('agent-selector-trigger'))
 
     // Built-in appears in both the trigger and the dropdown item; assert at least one match.
-    expect(screen.getAllByText('Thunderbolt').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Volt').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('RAG Chat')).toBeInTheDocument()
     expect(screen.getByText('My Remote Agent')).toBeInTheDocument()
   })
@@ -181,14 +181,14 @@ describe('AgentSelector', () => {
     render(<AgentSelector selectedAgent={builtInAgent} agents={[builtInAgent]} onSelect={() => {}} disabled />)
 
     const trigger = screen.getByTestId('agent-selector-trigger')
-    expect(trigger).toHaveTextContent('Thunderbolt')
+    expect(trigger).toHaveTextContent('Volt')
     expect(trigger.closest('button')).toBeNull()
     // Not dimmed by `disabled`: there is no switch to hold back during a reply.
     expect(trigger).not.toHaveClass('opacity-60')
 
     fireEvent.click(trigger)
 
-    expect(screen.getAllByText('Thunderbolt')).toHaveLength(1)
+    expect(screen.getAllByText('Volt')).toHaveLength(1)
   })
 
   describe('when the only available agent is not the selected one', () => {
