@@ -229,7 +229,7 @@ export const useVoiceSession = () => {
       // bakes it into the Gemini Live setup frame — together with the model and voice
       // from device-local voice settings (see `engine/router.ts`, `resolveGeminiEngineOptions`).
       const systemInstruction = buildSystemInstruction({
-        lang: resolveVoiceLang(),
+        lang: voiceLang,
         personality: getLocalSetting('voiceProvider').personalityPrompt,
         contextMessages: toContextMessages(session.chatInstance.messages),
       })
@@ -242,6 +242,7 @@ export const useVoiceSession = () => {
           engine: engineResult.engine,
           chat: toReplyChat(session.chatInstance),
           hasChatHistory: session.chatInstance.messages.length > 0,
+          lang: voiceLang,
           ...callbacks,
         })
       }

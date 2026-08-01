@@ -42,23 +42,31 @@ const geminiLivePath = '/v1/gemini-live'
 /**
  * Prebuilt voice names available per Gemini Live model family, used by the
  * voice settings page (`src/settings/voice.tsx`) to populate the voice picker
- * and swap its options when the model changes. `half-cascade` exposes the
- * full prebuilt-voice catalog shared with the Gemini TTS API; `native-audio`
- * currently supports a smaller curated set. Source: Gemini API docs — update
- * if Google changes voice availability per model.
+ * and swap its options when the model changes. `half-cascade` (the original
+ * Live API pipeline) launched with — and remains limited to — the 8 baseline
+ * prebuilt voices; `native-audio` shares the full 30-voice HD catalog with
+ * the Gemini TTS API (the 8 baseline voices plus 22 more). Getting this
+ * backwards is load-bearing: an invalid `voiceName` errors every session for
+ * that model family at `setup`. Source: Gemini Live API docs
+ * (https://ai.google.dev/gemini-api/docs/live-guide, "native audio output
+ * models support any of the voices available for our Text-to-Speech (TTS)
+ * models") plus the TTS voice list at
+ * https://ai.google.dev/gemini-api/docs/speech-generation#voices — update if
+ * Google changes voice availability per model.
  */
 export const geminiVoices: Record<GeminiLiveModel, string[]> = {
-  'half-cascade': [
-    'Autonoe',
-    'Callirrhoe',
+  'half-cascade': ['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr'],
+  'native-audio': [
     'Puck',
-    'Kore',
     'Charon',
+    'Kore',
     'Fenrir',
     'Aoede',
     'Leda',
     'Orus',
     'Zephyr',
+    'Autonoe',
+    'Callirrhoe',
     'Enceladus',
     'Iapetus',
     'Umbriel',
@@ -80,7 +88,6 @@ export const geminiVoices: Record<GeminiLiveModel, string[]> = {
     'Sadaltager',
     'Sulafat',
   ],
-  'native-audio': ['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr'],
 }
 
 /** A Gemini function declaration — the subset of the Gemini API's
