@@ -21,6 +21,8 @@
  * voice send (`chat.sendMessage(..., { body: { voiceMode: true } })`) through to
  * the prompt builder instead of reading a global.
  */
+import { getLocalSetting } from '@/stores/local-settings-store'
+
 let voiceModeActive = false
 
 export const setVoiceModeActive = (active: boolean): void => {
@@ -42,3 +44,18 @@ export const voiceModeSystemNote =
   'If asked about your voice or what you can do in voice mode, answer plainly from this context — do NOT ' +
   'search the web for your own identity or capabilities. Your speaking voice is fixed and cannot be changed ' +
   'during a conversation. The user can interrupt you at any time simply by speaking.'
+
+/**
+ * Whether the voice co-pilot (realtime Gemini Live) feature is enabled on this
+ * device: the experimental flag is on AND the configured voice provider is
+ * Gemini Live. Shared by voice session startup (`voice/engine/router.ts`) and
+ * skill advertisement (`acp/connect.ts`) so the `say` widget contract is only
+ * disclosed to an agent when a live voice session actually exists to speak it
+ * — advertising it otherwise would tell the agent to emit a widget that's
+ * never rendered.
+ *
+ * @param experimentalFeatureVoice - the `experimental_feature_voice` setting,
+ *   read by the caller (this module has no DB access of its own)
+ */
+export const isVoiceCoPilotEnabled = (experimentalFeatureVoice: boolean): boolean =>
+  experimentalFeatureVoice && getLocalSetting('voiceProvider').kind === 'gemini-live'
