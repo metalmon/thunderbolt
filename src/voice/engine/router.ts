@@ -13,6 +13,7 @@
  * start, so a settings change applies on the next voice turn.
  */
 import { getLocalSetting } from '@/stores/local-settings-store'
+import { isVoiceCoPilotEnabled } from '@/voice/voice-mode'
 import { createGeminiLiveEngine, type ToolDeclaration } from './gemini-live-engine'
 import { createOpenAiCompatibleEngine } from './openai-compatible-engine'
 import type { RealtimeEngine } from './realtime-types'
@@ -41,7 +42,7 @@ export const createVoiceEngine = (customProviderEnabled: boolean): VoiceEngineRe
   const config = getLocalSetting('voiceProvider')
 
   // Realtime engine: Gemini Live (gated behind custom provider flag).
-  if (customProviderEnabled && config.kind === 'gemini-live') {
+  if (isVoiceCoPilotEnabled(customProviderEnabled)) {
     // TODO(THU voice task 10): wire real model/voice/persona from settings —
     // placeholder keeps this call site compiling against the Task 3
     // RealtimeEngine interface in the meantime.
