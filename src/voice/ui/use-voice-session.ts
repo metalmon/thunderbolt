@@ -18,6 +18,8 @@ import { hasServerAuthentication } from '@/lib/provider-mode'
 import { getLocalSetting } from '@/stores/local-settings-store'
 import type { ThunderboltUIMessage } from '@/types'
 import type { ReplyChat } from '@/voice/chat-reply'
+import type { ContextMessage, VoiceLang } from '@/voice/gemini/prompts'
+import { getActiveLocale } from '@/i18n/active-locale'
 import type { SessionState } from '@/voice/session'
 import { toVoiceErrorMessage } from '@/voice/voice-error'
 import { createSessionLifecycle } from './session-lifecycle'
@@ -56,6 +58,31 @@ export const toVoiceOverlayError = (error: unknown): string => {
   const builtInAgentName = selectBuiltInAgentEnabled(useConfigStore.getState().config) ? builtInAgent.name : null
   return i18n._(privateChatHeldMessage(error.agentName, builtInAgentName))
 }
+
+/** Most recent chat messages to carry into the voice system instruction as
+ *  conversational context (see `buildSystemInstruction`'s `contextMessages`).
+ *  Bounded so a long-running chat doesn't grow the prompt unboundedly — the
+ *  tail of the conversation is what's relevant to a voice turn continuing it. */
+const maxContextMessages = 12
+
+/** Render the chat's own message history into the plain `{role,text}` shape
+ *  `buildSystemInstruction` expects, keeping only the most recent messages and
+ *  dropping any with no renderable text (e.g. a tool-only turn). */
+const toContextMessages = (messages: readonly ThunderboltUIMessage[]): ContextMessage[] =>
+  messages
+    .slice(-maxContextMessages)
+    .map((message) => ({
+      role: message.role,
+      text: message.parts.reduce((text, part) => (part.type === 'text' ? text + (part.text ?? '') : text), ''),
+    }))
+    .filter((message) => message.text.length > 0)
+
+/**
+ * The app's own UI language for the voice system instruction. Not `navigator.language`:
+ * the fork rides upstream's Lingui, so the active locale is the one the user actually
+ * sees — and on Windows WebView2 the browser language is the APP's, not the user's.
+ */
+const resolveVoiceLang = (): VoiceLang => (getActiveLocale().toLowerCase().startsWith('ru') ? 'ru' : 'en')
 
 /**
  * Adapt the AI SDK `Chat` to the structural `ReplyChat` slice the voice session
@@ -183,20 +210,33 @@ export const useVoiceSession = () => {
         { createRealtimeSession },
         { createVoiceEngine },
         { createChatReply },
+        { buildSystemInstruction },
+        { getLocalSetting },
         { experimentalFeatureVoice },
       ] = await Promise.all([
         import('@/voice/session'),
         import('@/voice/realtime-session'),
         import('@/voice/engine/router'),
         import('@/voice/chat-reply'),
+        import('@/voice/gemini/prompts'),
+        import('@/stores/local-settings-store'),
         getSettings(db, { experimental_feature_voice: false }),
       ])
       signal.throwIfAborted()
-      const engineResult = createVoiceEngine(experimentalFeatureVoice)
+      // Per-language functional base + the user's persona + recent chat history,
+      // assembled most-stable-first so a prefix-caching backend can reuse the
+      // base+persona prefix across turns. Threaded into `createVoiceEngine`, which
+      // bakes it into the Gemini Live setup frame (see `engine/router.ts`).
+      const systemInstruction = buildSystemInstruction({
+        lang: resolveVoiceLang(),
+        personality: getLocalSetting('voiceProvider').personalityPrompt,
+        contextMessages: toContextMessages(session.chatInstance.messages),
+      })
+      const engineResult = createVoiceEngine(experimentalFeatureVoice, systemInstruction)
       if (engineResult.kind === 'realtime') {
         // Realtime (bidi) engine — the server handles STT/LLM/TTS over one WebSocket.
-        // The system prompt, model and voice are baked into `engineResult.engine` at
-        // construction time (see `engine/router.ts`) rather than passed here.
+        // The system instruction is baked into `engineResult.engine` at construction
+        // time (see `engine/router.ts`) rather than passed here.
         return createRealtimeSession({
           engine: engineResult.engine,
           chat: toReplyChat(session.chatInstance),
