@@ -136,7 +136,13 @@
     "title": "Permission Required",
     "commandArgs": "Command / arguments",
     "toolInput": "Tool input",
-    "alwaysAllowEverything": "Always allow everything from this agent"
+    "alwaysAllowEverything": "Always allow everything from this agent",
+    "option": {
+      "allow_once": "Allow once",
+      "allow_always": "Always allow",
+      "reject_once": "Reject",
+      "reject_always": "Always reject"
+    }
   },
   "fileCard": {
     "sentAsText": "Sent as text",

@@ -136,7 +136,13 @@
     "title": "Требуется разрешение",
     "commandArgs": "Команда / аргументы",
     "toolInput": "Ввод инструмента",
-    "alwaysAllowEverything": "Всегда разрешать всё от этого агента"
+    "alwaysAllowEverything": "Всегда разрешать всё от этого агента",
+    "option": {
+      "allow_once": "Разрешить один раз",
+      "allow_always": "Разрешать всегда",
+      "reject_once": "Отклонить",
+      "reject_always": "Отклонять всегда"
+    }
   },
   "fileCard": {
     "sentAsText": "Отправлено как текст",
