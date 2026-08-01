@@ -219,5 +219,33 @@
     "opening": "Opening…",
     "openInBrowser": "Open in Browser",
     "openLink": "Open Link"
+  },
+  "ask": {
+    "selectAll": "Select all that apply",
+    "chooseOne": "Choose one",
+    "yourCall": "Your call",
+    "answer": "Answer"
+  },
+  "connect": {
+    "chooseProvider": "Choose your email provider to access your email and calendar",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "gmailCalendar": "Gmail & Calendar",
+    "outlookCalendar": "Outlook & Calendar",
+    "gmail": "Gmail",
+    "outlook": "Outlook",
+    "calendar": "Calendar",
+    "notNow": "Not now",
+    "doNotAskAgain": "Do not ask again",
+    "connecting": "Connecting...",
+    "connect": "Connect {{provider}}",
+    "laterInSettings": "You can connect integrations later in Settings.",
+    "loading": "Loading...",
+    "wantsToConnect": "Thunderbolt wants to connect to {{provider}} {{service}}",
+    "connectedTo": "Connected to {{provider}} {{service}}",
+    "connected": "Connected",
+    "serviceEmail": "Email",
+    "serviceCalendar": "Calendar",
+    "serviceBoth": "Email and Calendar"
   }
 }

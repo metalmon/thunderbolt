@@ -531,6 +531,19 @@
   },
   "voice": {
     "title": "Voice",
-    "engine": "Engine"
+    "engine": "Engine",
+    "provider": "Provider",
+    "customEndpointOption": "Custom — OpenAI-compatible endpoint",
+    "customHint": "Point at any server exposing /v1/audio/transcriptions and /v1/audio/speech. Its CORS must allow this app's origin.",
+    "enclaveHint": "Speech-to-text and text-to-speech run in Thunderbolt's confidential enclave.",
+    "baseUrl": "Base URL",
+    "baseUrlHint": "Include the version prefix (e.g. /v1). Then hit \"Load models\" to populate the pickers below.",
+    "apiKey": "API key",
+    "apiKeyHint": "Optional — leave blank for local servers that don't require auth.",
+    "sttModel": "STT model",
+    "ttsModel": "TTS model"
+  },
+  "experimental": {
+    "customVoiceProvider": "Custom voice provider"
   }
 }

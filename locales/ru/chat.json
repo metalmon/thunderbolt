@@ -219,5 +219,33 @@
     "opening": "Открытие…",
     "openInBrowser": "Открыть в браузере",
     "openLink": "Открыть ссылку"
+  },
+  "ask": {
+    "selectAll": "Выберите все подходящие варианты",
+    "chooseOne": "Выберите один вариант",
+    "yourCall": "На ваше усмотрение",
+    "answer": "Ответ"
+  },
+  "connect": {
+    "chooseProvider": "Выберите почтовый провайдер, чтобы получить доступ к почте и календарю",
+    "google": "Google",
+    "microsoft": "Microsoft",
+    "gmailCalendar": "Gmail и Календарь",
+    "outlookCalendar": "Outlook и Календарь",
+    "gmail": "Gmail",
+    "outlook": "Outlook",
+    "calendar": "Календарь",
+    "notNow": "Не сейчас",
+    "doNotAskAgain": "Больше не спрашивать",
+    "connecting": "Подключение...",
+    "connect": "Подключить {{provider}}",
+    "laterInSettings": "Вы можете подключить интеграции позже в настройках.",
+    "loading": "Загрузка...",
+    "wantsToConnect": "Thunderbolt хочет подключиться к {{provider}} {{service}}",
+    "connectedTo": "Подключено к {{provider}} {{service}}",
+    "connected": "Подключено",
+    "serviceEmail": "Почта",
+    "serviceCalendar": "Календарь",
+    "serviceBoth": "Почта и календарь"
   }
 }
