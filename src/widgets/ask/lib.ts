@@ -154,19 +154,25 @@ export const formatAskResponsesNote = (entries: AskCacheEntry[]): string | null 
 
 /**
  * The user-turn text to dispatch when an ask is submitted, or `null` if none
- * should be sent. Ungraded modes (`choice` / `choices`) are conversational
- * responses the model should act on, so they produce a turn — the chosen option
- * text(s), comma-joined. Graded `single`/`multiple` reveal the answer
- * client-side and produce none (auto-sending them would goad single-prompt
- * backends into endlessly asking the next question). Empty input produces `null`.
+ * should be sent. Ungraded action picks dispatch the chosen option text(s) as a
+ * plain conversational turn the model acts on: `choice` sends the single pick,
+ * `choices` (multi-select) sends them comma-joined. Graded `single`/`multiple`
+ * dispatch the user's answer together with the client-evaluated verdict
+ * (`matched`), so the answering becomes part of the conversation and the agent
+ * can react to a right/wrong choice. Empty input produces `null`.
  */
-export const turnTextForAnswer = (mode: AskMode, chosen: string[]): string | null => {
-  if (isGradedMode(mode)) {
+export const turnTextForAnswer = (mode: AskMode, chosen: string[], matched: boolean | null): string | null => {
+  const picked = chosen.map((c) => c.trim()).filter((c) => c.length > 0)
+  if (picked.length === 0) {
     return null
   }
-  const answer = chosen
-    .map((c) => c.trim())
-    .filter(Boolean)
-    .join(', ')
-  return answer || null
+  if (mode === 'choice') {
+    return picked[0] ?? null
+  }
+  if (mode === 'choices') {
+    return picked.join(', ')
+  }
+  const answer = picked.map((c) => `«${c}»`).join(', ')
+  const verdict = matched === true ? ' — верно' : matched === false ? ' — неверно' : ''
+  return `Мой ответ: ${answer}${verdict}`
 }
