@@ -84,10 +84,10 @@ export const AskWidget = ({ prompt, mode, options = [], explanation, messageId }
     // same session restores the answer instead of re-reading the stale `null`.
     queryClient.setQueryData(queryKey, entry)
 
-    // Ungraded modes (`choice` / `choices`) dispatch the pick(s) as a normal
-    // user turn so the model acts on them; graded modes return null (see
-    // `turnTextForAnswer`).
-    const turnText = turnTextForAnswer(mode, chosen)
+    // Dispatch the pick(s) as a normal user turn the model acts on: `choice`/`choices`
+    // send the plain option text(s); graded modes send the answer plus its verdict
+    // (see `turnTextForAnswer`).
+    const turnText = turnTextForAnswer(mode, chosen, matched)
     if (turnText) {
       try {
         await chatInstance.sendMessage({ text: turnText })
