@@ -237,7 +237,19 @@
     "chooseOne": "Choose one",
     "yourCall": "Your call",
     "answer": "Answer",
-    "submit": "Submit"
+    "submit": "Submit",
+    "gotIt": "Got it, working on that next."
+  },
+  "voiceMode": {
+    "start": "Start voice mode",
+    "exit": "Exit voice mode",
+    "label": "Voice mode: {{status}}",
+    "status": {
+      "idle": "Starting…",
+      "listening": "Listening",
+      "thinking": "Thinking",
+      "speaking": "Speaking"
+    }
   },
   "connect": {
     "chooseProvider": "Choose your email provider to access your email and calendar",
