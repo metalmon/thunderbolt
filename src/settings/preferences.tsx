@@ -948,13 +948,13 @@ export default function PreferencesSettingsPage() {
                   hasModifications={experimentalFeatureVoice.isModified}
                   onReset={experimentalFeatureVoice.reset}
                 >
-                  Custom voice provider
+                  {t('experimental.customVoiceProvider')}
                 </ModificationIndicator>
               </div>
               <Switch
                 checked={experimentalFeatureVoice.value}
                 onCheckedChange={(value) => experimentalFeatureVoice.setValue(value)}
-                aria-label="Custom voice provider"
+                aria-label={t('experimental.customVoiceProvider')}
               />
             </div>
           </div>
