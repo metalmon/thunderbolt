@@ -18,7 +18,7 @@ import { createModel, getAvailableModels } from '@/dal'
 import { useModelConnectionTest } from '@/hooks/use-model-connection-test'
 import type { Model } from '@/types'
 import type { CatalogRequest } from './model-catalog'
-import { catalogToComboboxItems, createCustomModelItem, useAutoCatalogFetch, useModelCatalog } from './use-model-catalog'
+import { catalogToComboboxItems, customModelItem, useAutoCatalogFetch, useModelCatalog } from './use-model-catalog'
 
 export const createAddModelFormSchema = (t: TFunction) =>
   z
@@ -223,8 +223,8 @@ export const useAddModelForm = ({ isOpen, onClose, onMutationStart }: UseAddMode
 
   const modelItems = useMemo((): ComboboxItem[] => {
     const items = catalogToComboboxItems(catalog.models)
-    return provider === 'thunderbolt' ? items : [...items, createCustomModelItem(t)]
-  }, [catalog.models, provider, t])
+    return provider === 'thunderbolt' ? items : [...items, customModelItem]
+  }, [catalog.models, provider])
   const supportsTools =
     !selectedModelId ||
     selectedModelId === 'custom' ||
