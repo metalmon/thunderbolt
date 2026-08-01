@@ -12,9 +12,14 @@
  * if a stale custom config lingers in device-local settings. Read at session
  * start, so a settings change applies on the next voice turn.
  */
-import { getLocalSetting } from '@/stores/local-settings-store'
+import { type GeminiLiveModel, getLocalSetting, type VoiceProviderConfig } from '@/stores/local-settings-store'
 import { isVoiceCoPilotEnabled } from '@/voice/voice-mode'
-import { createGeminiLiveEngine, type ToolDeclaration } from './gemini-live-engine'
+import {
+  createGeminiLiveEngine,
+  type CreateGeminiLiveEngineOptions,
+  geminiVoices,
+  type ToolDeclaration,
+} from './gemini-live-engine'
 import { createOpenAiCompatibleEngine } from './openai-compatible-engine'
 import type { RealtimeEngine } from './realtime-types'
 import { createThunderboltEngine } from './thunderbolt-engine'
@@ -38,6 +43,38 @@ const submitPromptTool: ToolDeclaration = {
   },
 }
 
+/** Map a settings Gemini Live model *family* to the concrete Gemini model id
+ *  the engine/relay speaks. `native-audio` names select the v1alpha upstream
+ *  endpoint (see `upstreamUrlFor` in the backend relay); `half-cascade` uses
+ *  the standard live-preview model on v1beta. */
+const geminiModelIds: Record<GeminiLiveModel, string> = {
+  'half-cascade': 'gemini-live-2.5-flash-preview',
+  'native-audio': 'gemini-2.5-flash-native-audio-preview',
+}
+
+/**
+ * Resolve the concrete Gemini Live engine options from device-local voice
+ * settings. Exported for direct unit testing — the constructed `RealtimeEngine`
+ * is otherwise opaque to what model/voice it was built with.
+ *
+ * A `voiceName` that isn't valid for the selected model family (e.g. a stale
+ * value left over from switching models) falls back to that family's first
+ * prebuilt voice rather than sending Gemini an invalid voice that would error
+ * the session.
+ */
+export const resolveGeminiEngineOptions = (
+  config: VoiceProviderConfig,
+  systemInstruction: string,
+): CreateGeminiLiveEngineOptions => {
+  const voices = geminiVoices[config.model]
+  return {
+    model: geminiModelIds[config.model],
+    voiceName: voices.includes(config.voiceName) ? config.voiceName : voices[0],
+    systemInstruction,
+    tools: [submitPromptTool],
+  }
+}
+
 /**
  * @param systemInstruction The fully assembled Gemini Live system instruction
  *   (per-language base + persona + chat context — see
@@ -47,19 +84,12 @@ const submitPromptTool: ToolDeclaration = {
 export const createVoiceEngine = (customProviderEnabled: boolean, systemInstruction = ''): VoiceEngineResult => {
   const config = getLocalSetting('voiceProvider')
 
-  // Realtime engine: Gemini Live (gated behind custom provider flag).
+  // Realtime engine: Gemini Live (gated behind custom provider flag). Model,
+  // voice, and system instruction all come from device-local voice settings.
   if (isVoiceCoPilotEnabled(customProviderEnabled)) {
-    // TODO(THU voice task 12): read model/voiceName from `config` (currently
-    // hardcoded) — systemInstruction is already threaded in from the caller
-    // (Task 11).
     return {
       kind: 'realtime',
-      engine: createGeminiLiveEngine({
-        model: 'gemini-live-2.5-flash-preview',
-        voiceName: 'Kore',
-        systemInstruction,
-        tools: [submitPromptTool],
-      }),
+      engine: createGeminiLiveEngine(resolveGeminiEngineOptions(config, systemInstruction)),
     }
   }
 
