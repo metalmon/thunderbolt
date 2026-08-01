@@ -193,21 +193,26 @@ describe('formatAskResponsesNote', () => {
 
 describe('turnTextForAnswer', () => {
   test('choice dispatches the chosen option text', () => {
-    expect(turnTextForAnswer('choice', ['Draft a reply'])).toBe('Draft a reply')
+    expect(turnTextForAnswer('choice', ['Draft a reply'], null)).toBe('Draft a reply')
   })
 
   test('choices dispatches all chosen option texts, comma-joined', () => {
-    expect(turnTextForAnswer('choices', ['Coffee', 'Tea'])).toBe('Coffee, Tea')
-    expect(turnTextForAnswer('choices', [])).toBeNull()
+    expect(turnTextForAnswer('choices', ['Coffee', 'Tea'], null)).toBe('Coffee, Tea')
+    expect(turnTextForAnswer('choices', [], null)).toBeNull()
   })
 
-  test('graded modes never dispatch a turn (no quiz loop)', () => {
-    expect(turnTextForAnswer('single', ['Paris'])).toBeNull()
-    expect(turnTextForAnswer('multiple', ['OpenPGP', 'S/MIME'])).toBeNull()
+  test('graded single dispatches the answer with its verdict', () => {
+    expect(turnTextForAnswer('single', ['Paris'], true)).toBe('Мой ответ: «Paris» — верно')
+    expect(turnTextForAnswer('single', ['London'], false)).toBe('Мой ответ: «London» — неверно')
+  })
+
+  test('graded multiple joins the chosen answers with the verdict', () => {
+    expect(turnTextForAnswer('multiple', ['OpenPGP', 'S/MIME'], true)).toBe('Мой ответ: «OpenPGP», «S/MIME» — верно')
   })
 
   test('empty / whitespace-only answers dispatch nothing', () => {
-    expect(turnTextForAnswer('choice', [])).toBeNull()
-    expect(turnTextForAnswer('choice', ['   '])).toBeNull()
+    expect(turnTextForAnswer('choice', [], null)).toBeNull()
+    expect(turnTextForAnswer('choice', ['   '], null)).toBeNull()
+    expect(turnTextForAnswer('single', ['   '], false)).toBeNull()
   })
 })
