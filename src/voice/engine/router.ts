@@ -48,8 +48,8 @@ const submitPromptTool: ToolDeclaration = {
  *  endpoint (see `upstreamUrlFor` in the backend relay); `half-cascade` uses
  *  the standard live-preview model on v1beta. */
 const geminiModelIds: Record<GeminiLiveModel, string> = {
-  'half-cascade': 'gemini-live-2.5-flash-preview',
-  'native-audio': 'gemini-2.5-flash-native-audio-preview',
+  'half-cascade': 'gemini-3.1-flash-live-preview',
+  'native-audio': 'gemini-2.5-flash-native-audio-preview-12-2025',
 }
 
 /**
