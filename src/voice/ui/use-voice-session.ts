@@ -45,6 +45,11 @@ const toContextMessages = (messages: readonly ThunderboltUIMessage[]): ContextMe
  */
 const resolveVoiceLang = (): VoiceLang => (navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en')
 
+/** BCP-47 speech language for the half-cascade `speechConfig.languageCode`
+ *  (accent fix), derived from the same `VoiceLang` the system instruction uses
+ *  so the model is told to speak, and pronounce, one consistent language. */
+const voiceLangToBcp47: Record<VoiceLang, string> = { ru: 'ru-RU', en: 'en-US' }
+
 /**
  * Adapt the AI SDK `Chat` to the structural `ReplyChat` slice the voice session
  * needs. `Chat` provides `sendMessage`/`messages`/`stop`, but its broader method
@@ -145,7 +150,7 @@ export const useVoiceSession = () => {
         contextMessages: toContextMessages(session.chatInstance.messages),
       })
 
-      const engineResult = createVoiceEngine(experimentalFeatureVoice, systemInstruction)
+      const engineResult = createVoiceEngine(experimentalFeatureVoice, systemInstruction, voiceLangToBcp47[voiceLang])
 
       let voice: VoiceSession
       if (engineResult.kind === 'realtime') {
