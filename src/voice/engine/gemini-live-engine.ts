@@ -114,7 +114,7 @@ export type WebSocketLike = {
   send: (data: string) => void
   close: (code?: number, reason?: string) => void
   onopen: (() => void) | null
-  onmessage: ((event: { data: string }) => void) | null
+  onmessage: ((event: { data: string | ArrayBuffer }) => void) | null
   onerror: ((event: unknown) => void) | null
   onclose: (() => void) | null
 }
@@ -138,7 +138,14 @@ const defaultWebSocketFactory: WebSocketFactory = (url) => {
   const protocols = token
     ? [wsCarrierSubprotocol, `${wsBearerSubprotocolPrefix}${encodeWsBearer(token)}`]
     : [wsCarrierSubprotocol]
-  return new WebSocket(url, protocols) as unknown as WebSocketLike
+  const socket = new WebSocket(url, protocols)
+  // Gemini streams every server frame (setupComplete and serverContent audio)
+  // as a BINARY WebSocket frame. The default `binaryType` is 'blob', which
+  // arrives as a Blob and silently fails the synchronous `JSON.parse` in
+  // `handleMessage` — the session connects but stays mute (no audio, no
+  // transcripts). Force ArrayBuffer so `connect()`'s `onmessage` decodes inline.
+  socket.binaryType = 'arraybuffer'
+  return socket as unknown as WebSocketLike
 }
 
 const wsOpen = 1
@@ -309,16 +316,28 @@ export const createGeminiLiveEngine = (
           socket.send(
             JSON.stringify({
               setup: {
-                model: opts.model,
+                // Gemini's `setup.model` requires the fully-qualified `models/…`
+                // resource name — the bare id (used in the relay `?model=` query
+                // for endpoint-version selection) is rejected with close 1008
+                // "… is not found for API".
+                model: `models/${opts.model}`,
                 generationConfig: {
                   responseModalities: ['AUDIO'],
+                  temperature: 0.8,
                   speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: opts.voiceName } } },
                 },
                 systemInstruction: { parts: [{ text: opts.systemInstruction }] },
                 tools: [{ functionDeclarations: opts.tools }],
-                // Server-side automatic activity detection only — this engine
-                // never runs local VAD or sends activityStart/End signals.
-                realtimeInputConfig: { automaticActivityDetection: {} },
+                // Server-side automatic activity detection with LOW start
+                // sensitivity + prefix padding (tuned like voice-cloud so short
+                // sounds don't clip the model's reply). This engine never runs
+                // local VAD or sends activityStart/End signals.
+                realtimeInputConfig: {
+                  automaticActivityDetection: {
+                    startOfSpeechSensitivity: 'START_SENSITIVITY_LOW',
+                    prefixPaddingMs: 300,
+                  },
+                },
                 inputAudioTranscription: {},
                 outputAudioTranscription: {},
               },
@@ -327,7 +346,8 @@ export const createGeminiLiveEngine = (
           resolve()
         }
 
-        socket.onmessage = (event) => handleMessage(event.data)
+        socket.onmessage = (event) =>
+          handleMessage(typeof event.data === 'string' ? event.data : new TextDecoder().decode(event.data))
 
         socket.onerror = () => {
           pushEvent({ type: 'error', message: 'WebSocket connection failed' })
