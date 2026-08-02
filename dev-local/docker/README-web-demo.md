@@ -52,7 +52,7 @@ the backend point at `PUBLIC_URL` and are clickable end-to-end.
 
 The demo's web **search** runs on a self-hosted **SearXNG** (free JSON search, no
 keys) and page **fetch/scrape** on the self-hosted **Firecrawl Simple** fork.
-When `SEARXNG_URL` / `FIRECRAWL_URL` are set (in `openrouter.env`), the backend
+When `SEARXNG_URL` / `FIRECRAWL_URL` are set (in `secrets.env`), the backend
 routes `/v1/search` and `fetch_content` there; unset ⇒ it falls back to Exa.
 
 - **SearXNG** — `searxng/searxng` image + `searxng/settings.yml` (JSON output on).
