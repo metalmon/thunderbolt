@@ -15,6 +15,13 @@ services:
 
   backend:
     restart: unless-stopped
+    # IPv6 is unreachable on this host, but Gemini (generativelanguage.googleapis.com)
+    # resolves AAAA-first, so the upstream WebSocket to Gemini picks IPv6 and hangs
+    # (voice: /v1/gemini-live opens then closes with 0 frames). Disable IPv6 in the
+    # container so DNS/connect falls back to IPv4.
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.default.disable_ipv6=1
     depends_on:
       postgres:
         condition: service_healthy
@@ -125,6 +132,10 @@ services:
   firecrawl-api:
     restart: unless-stopped
     image: trieve/firecrawl
+    # host-only публикация для ZeroClaw firecrawl-mcp (localhost:3002); внутренний
+    # доступ backend↔firecrawl-api по имени сервиса не меняется.
+    ports:
+      - "127.0.0.1:3002:3002"
     depends_on:
       - firecrawl-redis
       - firecrawl-puppeteer
