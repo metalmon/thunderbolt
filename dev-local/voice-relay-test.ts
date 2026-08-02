@@ -103,7 +103,12 @@ socket.onopen = () => {
         generationConfig: {
           responseModalities: ['AUDIO'],
           temperature: 0.8,
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE_NAME } } },
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE_NAME } },
+            // Half-cascade accent fix (voice-cloud parity). Set VOICE_LANG='' to
+            // omit (native-audio rejects it). Default ru-RU.
+            ...(process.env.VOICE_LANG === '' ? {} : { languageCode: process.env.VOICE_LANG ?? 'ru-RU' }),
+          },
         },
         systemInstruction: {
           parts: [{ text: 'Ты голосовой ассистент. Отвечай одним коротким предложением по-русски.' }],
