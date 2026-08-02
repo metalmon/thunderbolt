@@ -17,7 +17,7 @@ describe('resolveGeminiEngineOptions', () => {
   it('maps half-cascade to the live-preview model id and passes voice + system instruction through', () => {
     const opts = resolveGeminiEngineOptions(config({ model: 'half-cascade', voiceName: 'Kore' }), 'SYSTEM PROMPT')
 
-    expect(opts.model).toBe('gemini-live-2.5-flash-preview')
+    expect(opts.model).toBe('gemini-3.1-flash-live-preview')
     expect(opts.voiceName).toBe('Kore')
     expect(opts.systemInstruction).toBe('SYSTEM PROMPT')
   })
@@ -25,8 +25,15 @@ describe('resolveGeminiEngineOptions', () => {
   it('maps native-audio to the native-audio preview model id', () => {
     const opts = resolveGeminiEngineOptions(config({ model: 'native-audio', voiceName: 'Puck' }), 'SI')
 
-    expect(opts.model).toBe('gemini-2.5-flash-native-audio-preview')
+    expect(opts.model).toBe('gemini-2.5-flash-native-audio-preview-12-2025')
     expect(opts.voiceName).toBe('Puck')
+  })
+
+  it('passes languageCode to half-cascade but withholds it from native-audio', () => {
+    // Half-cascade needs the language named to kill its accent; native-audio
+    // picks the language itself and rejects the field (see the engine doc).
+    expect(resolveGeminiEngineOptions(config({ model: 'half-cascade' }), '', 'ru-RU').languageCode).toBe('ru-RU')
+    expect(resolveGeminiEngineOptions(config({ model: 'native-audio' }), '', 'ru-RU').languageCode).toBeUndefined()
   })
 
   it('advertises the submit_prompt tool', () => {
