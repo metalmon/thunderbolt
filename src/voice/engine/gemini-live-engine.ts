@@ -97,6 +97,9 @@ export type ToolDeclaration = {
   name: string
   description: string
   parameters: Record<string, unknown>
+  /** Gemini `Behavior` — set to `'NON_BLOCKING'` for native-audio/2.5 models so
+   *  the tool can be called mid-conversation (see `nonBlockingTools`). */
+  behavior?: 'BLOCKING' | 'NON_BLOCKING'
 }
 
 export type CreateGeminiLiveEngineOptions = {
@@ -229,6 +232,13 @@ export const createGeminiLiveEngine = (
   let ws: WebSocketLike | null = null
   let closed = false
 
+  // native-audio / 2.5 models won't call a tool mid-conversation unless its
+  // declaration is NON_BLOCKING and the tool response is scheduled WHEN_IDLE —
+  // otherwise they only fire it as the session ends (a known 2.5 limitation;
+  // voice-cloud parity). half-cascade (3.1) uses the default blocking behavior,
+  // which already works, so it's left untouched.
+  const nonBlockingTools = /native-audio/.test(opts.model) || /2\.5/.test(opts.model)
+
   // Inbound event queue — async iterator pattern (a "pump" over `ws.onmessage`):
   // `handleMessage` decodes each server frame into zero or more RealtimeEvents
   // and pushes them either straight to a waiting consumer or onto the queue.
@@ -337,7 +347,13 @@ export const createGeminiLiveEngine = (
                   },
                 },
                 systemInstruction: { parts: [{ text: opts.systemInstruction }] },
-                tools: [{ functionDeclarations: opts.tools }],
+                tools: [
+                  {
+                    functionDeclarations: nonBlockingTools
+                      ? opts.tools.map((tool) => ({ ...tool, behavior: 'NON_BLOCKING' as const }))
+                      : opts.tools,
+                  },
+                ],
                 // Server-side automatic activity detection with LOW start
                 // sensitivity + prefix padding (tuned like voice-cloud so short
                 // sounds don't clip the model's reply). This engine never runs
@@ -389,7 +405,13 @@ export const createGeminiLiveEngine = (
       if (!ws || ws.readyState !== wsOpen) {
         return
       }
-      ws.send(JSON.stringify({ toolResponse: { functionResponses: [{ id, name, response }] } }))
+      // WHEN_IDLE lets a NON_BLOCKING tool's result surface in the model's next
+      // idle moment (it voices it in a pause) rather than being dropped — pairs
+      // with the NON_BLOCKING declaration above for native-audio/2.5.
+      const functionResponse = nonBlockingTools
+        ? { id, name, response, scheduling: 'WHEN_IDLE' as const }
+        : { id, name, response }
+      ws.send(JSON.stringify({ toolResponse: { functionResponses: [functionResponse] } }))
     },
 
     events: () => events,
