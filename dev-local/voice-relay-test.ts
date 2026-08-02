@@ -96,11 +96,13 @@ const finish = () => {
 const handleMessage = (raw: string) => {
   let m: {
     setupComplete?: unknown
+    goAway?: { timeLeft?: string }
     sessionResumptionUpdate?: { newHandle?: string; resumable?: boolean }
     serverContent?: {
       modelTurn?: { parts?: Array<{ inlineData?: { data?: string }; text?: string }> }
       outputTranscription?: { text?: string }
       turnComplete?: boolean
+      interrupted?: boolean
     }
     toolCall?: { functionCalls?: Array<{ id: string; name: string; args?: Record<string, unknown> }> }
   }
@@ -109,6 +111,10 @@ const handleMessage = (raw: string) => {
   } catch {
     return
   }
+
+  if (m.goAway) console.log(`[test] !!! goAway timeLeft=${m.goAway.timeLeft} (server about to drop the stream)`)
+  if (m.serverContent?.interrupted) console.log('[test] serverContent.interrupted (barge-in)')
+  if (m.serverContent?.turnComplete) console.log('[test] turnComplete')
 
   if (m.setupComplete) {
     ready = true
@@ -208,7 +214,25 @@ socket.onclose = (event) => {
   finish()
 }
 
-setTimeout(() => {
-  console.log('[test] overall timeout')
-  finish()
-}, 30000)
+// LONGRUN=1: hold the session open and keep it engaged to observe stream drops
+// (goAway / close) + resumption handles over time.
+if (process.env.LONGRUN === '1') {
+  let n = 0
+  const keepalive = setInterval(() => {
+    n++
+    if (finished) {
+      clearInterval(keepalive)
+      return
+    }
+    console.log(`[test] keepalive #${n}`)
+    send({ realtimeInput: { text: `Продолжаем. Реплика ${n}: коротко подтверди, что слышишь.` } })
+  }, 8000)
+}
+
+setTimeout(
+  () => {
+    console.log('[test] overall timeout')
+    finish()
+  },
+  Number(process.env.RUN_MS ?? 30000),
+)
