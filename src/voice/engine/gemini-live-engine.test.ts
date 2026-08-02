@@ -218,11 +218,18 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     const s = socket as unknown as FakeWebSocket
     const setup = s.sent[0].setup as {
       generationConfig: { thinkingConfig?: { thinkingBudget?: number } }
+      realtimeInputConfig: { automaticActivityDetection: Record<string, unknown> }
       tools: Array<{ functionDeclarations: Array<{ behavior?: string }> }>
     }
     expect(setup.tools[0].functionDeclarations[0].behavior).toBe('NON_BLOCKING')
     // Thinking disabled — otherwise native-audio intermittently 1007s on audio.
     expect(setup.generationConfig.thinkingConfig).toEqual({ thinkingBudget: 0 })
+    // native-audio VAD: HIGH sensitivity (eager barge-in) + end-of-speech silence.
+    expect(setup.realtimeInputConfig.automaticActivityDetection).toEqual({
+      startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH',
+      prefixPaddingMs: 300,
+      silenceDurationMs: 100,
+    })
 
     engine.sendToolResponse('1', 'submit_prompt', { status: 'ok' })
     expect(s.sent[1]).toEqual({
