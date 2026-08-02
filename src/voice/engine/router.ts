@@ -65,6 +65,7 @@ const geminiModelIds: Record<GeminiLiveModel, string> = {
 export const resolveGeminiEngineOptions = (
   config: VoiceProviderConfig,
   systemInstruction: string,
+  languageCode?: string,
 ): CreateGeminiLiveEngineOptions => {
   const voices = geminiVoices[config.model]
   return {
@@ -72,6 +73,10 @@ export const resolveGeminiEngineOptions = (
     voiceName: voices.includes(config.voiceName) ? config.voiceName : voices[0],
     systemInstruction,
     tools: [submitPromptTool],
+    // native-audio selects its own speech language and rejects `languageCode`;
+    // only half-cascade needs it (fixes its heavy accent — see the engine's
+    // `languageCode` doc and voice-cloud's `_build_config`).
+    languageCode: config.model === 'native-audio' ? undefined : languageCode,
   }
 }
 
@@ -81,7 +86,11 @@ export const resolveGeminiEngineOptions = (
  *   `voice/gemini/prompts.ts`'s `buildSystemInstruction`, Task 11), built by
  *   the caller and threaded straight into the realtime engine's setup frame.
  */
-export const createVoiceEngine = (customProviderEnabled: boolean, systemInstruction = ''): VoiceEngineResult => {
+export const createVoiceEngine = (
+  customProviderEnabled: boolean,
+  systemInstruction = '',
+  languageCode?: string,
+): VoiceEngineResult => {
   const config = getLocalSetting('voiceProvider')
 
   // Realtime engine: Gemini Live (gated behind custom provider flag). Model,
@@ -89,7 +98,7 @@ export const createVoiceEngine = (customProviderEnabled: boolean, systemInstruct
   if (isVoiceCoPilotEnabled(customProviderEnabled)) {
     return {
       kind: 'realtime',
-      engine: createGeminiLiveEngine(resolveGeminiEngineOptions(config, systemInstruction)),
+      engine: createGeminiLiveEngine(resolveGeminiEngineOptions(config, systemInstruction, languageCode)),
     }
   }
 
