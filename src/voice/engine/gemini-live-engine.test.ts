@@ -216,8 +216,13 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     )
     await engine.connect()
     const s = socket as unknown as FakeWebSocket
-    const setup = s.sent[0].setup as { tools: Array<{ functionDeclarations: Array<{ behavior?: string }> }> }
+    const setup = s.sent[0].setup as {
+      generationConfig: { thinkingConfig?: { thinkingBudget?: number } }
+      tools: Array<{ functionDeclarations: Array<{ behavior?: string }> }>
+    }
     expect(setup.tools[0].functionDeclarations[0].behavior).toBe('NON_BLOCKING')
+    // Thinking disabled — otherwise native-audio intermittently 1007s on audio.
+    expect(setup.generationConfig.thinkingConfig).toEqual({ thinkingBudget: 0 })
 
     engine.sendToolResponse('1', 'submit_prompt', { status: 'ok' })
     expect(s.sent[1]).toEqual({
