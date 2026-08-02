@@ -72,7 +72,7 @@ const buildEngine = () => {
   }
   const engine = createGeminiLiveEngine(
     {
-      model: 'gemini-live-2.5-flash-preview',
+      model: 'gemini-3.1-flash-live-preview',
       voiceName: 'Kore',
       systemInstruction: 'You are a helpful voice co-pilot.',
       tools: [submitPromptTool],
@@ -101,7 +101,7 @@ describe('createGeminiLiveEngine — wire protocol', () => {
   it('connects to /v1/gemini-live with the model on the query string', async () => {
     const { engine, getSocket } = buildEngine()
     await engine.connect()
-    expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-live-2.5-flash-preview')
+    expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
   })
 
   it('sends the setup frame first, exactly per BidiGenerateContent shape', async () => {
@@ -113,7 +113,7 @@ describe('createGeminiLiveEngine — wire protocol', () => {
         setup: {
           // `setup.model` carries the fully-qualified `models/…` name (the bare
           // id is rejected 1008); the `?model=` query keeps the bare id.
-          model: 'models/gemini-live-2.5-flash-preview',
+          model: 'models/gemini-3.1-flash-live-preview',
           generationConfig: {
             responseModalities: ['AUDIO'],
             temperature: 0.8,
@@ -137,7 +137,7 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     let socket: FakeWebSocket | null = null
     const engine = createGeminiLiveEngine(
       {
-        model: 'gemini-live-2.5-flash-preview',
+        model: 'gemini-3.1-flash-live-preview',
         voiceName: 'Kore',
         systemInstruction: 'x',
         tools: [submitPromptTool],
@@ -197,6 +197,33 @@ describe('createGeminiLiveEngine — wire protocol', () => {
 
     expect(getSocket().sent[1]).toEqual({
       toolResponse: { functionResponses: [{ id: '1', name: 'submit_prompt', response: { status: 'ok' } }] },
+    })
+  })
+
+  it('declares NON_BLOCKING tools + schedules WHEN_IDLE responses for native-audio (2.5 tool-call fix)', async () => {
+    let socket: FakeWebSocket | null = null
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        voiceName: 'Puck',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+      },
+      (url) => {
+        socket = new FakeWebSocket(url)
+        return socket
+      },
+    )
+    await engine.connect()
+    const s = socket as unknown as FakeWebSocket
+    const setup = s.sent[0].setup as { tools: Array<{ functionDeclarations: Array<{ behavior?: string }> }> }
+    expect(setup.tools[0].functionDeclarations[0].behavior).toBe('NON_BLOCKING')
+
+    engine.sendToolResponse('1', 'submit_prompt', { status: 'ok' })
+    expect(s.sent[1]).toEqual({
+      toolResponse: {
+        functionResponses: [{ id: '1', name: 'submit_prompt', response: { status: 'ok' }, scheduling: 'WHEN_IDLE' }],
+      },
     })
   })
 
