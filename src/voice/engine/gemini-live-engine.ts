@@ -211,6 +211,9 @@ const getWsUrl = (cloudUrl: string, model: string): string => {
  *  carries exactly one of `setupComplete` / `serverContent` / `toolCall`. */
 type ServerMessage = {
   setupComplete?: Record<string, unknown>
+  /** Streamed continuously by the server; the latest `newHandle` lets a
+   *  reconnect resume the same session with its context intact. */
+  sessionResumptionUpdate?: { newHandle?: string }
   serverContent?: {
     modelTurn?: { parts?: Array<{ inlineData?: { data?: string } }> }
     interrupted?: boolean
@@ -231,6 +234,19 @@ export const createGeminiLiveEngine = (
 ): RealtimeEngine => {
   let ws: WebSocketLike | null = null
   let closed = false
+
+  // Session resumption + transparent reconnect. Gemini Live streams
+  // `sessionResumptionUpdate` handles continuously and drops the socket
+  // periodically (native-audio especially, and any long session). Storing the
+  // latest handle and reconnecting with it keeps the model's context across the
+  // drop, so the voice session survives instead of dying ("поток ломается").
+  // This is voice-cloud's `run_resumable`. `closed`/'closed' fire only on a
+  // user-initiated close or after reconnect attempts are exhausted.
+  let resumeHandle: string | null = null
+  let userClosed = false
+  let everOpened = false
+  let reconnectAttempts = 0
+  const maxReconnectAttempts = 8
 
   // native-audio / 2.5 models won't call a tool mid-conversation unless its
   // declaration is NON_BLOCKING and the tool response is scheduled WHEN_IDLE —
@@ -280,6 +296,10 @@ export const createGeminiLiveEngine = (
       return // Ignore malformed frames.
     }
 
+    if (msg.sessionResumptionUpdate?.newHandle) {
+      resumeHandle = msg.sessionResumptionUpdate.newHandle
+    }
+
     if (msg.setupComplete) {
       pushEvent({ type: 'ready' })
       return
@@ -326,79 +346,106 @@ export const createGeminiLiveEngine = (
     },
   }
 
+  /** The `setup` frame sent on every (re)connect. On a reconnect it carries the
+   *  latest `sessionResumption.handle`, so the model resumes with its context. */
+  const buildSetupFrame = (): string =>
+    JSON.stringify({
+      setup: {
+        // Gemini's `setup.model` requires the fully-qualified `models/…`
+        // resource name — the bare id (used in the relay `?model=` query for
+        // endpoint-version selection) is rejected with close 1008 "… is not
+        // found for API".
+        model: `models/${opts.model}`,
+        generationConfig: {
+          responseModalities: ['AUDIO'],
+          temperature: 0.8,
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: opts.voiceName } },
+            // Half-cascade only (see `languageCode` doc) — kills the foreign
+            // accent by naming the target speech language.
+            ...(opts.languageCode ? { languageCode: opts.languageCode } : {}),
+          },
+          // Disable thinking for native-audio (see `isNativeAudio`) — otherwise
+          // it intermittently 1007s on the audio content type.
+          ...(isNativeAudio ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+        },
+        systemInstruction: { parts: [{ text: opts.systemInstruction }] },
+        tools: [
+          {
+            functionDeclarations: nonBlockingTools
+              ? opts.tools.map((tool) => ({ ...tool, behavior: 'NON_BLOCKING' as const }))
+              : opts.tools,
+          },
+        ],
+        // Server-side automatic activity detection (this engine never runs local
+        // VAD or sends activityStart/End; barge-in is entirely server-decided and
+        // handled LOCALLY on the client — we never touch the upstream stream,
+        // which native-audio needs kept continuous). Tuning DIFFERS by model
+        // (voice-cloud parity):
+        //  - native-audio: HIGH start-sensitivity so barge-in fires eagerly, plus
+        //    an explicit short end-of-speech silence window — without both,
+        //    interruption doesn't work and turn detection drops the stream.
+        //  - half-cascade (3.1): LOW so short sounds don't tear its reply (a known
+        //    3.1 bug); no silence window needed.
+        realtimeInputConfig: {
+          automaticActivityDetection: isNativeAudio
+            ? { startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 300, silenceDurationMs: 100 }
+            : { startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', prefixPaddingMs: 300 },
+        },
+        inputAudioTranscription: {},
+        outputAudioTranscription: {},
+        // Enable resumption; replay the last handle on a reconnect (empty on the
+        // first connect) so the server restores this session's context.
+        sessionResumption: resumeHandle ? { handle: resumeHandle } : {},
+      },
+    })
+
+  /** Open (or re-open) the upstream socket. `onReady`/`onFail` fire only for the
+   *  initial connect; later drops reconnect transparently via `onclose`. */
+  const openSocket = (onReady?: () => void, onFail?: (error: Error) => void): void => {
+    const cloudUrl = getLocalSetting('cloudUrl')
+    const socket = wsFactory(getWsUrl(cloudUrl, opts.model))
+    ws = socket
+
+    socket.onopen = () => {
+      socket.send(buildSetupFrame())
+      everOpened = true
+      reconnectAttempts = 0
+      onReady?.()
+    }
+
+    socket.onmessage = (event) =>
+      handleMessage(typeof event.data === 'string' ? event.data : new TextDecoder().decode(event.data))
+
+    socket.onerror = () => {
+      // Only the very first connect surfaces the failure to the caller; a drop
+      // after we've opened is handled by `onclose` → reconnect.
+      if (!everOpened) {
+        pushEvent({ type: 'error', message: 'WebSocket connection failed' })
+        onFail?.(new Error('WebSocket connection failed'))
+      }
+    }
+
+    socket.onclose = () => {
+      if (userClosed || closed) {
+        finalize()
+        return
+      }
+      // Mid-session drop: reconnect with the resumption handle (context intact).
+      // Never emit 'closed' — the session continues transparently.
+      if (everOpened && reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++
+        openSocket()
+        return
+      }
+      finalize()
+    }
+  }
+
   return {
     id: 'gemini-live',
 
-    connect: () =>
-      new Promise<void>((resolve, reject) => {
-        const cloudUrl = getLocalSetting('cloudUrl')
-        const socket = wsFactory(getWsUrl(cloudUrl, opts.model))
-        ws = socket
-
-        socket.onopen = () => {
-          socket.send(
-            JSON.stringify({
-              setup: {
-                // Gemini's `setup.model` requires the fully-qualified `models/…`
-                // resource name — the bare id (used in the relay `?model=` query
-                // for endpoint-version selection) is rejected with close 1008
-                // "… is not found for API".
-                model: `models/${opts.model}`,
-                generationConfig: {
-                  responseModalities: ['AUDIO'],
-                  temperature: 0.8,
-                  speechConfig: {
-                    voiceConfig: { prebuiltVoiceConfig: { voiceName: opts.voiceName } },
-                    // Half-cascade only (see `languageCode` doc) — kills the
-                    // foreign accent by naming the target speech language.
-                    ...(opts.languageCode ? { languageCode: opts.languageCode } : {}),
-                  },
-                  // Disable thinking for native-audio (see `isNativeAudio`) —
-                  // otherwise it intermittently 1007s on the audio content type.
-                  ...(isNativeAudio ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-                },
-                systemInstruction: { parts: [{ text: opts.systemInstruction }] },
-                tools: [
-                  {
-                    functionDeclarations: nonBlockingTools
-                      ? opts.tools.map((tool) => ({ ...tool, behavior: 'NON_BLOCKING' as const }))
-                      : opts.tools,
-                  },
-                ],
-                // Server-side automatic activity detection (this engine never runs
-                // local VAD or sends activityStart/End; barge-in is entirely
-                // server-decided and handled LOCALLY on the client — we never touch
-                // the upstream stream, which native-audio needs kept continuous).
-                // The tuning DIFFERS by model (voice-cloud parity):
-                //  - native-audio: HIGH start-sensitivity so barge-in fires eagerly,
-                //    plus an explicit short end-of-speech silence window — without
-                //    both, interruption doesn't work and turn detection drops the
-                //    stream ("слетает").
-                //  - half-cascade (3.1): LOW so short sounds don't tear its reply
-                //    (a known 3.1 bug); no silence window needed.
-                realtimeInputConfig: {
-                  automaticActivityDetection: isNativeAudio
-                    ? { startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 300, silenceDurationMs: 100 }
-                    : { startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', prefixPaddingMs: 300 },
-                },
-                inputAudioTranscription: {},
-                outputAudioTranscription: {},
-              },
-            }),
-          )
-          resolve()
-        }
-
-        socket.onmessage = (event) =>
-          handleMessage(typeof event.data === 'string' ? event.data : new TextDecoder().decode(event.data))
-
-        socket.onerror = () => {
-          pushEvent({ type: 'error', message: 'WebSocket connection failed' })
-          reject(new Error('WebSocket connection failed'))
-        }
-
-        socket.onclose = () => finalize()
-      }),
+    connect: () => new Promise<void>((resolve, reject) => openSocket(resolve, reject)),
 
     sendAudio: (frame) => {
       if (!ws || ws.readyState !== wsOpen) {
@@ -434,6 +481,8 @@ export const createGeminiLiveEngine = (
     events: () => events,
 
     close: () => {
+      // Mark intentional so `onclose` finalizes instead of reconnecting.
+      userClosed = true
       ws?.close()
       finalize()
     },
