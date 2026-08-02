@@ -84,6 +84,11 @@ const toContextMessages = (messages: readonly ThunderboltUIMessage[]): ContextMe
  */
 const resolveVoiceLang = (): VoiceLang => (getActiveLocale().toLowerCase().startsWith('ru') ? 'ru' : 'en')
 
+/** BCP-47 speech language for the half-cascade `speechConfig.languageCode`
+ *  (accent fix), derived from the same `VoiceLang` the system instruction uses
+ *  so the model is told to speak, and pronounce, one consistent language. */
+const voiceLangToBcp47: Record<VoiceLang, string> = { ru: 'ru-RU', en: 'en-US' }
+
 /**
  * Adapt the AI SDK `Chat` to the structural `ReplyChat` slice the voice session
  * needs. `Chat` provides `sendMessage`/`messages`/`stop`, but its broader method
@@ -223,6 +228,7 @@ export const useVoiceSession = () => {
         getSettings(db, { experimental_feature_voice: false }),
       ])
       signal.throwIfAborted()
+      const voiceLang = resolveVoiceLang()
       // Per-language functional base + the user's persona + recent chat history,
       // assembled most-stable-first so a prefix-caching backend can reuse the
       // base+persona prefix across turns. Threaded into `createVoiceEngine`, which
@@ -233,7 +239,7 @@ export const useVoiceSession = () => {
         personality: getLocalSetting('voiceProvider').personalityPrompt,
         contextMessages: toContextMessages(session.chatInstance.messages),
       })
-      const engineResult = createVoiceEngine(experimentalFeatureVoice, systemInstruction)
+      const engineResult = createVoiceEngine(experimentalFeatureVoice, systemInstruction, voiceLangToBcp47[voiceLang])
       if (engineResult.kind === 'realtime') {
         // Realtime (bidi) engine — the server handles STT/LLM/TTS over one WebSocket.
         // The system instruction is baked into `engineResult.engine` at construction
