@@ -27,6 +27,7 @@
  * tool-calls (Task 7) hand the synthesized prompt to the normal chat agent as
  * a real, ephemeral-to-voice chat turn — see `handleToolCall` below.
  */
+import { parseContentParts } from '@/ai/widget-parser'
 import { setActiveVoiceSpeaker } from '@/voice/active-speaker'
 import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
@@ -63,6 +64,10 @@ export type RealtimeSessionOptions = {
 
 /** Poll interval used to detect when queued model audio has finished playing. */
 const drainPollMs = 80
+
+/** Plain text of an assistant chat message (its `text` parts joined). */
+const assistantMessageText = (message: { parts: ReadonlyArray<{ type: string; text?: string }> }): string =>
+  message.parts.reduce((acc, part) => (part.type === 'text' ? acc + (part.text ?? '') : acc), '')
 
 /** The proactive-greeting trigger: a text turn that tells the model to speak
  *  first. New chat → open cold; existing chat → open as a continuation (the
@@ -161,12 +166,52 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
    * path. That keeps voice turns from producing any chat message beyond this
    * single hand-off (ephemeral).
    */
+  /** Feed the agent's settled reply back into the live voice model so it can
+   *  observe the result and speak it to the user (the model stays connected and
+   *  co-observes — it is not disconnected on hand-off). The full reply is
+   *  relayed (no length cap). No-op if the session stopped, no new assistant
+   *  turn landed, or the reply is empty. `<widget:say>` relaying is handled
+   *  separately (`say-loop.ts`); this covers agents that don't emit `say`. */
+  const relayAgentResult = (activeChat: ReplyChat, baseline: number) => {
+    if (stopped) {
+      return
+    }
+    const { messages } = activeChat
+    const last = messages[messages.length - 1]
+    if (messages.length <= baseline || last?.role !== 'assistant') {
+      return
+    }
+    const text = assistantMessageText(last).trim()
+    if (text.length === 0) {
+      return
+    }
+    // If the agent explicitly voiced lines via `<widget:say>`, `say-loop.ts`
+    // already relayed them — don't also dump the full reply (that path is the
+    // agent's deliberate voice output). This fallback is for agents that emit
+    // no `say` widgets (e.g. a generic ACP agent), which would otherwise leave
+    // the co-observing model with nothing to speak about the result.
+    const hasSayWidget = parseContentParts(text).some(
+      (part) => part.type === 'widget' && part.widget.widget === 'say',
+    )
+    if (hasSayWidget) {
+      return
+    }
+    engine.sendText(`Результат работы агента:\n${text}`)
+  }
+
   const handleToolCall = (call: RealtimeToolCall) => {
     if (call.name !== 'submit_prompt') {
       return
     }
     const prompt = typeof call.args.prompt === 'string' ? call.args.prompt : ''
-    void chat?.sendMessage({ text: prompt }).catch((error) => onError?.(error))
+    const activeChat = chat
+    if (activeChat) {
+      const baseline = activeChat.messages.length
+      void activeChat
+        .sendMessage({ text: prompt })
+        .then(() => relayAgentResult(activeChat, baseline))
+        .catch((error) => onError?.(error))
+    }
     engine.sendToolResponse(call.id, 'submit_prompt', { status: 'ok' })
   }
 
