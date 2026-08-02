@@ -22,7 +22,7 @@ class FakeWebSocket implements WebSocketLike {
   readyState = 0
   sentRaw: string[] = []
   onopen: (() => void) | null = null
-  onmessage: ((event: { data: string }) => void) | null = null
+  onmessage: ((event: { data: string | ArrayBuffer }) => void) | null = null
   onerror: ((event: unknown) => void) | null = null
   onclose: (() => void) | null = null
 
@@ -48,6 +48,12 @@ class FakeWebSocket implements WebSocketLike {
 
   emit(payload: unknown) {
     this.onmessage?.({ data: JSON.stringify(payload) })
+  }
+
+  /** Emit a server frame as a BINARY WebSocket frame (ArrayBuffer). Gemini sends
+   *  every server frame this way; the engine must decode it before JSON.parse. */
+  emitBinary(payload: unknown) {
+    this.onmessage?.({ data: new TextEncoder().encode(JSON.stringify(payload)).buffer as ArrayBuffer })
   }
 }
 
@@ -105,19 +111,59 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     expect(getSocket().sent).toEqual([
       {
         setup: {
-          model: 'gemini-live-2.5-flash-preview',
+          // `setup.model` carries the fully-qualified `models/…` name (the bare
+          // id is rejected 1008); the `?model=` query keeps the bare id.
+          model: 'models/gemini-live-2.5-flash-preview',
           generationConfig: {
             responseModalities: ['AUDIO'],
+            temperature: 0.8,
+            // No `languageCode` — this engine was built without one (half-cascade
+            // gets it only when the caller passes it; see the languageCode test).
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
           },
           systemInstruction: { parts: [{ text: 'You are a helpful voice co-pilot.' }] },
           tools: [{ functionDeclarations: [submitPromptTool] }],
-          realtimeInputConfig: { automaticActivityDetection: {} },
+          realtimeInputConfig: {
+            automaticActivityDetection: { startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', prefixPaddingMs: 300 },
+          },
           inputAudioTranscription: {},
           outputAudioTranscription: {},
         },
       },
     ])
+  })
+
+  it('carries speechConfig.languageCode when the engine is built with one (half-cascade accent fix)', async () => {
+    let socket: FakeWebSocket | null = null
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-live-2.5-flash-preview',
+        voiceName: 'Kore',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        languageCode: 'ru-RU',
+      },
+      (url) => {
+        socket = new FakeWebSocket(url)
+        return socket
+      },
+    )
+    await engine.connect()
+    const setup = (socket as unknown as FakeWebSocket).sent[0].setup as {
+      generationConfig: { speechConfig: { languageCode?: string } }
+    }
+    expect(setup.generationConfig.speechConfig.languageCode).toBe('ru-RU')
+  })
+
+  it('decodes BINARY server frames — Gemini sends every frame as binary', async () => {
+    const { engine, getSocket } = buildEngine()
+    await engine.connect()
+    const pending = nextEvents(engine.events(), 1)
+
+    // A Blob/ArrayBuffer frame that JSON.parse would choke on if not decoded.
+    getSocket().emitBinary({ setupComplete: {} })
+
+    expect(await pending).toEqual([{ type: 'ready' }])
   })
 
   it('sendAudio encodes an Int16Array frame as base64 PCM16 @16kHz', async () => {
