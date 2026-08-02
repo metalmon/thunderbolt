@@ -104,6 +104,11 @@ export type CreateGeminiLiveEngineOptions = {
   voiceName: string
   systemInstruction: string
   tools: ToolDeclaration[]
+  /** BCP-47 speech language (e.g. `ru-RU`) for `speechConfig.languageCode`.
+   *  Set for half-cascade only — it speaks with a heavy foreign accent unless
+   *  told the target language; native-audio picks the language itself and
+   *  rejects the field, so `router.ts` leaves this undefined for it. */
+  languageCode?: string
 }
 
 /** Subset of the native `WebSocket` interface the engine depends on. Lets
@@ -324,7 +329,12 @@ export const createGeminiLiveEngine = (
                 generationConfig: {
                   responseModalities: ['AUDIO'],
                   temperature: 0.8,
-                  speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: opts.voiceName } } },
+                  speechConfig: {
+                    voiceConfig: { prebuiltVoiceConfig: { voiceName: opts.voiceName } },
+                    // Half-cascade only (see `languageCode` doc) — kills the
+                    // foreign accent by naming the target speech language.
+                    ...(opts.languageCode ? { languageCode: opts.languageCode } : {}),
+                  },
                 },
                 systemInstruction: { parts: [{ text: opts.systemInstruction }] },
                 tools: [{ functionDeclarations: opts.tools }],
