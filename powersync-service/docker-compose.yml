@@ -30,9 +30,9 @@ services:
       - ../backend/.env
       # Git-ignored demo secrets — OpenRouter key(s) + optional OPENROUTER_FREE_RPM.
       # `required: false` so the stack still boots without it (the free models just
-      # return 503 until a key is set). Create powersync-service/openrouter.env
-      # (see openrouter.env.example / README-web-demo.md).
-      - path: ./openrouter.env
+      # return 503 until a key is set). Create powersync-service/secrets.env
+      # (see secrets.env.example / README-web-demo.md).
+      - path: ./secrets.env
         required: false
     environment:
       # backend/.env points at the host-mapped localhost:5433, unreachable from
@@ -53,7 +53,7 @@ services:
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
       AUTH_ALLOW_ANONYMOUS: "true"
       # OPENROUTER_API_KEYS / OPENROUTER_FREE_RPM come from the git-ignored
-      # openrouter.env above (not hardcoded here, so a shell/env-file value wins).
+      # secrets.env above (not hardcoded here, so a shell/env-file value wins).
     ports:
       - 8000:8000
 
@@ -97,7 +97,7 @@ services:
 
   # --- Web search (SearXNG) + scrape (Firecrawl) — Phase 3. The backend routes
   # /v1/search and /pro/fetch-content here when SEARXNG_URL/FIRECRAWL_URL are set
-  # (in openrouter.env); unset ⇒ Exa fallback. See README-web-demo.md.
+  # (in secrets.env); unset ⇒ Exa fallback. See README-web-demo.md.
   searxng:
     restart: unless-stopped
     image: searxng/searxng:latest
