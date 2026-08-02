@@ -365,15 +365,21 @@ export const createGeminiLiveEngine = (
                       : opts.tools,
                   },
                 ],
-                // Server-side automatic activity detection with LOW start
-                // sensitivity + prefix padding (tuned like voice-cloud so short
-                // sounds don't clip the model's reply). This engine never runs
-                // local VAD or sends activityStart/End signals.
+                // Server-side automatic activity detection (this engine never runs
+                // local VAD or sends activityStart/End; barge-in is entirely
+                // server-decided and handled LOCALLY on the client — we never touch
+                // the upstream stream, which native-audio needs kept continuous).
+                // The tuning DIFFERS by model (voice-cloud parity):
+                //  - native-audio: HIGH start-sensitivity so barge-in fires eagerly,
+                //    plus an explicit short end-of-speech silence window — without
+                //    both, interruption doesn't work and turn detection drops the
+                //    stream ("слетает").
+                //  - half-cascade (3.1): LOW so short sounds don't tear its reply
+                //    (a known 3.1 bug); no silence window needed.
                 realtimeInputConfig: {
-                  automaticActivityDetection: {
-                    startOfSpeechSensitivity: 'START_SENSITIVITY_LOW',
-                    prefixPaddingMs: 300,
-                  },
+                  automaticActivityDetection: isNativeAudio
+                    ? { startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 300, silenceDurationMs: 100 }
+                    : { startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', prefixPaddingMs: 300 },
                 },
                 inputAudioTranscription: {},
                 outputAudioTranscription: {},
