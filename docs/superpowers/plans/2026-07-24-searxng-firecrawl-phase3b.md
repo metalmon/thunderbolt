@@ -407,7 +407,7 @@ Run: `cd backend && bun test ./src/fork/search/searxng.test.ts ./src/fork/firecr
 **Files:**
 - Create: `powersync-service/searxng/settings.yml`
 - Modify: `powersync-service/docker-compose.yml`
-- Modify: `powersync-service/openrouter.env.example` and the git-ignored `powersync-service/openrouter.env` (add the new demo env vars — reuse the existing git-ignored secrets file)
+- Modify: `powersync-service/secrets.env.example` and the git-ignored `powersync-service/secrets.env` (add the new demo env vars — reuse the existing git-ignored secrets file)
 - Modify: `dev-local/docker/README-web-demo.md`
 
 **Interfaces:**
@@ -515,7 +515,7 @@ Add `depends_on` on the `backend` service for `searxng` and `firecrawl-api` (so 
 
 - [ ] **Step 4: Wire the backend env (git-ignored secrets file)**
 
-Append to the git-ignored `powersync-service/openrouter.env` (and the tracked `openrouter.env.example` with placeholder values):
+Append to the git-ignored `powersync-service/secrets.env` (and the tracked `secrets.env.example` with placeholder values):
 
 ```bash
 # Self-hosted search + scrape (Phase 3). Empty ⇒ falls back to Exa.
@@ -524,7 +524,7 @@ FIRECRAWL_URL=http://firecrawl-api:3002
 FIRECRAWL_TOKEN=00000000-0000-4000-8000-000000000000
 ```
 
-(The backend service already loads `openrouter.env` via `env_file`, so no `environment:` change is needed — these reach `process.env` in the fork modules.)
+(The backend service already loads `secrets.env` via `env_file`, so no `environment:` change is needed — these reach `process.env` in the fork modules.)
 
 - [ ] **Step 5: Validate compose config**
 
@@ -533,7 +533,7 @@ Expected: `OK`; `... config | grep -E "searxng|firecrawl"` shows the five new se
 
 - [ ] **Step 6: Document in the README**
 
-In `dev-local/docker/README-web-demo.md`, add a "Web search + scrape (Phase 3)" section: SearXNG provides free JSON search, Firecrawl (local images from `E:\firecrawl-simple`, built via its own compose) scrapes pages; env vars `SEARXNG_URL`/`FIRECRAWL_URL`/`FIRECRAWL_TOKEN` live in `openrouter.env`; unset ⇒ Exa fallback. Note Phase 3a will publish the Firecrawl images to ghcr.
+In `dev-local/docker/README-web-demo.md`, add a "Web search + scrape (Phase 3)" section: SearXNG provides free JSON search, Firecrawl (local images from `E:\firecrawl-simple`, built via its own compose) scrapes pages; env vars `SEARXNG_URL`/`FIRECRAWL_URL`/`FIRECRAWL_TOKEN` live in `secrets.env`; unset ⇒ Exa fallback. Note Phase 3a will publish the Firecrawl images to ghcr.
 
 - [ ] **Step 7: Commit** — `/thunderpush`: `chore(dev): add SearXNG + Firecrawl services and search/scrape env to demo`
 
