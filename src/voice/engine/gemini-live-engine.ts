@@ -239,6 +239,14 @@ export const createGeminiLiveEngine = (
   // which already works, so it's left untouched.
   const nonBlockingTools = /native-audio/.test(opts.model) || /2\.5/.test(opts.model)
 
+  // native-audio's default thinking mode intermittently conflicts with audio
+  // output — the server closes 1007 "The audio content type (CONTENT_TYPE_AUDIO)
+  // is not supported for this model configuration" mid-turn and drops the
+  // turn/tool-call (voice glitches, "doesn't set the task"). Disabling thinking
+  // (budget 0) stabilizes it — verified 3/3 clean vs intermittent 1007 without.
+  // voice-cloud parity. half-cascade (3.1) doesn't think this way and is left as-is.
+  const isNativeAudio = /native-audio/.test(opts.model)
+
   // Inbound event queue — async iterator pattern (a "pump" over `ws.onmessage`):
   // `handleMessage` decodes each server frame into zero or more RealtimeEvents
   // and pushes them either straight to a waiting consumer or onto the queue.
@@ -345,6 +353,9 @@ export const createGeminiLiveEngine = (
                     // foreign accent by naming the target speech language.
                     ...(opts.languageCode ? { languageCode: opts.languageCode } : {}),
                   },
+                  // Disable thinking for native-audio (see `isNativeAudio`) —
+                  // otherwise it intermittently 1007s on the audio content type.
+                  ...(isNativeAudio ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
                 },
                 systemInstruction: { parts: [{ text: opts.systemInstruction }] },
                 tools: [
