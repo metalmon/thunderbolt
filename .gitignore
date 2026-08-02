@@ -32,7 +32,7 @@ dist-fork
 !.env.production
 
 # Fork: git-ignored demo secrets (OpenRouter key); .example template is tracked
-powersync-service/openrouter.env
+powersync-service/secrets.env
 
 # Kubernetes secrets (use secrets.yaml.example as template)
 secrets.yaml
