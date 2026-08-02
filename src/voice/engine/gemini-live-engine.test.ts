@@ -128,6 +128,9 @@ describe('createGeminiLiveEngine — wire protocol', () => {
           },
           inputAudioTranscription: {},
           outputAudioTranscription: {},
+          // Resumption enabled from the first connect (empty handle); a reconnect
+          // replays the captured handle.
+          sessionResumption: {},
         },
       },
     ])
@@ -237,6 +240,24 @@ describe('createGeminiLiveEngine — wire protocol', () => {
         functionResponses: [{ id: '1', name: 'submit_prompt', response: { status: 'ok' }, scheduling: 'WHEN_IDLE' }],
       },
     })
+  })
+
+  it('reconnects with the captured resumption handle when the socket drops mid-session', async () => {
+    const { engine, getSocket } = buildEngine()
+    await engine.connect()
+    const first = getSocket()
+
+    // Server streams a resumption handle, then the socket drops (NOT a user close).
+    first.emit({ sessionResumptionUpdate: { newHandle: 'HANDLE-123' } })
+    first.close()
+
+    // A fresh socket opens and replays the setup carrying the handle.
+    await Promise.resolve()
+    await Promise.resolve()
+    const second = getSocket()
+    expect(second).not.toBe(first)
+    const setup = second.sent[0].setup as { sessionResumption?: { handle?: string } }
+    expect(setup.sessionResumption).toEqual({ handle: 'HANDLE-123' })
   })
 
   it('parses setupComplete into a ready event', async () => {
