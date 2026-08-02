@@ -231,6 +231,10 @@ type ServerMessage = {
 export const createGeminiLiveEngine = (
   opts: CreateGeminiLiveEngineOptions,
   wsFactory: WebSocketFactory = defaultWebSocketFactory,
+  // Schedules the coalescing flush. Defaults to a macrotask so frames stalled
+  // behind a busy main thread coalesce into one send; a test seam (the happydom
+  // test env doesn't run `setTimeout`, so tests inject `queueMicrotask`).
+  scheduleFlush: (flush: () => void) => void = (flush) => void setTimeout(flush, 0),
 ): RealtimeEngine => {
   let ws: WebSocketLike | null = null
   let closed = false
@@ -247,6 +251,21 @@ export const createGeminiLiveEngine = (
   let everOpened = false
   let reconnectAttempts = 0
   const maxReconnectAttempts = 8
+
+  // Coalesce outgoing mic frames. The worklet emits a 512-sample (~32 ms) frame
+  // ~31×/s; sending each as its own WS message lets a busy main thread (waveform
+  // rAF, React re-renders) back the send queue up, so the INPUT DELAY grows
+  // without bound — the model hears speech later and later and replies with a
+  // growing lag ("огромная задержка"), and its turn detection is thrown off.
+  // Instead we buffer frames and flush the whole backlog as ONE message per tick,
+  // so a stall is caught up in a single send and the stream stays continuous
+  // (native-audio needs this). voice-cloud does the same ("склеиваем бэклог в
+  // один пакет и шлём разом — задержка входа не растёт под лагом event-loop").
+  let pendingAudio: Int16Array[] = []
+  let audioFlushScheduled = false
+  // ~5 s cap: under a long stall/reconnect, drop the oldest rather than grow
+  // unbounded and then flood the model with stale audio.
+  const maxPendingAudioFrames = 150
 
   // native-audio / 2.5 models won't call a tool mid-conversation unless its
   // declaration is NON_BLOCKING and the tool response is scheduled WHEN_IDLE —
@@ -442,20 +461,49 @@ export const createGeminiLiveEngine = (
     }
   }
 
+  /** Send every buffered mic frame as ONE `realtimeInput.audio` message. */
+  const flushAudioBuffer = () => {
+    audioFlushScheduled = false
+    if (!ws || ws.readyState !== wsOpen || pendingAudio.length === 0) {
+      pendingAudio = []
+      return
+    }
+    const frames = pendingAudio
+    pendingAudio = []
+    let total = 0
+    for (const frame of frames) {
+      total += frame.length
+    }
+    const merged = new Int16Array(total)
+    let offset = 0
+    for (const frame of frames) {
+      merged.set(frame, offset)
+      offset += frame.length
+    }
+    ws.send(
+      JSON.stringify({
+        realtimeInput: { audio: { mimeType: 'audio/pcm;rate=16000', data: pcm16ToBase64(merged) } },
+      }),
+    )
+  }
+
   return {
     id: 'gemini-live',
 
     connect: () => new Promise<void>((resolve, reject) => openSocket(resolve, reject)),
 
     sendAudio: (frame) => {
-      if (!ws || ws.readyState !== wsOpen) {
-        return
+      // Buffer + coalesce (see `flushAudioBuffer`); flush on the next macrotask so
+      // frames stalled behind a busy main thread are caught up in a single send
+      // instead of growing the input delay.
+      pendingAudio.push(frame)
+      if (pendingAudio.length > maxPendingAudioFrames) {
+        pendingAudio.shift()
       }
-      ws.send(
-        JSON.stringify({
-          realtimeInput: { audio: { mimeType: 'audio/pcm;rate=16000', data: pcm16ToBase64(frame) } },
-        }),
-      )
+      if (!audioFlushScheduled) {
+        audioFlushScheduled = true
+        scheduleFlush(flushAudioBuffer)
+      }
     },
 
     sendText: (text) => {

@@ -78,6 +78,8 @@ const buildEngine = () => {
       tools: [submitPromptTool],
     },
     factory,
+    // happydom doesn't run setTimeout — flush on a microtask instead.
+    (flush) => queueMicrotask(flush),
   )
   return { engine, getSocket: () => socket as unknown as FakeWebSocket }
 }
@@ -175,12 +177,30 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     const frame = new Int16Array([0, 1, -1, 32767, -32768])
 
     engine.sendAudio(frame)
+    await Promise.resolve() // let the coalescing microtask flush fire
 
     const sent = getSocket().sent
     expect(sent[1]).toEqual({
       realtimeInput: { audio: { mimeType: 'audio/pcm;rate=16000', data: pcm16ToBase64(frame) } },
     })
     expect(base64ToInt16(pcm16ToBase64(frame))).toEqual(frame)
+  })
+
+  it('coalesces mic frames buffered before a flush into ONE audio message', async () => {
+    const { engine, getSocket } = buildEngine()
+    await engine.connect()
+
+    engine.sendAudio(new Int16Array([1, 2, 3]))
+    engine.sendAudio(new Int16Array([4, 5, 6])) // same tick → both buffered before the flush
+    await Promise.resolve()
+
+    const audioMsgs = getSocket().sent.slice(1) // sent[0] is setup
+    expect(audioMsgs).toHaveLength(1)
+    expect(audioMsgs[0]).toEqual({
+      realtimeInput: {
+        audio: { mimeType: 'audio/pcm;rate=16000', data: pcm16ToBase64(new Int16Array([1, 2, 3, 4, 5, 6])) },
+      },
+    })
   })
 
   it('sendText sends a realtimeInput.text frame', async () => {
