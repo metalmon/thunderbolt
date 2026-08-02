@@ -15,10 +15,30 @@
  */
 
 import type { Auth } from '@/auth/elysia-plugin'
-import { authorizeWsBearer, wsCloseUnauthorized } from '@/auth/ws-bearer-auth'
+import { extractBearerSubprotocol, wsCloseUnauthorized } from '@/auth/ws-bearer-auth'
 import { safeErrorHandler } from '@/middleware/error-handling'
+import type { User } from '@shared/types/auth'
 import { wsCarrierSubprotocol } from '@shared/ws-bearer'
 import { Elysia, type AnyElysia } from 'elysia'
+
+/**
+ * Authorize a voice WebSocket upgrade, admitting **anonymous** users.
+ *
+ * Unlike `authorizeWsBearer` (used by the ZeroClaw ACP/proxy relay, which must
+ * reject anonymous sessions), the voice relay is a consumer/demo feature: the
+ * fork runs `AUTH_ALLOW_ANONYMOUS=true` and the distributed binary is used by
+ * anonymous users, so a valid anonymous session is a first-class caller here.
+ * Still requires a decodable, valid bearer — only a missing/invalid/expired
+ * token (no resolvable user) is rejected.
+ */
+const authorizeVoiceWsBearer = async (auth: Auth, subprotocolHeader: string | null): Promise<User | null> => {
+  const token = extractBearerSubprotocol(subprotocolHeader)
+  if (!token) {
+    return null
+  }
+  const session = await auth.api.getSession({ headers: new Headers({ Authorization: `Bearer ${token}` }) })
+  return (session?.user as User | undefined) ?? null
+}
 
 const nativeAudioPattern = /native-audio/
 
@@ -40,6 +60,13 @@ export type CreateGeminiLiveRoutesOptions = {
   rateLimit?: AnyElysia
   /** Override the Gemini API key. Defaults to `GEMINI_API_KEY` env. */
   apiKey?: string
+  /** HTTP(S) proxy for the upstream Gemini WebSocket. Defaults to the
+   *  `GEMINI_LIVE_PROXY` env. Required where Google geo-blocks the server's
+   *  region (e.g. RU → close code 1007 "User location is not supported"):
+   *  Bun's `fetch` honors `HTTPS_PROXY`, but `new WebSocket()` does NOT, so the
+   *  proxy must be passed explicitly here. Unset ⇒ direct connection. Only the
+   *  upstream voice socket is proxied — the rest of the backend stays direct. */
+  upstreamProxy?: string
 }
 
 /** Drop the connection (close code 1009 = "message too big") when a single
@@ -89,6 +116,7 @@ const coerceToFrame = (message: unknown): RelayFrame => {
 export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) => {
   const { auth, rateLimit } = options
   const apiKey = options.apiKey ?? process.env.GEMINI_API_KEY
+  const upstreamProxy = options.upstreamProxy ?? process.env.GEMINI_LIVE_PROXY
 
   const routes = new Elysia({ prefix: '/gemini-live' }).onError(safeErrorHandler)
   if (rateLimit) {
@@ -109,19 +137,38 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
     async open(ws) {
       const data = ws.data as unknown as { query?: Record<string, string>; request?: Request }
 
+      // Install the relay state SYNCHRONOUSLY, before the async auth await below.
+      // The client sends its `setup` frame the instant the socket opens, and Bun
+      // may deliver it to `message()` while this async `open()` is still awaiting
+      // `getSession`. `message()` drops frames whenever `state` is absent, so
+      // deferring this assignment until after auth would silently swallow `setup`
+      // — the upstream then opens but never receives it and Gemini stays mute
+      // (client sees a live socket with no `setupComplete`, no audio). Buffering
+      // into `pending` from frame zero is the whole point of that queue.
+      const state: RelayState = {
+        upstream: null,
+        pending: [],
+        upstreamReady: false,
+        closing: false,
+      }
+      ;(ws.data as Record<string, unknown>).relay = state
+
       // A raw WebSocket can't carry an `Authorization` header, so auth rides a
       // `thunderbolt.bearer.<token>` subprotocol entry, validated here in
       // `open()` (NOT `beforeHandle`, which Bun may invoke more than once per
-      // upgrade) via the same signed-bearer path REST uses. Anonymous users and
-      // missing/invalid bearers are rejected — mirrors the haystack ACP route.
+      // upgrade) via the same signed-bearer path REST uses. A missing/invalid
+      // bearer is rejected; anonymous sessions are admitted (voice is a
+      // consumer/demo feature — see `authorizeVoiceWsBearer`).
       const subprotocolHeader = data.request?.headers.get('sec-websocket-protocol') ?? null
-      const user = await authorizeWsBearer(auth, subprotocolHeader)
+      const user = await authorizeVoiceWsBearer(auth, subprotocolHeader)
       if (!user) {
+        state.closing = true
         ws.close(wsCloseUnauthorized, 'unauthorized')
         return
       }
 
       if (!apiKey) {
+        state.closing = true
         ws.close(1008, 'Gemini provider not configured')
         return
       }
@@ -131,21 +178,20 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
       // `src/voice/engine/router.ts`), so this default is only a defensive
       // fallback — kept as one of the two currently-supported model ids
       // (half-cascade) rather than a removed one.
-      const model = data.query?.model || 'gemini-live-2.5-flash-preview'
+      const model = data.query?.model || 'gemini-3.1-flash-live-preview'
       const upstreamUrl = upstreamUrlFor(model, apiKey)
-
-      const state: RelayState = {
-        upstream: null,
-        pending: [],
-        upstreamReady: false,
-        closing: false,
-      }
-      ;(ws.data as Record<string, unknown>).relay = state
 
       let upstream: WebSocket
       try {
-        upstream = new WebSocket(upstreamUrl)
+        // `{ proxy }` is a Bun extension — `new WebSocket()` ignores the
+        // `HTTPS_PROXY` env (unlike `fetch`), so the geo-bypass proxy is passed
+        // explicitly. Omitted entirely when unset for a plain direct dial. The
+        // ambient (DOM) `WebSocket` type only declares `protocols: string[]` for
+        // the 2nd arg, so cast Bun's option object through `unknown`.
+        const wsInit = upstreamProxy ? { proxy: upstreamProxy } : undefined
+        upstream = new WebSocket(upstreamUrl, wsInit as unknown as string[] | undefined)
       } catch {
+        state.closing = true
         ws.close(1011, 'Failed to connect to Gemini')
         return
       }
@@ -193,8 +239,7 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
 
     message(ws, message) {
       const state = (ws.data as Record<string, unknown>).relay as RelayState | undefined
-      const upstream = state?.upstream
-      if (!state || !upstream || state.closing) {
+      if (!state || state.closing) {
         return
       }
 
@@ -203,19 +248,29 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
       if (messageByteLength(frame) > maxFrameBytes) {
         state.closing = true
         safeClose(ws, 1009, 'frame too large')
-        safeClose(upstream)
+        if (state.upstream) {
+          safeClose(state.upstream)
+        }
         return
       }
 
-      if (state.upstreamReady) {
-        upstream.send(frame as never)
+      // Forward straight through only once the upstream is open. Until then —
+      // which includes the window during async auth, before the upstream even
+      // exists — buffer into `pending`; `upstream.onopen` flushes it in order.
+      // Requiring a non-null `upstream` to enqueue would defeat the buffer's
+      // whole purpose: the client's `setup` (sent the instant it connects)
+      // would be dropped, and Gemini closes an unconfigured socket with 1006.
+      if (state.upstream && state.upstreamReady) {
+        state.upstream.send(frame as never)
         return
       }
 
       if (state.pending.length >= maxPending) {
         state.closing = true
         safeClose(ws, 1009, 'buffer overflow')
-        safeClose(upstream)
+        if (state.upstream) {
+          safeClose(state.upstream)
+        }
         return
       }
 
