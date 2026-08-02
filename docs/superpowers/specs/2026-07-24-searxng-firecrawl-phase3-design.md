@@ -100,7 +100,7 @@ Add to `powersync-service/docker-compose.yml`:
   `ghcr.io/metalmon/...` pulls.
 - **backend env**: `SEARXNG_URL=http://searxng:8080`,
   `FIRECRAWL_URL=http://firecrawl-api:3002`, `FIRECRAWL_TOKEN=<uuid>` — added via
-  the git-ignored `openrouter.env` sibling or a new `demo.env` (git-ignored) /
+  the git-ignored `secrets.env` sibling or a new `demo.env` (git-ignored) /
   compose `environment`. (Decide in plan; keep secrets out of git.)
 - New config files (`searxng/settings.yml`) are fork additive dev files.
 
