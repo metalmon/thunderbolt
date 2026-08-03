@@ -8,7 +8,6 @@ import { defaultModelProfileDeepseekV4Flash } from './deepseek'
 import { defaultModelProfileGlm52 } from './glm'
 import { defaultModelProfileOpus5 } from './opus'
 import {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
@@ -18,7 +17,6 @@ export { defaultModelProfileDeepseekV4Flash } from './deepseek'
 export { defaultModelProfileGlm52 } from './glm'
 export { defaultModelProfileOpus5 } from './opus'
 export {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
@@ -60,6 +58,5 @@ export const defaultModelProfiles: ReadonlyArray<ModelProfile> = [
   defaultModelProfileGlm52,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotronNano9b,
 ] as const
