@@ -27,8 +27,6 @@
  * tool-calls (Task 7) hand the synthesized prompt to the normal chat agent as
  * a real, ephemeral-to-voice chat turn — see `handleToolCall` below.
  */
-import { parseContentParts } from '@/ai/widget-parser'
-import { setActiveVoiceSpeaker } from '@/voice/active-speaker'
 import { createPlaybackQueue } from '@/voice/audio/playback'
 import { createMicCapture } from '@/voice/audio/mic-capture'
 import type { ReplyChat } from '@/voice/chat-reply'
@@ -169,9 +167,9 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
   /** Feed the agent's settled reply back into the live voice model so it can
    *  observe the result and speak it to the user (the model stays connected and
    *  co-observes — it is not disconnected on hand-off). The full reply is
-   *  relayed (no length cap). No-op if the session stopped, no new assistant
-   *  turn landed, or the reply is empty. `<widget:say>` relaying is handled
-   *  separately (`say-loop.ts`); this covers agents that don't emit `say`. */
+   *  relayed; the live model paraphrases it aloud in its own words (see the
+   *  Gemini Live system prompt). No-op if the session stopped, no new assistant
+   *  turn landed, or the reply is empty. */
   const relayAgentResult = (activeChat: ReplyChat, baseline: number) => {
     if (stopped) {
       return
@@ -183,17 +181,6 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
     }
     const text = assistantMessageText(last).trim()
     if (text.length === 0) {
-      return
-    }
-    // If the agent explicitly voiced lines via `<widget:say>`, `say-loop.ts`
-    // already relayed them — don't also dump the full reply (that path is the
-    // agent's deliberate voice output). This fallback is for agents that emit
-    // no `say` widgets (e.g. a generic ACP agent), which would otherwise leave
-    // the co-observing model with nothing to speak about the result.
-    const hasSayWidget = parseContentParts(text).some(
-      (part) => part.type === 'widget' && part.widget.widget === 'say',
-    )
-    if (hasSayWidget) {
       return
     }
     engine.sendText(`Результат работы агента:\n${text}`)
@@ -291,16 +278,11 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
       return
     }
     mic = capture
-    // Register this engine as the target for `<widget:say>` tags the chat agent
-    // emits while this voice session is live (see `active-speaker.ts`) — the
-    // widget executor reaches it through that registry, not a direct reference.
-    setActiveVoiceSpeaker({ sendText: (text) => engine.sendText(text) })
     setState('listening')
   }
 
   const stop = async () => {
     stopped = true
-    setActiveVoiceSpeaker(null)
     stopDrainWatch()
     engine.close()
     playback.close()
