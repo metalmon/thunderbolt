@@ -24,7 +24,6 @@ import * as connectIntegration from './connect-integration'
 import * as documentResult from './document-result'
 import * as linkPreview from './link-preview'
 import * as map from './map'
-import * as say from './say'
 import * as weatherForecast from './weather-forecast'
 
 // Re-export components for easy importing
@@ -34,7 +33,6 @@ export { ConnectIntegrationWidget } from './connect-integration'
 export { DocumentResultWidget } from './document-result'
 export { LinkPreview, LinkPreviewSkeleton, LinkPreviewWidget } from './link-preview'
 export { MapWidget } from './map'
-export { executeSay, type SayArgs, type SayContext } from './say'
 export { WeatherForecastWidget } from './weather-forecast'
 
 /**
@@ -69,10 +67,6 @@ export const widgetRegistry = [
   {
     name: 'ask' as const,
     module: ask,
-  },
-  {
-    name: 'say' as const,
-    module: say,
   },
 ] as const
 
