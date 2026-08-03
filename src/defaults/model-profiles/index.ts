@@ -8,7 +8,6 @@ import { defaultModelProfileDeepSeekV41Flash } from './deepseek-flash'
 import { defaultModelProfileGlm53 } from './glm'
 import { defaultModelProfileOpus55 } from './opus'
 import {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
@@ -18,7 +17,6 @@ export { defaultModelProfileDeepSeekV41Flash } from './deepseek-flash'
 export { defaultModelProfileGlm53 } from './glm'
 export { defaultModelProfileOpus55 } from './opus'
 export {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
