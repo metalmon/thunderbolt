@@ -236,7 +236,7 @@ jobs:
         if: matrix.os == 'ubuntu-24.04'
         run: |
           bun install --frozen-lockfile
-          bun tauri build
+          bun tauri build --features native_fetch
         env:
           RUSTFLAGS: ''
           CARGO_INCREMENTAL: 0
@@ -250,7 +250,7 @@ jobs:
         if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-msvc'
         run: |
           bun install --frozen-lockfile
-          bun tauri build --target x86_64-pc-windows-msvc
+          bun tauri build --features native_fetch --target x86_64-pc-windows-msvc
         env:
           RUSTFLAGS: ''
           CARGO_INCREMENTAL: 0
@@ -266,7 +266,7 @@ jobs:
           rustup target add aarch64-pc-windows-msvc
           # Build for ARM64
           bun install --frozen-lockfile
-          bun tauri build --target aarch64-pc-windows-msvc
+          bun tauri build --features native_fetch --target aarch64-pc-windows-msvc
         env:
           RUSTFLAGS: ''
           CARGO_INCREMENTAL: 0
@@ -279,7 +279,7 @@ jobs:
         if: matrix.os == 'macos-latest' && matrix.target == 'aarch64-apple-darwin'
         run: |
           bun install --frozen-lockfile
-          bun tauri build --target aarch64-apple-darwin
+          bun tauri build --features native_fetch --target aarch64-apple-darwin
         env:
           RUSTFLAGS: ''
           CARGO_INCREMENTAL: 0
@@ -299,7 +299,7 @@ jobs:
           rm -rf src-tauri/target/x86_64-apple-darwin
           # Build for Intel with proper environment
           bun install --frozen-lockfile
-          bun tauri build --target x86_64-apple-darwin
+          bun tauri build --features native_fetch --target x86_64-apple-darwin
         env:
           # Override the target-cpu=native flag
           RUSTFLAGS: '-C target-cpu=x86-64'
