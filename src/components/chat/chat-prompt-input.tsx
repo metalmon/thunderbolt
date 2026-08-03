@@ -65,6 +65,7 @@ import { maybeCompressAttachment } from '@/files/compress/compress-attachment'
 import { VoiceModeButton } from '@/voice/ui/voice-mode-button'
 import { VoiceModeComposer } from '@/voice/ui/voice-mode-composer'
 import { useVoiceSession } from '@/voice/ui/use-voice-session'
+import { useSettings } from '@/hooks/use-settings'
 import { FileCard } from './file-card'
 import { preloadChatMessageList } from './chat-messages-loader'
 import { isBuiltInAgent } from '@/defaults/agents'
@@ -726,6 +727,11 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
     }))
 
     const voice = useVoiceSession()
+    // Fork: the upstream default STT/TTS pipeline (Tinfoil) isn't available here,
+    // so the voice mic only works via the Gemini Live co-pilot. Gate the trigger
+    // on the same flag that enables the co-pilot (experimental_feature_voice) so
+    // it isn't shown — and can't 503 on the missing Tinfoil — when disabled.
+    const { experimentalFeatureVoice } = useSettings({ experimental_feature_voice: false })
 
     const footerStartElements = (
       <div className="flex items-center gap-2">
@@ -980,9 +986,10 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             footerStartElements={footerStartElements}
             footerEndElements={footerEndElements}
             // Empty + idle composer shows the voice-mode trigger in the send slot (swaps back to Send
-            // once there's input); withheld in minimal mode and until config settles.
+            // once there's input); withheld in minimal mode, until config settles, and unless the
+            // voice co-pilot is switched on.
             emptyStateAction={
-              minimalMode || !configSettled ? undefined : (
+              minimalMode || !configSettled || !experimentalFeatureVoice.value ? undefined : (
                 <VoiceModeButton onStart={voice.start} disabled={privateAutoRunBlocked} />
               )
             }
