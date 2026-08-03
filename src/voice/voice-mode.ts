@@ -48,11 +48,8 @@ export const voiceModeSystemNote =
 /**
  * Whether the voice co-pilot (realtime Gemini Live) feature is enabled on this
  * device: the experimental flag is on AND the configured voice provider is
- * Gemini Live. Shared by voice session startup (`voice/engine/router.ts`) and
- * skill advertisement (`acp/connect.ts`) so the `say` widget contract is only
- * disclosed to an agent when a live voice session actually exists to speak it
- * — advertising it otherwise would tell the agent to emit a widget that's
- * never rendered.
+ * Gemini Live. Used by voice session startup (`voice/engine/router.ts`) to pick
+ * the realtime engine.
  *
  * @param experimentalFeatureVoice - the `experimental_feature_voice` setting,
  *   read by the caller (this module has no DB access of its own)

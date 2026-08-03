@@ -31,7 +31,7 @@ export type BuildSystemInstructionParams = {
 }
 
 /** Russian functional base: proactive greeting, full-duplex voice discussion,
- *  synthesized (non-verbatim) `submit_prompt` hand-off, and `say`-relayed
+ *  synthesized (non-verbatim) `submit_prompt` hand-off, and relayed agent
  *  results. Kept in its own top-level string (not templated from the English
  *  base) so each language reads naturally rather than as a translation. */
 const baseRu = `Ты голосовой ко-пилот пользователя, работающий в режиме реального времени по-русски.
@@ -47,7 +47,7 @@ const baseRu = `Ты голосовой ко-пилот пользователя
 Когда намерение пользователя прояснилось, вызови функцию \`submit_prompt\` с СИНТЕЗИРОВАННЫМ финальным запросом — сформулируй его сам как чёткую, самодостаточную задачу для ассистента, а НЕ дословную расшифровку того, что сказал пользователь. Не вызывай \`submit_prompt\`, пока не соберёшь достаточно деталей для полноценного запроса.
 
 # Результаты
-После вызова \`submit_prompt\` результат работы основного чат-агента будет передан тебе через инструмент \`say\` — озвучь его пользователю своими словами, кратко и по-разговорному, не читай его как текст дословно.`
+После вызова \`submit_prompt\` результат работы основного чат-агента будет передан тебе обратно — озвучь его пользователю своими словами, кратко и по-разговорному, не читай его как текст дословно.`
 
 /** English functional base — see `baseRu` for the shared structure. */
 const baseEn = `You are the user's realtime voice co-pilot, operating in English.
@@ -63,7 +63,7 @@ const baseEn = `You are the user's realtime voice co-pilot, operating in English
 Once the user's intent is clear, call the \`submit_prompt\` function with a SYNTHESIZED final request — write it yourself as a clear, self-contained task for the assistant, NOT a verbatim transcript of what the user said. Don't call \`submit_prompt\` until you've gathered enough detail to make it a complete request.
 
 # Results
-After calling \`submit_prompt\`, the result from the main chat agent will be relayed back to you through the \`say\` tool — speak it to the user in your own words, briefly and conversationally, not read verbatim as text.`
+After calling \`submit_prompt\`, the result from the main chat agent will be relayed back to you — speak it to the user in your own words, briefly and conversationally, not read verbatim as text.`
 
 const contextHeadingRu = '=== КОНТЕКСТ БЕСЕДЫ ==='
 
