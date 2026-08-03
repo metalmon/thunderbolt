@@ -50,6 +50,7 @@ import { maybeCompressAttachment } from '@/files/compress/compress-attachment'
 import { VoiceModeButton } from '@/voice/ui/voice-mode-button'
 import { VoiceModeComposer } from '@/voice/ui/voice-mode-composer'
 import { useVoiceSession } from '@/voice/ui/use-voice-session'
+import { useSettings } from '@/hooks/use-settings'
 import { FileCard } from './file-card'
 import { loadChatMessageList } from './chat-messages-loader'
 
@@ -589,6 +590,11 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
     }))
 
     const voice = useVoiceSession()
+    // Fork: the upstream default STT/TTS pipeline (Tinfoil) isn't available here,
+    // so the voice mic only works via the Gemini Live co-pilot. Gate the trigger
+    // on the same flag that enables the co-pilot (experimental_feature_voice) so
+    // it isn't shown — and can't 503 on the missing Tinfoil — when disabled.
+    const { experimentalFeatureVoice } = useSettings({ experimental_feature_voice: false })
 
     const footerStartElements = (
       <div className="flex items-center gap-2">
@@ -827,7 +833,9 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             footerEndElements={footerEndElements}
             // Empty + idle composer shows the voice-mode trigger in the send
             // slot; it swaps back to Send as soon as there's text or an attachment.
-            emptyStateAction={<VoiceModeButton onStart={voice.start} />}
+            emptyStateAction={
+              experimentalFeatureVoice.value ? <VoiceModeButton onStart={voice.start} /> : undefined
+            }
             renderOverlay={(value) =>
               renderHighlightedSkillTokens(value, classifySkill, { displayNameToSlug, onCreateSkill: openCreateSkill })
             }
