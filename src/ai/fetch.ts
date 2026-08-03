@@ -21,11 +21,11 @@ import {
 } from '@/ai/step-logic'
 import { getAllSkills, getIntegrationStatus, getModel, getModelProfile, getSettings } from '@/dal'
 import { getMessage } from '@/dal/chat-messages'
-import { filterVoiceOnlySkills, isWidgetSkillId } from '@/defaults/skills'
+import { isWidgetSkillId } from '@/defaults/skills'
 import { extractLastUserText, resolveSkillTokenInstructions } from '@/skills/resolve-skill-system-messages'
 import { createSkillTool, selectEnabledSkillDefinitions } from '@/skills/skill-tool'
-import { speakSayWidgets } from '@/voice/say-loop'
-import { isVoiceCoPilotEnabled, isVoiceModeActive, voiceModeSystemNote } from '@/voice/voice-mode'
+import { ensureToolResults } from '@/fork/ai/ensure-tool-results'
+import { isVoiceModeActive, voiceModeSystemNote } from '@/voice/voice-mode'
 import { collectAskEntriesFromCache, formatAskResponsesNote } from '@/widgets/ask/lib'
 import { getDb } from '@/db/database'
 import { getLocalSetting } from '@/stores/local-settings-store'
@@ -655,13 +655,7 @@ export const prepareAiRequestConfig = async ({
     throw new Error('Model not found')
   }
   const profile = await getModelProfile(db, modelId)
-  // Withhold the `say` widget skill from the built-in agent's skill tool and
-  // system-prompt catalog (below) unless the voice co-pilot feature is on —
-  // mirrors the ACP `_meta` gating in `src/acp/connect.ts` via the same
-  // `filterVoiceOnlySkills`/`isVoiceCoPilotEnabled` pair, so both advertisement
-  // paths agree on when an agent may be told to emit `<widget:say>`.
-  const voiceCoPilotEnabled = isVoiceCoPilotEnabled(settings.experimentalFeatureVoice)
-  const storedSkills = filterVoiceOnlySkills(await getAllSkills(db), voiceCoPilotEnabled)
+  const storedSkills = await getAllSkills(db)
   telemetry?.endPhase('request_config')
   const skills = selectEnabledSkillDefinitions(storedSkills)
   const supportsTools = model.toolUsage !== 0
@@ -856,7 +850,15 @@ export const aiFetchStreamingResponse = async ({
         temperature: modelTemperature,
         model: wrappedModel,
         system: input.system,
-        messages: input.messages,
+        // Fork: guarantee no assistant tool-call reaches the provider without a
+        // matching result. A turn torn down mid-tool-call (an overlapping voice
+        // submit_prompt, an approval-gated tool) leaves an unresolved tool-call
+        // in `response.messages`; the retry loop below then appends a user nudge
+        // after it, and the SDK's prompt standardization fires
+        // `MissingToolResultsError` ("Tool result is missing for tool call …"),
+        // retried to no effect. Synthesizing error results keeps the turn alive.
+        // See src/fork/ai/ensure-tool-results.ts.
+        messages: ensureToolResults(input.messages),
         tools: supportsTools ? (toolset as ToolSet) : undefined,
         stopWhen: stepCountIs(maxSteps),
         providerOptions,
@@ -902,11 +904,6 @@ export const aiFetchStreamingResponse = async ({
             toolCallCount: finish.toolCalls?.length || 0,
             usage: finish.totalUsage,
           })
-
-          // Speak any `<widget:say>` tag the reply carries through the live
-          // realtime voice session (no-op when voice isn't active). See
-          // `say-loop.ts` — reuses the widget extractor, no bespoke parsing.
-          speakSayWidgets(finish.text)
         },
         onError: ({ error }) => {
           console.error('streamText error', { kind: classifyErrorKind(error) ?? 'unknown' })
