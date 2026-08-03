@@ -4,7 +4,6 @@
 
 import type { ModelProfile } from '@/types'
 import {
-  defaultModelGemma431b,
   defaultModelNemotron3Super,
   defaultModelNemotron3Ultra,
   defaultModelNemotronNano9b,
@@ -38,5 +37,4 @@ const baseProfile = (modelId: string): ModelProfile => ({
 
 export const defaultModelProfileNemotron3Super = baseProfile(defaultModelNemotron3Super.id)
 export const defaultModelProfileNemotron3Ultra = baseProfile(defaultModelNemotron3Ultra.id)
-export const defaultModelProfileGemma431b = baseProfile(defaultModelGemma431b.id)
 export const defaultModelProfileNemotronNano9b = baseProfile(defaultModelNemotronNano9b.id)
