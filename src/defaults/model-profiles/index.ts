@@ -8,7 +8,6 @@ import { defaultModelProfileGlm53Flash } from './glm-flash'
 import { defaultModelProfileGlm53 } from './glm'
 import { defaultModelProfileOpus5 } from './opus'
 import {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
@@ -18,7 +17,6 @@ export { defaultModelProfileGlm53Flash } from './glm-flash'
 export { defaultModelProfileGlm53 } from './glm'
 export { defaultModelProfileOpus5 } from './opus'
 export {
-  defaultModelProfileGemma431b,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
