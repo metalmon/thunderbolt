@@ -15,11 +15,13 @@ import { defaultSettings, defaultSettingsVersion, hashSetting } from '../default
 import { defaultSkills, defaultSkillsVersion, hashSkill, isWidgetSkillId } from '../defaults/skills'
 import { defaultTasks, defaultTasksVersion, hashTask } from '../defaults/tasks'
 import type { ModelsDefaults } from './pick-defaults'
+import type { SkillsDefaults } from './pick-skills-defaults'
 import { restampWidgetSkillDefaultHashes } from './data-migrations/restamp-widget-skill-default-hashes'
 import { normalizeOpusDefault, upgradeOpusDefault } from './data-migrations/upgrade-opus-default'
 import { nowIso } from './utils'
 
 const bundledModelsDefaults: ModelsDefaults = { version: defaultModelsVersion, data: defaultModels }
+const bundledSkillsDefaults: SkillsDefaults = { version: defaultSkillsVersion, data: defaultSkills }
 
 /**
  * Settings keys holding the highest defaults version ever applied to this
@@ -443,6 +445,9 @@ export type ReconcileDefaultsOverrides = {
   /** Models defaults source (server OTA payload or bundled). Falls back to
    *  the shipped `defaultModels` + `defaultModelsVersion` when omitted. */
   models?: ModelsDefaults
+  /** Skills defaults source (locale-picked by the caller). Falls back to the
+   *  shipped `defaultSkills` + `defaultSkillsVersion` when omitted. */
+  skills?: SkillsDefaults
   /** Did PowerSync's initial-sync gate finish this boot? When false (timed out
    *  or failed) we can't trust that a missing local stored version means "never
    *  applied" — cloud may hold both the version marker and newer rows we
@@ -456,6 +461,7 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     ...pickedModelsSource,
     data: pickedModelsSource.data.map(normalizeOpusDefault),
   }
+  const skillsSource = overrides?.skills ?? bundledSkillsDefaults
   const initialSyncCompleted = overrides?.initialSyncCompleted ?? true
 
   await db.transaction(async (tx) => {
@@ -634,10 +640,10 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     await restampWidgetSkillDefaultHashes.run(tx)
     await runGatedPass(
       skillsTable,
-      defaultSkills,
+      skillsSource.data,
       hashSkill,
       versionMarkerKeys.skills,
-      defaultSkillsVersion,
+      skillsSource.version,
       hasAnySkillRow,
       { frozenFields: (skill) => (isWidgetSkillId(skill.id) ? ['enabled', 'pinnedOrder'] : []) },
     )
