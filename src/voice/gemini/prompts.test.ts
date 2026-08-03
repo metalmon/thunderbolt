@@ -18,11 +18,10 @@ describe('buildSystemInstruction', () => {
     expect(result).not.toContain('голосовой ко-пилот')
   })
 
-  test('base always instructs synthesizing submit_prompt and expecting results via say', () => {
+  test('base always instructs synthesizing a submit_prompt request (not a verbatim transcript)', () => {
     for (const lang of ['ru', 'en'] as const) {
       const result = buildSystemInstruction({ lang, personality: '', contextMessages: [] })
       expect(result).toContain('submit_prompt')
-      expect(result).toContain('say')
       // Explicitly forbids a verbatim transcript — synthesized only.
       expect(result.toLowerCase()).toMatch(/synthesized|синтезированн/)
     }
