@@ -212,26 +212,6 @@ export const defaultModelNemotron3Ultra: SharedModel = {
   userId: null,
 }
 
-export const defaultModelGemma431b: SharedModel = {
-  id: '8a86bbe0-42a2-444c-aacf-7a8448262bb4',
-  name: 'Gemma 4 31B',
-  provider: 'openrouter',
-  model: 'google/gemma-4-31b-it:free',
-  isSystem: 1,
-  enabled: 1,
-  isConfidential: 0,
-  contextWindow: 262144,
-  toolUsage: 1,
-  startWithReasoning: 0,
-  supportsParallelToolCalls: 0,
-  deletedAt: null,
-  url: null,
-  defaultHash: null,
-  vendor: 'google',
-  description: 'Free via OpenRouter — Google Gemma 4 (31B)',
-  userId: null,
-}
-
 export const defaultModelNemotronNano9b: SharedModel = {
   id: 'b4db7251-0475-45bb-8dfa-05dbbaa961ca',
   name: 'Nemotron Nano 9B',
@@ -258,7 +238,6 @@ export const defaultModels: ReadonlyArray<SharedModel> = [
   defaultModelGlm52,
   defaultModelNemotron3Super,
   defaultModelNemotron3Ultra,
-  defaultModelGemma431b,
   defaultModelNemotronNano9b,
 ] as const
 
