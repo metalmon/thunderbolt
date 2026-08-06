@@ -14,6 +14,11 @@ dist-isolation
 dist-fork
 *.local
 
+# Fork-local dev artifacts (not upstreamed)
+/dev-local/dist-fork-master/
+/dev-local/*.patch
+/.superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
