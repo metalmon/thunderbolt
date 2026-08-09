@@ -26,7 +26,13 @@
     "moveToProject": "Move to project",
     "projects": "Projects",
     "recentProjects": "Recent Projects",
-    "untitledChat": "Untitled chat"
+    "untitledChat": "Untitled chat",
+    "chatActions": "Chat actions"
+  },
+  "addMenu": {
+    "title": "Add to chat",
+    "uploadFile": "Upload file",
+    "connections": "Connections"
   },
   "deleteChat": {
     "title": "Delete this chat?",
@@ -106,6 +112,7 @@
     "addInstructionsToChat": "Add instructions to chat",
     "editSkill": "Edit skill",
     "reorder": "Reorder",
+    "reorderSkills": "Reorder skills",
     "unpin": "Unpin",
     "pinFailed": "Couldn't pin {{name}}.",
     "unpinFailed": "Couldn't unpin {{name}}.",
