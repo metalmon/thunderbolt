@@ -271,21 +271,21 @@ export const ChatListItem = memo(
             open={openMenu === 'mobile'}
             onOpenChange={handleMenuOpenChange('mobile')}
             trigger={trigger}
-            title={displayTitle ?? 'Chat actions'}
+            title={displayTitle ?? t('sidebar.chatActions')}
             openOnTriggerClickMobile={false}
             actions={[
               {
-                label: 'Rename',
+                label: t('sidebar.rename'),
                 icon: <Pencil className="size-4" />,
                 onSelect: startRename,
               },
               {
-                label: 'Move to project',
+                label: t('sidebar.moveToProject'),
                 icon: <FolderInput className="size-4" />,
                 onSelect: startMove,
               },
               {
-                label: 'Delete',
+                label: t('delete', { ns: 'common' }),
                 icon: deleteIcon,
                 onSelect: startDelete,
                 disabled: deleteChatMutation.isPending,

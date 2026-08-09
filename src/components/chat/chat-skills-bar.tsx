@@ -336,7 +336,11 @@ export const ChatSkillsBar = ({
         )}
       </div>
       {isMobile && (
-        <MobileCardMenu open={reorderMode} onOpenChange={(open) => !open && closeReorder()} title="Reorder skills">
+        <MobileCardMenu
+          open={reorderMode}
+          onOpenChange={(open) => !open && closeReorder()}
+          title={t('skills.reorderSkills', { ns: 'chat' })}
+        >
           {reorderPanel}
         </MobileCardMenu>
       )}
