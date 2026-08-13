@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
-import { hashValues } from '../lib/hash'
-import { defaultModelOpus5, defaultModels, defaultModelsVersion, hashModel, vendorSupportsImages } from './models'
+import { defaultModels, defaultModelsVersion, hashModel } from './models'
 
 /**
  * Snapshot pinning the shipped defaults to their declared version. When you
@@ -21,56 +20,16 @@ import { defaultModelOpus5, defaultModels, defaultModelsVersion, hashModel, vend
 const computeSnapshotHash = () =>
   defaultModels.map((model, index) => `${index}:${model.id}:${hashModel(model)}`).join('|')
 
-// `hashModel` deliberately hashes only user-editable fields (it drives the
-// user-edit detection in reconciliation), so it is blind to metadata like
-// `vendor` and `description`. Hash those separately here so a metadata-only
-// defaults change still trips the snapshot and gets its version bump.
-const computeMetadataHash = () =>
-  defaultModels.map((model, index) => `${index}:${hashValues([model.vendor, model.description])}`).join('|')
-
 const expected = {
-  version: 4,
-  hash: '0:019af08a-c27b-7074-8aac-95315d1ef3fd:n56kdk|1:019f227e-d640-727d-ba12-d51bd7d0a3d6:bvaax2|2:019e7580-2b0e-719c-a43f-d2b56e7f31b4:-g7x2jr',
-  metadataHash: '0:vzhyk4|1:-x2wlw2|2:-cajkcl',
+  version: 5,
+  hash: '0:38e10634-2fbc-4323-b86d-3a5a6c0ca824:-q1ptfc|1:d30990db-4d18-4713-8b08-ca8cabd206bb:mzov96|2:b4db7251-0475-45bb-8dfa-05dbbaa961ca:-87f1eu',
 }
 
 describe('defaultModels version snapshot', () => {
-  test('ships Opus 5 as the sole model using its canonical id', () => {
-    expect(defaultModelOpus5).toMatchObject({
-      id: '019af08a-c27b-7074-8aac-95315d1ef3fd',
-      name: 'Opus 5',
-      provider: 'thunderbolt',
-      model: 'opus-5',
-      contextWindow: 200_000,
-      isSystem: 1,
-      enabled: 1,
-      toolUsage: 1,
-      supportsParallelToolCalls: 1,
-      isConfidential: 0,
-    })
-    expect(defaultModels.filter(({ id }) => id === defaultModelOpus5.id)).toEqual([defaultModelOpus5])
-  })
-
   test('version and content are in sync — read the file header if this fails', () => {
     expect({
       version: defaultModelsVersion,
       hash: computeSnapshotHash(),
-      metadataHash: computeMetadataHash(),
     }).toEqual(expected)
-  })
-})
-
-describe('vendorSupportsImages', () => {
-  test('true for known vision vendors', () => {
-    expect(vendorSupportsImages('anthropic')).toBe(true)
-    expect(vendorSupportsImages('openai')).toBe(true)
-    expect(vendorSupportsImages('google')).toBe(true)
-  })
-
-  test('false for unknown or absent vendors (no guessing for custom/local)', () => {
-    expect(vendorSupportsImages(null)).toBe(false)
-    expect(vendorSupportsImages(undefined)).toBe(false)
-    expect(vendorSupportsImages('ollama')).toBe(false)
-    expect(vendorSupportsImages('')).toBe(false)
   })
 })

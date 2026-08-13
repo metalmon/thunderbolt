@@ -238,9 +238,6 @@ export const defaultModelNemotronNano9b: SharedModel = {
 }
 
 export const defaultModels: ReadonlyArray<SharedModel> = [
-  defaultModelOpus5,
-  defaultModelDeepseekV4Flash,
-  defaultModelGlm52,
   defaultModelNemotron3Super,
   defaultModelNemotron3Ultra,
   defaultModelNemotronNano9b,
