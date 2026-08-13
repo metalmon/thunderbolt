@@ -43,7 +43,7 @@ export const DependentsDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>{t('skills.dependentsTitle', { action: actionLabel, name: targetName })}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('skills.dependentsDescription', { count: dependents.length, action })}
+            {t('skills.dependentsDescription', { count: dependents.length })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
