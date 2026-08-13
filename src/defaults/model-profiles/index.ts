@@ -4,9 +4,6 @@
 
 import { hashValues } from '@/lib/utils'
 import type { ModelProfile } from '@/types'
-import { defaultModelProfileDeepSeekV41Flash } from './deepseek-flash'
-import { defaultModelProfileGlm53 } from './glm'
-import { defaultModelProfileOpus55 } from './opus'
 import {
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
@@ -53,9 +50,6 @@ export const hashModelProfile = (profile: ModelProfile): string =>
 
 /** All default model profiles for iteration */
 export const defaultModelProfiles: ReadonlyArray<ModelProfile> = [
-  defaultModelProfileOpus55,
-  defaultModelProfileDeepSeekV41Flash,
-  defaultModelProfileGlm53,
   defaultModelProfileNemotron3Super,
   defaultModelProfileNemotron3Ultra,
   defaultModelProfileNemotronNano9b,
