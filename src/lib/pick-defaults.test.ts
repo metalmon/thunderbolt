@@ -5,6 +5,7 @@
 import { describe, expect, test } from 'bun:test'
 import {
   defaultModelImageSupport,
+  defaultModelNemotron3Super,
   defaultModelOpus55,
   defaultModels,
   defaultModelsVersion,
@@ -13,7 +14,9 @@ import { pickModelsDefaults } from './pick-defaults'
 
 const serverPayload = (version: number) => ({
   version,
-  data: [{ ...defaultModelOpus55, name: `Server v${version}` }],
+  // Template off a BUNDLED default so the payload overlaps bundle ids (the
+  // non-overlap guard would otherwise force the bundle to win).
+  data: [{ ...defaultModelNemotron3Super, name: `Server v${version}` }],
 })
 
 describe('pickModelsDefaults', () => {
@@ -110,7 +113,7 @@ describe('pickModelsDefaults', () => {
     const partialOverlap = {
       version: defaultModelsVersion + 1,
       data: [
-        defaultModelOpus55, // in bundle
+        defaultModelNemotron3Super, // in bundle
         { ...defaultModelOpus55, id: 'new-id', name: 'Server-only New Model' },
       ],
     }
