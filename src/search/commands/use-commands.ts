@@ -6,6 +6,7 @@ import { themeIcons } from '@/components/theme-icons'
 import { useSidebar } from '@/components/ui/sidebar'
 import { useCreateNewChat } from '@/hooks/use-create-new-chat'
 import { useSettings } from '@/hooks/use-settings'
+import { useTranslation } from 'react-i18next'
 import { getDownloadUrl } from '@/lib/download-links'
 import { getWebOsPlatform, isMacDesktop, isTauri, isWebDesktopPlatform } from '@/lib/platform'
 import { trackEvent } from '@/lib/posthog'
@@ -38,6 +39,8 @@ const gateOpen = (gate: NavGate | undefined, flags: CommandFlags): boolean => (g
  * live in the injected handlers, not here.
  */
 export type BuildCommandsDeps = {
+  /** Translator for command titles, keyed by command id (`palette.command.<id>`). */
+  t: (key: string) => string
   flags: CommandFlags
   showDownloadApp: boolean
   isMac: boolean
@@ -122,7 +125,13 @@ export const buildCommands = (deps: BuildCommandsDeps): PaletteCommand[] => {
     run: deps.onNewChat,
   }
 
-  return [...navCommands, newChatCommand, ...buildCreateCommands(), ...actionCommands]
+  // Localize every command title by id (`palette.command.<id>`). The English
+  // `title` set on each command above stays as the readable source and the
+  // English search fallback; this map is the single translation seam.
+  return [...navCommands, newChatCommand, ...buildCreateCommands(), ...actionCommands].map((command) => ({
+    ...command,
+    title: deps.t(`palette.command.${command.id}`),
+  }))
 }
 
 /**
@@ -130,6 +139,7 @@ export const buildCommands = (deps: BuildCommandsDeps): PaletteCommand[] => {
  * to the same hook the sidebar uses — nothing here reimplements behaviour.
  */
 export const useCommands = (opts: UseCommandsOptions): PaletteCommand[] => {
+  const { t } = useTranslation('common')
   const { experimentalFeatureVoice, experimentalFeatureTasks } = useSettings({
     experimental_feature_voice: false,
     experimental_feature_tasks: false,
@@ -139,6 +149,7 @@ export const useCommands = (opts: UseCommandsOptions): PaletteCommand[] => {
   const { toggleSidebar, closeMobileSidebar } = useSidebar()
 
   return buildCommands({
+    t,
     flags: {
       voice: experimentalFeatureVoice.value,
       tasks: experimentalFeatureTasks.value,

@@ -14,6 +14,7 @@ import { useDeleteAllChats } from '@/hooks/use-delete-all-chats'
 import { useSettings } from '@/hooks/use-settings'
 import { trackEvent as trackEventImpl } from '@/lib/posthog'
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { buildActionNav } from '../actions/entity-actions'
 import type { PaletteCommand } from '../commands/types'
@@ -22,7 +23,6 @@ import { searchEntities } from '../registry'
 import type { SearchEntityType, SearchResult } from '../types'
 import { useSearch as useSearchImpl } from '../use-search'
 import { CommandActionItem } from './command-item'
-import { entityLabels } from './entity-meta'
 import { SearchResultItem } from './search-result-item'
 
 /** Wait for typing to settle before running FTS, to avoid a query per keystroke. */
@@ -77,6 +77,7 @@ export const SearchPalette = ({
   useSearch = useSearchImpl,
   trackEvent = trackEventImpl,
 }: SearchPaletteProps) => {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
   const db = useDatabase()
   // No-op on desktop / when the drawer is closed; on mobile it dismisses the
@@ -180,21 +181,21 @@ export const SearchPalette = ({
   const commandSections = (
     <>
       {createCommands.length > 0 ? (
-        <CommandGroup heading="Create">
+        <CommandGroup heading={t('palette.groups.create')}>
           {createCommands.map((command) => (
             <CommandActionItem key={command.id} command={command} onSelect={handleCommand} />
           ))}
         </CommandGroup>
       ) : null}
       {navCommands.length > 0 ? (
-        <CommandGroup heading="Go to">
+        <CommandGroup heading={t('palette.groups.goTo')}>
           {navCommands.map((command) => (
             <CommandActionItem key={command.id} command={command} onSelect={handleCommand} />
           ))}
         </CommandGroup>
       ) : null}
       {actionCommands.length > 0 ? (
-        <CommandGroup heading="Actions">
+        <CommandGroup heading={t('palette.groups.actions')}>
           {actionCommands.map((command) => (
             <CommandActionItem key={command.id} command={command} onSelect={handleCommand} />
           ))}
@@ -208,23 +209,23 @@ export const SearchPalette = ({
       <CommandDialog
         open={open}
         onOpenChange={handleOpenChange}
-        title="Search"
-        description="Search across chats, models, skills, agents, and more"
+        title={t('palette.searchTitle')}
+        description={t('palette.description')}
         className="rounded-2xl"
         // FTS already filters result rows and we filter commands manually; cmdk's
         // fuzzy filter would otherwise hide valid stemmed/prefixed FTS matches.
         shouldFilter={false}
       >
-        <CommandInput placeholder="Search chats, models, skills, agents…" value={query} onValueChange={setQuery} />
+        <CommandInput placeholder={t('palette.placeholder')} value={query} onValueChange={setQuery} />
         <CommandList>
           {!hasQuery ? (
             commandSections
           ) : (
             <>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>{t('palette.empty')}</CommandEmpty>
               {commandSections}
               {groups.map(({ entity, hits }) => (
-                <CommandGroup key={entity.type} heading={entityLabels[entity.type]}>
+                <CommandGroup key={entity.type} heading={t(`palette.entity.${entity.type}`)}>
                   {hits.map((result) => (
                     <SearchResultItem
                       key={`${result.entityType}-${result.id}`}

@@ -8,6 +8,7 @@ import { buildCommands, type BuildCommandsDeps } from './use-commands'
 import type { PaletteCommand } from './types'
 
 const makeDeps = (overrides: Partial<BuildCommandsDeps> = {}): BuildCommandsDeps => ({
+  t: (key: string) => key,
   flags: { voice: false, tasks: false, dev: false },
   showDownloadApp: false,
   isMac: true,
