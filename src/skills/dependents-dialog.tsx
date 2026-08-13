@@ -15,8 +15,6 @@ import { Button } from '@/components/ui/button'
 import type { Skill } from '@/types'
 import { useTranslation } from 'react-i18next'
 
-import { skillDisplayName } from './display'
-
 export type DependentsAction = 'disable' | 'delete'
 
 
@@ -35,7 +33,6 @@ export const DependentsDialog = ({
   targetName: string
   dependents: Skill[]
   onConfirm: () => void
-  onJumpToDependent: (id: string) => void
 }) => {
   const { t } = useTranslation('settings')
   const actionLabel = t(`skills.${action}`)
@@ -49,20 +46,6 @@ export const DependentsDialog = ({
             {t('skills.dependentsDescription', { count: dependents.length, action })}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <ul className="flex flex-col gap-1.5">
-          {dependents.map((dep) => (
-            <li key={dep.id}>
-              <button
-                type="button"
-                onClick={() => onJumpToDependent(dep.id)}
-                className="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
-              >
-                <span className="min-w-0 truncate">{skillDisplayName(dep)}</span>
-                <ArrowRight size={14} className="shrink-0 text-muted-foreground" />
-              </button>
-            </li>
-          ))}
-        </ul>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('skills.cancel')}</AlertDialogCancel>
           <Button variant="destructive" onClick={onConfirm}>
