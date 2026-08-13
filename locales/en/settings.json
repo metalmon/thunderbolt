@@ -386,8 +386,8 @@
     "disable": "Disable",
     "enable": "Enable",
     "dependentsTitle": "{{action}} {{name}}?",
-    "dependentsDescription_one": "One skill references this. If you {{action}} it, it may no longer resolve:",
-    "dependentsDescription_other": "{{count}} skills reference this. If you {{action}} it, they may no longer resolve:",
+    "dependentsDescription_one": "One skill references this and may no longer resolve.",
+    "dependentsDescription_other": "{{count}} skills reference this and may no longer resolve.",
     "dependentsAction": "{{action}} skill",
     "keepEditing": "Keep editing",
     "discard": "Discard",
@@ -396,6 +396,7 @@
     "save": "Save",
     "name": "Name",
     "nameLabel": "Name",
+    "labelPlaceholder": "Morning briefing",
     "slug": "Slug",
     "slugError": {
       "required": "Slug is required.",
