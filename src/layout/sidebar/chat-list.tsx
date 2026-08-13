@@ -156,7 +156,7 @@ export const ChatList = ({
             <SidebarMenuButton
               onClick={() => deleteAllChatsDialogRef.current?.open()}
               disabled={deleteAllChatsMutation.isPending}
-              tooltip="Clear all chats"
+              tooltip={t('sidebar.clearAll')}
               className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
             >
               {deleteAllChatsMutation.isPending ? (
@@ -175,7 +175,7 @@ export const ChatList = ({
     </SidebarMenu>
   ) : (
     <div className="flex items-center justify-between flex-shrink-0">
-      {hasListContent ? <SidebarGroupLabel>Recent Chats</SidebarGroupLabel> : <span aria-hidden />}
+      {hasListContent ? <SidebarGroupLabel>{t('sidebar.recentChats')}</SidebarGroupLabel> : <span aria-hidden />}
       {chatActions}
     </div>
   )
@@ -206,7 +206,7 @@ export const ChatList = ({
                 style={{ height: mobileListMetrics.headerHeight }}
               />
               <SidebarGroupLabel ref={mobileLabelRef} className="mt-1">
-                {hasListContent ? 'Recent Chats' : 'No chats yet'}
+                {hasListContent ? t('sidebar.recentChats') : t('sidebar.noChatsYet')}
               </SidebarGroupLabel>
             </>
           )}
