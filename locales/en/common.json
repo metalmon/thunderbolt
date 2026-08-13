@@ -1,4 +1,48 @@
 {
+  "palette": {
+    "searchTitle": "Search",
+    "description": "Search across chats, models, skills, agents, and more",
+    "placeholder": "Search chats, models, skills, agents…",
+    "empty": "No results found.",
+    "groups": {
+      "create": "Create",
+      "goTo": "Go to",
+      "actions": "Actions"
+    },
+    "entity": {
+      "chat": "Chats",
+      "message": "Messages",
+      "model": "Models",
+      "skill": "Skills",
+      "agent": "Agents",
+      "mcp": "Connections",
+      "device": "Devices",
+      "task": "Tasks"
+    },
+    "command": {
+      "agents": "All agents",
+      "skills": "Skills",
+      "connections": "Connections",
+      "models": "Models",
+      "voice": "Voice",
+      "preferences": "Preferences",
+      "devices": "Devices",
+      "tasks": "Tasks",
+      "dev-settings": "Dev Settings",
+      "message-simulator": "Message Simulator",
+      "new-chat": "New chat",
+      "create-model": "Create Model",
+      "create-skill": "Create Skill",
+      "create-agent": "Create Agent",
+      "theme-light": "Set Light",
+      "theme-dark": "Set Dark",
+      "theme-system": "Use System",
+      "download-app": "Download app",
+      "toggle-sidebar": "Toggle sidebar",
+      "sign-out": "Sign out",
+      "clear-all-chats": "Clear all chats"
+    }
+  },
   "appName": "Volt",
   "loading": "Loading…",
   "cancel": "Cancel",

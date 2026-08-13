@@ -1,4 +1,48 @@
 {
+  "palette": {
+    "searchTitle": "Поиск",
+    "description": "Поиск по чатам, моделям, навыкам, агентам и другому",
+    "placeholder": "Поиск чатов, моделей, навыков, агентов…",
+    "empty": "Ничего не найдено.",
+    "groups": {
+      "create": "Создать",
+      "goTo": "Перейти",
+      "actions": "Действия"
+    },
+    "entity": {
+      "chat": "Чаты",
+      "message": "Сообщения",
+      "model": "Модели",
+      "skill": "Навыки",
+      "agent": "Агенты",
+      "mcp": "Подключения",
+      "device": "Устройства",
+      "task": "Задачи"
+    },
+    "command": {
+      "agents": "Все агенты",
+      "skills": "Навыки",
+      "connections": "Подключения",
+      "models": "Модели",
+      "voice": "Голос",
+      "preferences": "Настройки",
+      "devices": "Устройства",
+      "tasks": "Задачи",
+      "dev-settings": "Настройки разработчика",
+      "message-simulator": "Симулятор сообщений",
+      "new-chat": "Новый чат",
+      "create-model": "Создать модель",
+      "create-skill": "Создать навык",
+      "create-agent": "Создать агента",
+      "theme-light": "Светлая тема",
+      "theme-dark": "Тёмная тема",
+      "theme-system": "Как в системе",
+      "download-app": "Скачать приложение",
+      "toggle-sidebar": "Боковая панель",
+      "sign-out": "Выйти",
+      "clear-all-chats": "Очистить все чаты"
+    }
+  },
   "appName": "Volt",
   "loading": "Загрузка…",
   "cancel": "Отмена",
