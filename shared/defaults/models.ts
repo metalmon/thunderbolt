@@ -231,9 +231,6 @@ export const defaultModelNemotronNano9b: SharedModel = {
 }
 
 export const defaultModels: ReadonlyArray<SharedModel> = [
-  defaultModelOpus5,
-  defaultModelGlm53Flash,
-  defaultModelGlm53,
   defaultModelNemotron3Super,
   defaultModelNemotron3Ultra,
   defaultModelNemotronNano9b,
@@ -249,4 +246,4 @@ export const defaultModels: ReadonlyArray<SharedModel> = [
  * The paired snapshot test in `models.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultModelsVersion = 6
+export const defaultModelsVersion = 7
