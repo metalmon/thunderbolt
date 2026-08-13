@@ -69,11 +69,23 @@ The canonical list lives in `dev-local/fork-branches.ps1`.
 which breaks `WM_MOUSEWHEEL` delivery to WebView2 — mouse scroll stops working
 everywhere.
 
-**Fix:** macOS-only settings (transparent, windowEffects, titleBarStyle, hiddenTitle,
-trafficLightPosition, macOSPrivateApi) live in `tauri.macos.conf.json` instead of
-the base config. Remove them from `tauri.conf.json` on rebase if upstream adds them.
-If you add a new macOS-specific window property, add it to `tauri.macos.conf.json`,
-not the base config.
+**Fixed upstream (as of 0.1.121).** THU-774 (#1187) landed the same fix our fork
+carried: upstream created `src-tauri/tauri.macos.conf.json` and moved `transparent`,
+`windowEffects`, `titleBarStyle`, `hiddenTitle`, `trafficLightPosition` out of the
+base config into it. Since then, `transparent` lives **only** in `tauri.macos.conf.json`
+upstream — verify with `git grep transparent origin/main -- 'src-tauri/*.json'`
+(should hit only the macos config). Our fork's copy of `tauri.macos.conf.json` now
+largely duplicates upstream's (upstream's is a superset — it also carries
+title/width/height/min*/visible); on `fork/dev` rebase, prefer collapsing onto
+upstream's version rather than preserving our divergence.
+
+**Not a threat:** `macOSPrivateApi: true` in the base config (added by #1207) is a
+macOS-only no-op on Windows — it does **not** set `WS_EX_LAYERED` and does not
+reintroduce the scroll bug. Don't panic-remove it on rebase.
+
+**Rule going forward:** the one setting that must never sit in the base config is
+`transparent` (plus the other macOS chrome settings, by convention). If you add a new
+macOS-specific window property, put it in `tauri.macos.conf.json`, not the base config.
 
 ---
 
