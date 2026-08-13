@@ -6,8 +6,10 @@ import { isPiModelCandidate } from '@/acp/built-in-adapter'
 import {
   defaultModelDeepseekV4Flash,
   defaultModelGlm52,
+  defaultModelNemotron3Super,
+  defaultModelNemotron3Ultra,
+  defaultModelNemotronNano9b,
   defaultModelOpus5,
-  defaultModels,
   type SharedModel,
 } from '@shared/defaults/models'
 import type { EvalCriteria, EvalEngine, EvalScenario } from './types'
@@ -22,6 +24,11 @@ export const evalModelSlugs: Readonly<Record<string, string>> = {
   [defaultModelOpus5.id]: 'opus',
   [defaultModelDeepseekV4Flash.id]: 'flash',
   [defaultModelGlm52.id]: 'glm',
+  // Fork free-tier shipped defaults — slugged so the "every shipped default has a
+  // stable slug" guardrail holds; the eval matrix still benchmarks the references above.
+  [defaultModelNemotron3Super.id]: 'nemotron-super',
+  [defaultModelNemotron3Ultra.id]: 'nemotron-ultra',
+  [defaultModelNemotronNano9b.id]: 'nemotron-nano',
 }
 
 /** Build the eval matrix from shipped defaults, requiring a stable CLI slug for every model. */
@@ -41,7 +48,17 @@ export const deriveEvalModelMatrix = (
     }
   })
 
-export const evalModels = deriveEvalModelMatrix(defaultModels, evalModelSlugs)
+// The fork ships a free-tier catalog in `defaultModels` (see shared/defaults/models.ts),
+// but the eval harness benchmarks quality against the reference models — the ones that
+// carry the slugs, external judges, and baselines. Point it at those explicitly rather
+// than the shipped defaults, so swapping the picker catalog never breaks the eval matrix.
+const evalReferenceModels: ReadonlyArray<SharedModel> = [
+  defaultModelOpus5,
+  defaultModelDeepseekV4Flash,
+  defaultModelGlm52,
+]
+
+export const evalModels = deriveEvalModelMatrix(evalReferenceModels, evalModelSlugs)
 
 /** Default criteria applied to all Chat mode scenarios */
 const chatCriteria: EvalCriteria = {
