@@ -349,6 +349,10 @@ export type AcpAdapterDeps = {
    *  before the handshake, before each session request, and right before each
    *  prompt, since a sync can disable or delete the agent while any of them waits. */
   isAgentActive?: () => Promise<boolean>
+  /** Resolve a remote-acp agent's bearer token (local-only secret). Production
+   *  reads `agents_secrets` via the DAL; tests inject. Returns null when there
+   *  is no bearer secret. */
+  getAgentAuthToken?: (agentId: string) => Promise<string | null>
 }
 
 /** Connection-scoped context — everything needed to open ONE shared transport.
@@ -422,6 +426,11 @@ export const connectAcpAdapter = async (
   const transportFactory = deps.openTransport ?? openTransport
   const ConnectionCtor = deps.ClientSideConnection ?? ClientSideConnectionImpl
 
+  const agentAuthToken =
+    agent.type === 'remote-acp' && agent.transport === 'websocket' && deps.getAgentAuthToken
+      ? await deps.getAgentAuthToken(agent.id)
+      : null
+
   const transportController = new AbortController()
   const transport = await transportFactory({
     url: agent.url,
@@ -432,6 +441,7 @@ export const connectAcpAdapter = async (
     // Managed-ACP uses `httpClient` presence to offer its signed bearer
     // subprotocol; iroh uses the client for transparent device enrollment.
     httpClient: ctx.httpClient,
+    agentAuthToken,
   })
 
   let terminationError: Error | null = null
