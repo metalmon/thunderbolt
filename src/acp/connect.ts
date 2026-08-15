@@ -22,7 +22,7 @@
 import type { HttpClient } from '@/lib/http'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import type { Agent, AgentAdapter } from '@/types/acp'
-import { getAllSkills } from '@/dal'
+import { getAgentSecrets, getAllSkills } from '@/dal'
 import { getDb } from '@/db/database'
 import { selectEnabledSkillDefinitions } from '@/skills/skill-tool'
 import { connectAcpAdapter, type AcpAdapterDeps } from './acp-adapter'
@@ -46,6 +46,14 @@ export type ConnectToAgentDeps = BuiltInAdapterOptions & AcpAdapterDeps
 /** Read enabled skills from same DAL source used by built-in agent. */
 const getEnabledSkills = async () => selectEnabledSkillDefinitions(await getAllSkills(getDb()))
 
+/** Resolve a remote-acp agent's stored bearer token, if any. `oauth` (or no
+ *  stored secret) resolves to `null` — only an explicit `bearer` authMethod
+ *  carries a token onto the transport. */
+const resolveAgentAuthToken = async (agentId: string): Promise<string | null> => {
+  const secret = await getAgentSecrets(getDb(), agentId)
+  return secret?.authMethod === 'bearer' ? secret.apiKey : null
+}
+
 /** Build an `AgentAdapter` for the given agent. */
 export const connectToAgent = async (
   agent: Agent,
@@ -65,6 +73,7 @@ export const connectToAgent = async (
       textDeltaThrottleMs: deps.textDeltaThrottleMs,
       handshakeTimeoutMs: deps.handshakeTimeoutMs,
       getEnabledSkills: deps.getEnabledSkills ?? getEnabledSkills,
+      getAgentAuthToken: deps.getAgentAuthToken ?? resolveAgentAuthToken,
     },
   )
 }
