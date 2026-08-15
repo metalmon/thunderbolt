@@ -231,7 +231,7 @@ describe('openTransport — agent-type routing', () => {
 
     expect(FakeBrowserSocket.instances).toHaveLength(1)
     const socket = FakeBrowserSocket.instances[0]
-    expect(socket.protocols).toEqual(['zeroclaw.v1', 'bearer.zc_deadbeef'])
+    expect(socket.protocols).toEqual(['zeroclaw.acp.v1', 'bearer.zc_deadbeef'])
 
     transport.close()
   })
@@ -270,7 +270,7 @@ describe('openTransport — agent-type routing', () => {
     expect(FakeBrowserSocket.instances).toHaveLength(1)
     const socket = FakeBrowserSocket.instances[0]
     expect(socket.protocols).toContain(`thunderbolt.bearer.${encodeWsBearer('proxy-token-xyz')}`)
-    expect(socket.protocols).toContain('zeroclaw.v1')
+    expect(socket.protocols).toContain('zeroclaw.acp.v1')
     expect(socket.protocols).toContain('bearer.zc_deadbeef')
 
     transport.close()
@@ -292,7 +292,7 @@ describe('resolveWebSocketFactory — direct unit test', () => {
     factory('wss://gw/acp')
 
     expect(FakeBrowserSocket.instances).toHaveLength(1)
-    expect(FakeBrowserSocket.instances[0].protocols).toEqual(['zeroclaw.v1', 'bearer.zc_x'])
+    expect(FakeBrowserSocket.instances[0].protocols).toEqual(['zeroclaw.acp.v1', 'bearer.zc_x'])
   })
 
   it('remote-acp native standalone: resolved factory omits protocols when tokenless (regression)', () => {
