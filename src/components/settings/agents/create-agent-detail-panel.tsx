@@ -10,7 +10,7 @@ import { testAcpConnection } from '@/acp'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { DetailPanel } from '@/components/detail-panel'
 import { useAuth, useDatabase, useHttpClient } from '@/contexts'
-import { createAgent } from '@/dal'
+import { createAgent, setAgentSecrets } from '@/dal'
 import { fireAndForgetSelfEnrollment, selfEnrollIrohNodeId } from '@/lib/iroh-enrollment'
 import { createItemTitles } from '@/components/create-item/context'
 import { AddCustomAgentForm, type AddCustomAgentPayload } from './add-custom-agent-form'
@@ -35,8 +35,9 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
   const runEnroll = enrollIroh ?? (() => selfEnrollIrohNodeId(httpClient, loadAppNodeId ?? irohClientNodeId))
 
   const handleAdd = async (payload: AddCustomAgentPayload) => {
+    const id = uuidv7()
     await createAgent(db, {
-      id: uuidv7(),
+      id,
       name: payload.name,
       type: 'remote-acp',
       transport: payload.transport,
@@ -45,6 +46,9 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
       enabled: 1,
       userId: currentUserId,
     })
+    if (payload.authToken) {
+      await setAgentSecrets(db, id, { apiKey: payload.authToken, authMethod: 'bearer' })
+    }
     await queryClient.invalidateQueries({ queryKey: ['agents'] })
     if (payload.transport === 'iroh' && currentUserId) {
       fireAndForgetSelfEnrollment(runEnroll)
