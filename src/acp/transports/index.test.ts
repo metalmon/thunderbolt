@@ -24,7 +24,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { wsTargetPrefix } from '@shared/proxy-protocol'
 import { encodeWsBearer } from '@shared/ws-bearer'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
-import { openTransport } from './index'
+import { openTransport, resolveWebSocketFactory } from './index'
 import { type WebSocketEventMap } from './websocket'
 
 type Listener<K extends keyof WebSocketEventMap> = (event: WebSocketEventMap[K]) => void
@@ -216,5 +216,99 @@ describe('openTransport — agent-type routing', () => {
     expect(socket.protocols.some((p) => p.startsWith(wsTargetPrefix))).toBe(false)
 
     transport.close()
+  })
+
+  it('remote-acp native standalone passes the bearer subprotocols when a token is set', async () => {
+    const transport = await openTransport({
+      url: 'wss://gw.example/acp?agent=gost',
+      transport: 'websocket',
+      agentType: 'remote-acp',
+      signal: new AbortController().signal,
+      isStandalone: () => true,
+      readProxyEnabled: () => null, // proxy off → native
+      agentAuthToken: 'zc_deadbeef',
+    })
+
+    expect(FakeBrowserSocket.instances).toHaveLength(1)
+    const socket = FakeBrowserSocket.instances[0]
+    expect(socket.protocols).toEqual(['zeroclaw.v1', 'bearer.zc_deadbeef'])
+
+    transport.close()
+  })
+
+  it('remote-acp native standalone passes NO protocols when there is no token (regression)', async () => {
+    const transport = await openTransport({
+      url: 'wss://gw.example/acp?agent=gost',
+      transport: 'websocket',
+      agentType: 'remote-acp',
+      signal: new AbortController().signal,
+      isStandalone: () => true,
+      readProxyEnabled: () => null,
+      agentAuthToken: null,
+    })
+
+    expect(FakeBrowserSocket.instances).toHaveLength(1)
+    const socket = FakeBrowserSocket.instances[0]
+    expect(socket.protocols).toHaveLength(0)
+
+    transport.close()
+  })
+
+  it('remote-acp proxied path forwards the bearer subprotocols alongside the proxy protocols', async () => {
+    const transport = await openTransport({
+      url: 'wss://agent.example.com/acp',
+      transport: 'websocket',
+      agentType: 'remote-acp',
+      signal: new AbortController().signal,
+      isStandalone: () => false,
+      readProxyEnabled: () => null,
+      httpClient: stubHttpClient,
+      getAuthToken: () => 'proxy-token-xyz',
+      agentAuthToken: 'zc_deadbeef',
+    })
+
+    expect(FakeBrowserSocket.instances).toHaveLength(1)
+    const socket = FakeBrowserSocket.instances[0]
+    expect(socket.protocols).toContain(`thunderbolt.bearer.${encodeWsBearer('proxy-token-xyz')}`)
+    expect(socket.protocols).toContain('zeroclaw.v1')
+    expect(socket.protocols).toContain('bearer.zc_deadbeef')
+
+    transport.close()
+  })
+})
+
+describe('resolveWebSocketFactory — direct unit test', () => {
+  it('remote-acp native standalone: resolved factory constructs the WebSocket with bearer protocols', () => {
+    const factory = resolveWebSocketFactory({
+      url: 'wss://gw/acp',
+      transport: 'websocket',
+      agentType: 'remote-acp',
+      signal: new AbortController().signal,
+      isStandalone: () => true,
+      readProxyEnabled: () => null,
+      agentAuthToken: 'zc_x',
+    })
+
+    factory('wss://gw/acp')
+
+    expect(FakeBrowserSocket.instances).toHaveLength(1)
+    expect(FakeBrowserSocket.instances[0].protocols).toEqual(['zeroclaw.v1', 'bearer.zc_x'])
+  })
+
+  it('remote-acp native standalone: resolved factory omits protocols when tokenless (regression)', () => {
+    const factory = resolveWebSocketFactory({
+      url: 'wss://gw/acp',
+      transport: 'websocket',
+      agentType: 'remote-acp',
+      signal: new AbortController().signal,
+      isStandalone: () => true,
+      readProxyEnabled: () => null,
+      agentAuthToken: null,
+    })
+
+    factory('wss://gw/acp')
+
+    expect(FakeBrowserSocket.instances).toHaveLength(1)
+    expect(FakeBrowserSocket.instances[0].protocols).toHaveLength(0)
   })
 })
