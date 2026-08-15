@@ -15,6 +15,7 @@ import { testAcpConnection as defaultTestAcpConnection } from '@/acp'
 import { iconForAgent } from '@/components/agent-icon'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { IconTile } from '@/components/settings/icon-tile'
+import { AgentTokenField } from '@/components/settings/agents/agent-token-field'
 import { EditableField, FieldLabel } from '@/components/settings/agents/editable-field'
 import { inferTransport, validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import {
@@ -31,7 +32,7 @@ import { DetailActionsMenu } from '@/components/settings/detail-actions-menu'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
 import { useDatabase } from '@/contexts'
-import { getAllMcpServers } from '@/dal'
+import { getAgentSecrets, getAllMcpServers } from '@/dal'
 import type { UpdateAgentPatch } from '@/dal/agents'
 import { cn } from '@/lib/utils'
 import { useLibrarySkills } from '@/skills/use-skills'
@@ -270,6 +271,7 @@ const CustomBody = ({
   testAcpConnection: NonNullable<AgentDetailProps['testAcpConnection']>
 }) => {
   const { t } = useTranslation('settings')
+  const db = useDatabase()
   const [testResult, setTestResult] = useState<TestState>('idle')
   const [enabledError, setEnabledError] = useState<string | null>(null)
   const isWebSocket = agent.transport === 'websocket'
@@ -290,7 +292,9 @@ const CustomBody = ({
       return
     }
     setTestResult('testing')
-    const probe = await testAcpConnection({ url: agent.url })
+    const secret = await getAgentSecrets(db, agent.id)
+    const authToken = secret?.authMethod === 'bearer' ? secret.apiKey : null
+    const probe = await testAcpConnection({ url: agent.url, authToken })
     const testedAt = new Date().toISOString()
     setTestResult(
       probe.success ? { isReachable: true, testedAt } : { isReachable: false, testedAt, error: probe.error },
@@ -332,6 +336,7 @@ const CustomBody = ({
           }}
           inputProps={{ autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false }}
         />
+        {isEditable && isWebSocket && <AgentTokenField agentId={agent.id} />}
         <EditableField
           id="agent-detail-description"
           label={t('agentDetail.description')}

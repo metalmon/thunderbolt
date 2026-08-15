@@ -28,6 +28,7 @@
  */
 
 import type { AnyMessage } from '@agentclientprotocol/sdk'
+import { buildAgentSubprotocols } from '@/fork/agent-bearer/subprotocols'
 import { getAuthToken } from '@/lib/auth-token'
 import type { HttpClient } from '@/lib/http'
 import { isTauri } from '@/lib/platform'
@@ -57,6 +58,9 @@ export type OpenTransportInputs = {
   httpClient?: HttpClient
   /** Test seam — production omits and the factory reads `getAuthToken()`. */
   getAuthToken?: () => string | null
+  /** User-configured bearer token for a remote-acp agent (zeroclaw). Carried as
+   *  a `bearer.<token>` subprotocol. Absent → current tokenless construction. */
+  agentAuthToken?: string | null
 }
 
 const cloudWsUrl = (): string => useLocalSettingsStore.getState().cloudUrl
@@ -105,19 +109,20 @@ export const openTransport = async (inputs: OpenTransportInputs): Promise<AcpTra
  *  When the proxied path is selected, `createProxyWebSocket` returns a sync
  *  factory that builds the `Sec-WebSocket-Protocol` list (carrier + bearer +
  *  target) synchronously from the in-memory bearer token. */
-const resolveWebSocketFactory = (inputs: OpenTransportInputs): WebSocketFactory => {
+export const resolveWebSocketFactory = (inputs: OpenTransportInputs): WebSocketFactory => {
   if (inputs.agentType === 'managed-acp') {
     return resolveManagedAcpFactory(inputs)
   }
+  const agentProtocols = buildAgentSubprotocols(inputs.agentAuthToken)
   if (isStandaloneTransport(inputs.isStandalone, inputs.readProxyEnabled)) {
-    return nativeWebSocketFactory
+    return (url) => new WebSocket(url, agentProtocols) as unknown as WebSocketLike
   }
   const proxyWs = createProxyWebSocket({
     cloudUrl: cloudWsUrl(),
     isStandalone: inputs.isStandalone,
     getAuthToken: inputs.getAuthToken,
   })
-  return (url) => proxyWs(url) as unknown as WebSocketLike
+  return (url) => proxyWs(url, agentProtocols) as unknown as WebSocketLike
 }
 
 const nativeWebSocketFactory: WebSocketFactory = (url) => new WebSocket(url) as unknown as WebSocketLike

@@ -23,12 +23,16 @@ export type AddCustomAgentPayload = {
   url: string
   description: string | null
   transport: CustomAgentTransport
+  authToken: string | null
 }
 
 /** Async probe signature the form uses to test a remote agent endpoint.
- *  Production wires the real `testAcpConnection`; tests inject a stub. */
+ *  Production wires the real `testAcpConnection`; tests inject a stub.
+ *  `authToken` is optional so `agent-detail.tsx`'s tokenless probe call stays
+ *  valid. */
 export type TestAcpConnectionFn = (opts: {
   url: string
+  authToken?: string | null
 }) => Promise<{ success: true } | { success: false; error: string }>
 
 type AddCustomAgentFormProps = {
@@ -48,6 +52,7 @@ type AgentFormState = {
   name: string
   url: string
   description: string
+  authToken: string
   submitting: boolean
   /** Save failed after the connection gate — shown next to the buttons. */
   submitError: string | null
@@ -61,6 +66,7 @@ type AgentFormAction =
   | { type: 'NAME_CHANGED'; value: string }
   | { type: 'URL_CHANGED'; value: string }
   | { type: 'DESCRIPTION_CHANGED'; value: string }
+  | { type: 'TOKEN_CHANGED'; value: string }
   | { type: 'SUBMIT_STARTED' }
   | { type: 'SUBMIT_FAILED'; message: string }
   | { type: 'CONNECTION_TEST_STARTED' }
@@ -71,6 +77,7 @@ const emptyState: AgentFormState = {
   name: '',
   url: '',
   description: '',
+  authToken: '',
   submitting: false,
   submitError: null,
   isTestingConnection: false,
@@ -88,6 +95,8 @@ const agentFormReducer = (state: AgentFormState, action: AgentFormAction): Agent
       return { ...state, url: action.value, connectionStatus: 'idle', connectionError: null }
     case 'DESCRIPTION_CHANGED':
       return { ...state, description: action.value }
+    case 'TOKEN_CHANGED':
+      return { ...state, authToken: action.value }
     case 'SUBMIT_STARTED':
       return { ...state, submitting: true, submitError: null }
     case 'SUBMIT_FAILED':
@@ -118,6 +127,7 @@ export const AddCustomAgentForm = ({
   const trimmedName = state.name.trim()
   const trimmedUrl = state.url.trim()
   const trimmedDescription = state.description.trim()
+  const trimmedToken = state.authToken.trim()
   const validation = validateAgentUrl(trimmedUrl, isIos)
   // Surface an invalid-target error at render time (once the field is non-empty)
   // so the user sees why submit stays gated.
@@ -141,7 +151,7 @@ export const AddCustomAgentForm = ({
 
   const handleTestConnection = async () => {
     dispatch({ type: 'CONNECTION_TEST_STARTED' })
-    const result = await testAcpConnection({ url: trimmedUrl })
+    const result = await testAcpConnection({ url: trimmedUrl, authToken: trimmedToken.length > 0 ? trimmedToken : null })
     if (result.success) {
       dispatch({ type: 'CONNECTION_TEST_SUCCEEDED' })
       return
@@ -163,6 +173,10 @@ export const AddCustomAgentForm = ({
         url: trimmedUrl,
         description: trimmedDescription.length > 0 ? trimmedDescription : null,
         transport: validation.transport,
+        // An iroh target never delivers a bearer token (connect gates on the
+        // websocket-only ACP handshake) — never persist a stale one typed
+        // before the URL was switched to an iroh ticket.
+        authToken: !isIroh && trimmedToken.length > 0 ? trimmedToken : null,
       })
     } catch (error) {
       // Keep the form intact so the user can retry — and say why nothing happened.
@@ -206,6 +220,23 @@ export const AddCustomAgentForm = ({
           />
           <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.urlHelper')}</p>
         </div>
+        {!isIroh && (
+          <div className="grid grid-cols-1 gap-2">
+            <Label htmlFor="agent-token">{t('agents.authToken')}</Label>
+            <Input
+              id="agent-token"
+              type="password"
+              placeholder={t('agents.authTokenPlaceholder')}
+              value={state.authToken}
+              onChange={(e) => dispatch({ type: 'TOKEN_CHANGED', value: e.target.value })}
+              autoComplete="off"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.authTokenHelper')}</p>
+          </div>
+        )}
         {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
         <div className="grid grid-cols-1 gap-2">
           <Label htmlFor="agent-description">{t('agents.description')}</Label>
