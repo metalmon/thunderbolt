@@ -192,7 +192,7 @@ describe('testAcpConnection', () => {
       }
     }
 
-    expect(seenArgs).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.v1', 'bearer.zc_abc'] }])
+    expect(seenArgs).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.acp.v1', 'bearer.zc_abc'] }])
   })
 
   it('passes no webSocketFactory when authToken is absent (tokenless path unchanged)', async () => {
