@@ -7,15 +7,19 @@
  * user-configured agent bearer token to a zeroclaw gateway.
  *
  * zeroclaw's `extract_ws_token` reads `bearer.<token>` (bare `bearer.` prefix,
- * plain `strip_prefix`, no decode). We also offer `zeroclaw.v1` so the server
- * can echo a selected subprotocol (RFC 6455). This is deliberately distinct
- * from `thunderbolt.bearer.` (Thunderbolt cloud auth) — do not unify them.
+ * plain `strip_prefix`, no decode). We also offer the ACP endpoint's carrier
+ * subprotocol (`zeroclaw.acp.v1`, echoed by the `/acp` handler in zeroclaw's
+ * `acp.rs`) so the server selects and echoes one entry — RFC 6455 clients
+ * (WebView2) reject a handshake that offered subprotocols but got none back.
+ * This is deliberately distinct from `thunderbolt.bearer.` (Thunderbolt cloud
+ * auth) — do not unify them.
  */
 
 import type { WebSocketLike } from '@/acp/transports/websocket'
 
-/** Carrier offered alongside the bearer so zeroclaw can echo a subprotocol. */
-export const zeroclawCarrierSubprotocol = 'zeroclaw.v1'
+/** Carrier the zeroclaw `/acp` endpoint echoes (`ACP_WS_PROTOCOL` in acp.rs),
+ *  offered alongside the bearer so the upgrade returns a selected subprotocol. */
+export const zeroclawCarrierSubprotocol = 'zeroclaw.acp.v1'
 
 /** zeroclaw bearer subprotocol prefix. Bare `bearer.`, NOT `thunderbolt.bearer.`. */
 export const agentBearerSubprotocolPrefix = 'bearer.'
