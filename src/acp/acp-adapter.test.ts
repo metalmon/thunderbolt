@@ -36,7 +36,7 @@ import type {
   ResumeSessionRequest,
   SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it, mock } from 'bun:test'
 import { getClock } from '@/testing-library'
 import type { Agent, AgentAdapterContext } from '@/types/acp'
 import { buildWireSkillsMeta, skillsCapabilityMeta, type SkillDefinition } from '@shared/agent-core/skills'
@@ -1176,5 +1176,78 @@ describe('connectAcpAdapter — Stop cancels the remote ACP turn', () => {
     expect(secondStarted).toBe(true)
     expect(calls.prompt).toHaveLength(2)
     expect(calls.cancel).toHaveLength(1)
+  })
+})
+
+describe('connectAcpAdapter — remote-acp bearer token', () => {
+  it('forwards the token from getAgentAuthToken to openTransport', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection } = buildFakeConnection()
+    let seenToken: string | null | undefined = 'UNSET'
+
+    await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async (inputs) => {
+        seenToken = inputs.agentAuthToken
+        return transport
+      },
+      ClientSideConnection: FakeConnection as never,
+      getAgentAuthToken: async () => 'zc_secret',
+    })
+
+    expect(seenToken).toBe('zc_secret')
+  })
+
+  it('passes null when no bearer secret is resolved', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection } = buildFakeConnection()
+    let seenToken: string | null | undefined = 'UNSET'
+
+    await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async (inputs) => {
+        seenToken = inputs.agentAuthToken
+        return transport
+      },
+      ClientSideConnection: FakeConnection as never,
+      getAgentAuthToken: async () => null,
+    })
+
+    expect(seenToken).toBeNull()
+  })
+
+  it('passes null when no getAgentAuthToken dep is wired', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection } = buildFakeConnection()
+    let seenToken: string | null | undefined = 'UNSET'
+
+    await connectAcpAdapter(remoteAgent, baseCtx(), {
+      openTransport: async (inputs) => {
+        seenToken = inputs.agentAuthToken
+        return transport
+      },
+      ClientSideConnection: FakeConnection as never,
+    })
+
+    expect(seenToken).toBeNull()
+  })
+
+  it('does not resolve or forward a token for an iroh transport — there is no ws subprotocol channel to deliver it on', async () => {
+    const { transport } = buildFakeTransport()
+    const { FakeConnection } = buildFakeConnection()
+    let seenToken: string | null | undefined = 'UNSET'
+    const getAgentAuthToken = mock(async () => 'zc_secret')
+
+    const irohAgent: Agent = { ...remoteAgent, transport: 'iroh', url: 'a'.repeat(52) }
+
+    await connectAcpAdapter(irohAgent, baseCtx(), {
+      openTransport: async (inputs) => {
+        seenToken = inputs.agentAuthToken
+        return transport
+      },
+      ClientSideConnection: FakeConnection as never,
+      getAgentAuthToken,
+    })
+
+    expect(getAgentAuthToken).not.toHaveBeenCalled()
+    expect(seenToken).toBeNull()
   })
 })
