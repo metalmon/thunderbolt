@@ -65,9 +65,45 @@ describe('AddCustomAgentForm', () => {
       url: 'wss://example.com/ws',
       description: 'Demo',
       transport: 'websocket',
+      authToken: null,
     })
     // Closes the panel on success.
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('includes the entered access token in the submit payload', async () => {
+    const onSubmit = mock(async (_: AddCustomAgentPayload) => {})
+    const onClose = mock(() => {})
+    render(
+      <AddCustomAgentForm onClose={onClose} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
+    )
+
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'GOST' } })
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp?agent=gost' } })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
+    })
+
+    fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_abc' } })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /add agent/i }))
+    })
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ authToken: 'zc_abc' }))
+  })
+
+  it('shows the access token field for a websocket target', () => {
+    const onSubmit = mock(async () => {})
+    const onClose = mock(() => {})
+    render(
+      <AddCustomAgentForm onClose={onClose} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
+    )
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+
+    expect(screen.getByLabelText(/access token/i)).toBeInTheDocument()
   })
 
   it('keeps the dialog open with submit re-enabled when onSubmit rejects', async () => {
@@ -179,8 +215,22 @@ describe('AddCustomAgentForm — connection status', () => {
       fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
     })
 
-    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws' })
+    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws', authToken: null })
     expect(screen.getByText(/connection successful/i)).toBeInTheDocument()
+  })
+
+  it('passes the entered access token to the connection probe', async () => {
+    const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
+    renderWithProbe(probe)
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_abc' } })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
+    })
+
+    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws', authToken: 'zc_abc' })
   })
 
   it('renders the error StatusCard with the probe error message on failure', async () => {
@@ -276,6 +326,16 @@ describe('AddCustomAgentForm — iroh', () => {
     expect(submit).not.toBeDisabled()
   })
 
+  it('hides the access token field for an iroh target — there is no ws subprotocol channel to deliver it on', async () => {
+    renderIroh()
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/url/i), { target: { value: irohTarget } })
+    })
+
+    expect(screen.queryByLabelText(/access token/i)).not.toBeInTheDocument()
+  })
+
   it('shows this app NodeId as an allow command with a copy button', async () => {
     renderIroh()
 
@@ -344,6 +404,28 @@ describe('AddCustomAgentForm — iroh', () => {
     expect(calls).toBe(2)
   })
 
+  it('does not persist a token typed before the URL was switched to an iroh target', async () => {
+    const { onSubmit } = renderIroh()
+
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Laptop Bridge' } })
+    // Start on a websocket URL — the token field is visible — and type a token.
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_stale' } })
+
+    // Switching the target to iroh hides the field, but the typed value stays
+    // in form state — the submit payload must not carry it through.
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/url/i), { target: { value: irohTarget } })
+    })
+    expect(screen.queryByLabelText(/access token/i)).not.toBeInTheDocument()
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /add agent/i }))
+    })
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ transport: 'iroh', authToken: null }))
+  })
+
   it('submits with transport: iroh and the target stored as url', async () => {
     const { onSubmit, onClose } = renderIroh()
 
@@ -362,6 +444,7 @@ describe('AddCustomAgentForm — iroh', () => {
       url: irohTarget,
       description: null,
       transport: 'iroh',
+      authToken: null,
     })
     expect(onClose).toHaveBeenCalledTimes(1)
   })
