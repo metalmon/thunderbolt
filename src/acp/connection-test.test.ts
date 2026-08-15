@@ -154,6 +154,61 @@ describe('testAcpConnection', () => {
     expect(result).toEqual({ success: false, error: 'Could not reach agent' })
   })
 
+  it('attaches the bearer subprotocols to the WebSocket when authToken is set', async () => {
+    const { openTransport, FakeConnection } = buildFakeDeps({})
+
+    const seenArgs: { url: string; protocols: string | string[] | undefined }[] = []
+    class CapturingWebSocket {
+      constructor(url: string, protocols?: string | string[]) {
+        seenArgs.push({ url, protocols })
+      }
+    }
+    const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'WebSocket')
+    Object.defineProperty(globalThis, 'WebSocket', {
+      value: CapturingWebSocket,
+      writable: true,
+      configurable: true,
+    })
+
+    try {
+      await testAcpConnection({
+        url: 'wss://example.test/ws',
+        authToken: 'zc_abc',
+        openTransport: openTransport as never,
+        ClientSideConnection: FakeConnection as never,
+      })
+
+      expect(openTransport).toHaveBeenCalledTimes(1)
+      const passedOptions = openTransport.mock.calls[0] as unknown as [{ webSocketFactory?: (url: string) => unknown }]
+      const webSocketFactory = passedOptions[0].webSocketFactory
+      expect(webSocketFactory).toBeDefined()
+      // Invoke the captured factory *while the stub is still installed* — the
+      // real probe never calls it itself (that's `openWebSocketTransport`'s
+      // job, mocked away here), so we exercise it directly.
+      webSocketFactory?.('wss://example.test/ws')
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(globalThis, 'WebSocket', originalDescriptor)
+      }
+    }
+
+    expect(seenArgs).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.v1', 'bearer.zc_abc'] }])
+  })
+
+  it('passes no webSocketFactory when authToken is absent (tokenless path unchanged)', async () => {
+    const { openTransport, FakeConnection } = buildFakeDeps({})
+
+    await testAcpConnection({
+      url: 'wss://example.test/ws',
+      openTransport: openTransport as never,
+      ClientSideConnection: FakeConnection as never,
+    })
+
+    expect(openTransport).toHaveBeenCalledTimes(1)
+    const passedOptions = openTransport.mock.calls[0] as unknown as [{ webSocketFactory?: unknown }]
+    expect(passedOptions[0].webSocketFactory).toBeUndefined()
+  })
+
   it('returns a timeout error when initialize never resolves', async () => {
     const { close, openTransport, FakeConnection } = buildFakeDeps({
       initialize: () => new Promise<InitializeResponse>(() => {}),

@@ -18,6 +18,7 @@
 import type { Agent as AcpSdkAgent, ClientSideConnection, Client } from '@agentclientprotocol/sdk'
 import { ClientSideConnection as ClientSideConnectionImpl } from '@agentclientprotocol/sdk'
 import type { AgentCapabilities } from '@/types/acp'
+import { buildAgentWebSocketFactory } from '@/fork/agent-bearer/subprotocols'
 import { adaptCapabilities } from './acp-adapter'
 import { openWebSocketTransport, type WebSocketFactory } from './transports/websocket'
 import type { AcpTransport } from './types'
@@ -46,6 +47,11 @@ export type TestAcpConnectionOptions = {
   url: string
   /** Caller-owned signal — aborting tears the probe's transport down. */
   signal?: AbortSignal
+  /** Fork: a user-configured bearer token for a custom `remote-acp` (zeroclaw)
+   *  agent. When present (and no explicit `webSocketFactory` override), the
+   *  probe attaches it via the same `bearer.<token>` subprotocol the real
+   *  session uses, so a pairing-required agent doesn't 401 the test. */
+  authToken?: string | null
   /** Test seam — production omits and the factory builds a native WebSocket. */
   webSocketFactory?: WebSocketFactory
   /** Override the handshake timeout. Defaults to 10s, matching the model flow. */
@@ -92,7 +98,7 @@ export const testAcpConnection = async (opts: TestAcpConnectionOptions): Promise
     transport = await openTransport({
       url: opts.url,
       signal,
-      webSocketFactory: opts.webSocketFactory,
+      webSocketFactory: opts.webSocketFactory ?? buildAgentWebSocketFactory(opts.authToken),
     })
 
     const connection = new ConnectionCtor(() => probeClient, transport.stream)

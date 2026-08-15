@@ -219,6 +219,7 @@ export const deleteAgent = async (db: AnyDrizzleDatabase, id: string): Promise<v
     .set({ deletedAt: nowIso() })
     .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt)))
 
+  await setAgentSecrets(db, id, { apiKey: null, authMethod: null })
   await disposeAdapter(id)
 }
 
@@ -231,6 +232,12 @@ export const getAgentSecrets = async (db: AnyDrizzleDatabase, id: string): Promi
   }
   return { apiKey: row.apiKey, authMethod: row.authMethod }
 }
+
+/** Reactive query for an agent's local-only secrets row. Drive with `useQuery` +
+ *  `toCompilableQuery` (same idiom as `getAllAgents`) to observe whether a
+ *  bearer token is set without ever reading its value into component state. */
+export const getAgentSecretsQuery = (db: AnyDrizzleDatabase, id: string) =>
+  db.select().from(agentsSecretsTable).where(eq(agentsSecretsTable.agentId, id))
 
 /** Upsert credentials for an agent.
  *
@@ -264,4 +271,16 @@ export const setAgentSecrets = async (
     apiKey: secrets.apiKey ?? null,
     authMethod: secrets.authMethod ?? null,
   })
+}
+
+/** Set (or clear, when `token` is null) a custom agent's bearer token in the
+ *  local-only secrets table, then dispose the warm ACP connection so the next
+ *  chat reconnects with the new credential. */
+export const setAgentBearerToken = async (
+  db: AnyDrizzleDatabase,
+  id: string,
+  token: string | null,
+): Promise<void> => {
+  await setAgentSecrets(db, id, token ? { apiKey: token, authMethod: 'bearer' } : { apiKey: null, authMethod: null })
+  await disposeAdapter(id)
 }

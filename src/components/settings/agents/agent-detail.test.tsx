@@ -4,8 +4,12 @@
 
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, afterEach, beforeAll, describe, expect, it, mock } from 'bun:test'
 
+import { setAgentBearerToken } from '@/dal'
+import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
+import { getDb } from '@/db/database'
+import { createTestProvider } from '@/test-utils/test-provider'
 import { waitForElement } from '@/test-utils/powersync-reactivity-test'
 import { getClock } from '@/testing-library'
 
@@ -35,10 +39,21 @@ const noopHandlers = {
 }
 
 const renderDetail = (agent: Agent, overrides: Partial<Parameters<typeof AgentDetail>[0]> = {}) =>
-  render(<AgentDetail agent={agent} currentUserId="user-1" {...noopHandlers} {...overrides} />)
+  render(<AgentDetail agent={agent} currentUserId="user-1" {...noopHandlers} {...overrides} />, {
+    wrapper: createTestProvider(),
+  })
 
-afterEach(() => {
+beforeAll(async () => {
+  await setupTestDatabase()
+})
+
+afterAll(async () => {
+  await teardownTestDatabase()
+})
+
+afterEach(async () => {
   cleanup()
+  await resetTestDatabase()
 })
 
 describe('AgentDetail — system agents', () => {
@@ -165,8 +180,20 @@ describe('AgentDetail — connection test', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Test connection' }))
     })
 
-    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws' })
+    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws', authToken: null })
     expect(screen.getByText(/^Reachable/)).toBeInTheDocument()
+  })
+
+  it('probes with the stored bearer token', async () => {
+    await setAgentBearerToken(getDb(), 'agent-1', 'stored-token')
+    const probe = mock(async () => ({ success: true as const, capabilities: {} }))
+    renderDetail(customAgent(), { testAcpConnection: probe })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Test connection' }))
+    })
+
+    expect(probe).toHaveBeenCalledWith({ url: 'wss://example.com/ws', authToken: 'stored-token' })
   })
 
   it('reports an unreachable endpoint with the probe error', async () => {
@@ -186,5 +213,31 @@ describe('AgentDetail — connection test', () => {
 
     expect(screen.queryByRole('button', { name: 'Test connection' })).not.toBeInTheDocument()
     expect(screen.getByText(/peer-to-peer via iroh/i)).toBeInTheDocument()
+  })
+})
+
+describe('AgentDetail — bearer token field', () => {
+  it('renders the token field for an editable websocket agent', () => {
+    renderDetail(customAgent())
+
+    expect(screen.getByLabelText('Access token')).toBeInTheDocument()
+  })
+
+  it('is absent for an iroh agent', () => {
+    renderDetail(customAgent({ transport: 'iroh', url: 'a'.repeat(52) }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
+  })
+
+  it('is absent for a non-editable (other-user) agent', () => {
+    renderDetail(customAgent({ userId: 'someone-else' }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
+  })
+
+  it('is absent for a system agent', () => {
+    renderDetail(customAgent({ isSystem: 1, userId: null }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
   })
 })
