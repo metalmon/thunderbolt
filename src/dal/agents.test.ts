@@ -18,6 +18,7 @@ import {
   deleteAgent,
   getAgentSecrets,
   loadAllAgents,
+  setAgentBearerToken,
   setAgentSecrets,
   updateAgent,
 } from './agents'
@@ -274,6 +275,23 @@ describe('agents DAL', () => {
 
       expect(cached.disconnectCount()).toBe(1)
     })
+
+    it('clears the local secret when the agent is deleted', async () => {
+      const db = getDb()
+      await createAgent(db, {
+        id: 'del-1',
+        name: 'X',
+        type: 'remote-acp',
+        transport: 'websocket',
+        url: 'wss://g/a',
+        userId: 'u1',
+      })
+      await setAgentSecrets(db, 'del-1', { apiKey: 'zc_x', authMethod: 'bearer' })
+
+      await deleteAgent(db, 'del-1')
+
+      expect(await getAgentSecrets(db, 'del-1')).toEqual({ apiKey: null, authMethod: null })
+    })
   })
 
   describe('loadAllAgents', () => {
@@ -406,6 +424,47 @@ describe('agents DAL', () => {
       await setAgentSecrets(getDb(), 'new-agent', { authMethod: 'oauth' })
       const result = await getAgentSecrets(getDb(), 'new-agent')
       expect(result).toEqual({ apiKey: null, authMethod: 'oauth' })
+    })
+  })
+
+  describe('setAgentBearerToken', () => {
+    it('sets a bearer token in secrets and disposes the warm connection', async () => {
+      const db = getDb()
+      await createAgent(db, {
+        id: 'bearer-1',
+        name: 'Bearer Agent',
+        type: 'remote-acp',
+        transport: 'websocket',
+        url: 'wss://example/ws',
+        userId: 'u1',
+      })
+      const cached = await seedCachedAdapter('bearer-1')
+
+      await setAgentBearerToken(db, 'bearer-1', 'zc_abc123')
+
+      const secrets = await getAgentSecrets(db, 'bearer-1')
+      expect(secrets).toEqual({ apiKey: 'zc_abc123', authMethod: 'bearer' })
+      expect(cached.disconnectCount()).toBe(1)
+    })
+
+    it('clears a bearer token by setting both apiKey and authMethod to null', async () => {
+      const db = getDb()
+      await createAgent(db, {
+        id: 'bearer-clear',
+        name: 'Clear Bearer',
+        type: 'remote-acp',
+        transport: 'websocket',
+        url: 'wss://example/ws',
+        userId: 'u1',
+      })
+      await setAgentSecrets(db, 'bearer-clear', { apiKey: 'zc_old', authMethod: 'bearer' })
+      const cached = await seedCachedAdapter('bearer-clear')
+
+      await setAgentBearerToken(db, 'bearer-clear', null)
+
+      const secrets = await getAgentSecrets(db, 'bearer-clear')
+      expect(secrets).toEqual({ apiKey: null, authMethod: null })
+      expect(cached.disconnectCount()).toBe(1)
     })
   })
 
