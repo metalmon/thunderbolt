@@ -7,7 +7,7 @@ import { buildAgentSubprotocols, buildAgentWebSocketFactory } from './subprotoco
 
 describe('buildAgentSubprotocols', () => {
   it('returns carrier + bearer entry for a token', () => {
-    expect(buildAgentSubprotocols('zc_abc123')).toEqual(['zeroclaw.v1', 'bearer.zc_abc123'])
+    expect(buildAgentSubprotocols('zc_abc123')).toEqual(['zeroclaw.acp.v1', 'bearer.zc_abc123'])
   })
 
   it('returns undefined for null / undefined / empty', () => {
@@ -19,7 +19,7 @@ describe('buildAgentSubprotocols', () => {
 
   it('sends the token verbatim (no encoding)', () => {
     const t = 'zc_0123456789abcdef'
-    expect(buildAgentSubprotocols(t)).toEqual(['zeroclaw.v1', `bearer.${t}`])
+    expect(buildAgentSubprotocols(t)).toEqual(['zeroclaw.acp.v1', `bearer.${t}`])
   })
 })
 
@@ -54,7 +54,7 @@ describe('buildAgentWebSocketFactory', () => {
       factory?.('wss://example.test/ws')
     })
 
-    expect(seen).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.v1', 'bearer.zc_abc123'] }])
+    expect(seen).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.acp.v1', 'bearer.zc_abc123'] }])
   })
 
   it('returns undefined for null / undefined / empty — callers fall back to their own default', () => {
