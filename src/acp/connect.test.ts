@@ -272,7 +272,12 @@ describe('connectToAgent — remote-acp dispatch', () => {
     const adapter = await connectToAgent(
       remoteAgent,
       { httpClient, getProxyFetch },
-      { openTransport, ClientSideConnection: FakeConnection as never, getEnabledSkills: async () => [] },
+      {
+        openTransport,
+        ClientSideConnection: FakeConnection as never,
+        getEnabledSkills: async () => [],
+        getAgentAuthToken: async () => null,
+      },
     )
 
     // initialize runs at connect; session resolution is now lazy/per-thread.
@@ -295,7 +300,12 @@ describe('connectToAgent — remote-acp dispatch', () => {
     const adapter = await connectToAgent(
       remoteAgent,
       { httpClient, getProxyFetch },
-      { openTransport, ClientSideConnection: FakeConnection as never, getEnabledSkills: async () => [] },
+      {
+        openTransport,
+        ClientSideConnection: FakeConnection as never,
+        getEnabledSkills: async () => [],
+        getAgentAuthToken: async () => null,
+      },
     )
 
     await adapter.fetch(promptInit('hi'), baseAdapterContext({ acpSessionId: 'existing-sess' }))
@@ -314,7 +324,12 @@ describe('connectToAgent — remote-acp dispatch', () => {
     const adapter = await connectToAgent(
       remoteAgent,
       { httpClient, getProxyFetch },
-      { openTransport, ClientSideConnection: FakeConnection as never, getEnabledSkills: async () => [] },
+      {
+        openTransport,
+        ClientSideConnection: FakeConnection as never,
+        getEnabledSkills: async () => [],
+        getAgentAuthToken: async () => null,
+      },
     )
     expect(adapter.capabilities).toMatchObject({ resume: true })
 
@@ -338,7 +353,12 @@ describe('connectToAgent — remote-acp dispatch', () => {
     const adapter = await connectToAgent(
       remoteAgent,
       { httpClient, getProxyFetch },
-      { openTransport, ClientSideConnection: FakeConnection as never, getEnabledSkills: async () => [] },
+      {
+        openTransport,
+        ClientSideConnection: FakeConnection as never,
+        getEnabledSkills: async () => [],
+        getAgentAuthToken: async () => null,
+      },
     )
 
     await adapter.fetch(promptInit('hi'), baseAdapterContext({ acpSessionId: 'old-stale', onAcpSessionId }))
@@ -354,7 +374,12 @@ describe('connectToAgent — remote-acp dispatch', () => {
     const adapter = await connectToAgent(
       remoteAgent,
       { httpClient, getProxyFetch },
-      { openTransport, ClientSideConnection: FakeConnection as never, getEnabledSkills: async () => [] },
+      {
+        openTransport,
+        ClientSideConnection: FakeConnection as never,
+        getEnabledSkills: async () => [],
+        getAgentAuthToken: async () => null,
+      },
     )
 
     const init: RequestInit = {
