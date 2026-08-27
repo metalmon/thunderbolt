@@ -39,7 +39,7 @@ const noopHandlers = {
 }
 
 const renderDetail = (agent: Agent, overrides: Partial<Parameters<typeof AgentDetail>[0]> = {}) =>
-  render(<AgentDetail agent={agent} currentUserId="user-1" {...noopHandlers} {...overrides} />, {
+  render(<AgentDetail agent={agent} currentUserId="user-1" isAnonymous={false} {...noopHandlers} {...overrides} />, {
     wrapper: createTestProvider(),
   })
 
@@ -76,6 +76,15 @@ describe('AgentDetail — custom agents', () => {
     expect(screen.queryByLabelText('Name')).not.toBeInTheDocument()
     // Values still render as plain text.
     expect(screen.getByText('wss://example.com/ws')).toBeInTheDocument()
+  })
+
+  // Fork: anonymous accounts are local-only and churn user.id, so an agent whose
+  // stored owner id no longer matches is still this device's own — manageable.
+  it('is manageable under an anonymous account despite an owner-id mismatch', () => {
+    renderDetail(customAgent({ userId: 'a-churned-anon-id' }), { isAnonymous: true })
+
+    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
   })
 
   it('saves a renamed agent through onUpdate', async () => {
