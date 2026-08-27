@@ -45,6 +45,10 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
   const authClient = useAuth()
   const { data: session } = authClient.useSession()
   const currentUserId = session?.user?.id ?? null
+  // Fork: anonymous accounts are local-only (backend rejects their sync) and churn
+  // user.id, so custom-agent ownership by id is meaningless — the detail panel
+  // relaxes its management gate for them. See `@/fork/agents/manage-anonymous-agent`.
+  const isAnonymous = session?.user?.isAnonymous ?? false
   const allowCustomAgents = useConfigStore((state) => selectAllowCustomAgents(state.config))
 
   // The add form, the CLI install card, and the agent rows all share the one
@@ -92,6 +96,7 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
           key={activeAgent.id}
           agent={activeAgent}
           currentUserId={currentUserId}
+          isAnonymous={isAnonymous}
           onClose={closePanel}
           onRemoved={closePanel}
           onUpdate={async (patch) => {
