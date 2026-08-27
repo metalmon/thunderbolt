@@ -6,6 +6,7 @@ import '@testing-library/jest-dom'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock } from 'bun:test'
 import type { Project } from '@/types'
+import i18n from '@/i18n/i18n'
 import { ProjectDetailPanel, deleteProjectPrompt } from './project-detail-panel'
 
 afterEach(cleanup)
@@ -113,12 +114,14 @@ describe('starting a chat from the panel', () => {
 })
 
 describe('deleteProjectPrompt', () => {
+  const t = i18n.getFixedT('en', 'projects')
+
   it('tells the user their chats survive', () => {
     // The one non-obvious consequence: chats are orphaned, not removed.
-    expect(deleteProjectPrompt.description).toContain('Chats in the project are kept')
+    expect(deleteProjectPrompt(t).description).toContain('Chats in the project are kept')
   })
 
   it('names the action on its confirm button', () => {
-    expect(deleteProjectPrompt.confirmLabel).toBe('Delete project')
+    expect(deleteProjectPrompt(t).confirmLabel).toBe('Delete project')
   })
 })

@@ -29,7 +29,14 @@
   "upgradeRequired": {
     "title": "Update required",
     "description": "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing.",
-    "versions": "Installed: {{currentVersion}} · Minimum required: {{minVersion}}"
+    "versions": "Installed: {{currentVersion}} · Minimum required: {{minVersion}}",
+    "checkForUpdates": "Check for updates",
+    "checking": "Checking…",
+    "downloadUpdate": "Download update",
+    "downloading": "Downloading…",
+    "restartToUpdate": "Restart to update",
+    "retry": "Retry",
+    "reload": "Reload"
   },
   "storageUnavailable": {
     "title": "Storage is disabled",

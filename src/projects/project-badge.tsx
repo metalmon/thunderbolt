@@ -12,6 +12,7 @@
  * or its emoji changes.
  */
 
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { useChatStore } from '@/chats/chat-store'
@@ -36,6 +37,7 @@ export const ProjectBadge = ({
   iconOnly?: boolean
   className?: string
 }) => {
+  const { t } = useTranslation('projects')
   const navigate = useNavigate()
   const projectId = useChatStore((state) => (chatThreadId ? state.sessions.get(chatThreadId)?.projectId : null))
   const projects = useProjects()
@@ -50,8 +52,8 @@ export const ProjectBadge = ({
       <button
         type="button"
         onClick={() => navigate(`/projects/${project.id}`)}
-        aria-label={`In project: ${project.name}`}
-        title={`In project: ${project.name}`}
+        aria-label={t('badge.inProject', { name: project.name })}
+        title={t('badge.inProject', { name: project.name })}
         className={cn(
           // Matched to the agent selector's collapsed circle: same size token,
           // same resting fill, so the pair reads as one set of controls.
@@ -69,7 +71,7 @@ export const ProjectBadge = ({
     <button
       type="button"
       onClick={() => navigate(`/projects/${project.id}`)}
-      title={`In project: ${project.name}`}
+      title={t('badge.inProject', { name: project.name })}
       className={cn(
         // Matched to the agent selector's trigger, which it sits beside: same
         // height, `rounded-full`, and no chrome at rest — the background appears

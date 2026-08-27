@@ -20,7 +20,10 @@
     "noMatches": "No matches for \"{{query}}\"",
     "rename": "Rename",
     "renameTitle": "Rename chat",
-    "chatNamePlaceholder": "Chat name"
+    "chatNamePlaceholder": "Chat name",
+    "moveToProject": "Move to project",
+    "projects": "Projects",
+    "untitledChat": "Untitled chat"
   },
   "deleteChat": {
     "title": "Delete this chat?",
@@ -140,7 +143,10 @@
     "contextOverflow": "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window.",
     "retrying": "Something went wrong. Retrying ({{retryCount}}/{{maxRetries}})...",
     "deliveryExhausted": "This model couldn't read the attached file. Try a different model.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "inferenceQuotaTitle": "AI usage limit reached",
+    "inferenceQuota_5h": "You've reached your AI usage limit for the current 5-hour window. Try again later.",
+    "inferenceQuota_7d": "You've reached your AI usage limit for the current 7-day window. Try again later."
   },
   "artifact": {
     "fallbackTitle": "Artifact",
