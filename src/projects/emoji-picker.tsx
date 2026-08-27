@@ -24,6 +24,7 @@
 
 import { Search, Smile, X } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Virtualizer } from 'virtua'
 
 import { Button } from '@/components/ui/button'
@@ -86,6 +87,7 @@ const EmojiPickerBody = ({
   onChange,
   isMobile,
 }: Pick<EmojiPickerProps, 'value' | 'onChange'> & { isMobile: boolean }) => {
+  const { t } = useTranslation('projects')
   const {
     search,
     setSearch,
@@ -113,8 +115,8 @@ const EmojiPickerBody = ({
           autoFocus={!isMobile}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search emoji"
-          aria-label="Search emoji"
+          placeholder={t('emoji.searchPlaceholder')}
+          aria-label={t('emoji.searchAriaLabel')}
           className="h-[var(--touch-height-sm)] bg-card pl-7 dark:bg-input"
         />
       </div>
@@ -122,7 +124,7 @@ const EmojiPickerBody = ({
       {showSuggested && (
         <div className="flex flex-col gap-1.5">
           <span className="text-[length:var(--font-size-xs)] font-medium tracking-wide text-muted-foreground uppercase">
-            Suggested
+            {t('emoji.suggested')}
           </span>
           <div className={gridClass}>
             {suggestedEmoji.slice(0, perRow * 4).map((emoji) => (
@@ -141,12 +143,12 @@ const EmojiPickerBody = ({
 
       {catalog === 'failed' ? (
         <p role="alert" className="py-6 text-center text-[length:var(--font-size-sm)] text-muted-foreground">
-          Couldn’t load the emoji list. Close and reopen this picker to try again.
+          {t('emoji.loadFailed')}
         </p>
       ) : catalog === null ? (
-        <p className="py-6 text-center text-[length:var(--font-size-sm)] text-muted-foreground">Loading emoji…</p>
+        <p className="py-6 text-center text-[length:var(--font-size-sm)] text-muted-foreground">{t('emoji.loading')}</p>
       ) : rows.length === 0 ? (
-        <p className="py-6 text-center text-[length:var(--font-size-sm)] text-muted-foreground">No matches</p>
+        <p className="py-6 text-center text-[length:var(--font-size-sm)] text-muted-foreground">{t('emoji.noMatches')}</p>
       ) : (
         <div className="relative">
           {pinnedLabel && (
@@ -190,7 +192,7 @@ const EmojiPickerBody = ({
       {value && (
         <Button variant="ghost" size="sm" className="cursor-pointer self-start" onClick={() => onChange(null)}>
           <X className="size-[var(--icon-size-sm)]" aria-hidden="true" />
-          Remove icon
+          {t('emoji.removeIcon')}
         </Button>
       )}
     </div>
@@ -198,6 +200,7 @@ const EmojiPickerBody = ({
 }
 
 export const EmojiPicker = ({ value, onChange, label }: EmojiPickerProps) => {
+  const { t } = useTranslation('projects')
   const { isMobile } = useIsMobile()
   const [open, setOpen] = useState(false)
 
@@ -220,7 +223,7 @@ export const EmojiPicker = ({ value, onChange, label }: EmojiPickerProps) => {
       // That was 40px against the input's 36px on desktop — 4px too tall — and
       // 40px against 44px on mobile, so the mismatch inverted at the breakpoint.
       className="size-[var(--touch-height-default)] shrink-0 cursor-pointer bg-card p-0 text-[1.25rem] leading-none dark:bg-input"
-      aria-label={`Choose an icon for ${label}`}
+      aria-label={t('emoji.chooseIconFor', { label })}
       onClick={isMobile ? () => setOpen(true) : undefined}
     >
       {value ?? <Smile className="size-[var(--icon-size-default)] text-muted-foreground" aria-hidden="true" />}
@@ -231,7 +234,7 @@ export const EmojiPicker = ({ value, onChange, label }: EmojiPickerProps) => {
     return (
       <>
         {trigger}
-        <MobileActionSheet open={open} onOpenChange={setOpen} title="Choose an icon">
+        <MobileActionSheet open={open} onOpenChange={setOpen} title={t('emoji.chooseIcon')}>
           {/* Keyed so the body remounts per opening — search resets, and the
               memoized catalogue makes the remount free. */}
           {open && <EmojiPickerBody key="sheet" value={value} onChange={handleChange} isMobile />}

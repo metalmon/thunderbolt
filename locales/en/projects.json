@@ -1,0 +1,70 @@
+{
+  "title": "Projects",
+  "newProject": "New project",
+  "searchPlaceholder": "Search projects",
+  "empty": "No projects yet",
+  "noMatches": "No matching projects",
+  "emptyDescription": "A project keeps your instructions in one place, so every chat inside it starts with the same context.",
+  "createFirst": "Create your first project",
+  "openProject": "Open {{name}}",
+  "chatCountOne": "1 chat",
+  "chatCountOther": "{{count}} chats",
+  "create": {
+    "title": "Create project"
+  },
+  "edit": {
+    "title": "Edit project"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Q3 planning",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional — what this project is for",
+    "instructions": "Instructions",
+    "instructionsHelp": "Applied to every chat in this project.",
+    "instructionsPlaceholder": "Reply in British English. Prefer bullet points over prose.",
+    "thisProject": "this project",
+    "createError": "Could not create the project.",
+    "saveError": "Could not save the project.",
+    "creating": "Creating…",
+    "saving": "Saving…",
+    "create": "Create",
+    "saveChanges": "Save changes"
+  },
+  "emoji": {
+    "searchPlaceholder": "Search emoji",
+    "searchAriaLabel": "Search emoji",
+    "suggested": "Suggested",
+    "loadFailed": "Couldn’t load the emoji list. Close and reopen this picker to try again.",
+    "loading": "Loading emoji…",
+    "noMatches": "No matches",
+    "removeIcon": "Remove icon",
+    "chooseIcon": "Choose an icon",
+    "chooseIconFor": "Choose an icon for {{label}}"
+  },
+  "move": {
+    "title": "Move to project",
+    "description": "Chats in a project inherit its instructions.",
+    "searchPlaceholder": "Search projects",
+    "searchAriaLabel": "Search projects",
+    "noProjects": "No projects yet. Create one from the Projects page, then move this chat into it.",
+    "noMatches": "No matching projects.",
+    "removeFromProject": "Remove from project"
+  },
+  "detail": {
+    "newChat": "New chat in this project",
+    "chats": "Chats",
+    "noChatsYet": "No chats yet.",
+    "untitledChat": "Untitled chat",
+    "artifacts": "Artifacts",
+    "noArtifactsYet": "No artifacts yet."
+  },
+  "delete": {
+    "title": "Delete this project?",
+    "description": "Its instructions are removed. Chats in the project are kept and become ordinary chats.",
+    "confirm": "Delete project"
+  },
+  "badge": {
+    "inProject": "In project: {{name}}"
+  }
+}

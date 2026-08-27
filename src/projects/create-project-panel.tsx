@@ -9,6 +9,8 @@
  * The fields come from `ProjectForm`, shared with edit, so the two cannot drift.
  */
 
+import { useTranslation } from 'react-i18next'
+
 import { DetailPanel } from '@/components/detail-panel'
 import { useDatabase } from '@/contexts'
 import { createProject } from '@/dal/projects'
@@ -20,10 +22,11 @@ type CreateProjectPanelProps = {
 }
 
 export const CreateProjectPanel = ({ onClose, onCreated }: CreateProjectPanelProps) => {
+  const { t } = useTranslation('projects')
   const db = useDatabase()
 
   return (
-    <DetailPanel title="Create project" onClose={onClose}>
+    <DetailPanel title={t('create.title')} onClose={onClose}>
       <ProjectForm
         mode="create"
         onCancel={onClose}

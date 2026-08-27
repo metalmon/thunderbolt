@@ -12,6 +12,7 @@
  */
 
 import { useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
@@ -63,6 +64,7 @@ type ProjectFormProps = {
 }
 
 export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: ProjectFormProps) => {
+  const { t } = useTranslation('projects')
   const [{ icon, name, description, instructions, isPending, submitError }, dispatch] = useReducer(projectFormReducer, {
     ...(initialValues ?? emptyValues),
     isPending: false,
@@ -76,7 +78,7 @@ export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: Project
     try {
       await onSubmit({ icon, name, description, instructions })
     } catch (error) {
-      const fallback = mode === 'create' ? 'Could not create the project.' : 'Could not save the project.'
+      const fallback = mode === 'create' ? t('form.createError') : t('form.saveError')
       dispatch({ type: 'SUBMIT_FAILED', message: error instanceof Error ? error.message : fallback })
     }
   }
@@ -87,19 +89,19 @@ export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: Project
     <section className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex flex-col gap-2">
         <label className="text-[length:var(--font-size-sm)] font-medium" htmlFor={fieldId('name')}>
-          Name
+          {t('form.name')}
         </label>
         <div className="flex items-center gap-2">
           <EmojiPicker
             value={icon}
-            label={name || 'this project'}
+            label={name || t('form.thisProject')}
             onChange={(next) => dispatch({ type: 'ICON_CHANGED', icon: next })}
           />
           <Input
             id={fieldId('name')}
             autoFocus={mode === 'create'}
             maxLength={maxProjectNameLength}
-            placeholder="Q3 planning"
+            placeholder={t('form.namePlaceholder')}
             value={name}
             onChange={(event) => dispatch({ type: 'FIELD_CHANGED', field: 'name', value: event.target.value })}
             className="flex-1"
@@ -109,11 +111,11 @@ export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: Project
 
       <div className="flex flex-col gap-2">
         <label className="text-[length:var(--font-size-sm)] font-medium" htmlFor={fieldId('description')}>
-          Description
+          {t('form.description')}
         </label>
         <Input
           id={fieldId('description')}
-          placeholder="Optional — what this project is for"
+          placeholder={t('form.descriptionPlaceholder')}
           value={description}
           onChange={(event) => dispatch({ type: 'FIELD_CHANGED', field: 'description', value: event.target.value })}
         />
@@ -121,15 +123,13 @@ export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: Project
 
       <div className="flex min-h-0 flex-1 flex-col gap-2">
         <label className="text-[length:var(--font-size-sm)] font-medium" htmlFor={fieldId('instructions')}>
-          Instructions
+          {t('form.instructions')}
         </label>
-        <p className="text-[length:var(--font-size-sm)] text-muted-foreground">
-          Applied to every chat in this project.
-        </p>
+        <p className="text-[length:var(--font-size-sm)] text-muted-foreground">{t('form.instructionsHelp')}</p>
         <Textarea
           id={fieldId('instructions')}
           maxLength={maxProjectInstructionsLength}
-          placeholder="Reply in British English. Prefer bullet points over prose."
+          placeholder={t('form.instructionsPlaceholder')}
           value={instructions}
           onChange={(event) => dispatch({ type: 'FIELD_CHANGED', field: 'instructions', value: event.target.value })}
           className="min-h-32 resize-y md:min-h-0 md:flex-1 md:resize-none"
@@ -145,11 +145,11 @@ export const ProjectForm = ({ mode, initialValues, onCancel, onSubmit }: Project
         <ResponsiveModalCancel onClick={onCancel} className="dark:hover:bg-accent" />
         <Button
           isLoading={isPending}
-          loadingLabel={mode === 'create' ? 'Creating…' : 'Saving…'}
+          loadingLabel={mode === 'create' ? t('form.creating') : t('form.saving')}
           disabled={!canSave}
           onClick={handleSubmit}
         >
-          {mode === 'create' ? 'Create' : 'Save changes'}
+          {mode === 'create' ? t('form.create') : t('form.saveChanges')}
         </Button>
       </FormFooter>
     </section>

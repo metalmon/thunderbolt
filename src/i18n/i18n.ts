@@ -11,6 +11,7 @@ import enChat from '../../locales/en/chat.json'
 import enAuth from '../../locales/en/auth.json'
 import enOnboarding from '../../locales/en/onboarding.json'
 import enTasks from '../../locales/en/tasks.json'
+import enProjects from '../../locales/en/projects.json'
 import enDefaults from '../../locales/en/defaults.json'
 
 import ruCommon from '../../locales/ru/common.json'
@@ -19,11 +20,12 @@ import ruChat from '../../locales/ru/chat.json'
 import ruAuth from '../../locales/ru/auth.json'
 import ruOnboarding from '../../locales/ru/onboarding.json'
 import ruTasks from '../../locales/ru/tasks.json'
+import ruProjects from '../../locales/ru/projects.json'
 import ruDefaults from '../../locales/ru/defaults.json'
 
 import { detectUiLanguage, normalizeUiLanguage, type UiLanguage } from './languages'
 
-export const I18N_NAMESPACES = ['common', 'settings', 'chat', 'auth', 'onboarding', 'tasks', 'defaults'] as const
+export const I18N_NAMESPACES = ['common', 'settings', 'chat', 'auth', 'onboarding', 'tasks', 'projects', 'defaults'] as const
 
 void i18n.use(initReactI18next).init({
   resources: {
@@ -34,6 +36,7 @@ void i18n.use(initReactI18next).init({
       auth: enAuth,
       onboarding: enOnboarding,
       tasks: enTasks,
+      projects: enProjects,
       defaults: enDefaults,
     },
     ru: {
@@ -43,6 +46,7 @@ void i18n.use(initReactI18next).init({
       auth: ruAuth,
       onboarding: ruOnboarding,
       tasks: ruTasks,
+      projects: ruProjects,
       defaults: ruDefaults,
     },
   },

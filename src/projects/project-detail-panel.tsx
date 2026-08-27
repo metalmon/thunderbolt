@@ -18,8 +18,10 @@
 
 import dayjs from 'dayjs'
 import '@/lib/dayjs'
+import type { TFunction } from 'i18next'
 import { LayoutTemplate, MessageCircle, MessageCirclePlus } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { Button } from '@/components/ui/button'
@@ -33,11 +35,11 @@ import { ProjectIcon } from './project-icon'
  * Copy for the delete confirmation. Lives with the panel because the panel owns
  * the affordance (⋯ → Delete); the list page renders the dialog.
  */
-export const deleteProjectPrompt = {
-  title: 'Delete this project?',
-  description: 'Its instructions are removed. Chats in the project are kept and become ordinary chats.',
-  confirmLabel: 'Delete project',
-} as const
+export const deleteProjectPrompt = (t: TFunction<'projects'>) => ({
+  title: t('delete.title'),
+  description: t('delete.description'),
+  confirmLabel: t('delete.confirm'),
+})
 
 type ProjectDetailPanelProps = {
   project: Project
@@ -86,8 +88,11 @@ export const ProjectDetailPanel = ({
   onClose,
   onOpenChat,
   onNewChat,
-}: ProjectDetailPanelProps) => (
-  <DetailPanel
+}: ProjectDetailPanelProps) => {
+  const { t } = useTranslation('projects')
+
+  return (
+    <DetailPanel
     icon={
       <IconTile>
         <ProjectIcon icon={project.icon} className="size-5 text-[1.15rem]" />
@@ -106,19 +111,19 @@ export const ProjectDetailPanel = ({
         chat is what a project is *for*, and it isn't an edit. */}
     <Button variant="outline" size="sm" className="w-full gap-2" onClick={onNewChat}>
       <MessageCirclePlus className="size-[var(--icon-size-sm)]" aria-hidden="true" />
-      New chat in this project
+      {t('detail.newChat')}
     </Button>
 
     <div className="flex flex-col gap-2">
-      <DetailSectionTitle>Chats</DetailSectionTitle>
+      <DetailSectionTitle>{t('detail.chats')}</DetailSectionTitle>
       {chats.length === 0 ? (
-        <p className="text-base leading-snug text-muted-foreground">No chats yet.</p>
+        <p className="text-base leading-snug text-muted-foreground">{t('detail.noChatsYet')}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {chats.map((chat) => (
             <li key={chat.id}>
               <OpenChatRow
-                label={chat.title ?? 'Untitled chat'}
+                label={chat.title ?? t('detail.untitledChat')}
                 icon={
                   <MessageCircle
                     className="size-[var(--icon-size-sm)] shrink-0 text-muted-foreground"
@@ -136,9 +141,9 @@ export const ProjectDetailPanel = ({
     <DetailDivider />
 
     <div className="flex flex-col gap-2">
-      <DetailSectionTitle>Artifacts</DetailSectionTitle>
+      <DetailSectionTitle>{t('detail.artifacts')}</DetailSectionTitle>
       {artifacts.length === 0 ? (
-        <p className="text-base leading-snug text-muted-foreground">No artifacts yet.</p>
+        <p className="text-base leading-snug text-muted-foreground">{t('detail.noArtifactsYet')}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {artifacts.map((artifact) => (
@@ -160,4 +165,5 @@ export const ProjectDetailPanel = ({
       )}
     </div>
   </DetailPanel>
-)
+  )
+}

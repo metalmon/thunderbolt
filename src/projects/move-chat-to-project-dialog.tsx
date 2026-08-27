@@ -17,6 +17,7 @@
 
 import { Check, FolderMinus, Search } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -53,15 +54,14 @@ const ProjectOptions = ({
   currentProjectId,
   onSelect,
 }: Pick<MoveChatToProjectPickerProps, 'projects' | 'currentProjectId' | 'onSelect'>) => {
+  const { t } = useTranslation('projects')
   const [search, setSearch] = useState('')
   const term = search.trim().toLowerCase()
   const matches = term ? projects.filter((project) => project.name.toLowerCase().includes(term)) : projects
 
   if (projects.length === 0) {
     return (
-      <p className="py-2 text-[length:var(--font-size-sm)] text-muted-foreground">
-        No projects yet. Create one from the Projects page, then move this chat into it.
-      </p>
+      <p className="py-2 text-[length:var(--font-size-sm)] text-muted-foreground">{t('move.noProjects')}</p>
     )
   }
 
@@ -79,8 +79,8 @@ const ProjectOptions = ({
             autoFocus
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search projects"
-            aria-label="Search projects"
+            placeholder={t('move.searchPlaceholder')}
+            aria-label={t('move.searchAriaLabel')}
             className="pl-7"
           />
         </div>
@@ -88,7 +88,7 @@ const ProjectOptions = ({
 
       <div className="flex max-h-[50vh] min-h-0 flex-col gap-1 overflow-y-auto">
         {matches.length === 0 ? (
-          <p className="py-2 text-[length:var(--font-size-sm)] text-muted-foreground">No matching projects.</p>
+          <p className="py-2 text-[length:var(--font-size-sm)] text-muted-foreground">{t('move.noMatches')}</p>
         ) : (
           matches.map((project) => {
             const isCurrent = project.id === currentProjectId
@@ -120,7 +120,7 @@ const ProjectOptions = ({
             onClick={() => onSelect(null)}
           >
             <FolderMinus className="size-[var(--icon-size-default)]" aria-hidden="true" />
-            <span className="flex-1 text-left">Remove from project</span>
+            <span className="flex-1 text-left">{t('move.removeFromProject')}</span>
           </Button>
         )}
       </div>
@@ -136,9 +136,10 @@ export const MoveChatToProjectPicker = ({
   onOpenChange,
   onSelect,
 }: MoveChatToProjectPickerProps) => {
+  const { t } = useTranslation('projects')
   const { isMobile } = useIsMobile()
-  const title = 'Move to project'
-  const description = 'Chats in a project inherit its instructions.'
+  const title = t('move.title')
+  const description = t('move.description')
 
   // Selecting always dismisses: the sheet is a picker, not a settings surface.
   const handleSelect = (projectId: string | null) => {
