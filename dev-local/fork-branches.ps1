@@ -13,6 +13,9 @@
 #   - fork/voice-gemini-live after fork/hooks (its invasive seams — backend route
 #     mount, ai/fetch voice-skill filter, voice.tsx co-pilot UI, local-settings
 #     fields — layer on top of the hook + i18n edits to the same files);
+#   - fork/anon-agent-manage after voice — a self-contained, removable seam that
+#     relaxes custom-agent management for anonymous (local-only) accounts; lifts
+#     out cleanly once stable/synced accounts land;
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -22,6 +25,7 @@ $ForkBranches = @(
     "fork/i18n-locales",
     "fork/hooks",
     "fork/voice-gemini-live",
+    "fork/anon-agent-manage",
     "fork/dev"
 )
 
@@ -34,5 +38,6 @@ $ForkMainRangeBranches = @(
     "fork/i18n",
     "fork/hooks",
     "fork/voice-gemini-live",
+    "fork/anon-agent-manage",
     "fork/dev"
 )
