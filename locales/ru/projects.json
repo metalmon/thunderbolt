@@ -1,70 +1,70 @@
 {
-  "title": "Projects",
-  "newProject": "New project",
-  "searchPlaceholder": "Search projects",
-  "empty": "No projects yet",
-  "noMatches": "No matching projects",
-  "emptyDescription": "A project keeps your instructions in one place, so every chat inside it starts with the same context.",
-  "createFirst": "Create your first project",
-  "openProject": "Open {{name}}",
-  "chatCountOne": "1 chat",
-  "chatCountOther": "{{count}} chats",
+  "title": "Проекты",
+  "newProject": "Новый проект",
+  "searchPlaceholder": "Поиск проектов",
+  "empty": "Пока нет проектов",
+  "noMatches": "Нет подходящих проектов",
+  "emptyDescription": "Проект хранит ваши инструкции в одном месте, чтобы каждый чат внутри него начинался с одного и того же контекста.",
+  "createFirst": "Создайте первый проект",
+  "openProject": "Открыть {{name}}",
+  "chatCountOne": "1 чат",
+  "chatCountOther": "{{count}} чатов",
   "create": {
-    "title": "Create project"
+    "title": "Создать проект"
   },
   "edit": {
-    "title": "Edit project"
+    "title": "Изменить проект"
   },
   "form": {
-    "name": "Name",
-    "namePlaceholder": "Q3 planning",
-    "description": "Description",
-    "descriptionPlaceholder": "Optional — what this project is for",
-    "instructions": "Instructions",
-    "instructionsHelp": "Applied to every chat in this project.",
-    "instructionsPlaceholder": "Reply in British English. Prefer bullet points over prose.",
-    "thisProject": "this project",
-    "createError": "Could not create the project.",
-    "saveError": "Could not save the project.",
-    "creating": "Creating…",
-    "saving": "Saving…",
-    "create": "Create",
-    "saveChanges": "Save changes"
+    "name": "Название",
+    "namePlaceholder": "Планы на 3-й квартал",
+    "description": "Описание",
+    "descriptionPlaceholder": "Необязательно — для чего этот проект",
+    "instructions": "Инструкции",
+    "instructionsHelp": "Применяются к каждому чату в этом проекте.",
+    "instructionsPlaceholder": "Отвечай на русском. Предпочитай списки сплошному тексту.",
+    "thisProject": "этот проект",
+    "createError": "Не удалось создать проект.",
+    "saveError": "Не удалось сохранить проект.",
+    "creating": "Создание…",
+    "saving": "Сохранение…",
+    "create": "Создать",
+    "saveChanges": "Сохранить изменения"
   },
   "emoji": {
-    "searchPlaceholder": "Search emoji",
-    "searchAriaLabel": "Search emoji",
-    "suggested": "Suggested",
-    "loadFailed": "Couldn’t load the emoji list. Close and reopen this picker to try again.",
-    "loading": "Loading emoji…",
-    "noMatches": "No matches",
-    "removeIcon": "Remove icon",
-    "chooseIcon": "Choose an icon",
-    "chooseIconFor": "Choose an icon for {{label}}"
+    "searchPlaceholder": "Поиск эмодзи",
+    "searchAriaLabel": "Поиск эмодзи",
+    "suggested": "Рекомендуемые",
+    "loadFailed": "Не удалось загрузить список эмодзи. Закройте и снова откройте выбор, чтобы повторить попытку.",
+    "loading": "Загрузка эмодзи…",
+    "noMatches": "Ничего не найдено",
+    "removeIcon": "Убрать значок",
+    "chooseIcon": "Выбрать значок",
+    "chooseIconFor": "Выбрать значок для {{label}}"
   },
   "move": {
-    "title": "Move to project",
-    "description": "Chats in a project inherit its instructions.",
-    "searchPlaceholder": "Search projects",
-    "searchAriaLabel": "Search projects",
-    "noProjects": "No projects yet. Create one from the Projects page, then move this chat into it.",
-    "noMatches": "No matching projects.",
-    "removeFromProject": "Remove from project"
+    "title": "Переместить в проект",
+    "description": "Чаты в проекте наследуют его инструкции.",
+    "searchPlaceholder": "Поиск проектов",
+    "searchAriaLabel": "Поиск проектов",
+    "noProjects": "Пока нет проектов. Создайте проект на странице «Проекты», затем переместите этот чат в него.",
+    "noMatches": "Нет подходящих проектов.",
+    "removeFromProject": "Убрать из проекта"
   },
   "detail": {
-    "newChat": "New chat in this project",
-    "chats": "Chats",
-    "noChatsYet": "No chats yet.",
-    "untitledChat": "Untitled chat",
-    "artifacts": "Artifacts",
-    "noArtifactsYet": "No artifacts yet."
+    "newChat": "Новый чат в этом проекте",
+    "chats": "Чаты",
+    "noChatsYet": "Пока нет чатов.",
+    "untitledChat": "Без названия",
+    "artifacts": "Артефакты",
+    "noArtifactsYet": "Пока нет артефактов."
   },
   "delete": {
-    "title": "Delete this project?",
-    "description": "Its instructions are removed. Chats in the project are kept and become ordinary chats.",
-    "confirm": "Delete project"
+    "title": "Удалить этот проект?",
+    "description": "Его инструкции удаляются. Чаты проекта сохраняются и становятся обычными чатами.",
+    "confirm": "Удалить проект"
   },
   "badge": {
-    "inProject": "In project: {{name}}"
+    "inProject": "В проекте: {{name}}"
   }
 }
