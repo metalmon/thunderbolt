@@ -3,45 +3,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Generates a title from a chat message by extracting key words
+ * Generate a chat title from the first message.
+ *
+ * Keeps the author's own casing — only the first letter is capitalized (sentence
+ * case). Title-Casing every word (the old behavior) mangled acronyms, code, and
+ * non-Latin scripts (e.g. Russian) and read as shouty; dropping short words
+ * garbled the phrase. We now take the leading words verbatim.
  *
  * @param message - The chat message to generate a title from
  * @param options - Optional configuration object
  * @param options.words - Number of words to include in the title (default: 6)
- * @returns A formatted title with capitalized words or "New Chat" if no words are found
+ * @returns A sentence-cased title, or "New Chat" when the message has no usable text
  */
-
 export const generateTitle = (message: string, options?: { words?: number }): string => {
-  // Clean and extract key words
+  // Drop a leading conversational opener (English) and collapse whitespace. The
+  // opener strip is a no-op for other languages, which simply keep their words.
   const cleaned = message
-    .replace(/^(hey|hi|hello|please|can you|could you|help me|what|how|why)/i, '')
-    .replace(/[\n\r]+/g, ' ')
+    .replace(/^\s*(hey|hi|hello|please|can you|could you|help me|what|how|why)\b[\s,]*/i, '')
+    .replace(/\s+/g, ' ')
     .trim()
 
-  const words = cleaned.split(' ').filter((w) => w.length > 2)
-
-  // Use the specified number of words or default to 6
   const maxWords = options?.words ?? 6
-  const selectedWords = words.slice(0, maxWords)
-  const title = selectedWords.join(' ')
+  const title = cleaned.split(' ').slice(0, maxWords).join(' ')
 
-  // If the title is longer than 50 characters, truncate at word boundary
+  // Truncate to 50 characters at a word boundary so titles stay one line.
   const maxLength = 50
-  let finalTitle = title
-  if (title.length > maxLength) {
-    // Find the last space before the character limit
-    const truncated = title.slice(0, maxLength)
-    const lastSpaceIndex = truncated.lastIndexOf(' ')
-    finalTitle = lastSpaceIndex > 0 ? truncated.slice(0, lastSpaceIndex) : truncated
+  const truncated =
+    title.length > maxLength
+      ? (() => {
+          const cut = title.slice(0, maxLength)
+          const lastSpace = cut.lastIndexOf(' ')
+          return lastSpace > 0 ? cut.slice(0, lastSpace) : cut
+        })()
+      : title
+
+  // Trim only edge punctuation/space — internal apostrophes, hyphens, and the
+  // like belong to the words ("don't", "e.g.", "pre-flight").
+  const trimmed = truncated.replace(/^[\s.,!?;:'"()[\]{}]+|[\s.,!?;:'"()[\]{}]+$/g, '')
+
+  if (!trimmed) {
+    return 'New Chat'
   }
 
-  // Remove punctuation from the final title
-  finalTitle = finalTitle.replace(/[.,!?;:'"()[\]{}]/g, '')
-
-  return (
-    finalTitle
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ') || 'New Chat'
-  )
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
