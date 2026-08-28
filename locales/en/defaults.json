@@ -6,11 +6,11 @@
   },
   "skills": {
     "01996330-0000-7000-8000-000000000001": {
-      "name": "daily-brief",
+      "name": "Daily Brief",
       "description": "Use this skill when the user asks for a daily brief, a morning rundown, or a summary of weather, news, inbox, and calendar."
     },
     "01996330-0000-7000-8000-000000000002": {
-      "name": "important-emails",
+      "name": "Important Emails",
       "description": "Use this skill when the user wants to triage their inbox, see what needs attention, or surface the most important emails of the day."
     }
   },
