@@ -36,7 +36,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 
     #[cfg(target_os = "android")]
     let builder = builder.setup(|_app, api| {
-        api.register_android_plugin("net.thunderbird.thunderbolt", "PlatformUtilsPlugin")?;
+        api.register_android_plugin("ru.metalmon.volt", "PlatformUtilsPlugin")?;
         Ok(())
     });
 
