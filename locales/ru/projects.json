@@ -7,8 +7,10 @@
   "emptyDescription": "Проект хранит ваши инструкции в одном месте, чтобы каждый чат внутри него начинался с одного и того же контекста.",
   "createFirst": "Создайте первый проект",
   "openProject": "Открыть {{name}}",
-  "chatCountOne": "1 чат",
-  "chatCountOther": "{{count}} чатов",
+  "chatCount_one": "{{count}} чат",
+  "chatCount_few": "{{count}} чата",
+  "chatCount_many": "{{count}} чатов",
+  "chatCount_other": "{{count}} чата",
   "create": {
     "title": "Создать проект"
   },
