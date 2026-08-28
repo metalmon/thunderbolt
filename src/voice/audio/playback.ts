@@ -13,6 +13,12 @@
  */
 import type { AudioChunk } from '@/voice/engine/types'
 
+/** Jitter cushion prepended before (re)starting playout, in seconds. Mirrors
+ *  kutsu's ~140 ms downlink prebuffer: absorbs bursty model delivery so the
+ *  audio stack doesn't underrun mid-turn. Adds this much latency to speech
+ *  onset — the floor at which mobile playout stops glitching on half-cascade. */
+const PREFILL_SEC = 0.15
+
 export type PlaybackQueue = {
   /** Schedule a chunk to play after whatever is already queued. */
   enqueue: (chunk: AudioChunk) => void
@@ -40,6 +46,7 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
   analyser.connect(ctx.destination)
   const levelBuf = new Float32Array(analyser.fftSize)
   let nextStartTime = 0
+  let underruns = 0
   let closed = false
 
   const enqueue = (chunk: AudioChunk) => {
@@ -49,7 +56,26 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
     const source = ctx.createBufferSource()
     source.buffer = buffer
     source.connect(analyser)
-    const startAt = Math.max(ctx.currentTime, nextStartTime)
+    const now = ctx.currentTime
+    // Prefill jitter buffer (mirrors kutsu's ~140 ms prebuffer). When the
+    // playhead has caught up to our queued audio — a fresh turn, or a mid-turn
+    // stall — re-arm PREFILL_SEC into the future instead of at `now`, so the
+    // next bursty arrivals land before playout reaches them. Without this,
+    // half-cascade's bursty STT→LLM→TTS delivery starves the scheduler on
+    // constrained devices (mobile): the WebView audio stack underruns and the
+    // artifact surfaces as a tonal buzz. native-audio streams steadily and
+    // desktop has the headroom, so both stay clean — hence the phone-only,
+    // half-cascade-only symptom.
+    if (nextStartTime <= now) {
+      if (nextStartTime > 0) {
+        underruns++
+        console.warn(
+          `[voice-playback] underrun #${underruns}: playhead gap ${((now - nextStartTime) * 1000).toFixed(0)}ms — re-buffering ${(PREFILL_SEC * 1000).toFixed(0)}ms`,
+        )
+      }
+      nextStartTime = now + PREFILL_SEC
+    }
+    const startAt = nextStartTime
     source.start(startAt)
     nextStartTime = startAt + buffer.duration
     active.add(source)
