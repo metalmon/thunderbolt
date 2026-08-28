@@ -1,4 +1,4 @@
-package net.thunderbird.thunderbolt
+package ru.metalmon.volt
 
 import android.app.Activity
 import androidx.core.view.ViewCompat
