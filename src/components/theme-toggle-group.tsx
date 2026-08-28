@@ -44,7 +44,7 @@ export const ThemeToggleGroup = () => {
         setTheme(value)
         trackEvent('settings_theme_set', { theme: value })
       }}
-      className="justify-start rounded-lg"
+      className="flex-wrap justify-start rounded-lg"
     >
       {themeOptions.map(({ value, ariaKey, Icon, labelKey }) => (
         <ToggleGroupItem

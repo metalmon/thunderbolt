@@ -301,7 +301,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
           <div className="min-w-0">{renderAccountControl()}</div>
           <Button type="button" size="lg" onClick={handleNewChat} className="ml-auto rounded-full">
             <MessageCirclePlus className={iconSize} />
-            <span>New Chat</span>
+            <span>{t('sidebar.newChat', { ns: 'chat' })}</span>
           </Button>
         </div>
       )
