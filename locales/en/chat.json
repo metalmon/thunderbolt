@@ -23,6 +23,7 @@
     "chatNamePlaceholder": "Chat name",
     "moveToProject": "Move to project",
     "projects": "Projects",
+    "recentProjects": "Recent Projects",
     "untitledChat": "Untitled chat"
   },
   "deleteChat": {
