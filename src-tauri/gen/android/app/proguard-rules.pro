@@ -25,6 +25,6 @@
 # Kotlin-generated getter because there are no Java/Kotlin call sites, which
 # crashes release builds with `Err(JavaException)` at tao/.../ndk_glue.rs:393.
 # The shipped wry proguard-wry.pro template misses this rule.
--keepclassmembers class net.thunderbird.thunderbolt.WryActivity {
+-keepclassmembers class ru.metalmon.volt.WryActivity {
     int getId();
 }
