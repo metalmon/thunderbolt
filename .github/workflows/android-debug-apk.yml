@@ -1,0 +1,65 @@
+name: Android Debug APK
+
+# Fork-only: build an UNSIGNED debug APK for sideloading — no Google Play keys,
+# no signing secrets, no publishing. The debug build is auto-signed with Gradle's
+# throwaway debug keystore, so it installs on a device but is not distributable
+# through the store. Output is uploaded as a workflow artifact to download.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref (branch or tag) to build'
+        required: false
+        default: 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK + NDK
+        uses: android-actions/setup-android@v3
+        with:
+          ndk-version: 26.1.10909125
+
+      - name: Export Android NDK environment
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          NDK_PATH="$ANDROID_SDK_ROOT/ndk/26.1.10909125"
+          if [ ! -d "$NDK_PATH" ]; then NDK_PATH=$(ls -d "$ANDROID_SDK_ROOT/ndk/"* | head -1); fi
+          echo "NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+
+      - name: Setup Rust + Android targets
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          cache: false
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build debug APK
+        run: bun tauri android build --apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: volt-debug-apk
+          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
