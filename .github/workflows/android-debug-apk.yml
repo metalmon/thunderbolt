@@ -55,6 +55,12 @@ jobs:
         run: bun install
 
       - name: Build debug APK
+        env:
+          # src-tauri/.cargo/config.toml sets rustc-wrapper=sccache; sccache is not
+          # installed on the runner, so disable the wrapper for this build (same as
+          # the other workflows' build steps).
+          RUSTC_WRAPPER: ''
+          SCCACHE_DISABLE: '1'
         run: bun tauri android build --apk --debug
 
       - name: Upload APK artifact
