@@ -216,7 +216,18 @@
     "google_get_email": "Письмо",
     "google_check_calendar": "Календарь",
     "processing": "Обработка",
-    "deliver_file": "Доставка файла"
+    "deliver_file": "Доставка файла",
+    "skill": "Навык",
+    "ask": "Вопрос",
+    "map": "Карта",
+    "weather": "Погода",
+    "research": "Исследование",
+    "research_codebase": "Изучение кода",
+    "google_draft_email": "Черновик письма",
+    "microsoft_list_messages": "Список писем",
+    "microsoft_get_message": "Письмо",
+    "microsoft_search_onedrive": "Поиск в OneDrive",
+    "microsoft_get_onedrive_file_content": "Файл OneDrive"
   },
   "deliveredFile": {
     "delivered": "Доставлено",

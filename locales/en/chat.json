@@ -215,7 +215,18 @@
     "google_get_email": "Get email",
     "google_check_calendar": "Check calendar",
     "processing": "Processing",
-    "deliver_file": "Deliver file"
+    "deliver_file": "Deliver file",
+    "skill": "Skill",
+    "ask": "Ask",
+    "map": "Map",
+    "weather": "Weather",
+    "research": "Research",
+    "research_codebase": "Research codebase",
+    "google_draft_email": "Draft email",
+    "microsoft_list_messages": "List messages",
+    "microsoft_get_message": "Get message",
+    "microsoft_search_onedrive": "Search OneDrive",
+    "microsoft_get_onedrive_file_content": "Get OneDrive file"
   },
   "deliveredFile": {
     "delivered": "Delivered",
