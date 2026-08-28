@@ -15,6 +15,7 @@
 
 import { useDroppable } from '@dnd-kit/core'
 import { Ellipsis, FolderMinus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
 import { SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
@@ -109,6 +110,7 @@ const visibleProjects = <T extends { id: string }>(projects: readonly T[], activ
 
 /** The rows themselves, given a project list. */
 export const ProjectDropRows = ({ projects, isDragging, draggingFromProjectId }: ProjectDropRowsProps) => {
+  const { t } = useTranslation('chat')
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -135,7 +137,7 @@ export const ProjectDropRows = ({ projects, isDragging, draggingFromProjectId }:
           two groups read as siblings rather than one labelled and one loose. A
           drag swaps the label for the drop-zone instruction — the rows mean
           something different for the duration of the gesture. */}
-      <SidebarGroupLabel>{isDragging ? 'Move to project' : 'Recent Projects'}</SidebarGroupLabel>
+      <SidebarGroupLabel>{isDragging ? t('sidebar.moveToProject') : t('sidebar.recentProjects')}</SidebarGroupLabel>
       <SidebarMenu>
         {visible.map((project) => (
           <DropRow

@@ -96,7 +96,9 @@ const ProjectsPage = () => {
 
   const countLabel = (id: string): string => {
     const count = chatCounts[id] ?? 0
-    return count === 1 ? t('chatCountOne') : t('chatCountOther', { count })
+    // i18next plural: the active language's CLDR rules pick the form
+    // (en: one/other, ru: one/few/many/other), so the count word agrees.
+    return t('chatCount', { count })
   }
 
   return (

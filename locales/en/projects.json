@@ -7,8 +7,8 @@
   "emptyDescription": "A project keeps your instructions in one place, so every chat inside it starts with the same context.",
   "createFirst": "Create your first project",
   "openProject": "Open {{name}}",
-  "chatCountOne": "1 chat",
-  "chatCountOther": "{{count}} chats",
+  "chatCount_one": "{{count}} chat",
+  "chatCount_other": "{{count}} chats",
   "create": {
     "title": "Create project"
   },
