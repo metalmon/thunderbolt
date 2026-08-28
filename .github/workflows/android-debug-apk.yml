@@ -48,7 +48,10 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          target: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          # arm64 only — covers virtually all modern devices and keeps the build
+          # ~4x faster than compiling all four Android ABIs. Add more targets here
+          # (and to the --target list below) if a 32-bit/x86 APK is ever needed.
+          target: aarch64-linux-android
           cache: false
           # The action defaults RUSTFLAGS to `-D warnings`, which turns benign
           # platform-conditional unused imports (e.g. tauri::Manager on Android)
@@ -65,7 +68,7 @@ jobs:
           # the other workflows' build steps).
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
-        run: bun tauri android build --apk --debug
+        run: bun tauri android build --apk --debug --target aarch64
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
