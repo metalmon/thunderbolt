@@ -50,6 +50,10 @@ jobs:
           toolchain: stable
           target: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
           cache: false
+          # The action defaults RUSTFLAGS to `-D warnings`, which turns benign
+          # platform-conditional unused imports (e.g. tauri::Manager on Android)
+          # into hard errors. Clear it — matches android-release.yml.
+          rustflags: ''
 
       - name: Install dependencies
         run: bun install
