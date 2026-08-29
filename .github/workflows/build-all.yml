@@ -127,21 +127,21 @@ jobs:
       - name: Collect bundles
         shell: bash
         run: |
-          mkdir -p dist
+          mkdir -p out
           base="src-tauri/target/${{ matrix.target }}/release/bundle"
           find "$base" -type f \( \
             -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \
             -o -name '*.exe' -o -name '*.msi' -o -name '*.dmg' \
-            -o -name '*.sig' -o -name '*.tar.gz' -o -name '*.zip' \
-          \) -exec cp {} dist/ \;
+            -o -name '*.sig' -o -name '*.app.tar.gz' -o -name '*.AppImage.tar.gz' -o -name '*.nsis.zip' -o -name '*.msi.zip' \
+          \) -exec cp {} out/ \;
           echo "Collected:"
-          ls -la dist
+          ls -la out
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: volt-${{ matrix.target }}
-          path: dist/**
+          path: out/**
           if-no-files-found: error
 
   android:
@@ -230,16 +230,16 @@ jobs:
 
       - name: Collect APK
         run: |
-          mkdir -p dist
-          find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \;
+          mkdir -p out
+          find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -exec cp {} out/ \;
           echo "Collected:"
-          ls -la dist
+          ls -la out
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: volt-android
-          path: dist/**
+          path: out/**
           if-no-files-found: error
 
   release:
