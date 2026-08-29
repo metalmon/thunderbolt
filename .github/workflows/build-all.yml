@@ -231,7 +231,11 @@ jobs:
       - name: Collect APK
         run: |
           mkdir -p out
-          find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -exec cp {} out/ \;
+          # Gradle emits app-<flavor>-<buildtype>.apk; rename to match the desktop
+          # bundles' Volt_<version>_<arch> convention (we build aarch64 only).
+          version=$(jq -r .version package.json)
+          apk=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' | head -1)
+          cp "$apk" "out/Volt_${version}_android_arm64.apk"
           echo "Collected:"
           ls -la out
 
