@@ -1,0 +1,273 @@
+name: Build All Platforms
+
+# Fork-only: build installable artifacts for every platform we can WITHOUT paid
+# signing/publishing infra — Windows x64, Linux x64 (deb + rpm + AppImage),
+# macOS (Apple Silicon), and Android — in one workflow.
+#
+# Output:
+#   - workflow_dispatch  → always uploads downloadable workflow artifacts.
+#   - push tag v*.*.*    → additionally publishes a GitHub Release with every
+#                          bundle attached (built from the tagged commit).
+#
+# Signing (all optional — absent secrets degrade gracefully, they never fail the
+# build):
+#   - Desktop: TAURI_SIGNING_PRIVATE_KEY(+_PASSWORD) is REQUIRED because
+#     tauri.conf has createUpdaterArtifacts+updater.pubkey (the build signs the
+#     updater manifest). It already exists for desktop-release. macOS is built
+#     UNSIGNED — no Apple Developer cert / notarization — so the .dmg opens via
+#     right-click → Open (Gatekeeper). Add Apple secrets + a signing step later
+#     for a notarized build.
+#   - Android: a signed RELEASE apk when ANDROID_UPLOAD_KEY(+_ALIAS,+_PASSWORD)
+#     is set (same secrets as android-release.yml; wired through the existing
+#     gen/android signing.properties → build.gradle.kts signingConfig). Without
+#     them it falls back to an auto-signed DEBUG apk so the leg still produces an
+#     installable artifact.
+#
+# Not built here: iOS (needs a paid Apple Developer account + provisioning even
+# for sideloading) and Windows ARM64 (add a matrix leg if ever needed).
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref (branch or tag) to build'
+        required: false
+        default: 'master'
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write # create the GitHub Release on tag builds
+
+concurrency:
+  group: build-all-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  desktop:
+    name: Desktop — ${{ matrix.build_name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            build_name: Linux x64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            build_name: Windows x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            build_name: macOS (Apple Silicon)
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          cache: false
+          # The action defaults RUSTFLAGS to `-D warnings`, which turns benign
+          # platform-conditional unused imports into hard errors. Clear it.
+          rustflags: ''
+
+      - name: Cache cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-buildall-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-buildall-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            webkit2gtk-4.1 \
+            libappindicator3-dev \
+            librsvg2-dev \
+            squashfs-tools
+          # No libfuse2 needed: Tauri runs linuxdeploy with
+          # APPIMAGE_EXTRACT_AND_RUN=1 so the AppImage self-extracts.
+
+      - name: Set up pinned linuxdeploy
+        if: runner.os == 'Linux'
+        uses: ./.github/actions/setup-linuxdeploy
+
+      - name: Build (Tauri, unsigned desktop bundles)
+        # `targets: "all"` in tauri.conf emits every bundle for the OS: Linux →
+        # deb + rpm + AppImage, Windows → nsis + msi, macOS → app + dmg. macOS is
+        # left unsigned (no APPLE_SIGNING_IDENTITY) → an ad-hoc/unsigned .dmg.
+        run: |
+          bun install --frozen-lockfile
+          bun tauri build --features native_fetch --target ${{ matrix.target }}
+        env:
+          RUSTFLAGS: ''
+          CARGO_INCREMENTAL: 0
+          RUSTC_WRAPPER: '' # src-tauri/.cargo/config.toml points at sccache, absent here
+          NO_STRIP: true
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Collect bundles
+        shell: bash
+        run: |
+          mkdir -p dist
+          base="src-tauri/target/${{ matrix.target }}/release/bundle"
+          find "$base" -type f \( \
+            -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \
+            -o -name '*.exe' -o -name '*.msi' -o -name '*.dmg' \
+            -o -name '*.sig' -o -name '*.tar.gz' -o -name '*.zip' \
+          \) -exec cp {} dist/ \;
+          echo "Collected:"
+          ls -la dist
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: volt-${{ matrix.target }}
+          path: dist/**
+          if-no-files-found: error
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK + NDK
+        uses: android-actions/setup-android@v3
+        with:
+          ndk-version: 26.1.10909125
+
+      - name: Export Android NDK environment
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          NDK_PATH="$ANDROID_SDK_ROOT/ndk/26.1.10909125"
+          if [ ! -d "$NDK_PATH" ]; then NDK_PATH=$(ls -d "$ANDROID_SDK_ROOT/ndk/"* | head -1); fi
+          echo "NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+
+      - name: Setup Rust + Android target
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          # arm64 only — covers virtually all modern devices, ~4x faster than all ABIs.
+          target: aarch64-linux-android
+          cache: false
+          rustflags: ''
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure release signing (if keystore secret present)
+        id: signing
+        env:
+          ANDROID_UPLOAD_KEY: ${{ secrets.ANDROID_UPLOAD_KEY }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_UPLOAD_KEY" ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Android unsigned::ANDROID_UPLOAD_KEY not set — building a DEBUG apk. Add ANDROID_UPLOAD_KEY(+_ALIAS,+_PASSWORD) for a signed release apk."
+            exit 0
+          fi
+          # Decode keystore into the Android project and wire signing.properties,
+          # which build.gradle.kts reads for the release signingConfig.
+          echo "$ANDROID_UPLOAD_KEY" | base64 -d > src-tauri/gen/android/upload-keystore.jks
+          if [ ! -s src-tauri/gen/android/upload-keystore.jks ]; then
+            echo "❌ Failed to decode ANDROID_UPLOAD_KEY"
+            exit 1
+          fi
+          cat > src-tauri/gen/android/signing.properties << EOF
+          storeFile=../upload-keystore.jks
+          storePassword=$ANDROID_UPLOAD_KEY_PASSWORD
+          keyAlias=$ANDROID_UPLOAD_KEY_ALIAS
+          keyPassword=$ANDROID_UPLOAD_KEY_PASSWORD
+          EOF
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release APK
+        if: steps.signing.outputs.signed == 'true'
+        env:
+          RUSTC_WRAPPER: ''
+          SCCACHE_DISABLE: '1'
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+        run: bun tauri android build --apk --target aarch64
+
+      - name: Build debug APK (unsigned fallback)
+        if: steps.signing.outputs.signed == 'false'
+        env:
+          RUSTC_WRAPPER: ''
+          SCCACHE_DISABLE: '1'
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+        run: bun tauri android build --apk --debug --target aarch64
+
+      - name: Collect APK
+        run: |
+          mkdir -p dist
+          find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \;
+          echo "Collected:"
+          ls -la dist
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: volt-android
+          path: dist/**
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: [desktop, android]
+    # Only on a version tag, and even if some platform legs failed — attach
+    # whatever built.
+    if: ${{ !cancelled() && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+          echo "Release assets:"
+          ls -la release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+          files: release/*
