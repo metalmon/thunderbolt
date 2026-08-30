@@ -218,7 +218,7 @@ jobs:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
-        run: bun tauri android build --apk --target aarch64
+        run: bun tauri android build --apk --features native_fetch --target aarch64
 
       - name: Build debug APK (unsigned fallback)
         if: steps.signing.outputs.signed == 'false'
@@ -226,7 +226,7 @@ jobs:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
-        run: bun tauri android build --apk --debug --target aarch64
+        run: bun tauri android build --apk --debug --features native_fetch --target aarch64
 
       - name: Collect APK
         run: |
