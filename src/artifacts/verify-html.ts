@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { formatHarnessError, parseHarnessMessage, wrapArtifactHtml } from './harness'
+import { artifactCsp, formatHarnessError, parseHarnessMessage, wrapArtifactHtml } from './harness'
+import { registerSandboxContent, type SandboxHandle } from './sandbox-host'
 import { type StaticIssue, staticCheckHtml } from './static-check'
 
 /** Outcome of verifying an agent-authored HTML artifact. `errors` is empty when `ok`. */
@@ -39,11 +40,25 @@ const formatStaticIssue = (issue: StaticIssue): string => {
  * on the first reported error, on a failed load, or on a hard timeout (a hang or
  * a page that never finishes loading). Browser-only — requires a real `document`.
  */
-export const runIframeVerification: RuntimeVerifier = (html, opts) =>
-  new Promise((resolve) => {
-    const timeoutMs = opts?.timeoutMs ?? defaultTimeoutMs
-    const nonce = crypto.randomUUID()
+export const runIframeVerification: RuntimeVerifier = async (html, opts) => {
+  const timeoutMs = opts?.timeoutMs ?? defaultTimeoutMs
+  const nonce = crypto.randomUUID()
 
+  // Host the wrapped HTML on the sandboxed-content origin so its inline scripts (the
+  // harness + agent code) actually run under the app's strict CSP — a local-scheme
+  // (`srcdoc`) iframe would inherit the app CSP and block them, making verification
+  // time out on every artifact. If hosting itself fails, report it (don't hang).
+  let handle: SandboxHandle
+  try {
+    handle = await registerSandboxContent({ html: wrapArtifactHtml(html, nonce), csp: artifactCsp })
+  } catch (error) {
+    return {
+      ok: false,
+      errors: [`Could not host the artifact for verification: ${error instanceof Error ? error.message : String(error)}`],
+    }
+  }
+
+  return new Promise<ArtifactVerifyResult>((resolve) => {
     const iframe = document.createElement('iframe')
     iframe.setAttribute('sandbox', 'allow-scripts') // never combine with allow-same-origin
     iframe.setAttribute('aria-hidden', 'true')
@@ -57,6 +72,7 @@ export const runIframeVerification: RuntimeVerifier = (html, opts) =>
       clearTimeout(hardTimer)
       clearTimeout(graceTimer)
       iframe.remove()
+      handle.revoke()
     }
     const finish = (result: ArtifactVerifyResult) => {
       if (settled) {
@@ -89,8 +105,8 @@ export const runIframeVerification: RuntimeVerifier = (html, opts) =>
       // artifact-height messages are ignored — verification only cares about ready/error.
     }
 
-    // NOTE: this only guards ASYNC hangs / never-renders. A sandboxed srcdoc iframe shares the
-    // parent's main thread, so a SYNCHRONOUS infinite loop (`while (true) {}`) blocks the event
+    // NOTE: this only guards ASYNC hangs / never-renders. A same-process sandboxed iframe shares
+    // the parent's main thread, so a SYNCHRONOUS infinite loop (`while (true) {}`) blocks the event
     // loop and this timer can't fire — verification would hang. True isolation needs a Worker or
     // cross-origin OOPIF; accepted for now since artifacts are model-authored, not adversarial.
     const hardTimer = setTimeout(
@@ -103,9 +119,10 @@ export const runIframeVerification: RuntimeVerifier = (html, opts) =>
     )
 
     window.addEventListener('message', onMessage)
-    iframe.srcdoc = wrapArtifactHtml(html, nonce)
+    iframe.src = handle.url
     document.body.appendChild(iframe)
   })
+}
 
 /**
  * Verify an agent-authored, self-contained HTML artifact actually works:
