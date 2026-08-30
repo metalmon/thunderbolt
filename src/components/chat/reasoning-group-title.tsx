@@ -42,24 +42,27 @@ export const ReasoningGroupTitle = ({ totalDuration, isGroupReasoning, tools, mc
     <div className="relative">
       <AnimatePresence mode="wait">
         {isGroupReasoning ? (
-          loadingLabel ? (
-            <m.div
-              key={`tool-${activeIndex}`}
-              // Skip entrance animation for tools already in progress (e.g., when switching back to a chat with active streaming)
-              initial={activeTool?.state === 'input-streaming' ? { y: 20, opacity: 0 } : { y: 0, opacity: 1 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="w-full"
+          <m.div
+            // A tool switch animates between verbs; pure reasoning (no active tool)
+            // holds a stable "thinking" key so it doesn't re-animate on every token.
+            key={loadingLabel ? `tool-${activeIndex}` : 'thinking'}
+            // Skip entrance animation for tools already in progress (e.g., when switching back to a chat with active streaming)
+            initial={activeTool?.state === 'input-streaming' ? { y: 20, opacity: 0 } : { y: 0, opacity: 1 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="w-full"
+          >
+            <span
+              // Tools carry a curated verb ("Searching…"); pure reasoning had an
+              // empty header — fall back to the "Thinking…" label so the block is
+              // never blank while the model reasons.
+              data-testid={loadingLabel ? 'tool-status' : 'reasoning-status'}
+              className="text-xs text-muted-foreground italic animate-pulse truncate min-w-0"
             >
-              <span
-                data-testid="tool-status"
-                className="text-xs text-muted-foreground italic animate-pulse truncate min-w-0"
-              >
-                {loadingLabel}
-              </span>
-            </m.div>
-          ) : null
+              {loadingLabel ?? t('messages.thinkingEllipsis')}
+            </span>
+          </m.div>
         ) : (
           <m.div
             key="completed"

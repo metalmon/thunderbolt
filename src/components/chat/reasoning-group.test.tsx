@@ -176,6 +176,27 @@ describe('ReasoningGroup', () => {
 
       expect(screen.queryByTestId('tool-status')).not.toBeInTheDocument()
     })
+
+    it('should show a thinking label (not a blank header) while reasoning with no active tool', () => {
+      const reasoningPart = createMockReasoningPart('streaming')
+      const parts: ReasoningGroupItem[] = [{ type: 'reasoning', content: reasoningPart, id: 'reasoning-0' }]
+      render(
+        <ReasoningGroup
+          parts={parts}
+          isStreaming={true}
+          isLastPartInMessage={true}
+          hasTextPart={false}
+          reasoningTime={testReasoningTime}
+        />,
+        { wrapper: TestWrapper },
+      )
+
+      // Pure reasoning carries no tool verb, so the header falls back to the
+      // "Thinking…" label under its own testid instead of rendering nothing.
+      const status = screen.getByTestId('reasoning-status')
+      expect(status.textContent?.trim().length ?? 0).toBeGreaterThan(0)
+      expect(screen.queryByTestId('tool-status')).not.toBeInTheDocument()
+    })
   })
 
   describe('isGroupReasoning logic', () => {
