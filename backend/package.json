@@ -48,7 +48,6 @@
     "react-email": "^6.0.5",
     "resend": "^6.5.2",
     "tinfoil": "^1.2.1",
-    "undici": "^7.25.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
