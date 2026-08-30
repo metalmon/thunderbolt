@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { formatHarnessError, parseHarnessMessage, wrapArtifactHtml, wrapArtifactPreviewHtml } from '@/artifacts/harness'
+import {
+  artifactCsp,
+  formatHarnessError,
+  parseHarnessMessage,
+  wrapArtifactHtml,
+  wrapArtifactPreviewHtml,
+} from '@/artifacts/harness'
+import { registerSandboxContent, type SandboxHandle } from '@/artifacts/sandbox-host'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -40,9 +47,11 @@ export type SandboxedHtmlFrameProps = {
  * Renders agent-authored HTML inside a sandboxed iframe (`allow-scripts`, and
  * deliberately no `allow-same-origin`, so it cannot reach the parent's DOM,
  * cookies, or storage). The HTML is wrapped with the same harness used for
- * verification, so a page that throws during use is surfaced via `onError` —
- * and what we show is exactly what we verified. Shared by the inline and
- * side-panel artifact views.
+ * verification and served from the sandboxed-content host (a dedicated origin with
+ * its OWN CSP — see `@/artifacts/sandbox-host`), because the app's strict CSP would
+ * otherwise block the artifact's inline scripts in any local-scheme (`srcdoc`/
+ * `data:`/`blob:`) iframe. What we show is exactly what we verified. Shared by the
+ * inline and side-panel artifact views.
  */
 export const SandboxedHtmlFrame = ({
   html,
@@ -60,20 +69,10 @@ export const SandboxedHtmlFrame = ({
   const [nonce] = useState(() => crypto.randomUUID())
   // Scripts on: wrap with the harness. Scripts off (streaming preview): still inject the
   // offline CSP so the preview can't beacon out via a subresource before verification.
-  const srcDoc = useMemo(
+  const wrappedHtml = useMemo(
     () => (allowScripts ? wrapArtifactHtml(html, nonce) : wrapArtifactPreviewHtml(html)),
     [html, nonce, allowScripts],
   )
-  const [contentHeight, setContentHeight] = useState<number | null>(null)
-  // Reset the measured height at each reload boundary (new document): without this a
-  // streaming→active swap or a document change keeps the previous artifact's height until a fresh
-  // `artifact-height` arrives, leaving dead space or clipping. Adjusting state during render (per
-  // the React docs' "storing information from previous renders") beats an effect for a pure reset.
-  const lastSrcDocRef = useRef(srcDoc)
-  if (lastSrcDocRef.current !== srcDoc) {
-    lastSrcDocRef.current = srcDoc
-    setContentHeight(null)
-  }
 
   // Keep the latest callbacks in refs so the message subscription is set up once
   // per document, not re-subscribed on every parent render.
@@ -81,6 +80,33 @@ export const SandboxedHtmlFrame = ({
   onReadyRef.current = onReady
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
+
+  // Register the wrapped HTML with the sandbox host; the resulting URL is what the
+  // iframe loads. Re-register when the document changes; revoke on change/unmount.
+  const [src, setSrc] = useState<string | null>(null)
+  const [contentHeight, setContentHeight] = useState<number | null>(null)
+  useEffect(() => {
+    let handle: SandboxHandle | null = null
+    let cancelled = false
+    // Reset measured height at each document boundary so a swap doesn't keep the previous
+    // artifact's height until a fresh `artifact-height` arrives (dead space / clipping).
+    setContentHeight(null)
+    setSrc(null)
+    registerSandboxContent({ html: wrappedHtml, csp: artifactCsp })
+      .then((registered) => {
+        if (cancelled) {
+          registered.revoke()
+          return
+        }
+        handle = registered
+        setSrc(registered.url)
+      })
+      .catch((error) => onErrorRef.current?.(error instanceof Error ? error.message : String(error)))
+    return () => {
+      cancelled = true
+      handle?.revoke()
+    }
+  }, [wrappedHtml])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -104,14 +130,22 @@ export const SandboxedHtmlFrame = ({
     return () => window.removeEventListener('message', handleMessage)
   }, [nonce])
 
+  const style = autoHeight ? { height: contentHeight ?? defaultAutoHeightPx } : undefined
+  const frameClass = cn('w-full border-0 bg-white', autoHeight ? '' : 'h-full', className)
+
+  // While the host is registering (a fast IPC/SW round-trip), hold the frame's box so
+  // the card doesn't collapse and reflow when the iframe appears.
+  if (!src) {
+    return <div aria-hidden style={style} className={frameClass} />
+  }
   return (
     <iframe
       ref={iframeRef}
       title={title}
       sandbox={allowScripts ? 'allow-scripts' : ''}
-      srcDoc={srcDoc}
-      style={autoHeight ? { height: contentHeight ?? defaultAutoHeightPx } : undefined}
-      className={cn('w-full border-0 bg-white', autoHeight ? '' : 'h-full', className)}
+      src={src}
+      style={style}
+      className={frameClass}
     />
   )
 }
