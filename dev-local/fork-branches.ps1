@@ -16,6 +16,8 @@
 #   - fork/anon-agent-manage after voice — a self-contained, removable seam that
 #     relaxes custom-agent management for anonymous (local-only) accounts; lifts
 #     out cleanly once stable/synced accounts land;
+#   - fork/sandbox-host before fork/dev — adds frame-src to tauri.conf CSP (fork/dev
+#     also edits that block: worker-src); rerere replays the two-line CSP merge.
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -26,6 +28,7 @@ $ForkBranches = @(
     "fork/hooks",
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
+    "fork/sandbox-host",
     "fork/dev"
 )
 
@@ -39,5 +42,6 @@ $ForkMainRangeBranches = @(
     "fork/hooks",
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
+    "fork/sandbox-host",
     "fork/dev"
 )
