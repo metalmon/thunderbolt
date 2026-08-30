@@ -6,6 +6,7 @@ import type { Auth } from '@/auth/elysia-plugin'
 import { createAuthMacro } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { ensureHttps, validateAndPin, type DnsLookup } from '@/utils/url-validation'
+import { Agent, type Dispatcher } from 'undici'
 import {
   droppedResponseHeaders,
   finalUrlHeader,
@@ -361,7 +362,35 @@ export const createUniversalProxyRoutes = (options: CreateUniversalProxyRoutesOp
               // routes.test.ts "passes decompress: false" assertion will still pass
               // but real responses will silently break — add an integration test
               // before bumping Bun major.
-              const response = await fetchFn(pinnedUrl, {
+              // Connect to the SSRF-validated pinned IP while keeping the original
+              // hostname in the request URL, so TLS SNI + certificate validation +
+              // name-based upstream routing (CDN vhosts, reverse tunnels like tuna.am)
+              // all use the hostname — not the IP. `validateAndPin` hands back an
+              // IP-rewritten URL plus a `Host` header carrying the original hostname
+              // (absent for literal-IP targets, which need no SNI fix). We keep the
+              // hostname in the URL and re-pin it to that exact validated IP via a
+              // per-request dispatcher `lookup`, so DNS-rebind protection is preserved
+              // (the socket still lands on the address validateAndPin approved) without
+              // breaking TLS/vhost routing. Connecting by raw IP fails SNI-strict edges
+              // (cert altname mismatch / "tunnel not found"), which broke remote MCP.
+              const pinnedHost = pinnedExtraHeaders.get('Host')
+              let connectUrl = pinnedUrl
+              let hopDispatcher: Dispatcher | undefined
+              if (pinnedHost) {
+                const pinnedIp = new URL(pinnedUrl).hostname.replace(/^\[|\]$/g, '')
+                const family = pinnedIp.includes(':') ? 6 : 4
+                // Bun's dispatcher Agent is a lightweight lookup-config carrier (no
+                // pool / close / destroy); Bun owns the socket lifecycle, so nothing
+                // to tear down here.
+                hopDispatcher = new Agent({
+                  connect: { lookup: (_hostname, _options, cb) => cb(null, [{ address: pinnedIp, family }]) },
+                })
+                const rebuilt = new URL(pinnedUrl)
+                rebuilt.hostname = pinnedHost
+                connectUrl = rebuilt.toString()
+              }
+
+              const response = await fetchFn(connectUrl, {
                 method: currentMethod,
                 headers: hopHeaders,
                 body: upstreamBody,
@@ -369,7 +398,8 @@ export const createUniversalProxyRoutes = (options: CreateUniversalProxyRoutesOp
                 signal: upstreamCtl.signal,
                 decompress: false,
                 duplex: 'half',
-              } as RequestInit & { decompress: boolean; duplex: 'half' })
+                ...(hopDispatcher ? { dispatcher: hopDispatcher } : {}),
+              } as RequestInit & { decompress: boolean; duplex: 'half'; dispatcher?: Dispatcher })
 
               /** Bytes uploaded to upstream. Buffered bodies have a fixed size known
                *  up-front; for streamed bodies we expose a late-read getter so the
