@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
 import { useMessageCache } from '@/hooks/use-message-cache'
 import { useSettings } from '@/hooks/use-settings'
 import { WeatherForecast, WeatherForecastSkeleton } from './display'
@@ -20,6 +21,7 @@ type WeatherForecastWidgetProps = {
  * Fetches 6 days of weather data (today + 5 forecast days)
  */
 export const WeatherForecastWidget = ({ location, region, country, messageId }: WeatherForecastWidgetProps) => {
+  const { t } = useTranslation('chat')
   const { temperatureUnit } = useSettings({ temperature_unit: 'f' })
   const { data, error } = useMessageCache<WeatherForecastData>({
     messageId,
@@ -39,7 +41,7 @@ export const WeatherForecastWidget = ({ location, region, country, messageId }: 
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 my-4 dark:border-red-800 dark:bg-red-950">
         <p className="text-sm text-red-800 dark:text-red-200">
-          Unable to load weather forecast: {error instanceof Error ? error.message : 'Unknown error'}
+          {t('weather.loadError')}: {error instanceof Error ? error.message : t('weather.unknownError')}
         </p>
       </div>
     )

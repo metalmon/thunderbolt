@@ -16,7 +16,7 @@ const temperatureUnitItemClass =
   'h-full aspect-square flex-none rounded-xl px-0 text-[length:var(--font-size-sm)] text-muted-foreground hover:bg-transparent hover:text-foreground focus-visible:ring-2 data-[state=on]:bg-accent data-[state=on]:text-foreground'
 
 export const WeatherForecast = ({ days = [], temperature_unit }: WeatherForecastProps) => {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation('chat')
   // dayjs formats day/month names from its own locale registry, not from i18next —
   // keep it in sync with the UI language so "Monday, Jan 5" localizes too.
   dayjs.locale(i18n.language === 'ru' ? 'ru' : 'en')
@@ -84,19 +84,19 @@ export const WeatherForecast = ({ days = [], temperature_unit }: WeatherForecast
           rel="noopener noreferrer"
           className="text-[10px] leading-none text-muted-foreground/60 hover:text-muted-foreground"
         >
-          Weather data provided by Open-Meteo.com
+          {t('weather.dataProvidedBy')}
         </a>
         <ToggleGroup
           type="single"
           value={temperatureUnit}
           onValueChange={(value) => value && setTemperatureUnit(value as 'c' | 'f')}
-          aria-label="Temperature Unit"
+          aria-label={t('weather.temperatureUnit')}
           className="h-[var(--touch-height-lg)] gap-0.5 rounded-none md:h-[var(--touch-height-default)] md:p-0.5"
         >
-          <ToggleGroupItem value="c" aria-label="Celsius" className={temperatureUnitItemClass}>
+          <ToggleGroupItem value="c" aria-label={t('weather.celsius')} className={temperatureUnitItemClass}>
             °C
           </ToggleGroupItem>
-          <ToggleGroupItem value="f" aria-label="Fahrenheit" className={temperatureUnitItemClass}>
+          <ToggleGroupItem value="f" aria-label={t('weather.fahrenheit')} className={temperatureUnitItemClass}>
             °F
           </ToggleGroupItem>
         </ToggleGroup>

@@ -36,6 +36,16 @@ const groupedCitationRegex = /\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
 /** Extracts individual [N] numbers from a matched group */
 const individualCitationRegex = /\[(\d+)\]/g
 
+/**
+ * Removes orphaned `[N]` citation markers when the turn produced NO citable sources.
+ * Models append `[1]`-style refs out of habit (the research skill says "cite with [N]",
+ * and citation reinforcement fires on any tool-call turn — including render_html, which
+ * has no source), leaving literal "[1]" noise in the prose. The leading `\s+` requires
+ * whitespace before the group, so array/index syntax like `arr[1]` is left untouched;
+ * the negative lookahead keeps markdown links `[text](url)` safe.
+ */
+const orphanCitationRegex = /\s+\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
+
 /** Normalize URL for dedup: lowercase host, strip trailing slash */
 const normalizeUrl = (url: string): string => {
   try {
@@ -211,8 +221,12 @@ export const TextPart = memo(({ part, messageId, sources, haystackReferences }: 
       }
     }
 
+    // No citable sources this turn — strip any orphaned `[N]` markers the model left
+    // behind so they don't render as literal "[1]" noise (e.g. after a render_html call).
     return {
-      processedParts: parts,
+      processedParts: parts.map((p) =>
+        p.type === 'text' ? { type: 'text' as const, content: p.content.replace(orphanCitationRegex, '') } : p,
+      ),
       citations: new Map() as CitationMap,
       hasCitations: false,
       hasText: parts.some((p) => p.type === 'text'),

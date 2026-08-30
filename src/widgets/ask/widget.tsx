@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useTranslation } from 'react-i18next'
 import { useCurrentChatSession } from '@/chats/chat-store'
 import { useDatabase } from '@/contexts'
 import { getMessage, updateMessageCache } from '@/dal/chat-messages'
@@ -24,14 +25,19 @@ type AskWidgetProps = Omit<AskData, 'mode' | 'options'> & {
  * show the question and, when the user answered before the removal, their
  * recorded answer.
  */
-const LegacyFreeAsk = ({ prompt, savedText }: { prompt: string; savedText: string | null }) => (
-  <div className="my-4 w-full rounded-2xl border border-border bg-card px-4 py-3">
-    <p className="text-[length:var(--font-size-body)]">{prompt}</p>
-    {savedText !== null && (
-      <p className="mt-2 text-[length:var(--font-size-sm)] text-muted-foreground">Answered: “{savedText}”</p>
-    )}
-  </div>
-)
+const LegacyFreeAsk = ({ prompt, savedText }: { prompt: string; savedText: string | null }) => {
+  const { t } = useTranslation('chat')
+  return (
+    <div className="my-4 w-full rounded-2xl border border-border bg-card px-4 py-3">
+      <p className="text-[length:var(--font-size-body)]">{prompt}</p>
+      {savedText !== null && (
+        <p className="mt-2 text-[length:var(--font-size-sm)] text-muted-foreground">
+          {t('ask.answered')}: “{savedText}”
+        </p>
+      )}
+    </div>
+  )
+}
 
 /**
  * Connects the presentational {@link Ask} to the message cache: restores a
