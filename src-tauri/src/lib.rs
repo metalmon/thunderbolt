@@ -9,6 +9,7 @@ pub mod cli_installer;
 pub mod commands;
 pub mod oauth_server;
 pub mod platform_utils;
+pub mod sandbox;
 
 use tauri::Manager;
 
@@ -44,12 +45,19 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(platform_utils::init())
+        // Sandboxed-content host: dedicated `sandbox:` origin that serves agent /
+        // MCP-app HTML with its OWN CSP header, so it doesn't inherit the app's
+        // strict CSP (see sandbox.rs). State holds the id→content map.
+        .manage(sandbox::SandboxStore::default())
+        .register_uri_scheme_protocol("sandbox", sandbox::protocol_handler)
         .invoke_handler(tauri::generate_handler![
             commands::toggle_dock_icon,
             commands::capabilities,
             commands::set_interface_style,
             commands::start_oauth_server,
             commands::install_thunderbolt_cli,
+            sandbox::store_sandbox_content,
+            sandbox::revoke_sandbox_content,
         ]);
 
     #[cfg(debug_assertions)]

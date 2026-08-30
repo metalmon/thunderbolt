@@ -29,7 +29,8 @@
         "font-src": "'self' data:",
         "style-src": "'self' 'unsafe-inline'",
         "script-src": "'self' 'wasm-unsafe-eval'",
-        "worker-src": "'self' blob:"
+        "worker-src": "'self' blob:",
+        "frame-src": "'self' sandbox: http://sandbox.localhost"
       }
     },
     "withGlobalTauri": true
