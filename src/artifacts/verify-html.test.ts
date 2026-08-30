@@ -4,6 +4,14 @@
 
 import { describe, expect, it, mock } from 'bun:test'
 import { getClock } from '@/testing-library'
+
+// runIframeVerification serves the artifact from the sandboxed-content host (Tauri
+// protocol / service worker). Mock it so the timeout+cleanup branch runs without a
+// real backend — the host just hands back a URL for the (hidden) iframe.
+mock.module('./sandbox-host', () => ({
+  registerSandboxContent: async () => ({ url: 'sandbox://localhost/verify-test', revoke: () => {} }),
+}))
+
 import { runIframeVerification, verifyArtifactHtml } from './verify-html'
 
 const validHtml = '<!doctype html><html><head></head><body><h1>ok</h1></body></html>'
