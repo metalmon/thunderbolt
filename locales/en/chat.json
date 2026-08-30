@@ -263,7 +263,20 @@
     "yourCall": "Your call",
     "answer": "Answer",
     "submit": "Submit",
-    "gotIt": "Got it, working on that next."
+    "gotIt": "Got it, working on that next.",
+    "answered": "Answered"
+  },
+  "weather": {
+    "dataProvidedBy": "Weather data provided by Open-Meteo.com",
+    "temperatureUnit": "Temperature Unit",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit",
+    "loadError": "Unable to load weather forecast",
+    "unknownError": "Unknown error"
+  },
+  "map": {
+    "webglUnavailable": "Maps can’t be displayed here — WebGL is disabled or unavailable in this browser.",
+    "loadFailed": "The map couldn’t be loaded."
   },
   "voiceMode": {
     "start": "Start voice mode",
