@@ -10,8 +10,8 @@ import { createUniversalProxyRoutes } from './routes'
 
 // Deterministic DNS resolver injected as a `createUniversalProxyRoutes` dep —
 // no `mock.module('node:dns')`, which would leak across files (see
-// docs/development/testing.md). 1.1.1.1 is a public IP (passes SSRF) and
-// stable for `pinnedUrl` assertions below.
+// docs/development/testing.md). 1.1.1.1 is a public IP (passes SSRF); the proxy
+// pins it via the request dispatcher while still connecting by hostname.
 const mockDnsLookup = mock(() => Promise.resolve([{ address: '1.1.1.1', family: 4 }]))
 
 /** Fake auth that always returns a resolved session. */
@@ -23,15 +23,6 @@ const fakeAuth = {
     }),
   },
 } as never
-
-/** Converts a URL to its IP-pinned equivalent (as validateAndPin would produce). */
-const pinnedUrl = (url: string) => {
-  const parsed = new URL(url)
-  parsed.hostname = '1.1.1.1'
-  parsed.username = ''
-  parsed.password = ''
-  return parsed.toString()
-}
 
 const makeOkResponse = (body = 'ok', extraHeaders: Record<string, string> = {}) =>
   new Response(body, {
@@ -104,7 +95,12 @@ describe('createUniversalProxyRoutes', () => {
     expect(res.status).toBe(200)
     expect(mockFetch).toHaveBeenCalledTimes(1)
     const [calledUrl, init] = mockFetch.mock.calls[0] as [string, RequestInit]
-    expect(calledUrl).toBe(pinnedUrl(target))
+    // Connects by hostname (so TLS SNI / cert / vhost routing use the name); the
+    // SSRF-validated IP is pinned via the request dispatcher, not by rewriting the
+    // URL to the IP (which breaks SNI-strict edges). validateAndPin still resolves +
+    // blocks private IPs — see url-validation.test.ts.
+    expect(calledUrl).toBe(target)
+    expect((init as { dispatcher?: unknown }).dispatcher).toBeDefined()
     const h = init.headers as Headers
     expect(h.get('authorization')).toBeNull()
     expect(h.get('cookie')).toBeNull()
@@ -310,7 +306,8 @@ describe('createUniversalProxyRoutes', () => {
     const res = await drain(await app.handle(proxyRequest(target, { method: 'GET' })))
     expect(res.status).toBe(200)
     const [calledUrl] = mockFetch.mock.calls[0] as [string, RequestInit]
-    expect(calledUrl).toBe(pinnedUrl('https://example.com/resource'))
+    // Upgraded to https and connected by hostname (IP pinned via the dispatcher).
+    expect(calledUrl).toBe('https://example.com/resource')
   })
 
   it('returns 400 for missing X-Proxy-Target-Url header', async () => {
@@ -485,7 +482,8 @@ describe('createUniversalProxyRoutes', () => {
     const res = await drain(await app.handle(proxyRequest(target, { method: 'GET' })))
     expect(res.status).toBe(200)
     const [secondUrl] = mockFetch.mock.calls[1] as [string, RequestInit]
-    expect(secondUrl).toBe(pinnedUrl('https://example.com/final'))
+    // Redirect hop also connects by hostname (each hop re-pins via its dispatcher).
+    expect(secondUrl).toBe('https://example.com/final')
   })
 
   it('strips userinfo from the target URL before forwarding', async () => {
