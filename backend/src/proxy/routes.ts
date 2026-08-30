@@ -485,12 +485,21 @@ const buildProxyResponse = (
     return out
   }
 
+  // Server-Sent Events are the transport for long-lived, event-driven relays
+  // (Streamable-HTTP MCP's server→client channel especially): the stream stays
+  // open with no bytes between messages and can carry an unbounded number of
+  // small messages over a session. The 30 s idle watchdog and 10 MB byte cap —
+  // sized for one-shot request/response bodies — would tear such a stream down
+  // (idle within 30 s of connecting, since MCP idles until a tool call). Exempt
+  // event streams from both; the client owns the connection and closes it.
+  const isEventStream = (response.headers.get('content-type') ?? '').toLowerCase().includes('text/event-stream')
+
   // capStream's onAbort fires before onComplete; latch the abort reason so the
   // single onComplete emission can promote `error_type` accordingly.
   let abortReason: 'cap' | 'idle' | null = null
   const cap = capStream(response.body, {
-    maxBytes: streamCapBytes,
-    idleTimeoutMs: streamIdleMs,
+    maxBytes: isEventStream ? undefined : streamCapBytes,
+    idleTimeoutMs: isEventStream ? undefined : streamIdleMs,
     onAbort: (reason) => {
       abortReason = reason
       upstreamCtl.abort()
