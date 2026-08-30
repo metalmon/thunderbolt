@@ -14,7 +14,10 @@ export type CappedStream = {
 export type CapStreamOptions = {
   /** Maximum bytes accepted before termination. Omit to disable byte limiting. */
   maxBytes?: number
-  idleTimeoutMs: number
+  /** Idle watchdog: terminate/error the stream after this many ms with no bytes.
+   *  `0` expires immediately; omit entirely to disable the watchdog (for
+   *  long-idle relays like SSE / Streamable-HTTP MCP). */
+  idleTimeoutMs?: number
   /** Whether idle expiry terminates or errors the relayed stream. Defaults to termination. */
   onIdle?: 'terminate' | 'error'
   /** Error exposed to readers when `onIdle` is `error`. */
@@ -57,6 +60,13 @@ export const capStream = (source: ReadableStream<Uint8Array>, opts: CapStreamOpt
   }
 
   const armIdleTimer = (controller: TransformStreamDefaultController<Uint8Array>) => {
+    // An omitted timeout disables the idle watchdog entirely — used for
+    // legitimately long-idle relays like Streamable-HTTP MCP's server→client SSE
+    // channel, which sits open with no bytes between messages and must not be
+    // torn down for being quiet. (0 still means "expire immediately", as tests rely on.)
+    if (opts.idleTimeoutMs === undefined) {
+      return
+    }
     if (idleTimer) {
       idleTimer.refresh()
       return
