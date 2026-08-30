@@ -14,6 +14,9 @@ declare module '@tauri-apps/api/core' {
   // Minimal surface we actually use. Extend as needed.
   export function isTauri(): boolean
   export function invoke<T = unknown>(cmd: string, args?: Record<string, unknown>): Promise<T>
+  // Builds the per-OS URL for a custom URI-scheme asset: `<protocol>://localhost/<path>`
+  // (macOS/Linux) or `http://<protocol>.localhost/<path>` (Windows/WebView2).
+  export function convertFileSrc(filePath: string, protocol?: string): string
 }
 
 // ---------------------------------------------------------------------------
