@@ -111,10 +111,11 @@ export const OnboardingDialog = () => {
       >
         <DialogTitle className="sr-only">{t('dialog.title')}</DialogTitle>
         <DialogDescription className="sr-only">{t('dialog.description')}</DialogDescription>
-        <div
-          className={cn('flex h-full flex-col items-center', !isMobile && 'pb-6 pt-8')}
-          style={isMobile ? { paddingBottom: 'var(--kb, 0px)' } : undefined}
-        >
+        {/* No mobile keyboard padding here: the ResponsiveModal surface already
+            reserves it via --modal-bottom-inset (= max(safe-area, --kb + 12px)).
+            Adding paddingBottom: var(--kb) on top double-counted the keyboard,
+            shoving the step content up off-screen with a black gap below. */}
+        <div className={cn('flex h-full flex-col items-center', !isMobile && 'pb-6 pt-8')}>
           <div className="relative flex w-full shrink-0 items-center justify-center px-4 pb-2">
             <StepIndicators currentStep={state.currentStep} totalSteps={5} />
           </div>
