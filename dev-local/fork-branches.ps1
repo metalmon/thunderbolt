@@ -18,6 +18,10 @@
 #     out cleanly once stable/synced accounts land;
 #   - fork/sandbox-host before fork/dev — adds frame-src to tauri.conf CSP (fork/dev
 #     also edits that block: worker-src); rerere replays the two-line CSP merge.
+#   - fork/spinner near the end (after the content-editing branches) — it swaps
+#     lucide Loader2 for the Volt <Spinner> across many UI files; applying it after
+#     i18n/hooks/voice have wrapped/edited those files keeps the Loader2-line diffs
+#     conflict-free. i18n-neutral (no locales touched).
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -29,6 +33,7 @@ $ForkBranches = @(
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
+    "fork/spinner",
     "fork/dev"
 )
 
@@ -43,5 +48,6 @@ $ForkMainRangeBranches = @(
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
+    "fork/spinner",
     "fork/dev"
 )
