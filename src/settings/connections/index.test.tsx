@@ -622,8 +622,14 @@ describe('ConnectionsPage list', () => {
       wrapper: McpProviderWrapper,
     })
 
+    // Pre-baked integrations render at the top (Thunderbolt renamed from
+    // "Thunderbolt Pro").
+    await waitForElement(() => screen.queryByText('Thunderbolt'))
+    // Google & Microsoft are temporarily hidden until backend OAuth is configured
+    // (fork/hide-integrations); only Thunderbolt (Pro) remains pre-baked.
     expect(screen.queryByText('Google')).not.toBeInTheDocument()
     expect(screen.queryByText('Microsoft')).not.toBeInTheDocument()
+    expect(screen.queryByText('Thunderbolt Pro')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'New Connection' }))
     expect(screen.getByRole('button', { name: 'Google Productivity' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Microsoft Productivity' })).toBeInTheDocument()
