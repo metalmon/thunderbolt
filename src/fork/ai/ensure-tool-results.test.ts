@@ -64,7 +64,9 @@ describe('ensureToolResults', () => {
     const out = ensureToolResults([user('hi'), a, toolResult('c1', 't'), user('x')])
     expect(openIds(out)).toEqual([])
     // c2 gets a synthetic error result
-    const synthetic = out.flatMap((m) => (m.role === 'tool' ? (m.content as any[]) : [])).find((p) => p.toolCallId === 'c2')
+    const synthetic = out
+      .flatMap((m) => (m.role === 'tool' ? (m.content as any[]) : []))
+      .find((p) => p.toolCallId === 'c2')
     expect(synthetic.output.type).toBe('error-text')
   })
 
@@ -89,8 +91,17 @@ describe('ensureToolResults', () => {
             c.enqueue({ type: 'response-metadata', id: 'r1', modelId: 'mock', timestamp: new Date(0) })
             c.enqueue({ type: 'tool-input-start', id: 'call-8c175f00', toolName: 'do_thing' })
             c.enqueue({ type: 'tool-input-end', id: 'call-8c175f00' })
-            c.enqueue({ type: 'tool-call', toolCallId: 'call-8c175f00', toolName: 'do_thing', input: JSON.stringify({ q: 'x' }) })
-            c.enqueue({ type: 'finish', finishReason: 'tool-calls', usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 } } as any)
+            c.enqueue({
+              type: 'tool-call',
+              toolCallId: 'call-8c175f00',
+              toolName: 'do_thing',
+              input: JSON.stringify({ q: 'x' }),
+            })
+            c.enqueue({
+              type: 'finish',
+              finishReason: 'tool-calls',
+              usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+            } as any)
             c.close()
           },
         }),
@@ -119,7 +130,11 @@ describe('ensureToolResults', () => {
               c.enqueue({ type: 'text-start', id: 't1' })
               c.enqueue({ type: 'text-delta', id: 't1', delta: 'ok' })
               c.enqueue({ type: 'text-end', id: 't1' })
-              c.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 } } as any)
+              c.enqueue({
+                type: 'finish',
+                finishReason: 'stop',
+                usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+              } as any)
               c.close()
             },
           }),
