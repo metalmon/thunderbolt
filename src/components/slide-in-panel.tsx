@@ -66,7 +66,7 @@ export const SlideInPanel = ({
       onTransitionEnd={handleTransitionEnd}
     >
       <div
-        className="h-full transition-transform duration-300 motion-reduce:transition-none"
+        className="h-full transition-transform duration-300 will-change-transform motion-reduce:transition-none"
         style={{
           width,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
