@@ -22,6 +22,10 @@
 #     lucide Loader2 for the Volt <Spinner> across many UI files; applying it after
 #     i18n/hooks/voice have wrapped/edited those files keeps the Loader2-line diffs
 #     conflict-free. i18n-neutral (no locales touched).
+#   - fork/perf near the end, same reason — GPU-smooth panel/overlay animation
+#     tweaks (drop backdrop-blur on moving surfaces, transform-slide the sidebar,
+#     remove the detail-panel glow) across many UI primitives; apply after the
+#     content branches so its class-string diffs stay conflict-free.
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -34,6 +38,7 @@ $ForkBranches = @(
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
+    "fork/perf",
     "fork/dev"
 )
 
@@ -49,5 +54,6 @@ $ForkMainRangeBranches = @(
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
+    "fork/perf",
     "fork/dev"
 )
