@@ -150,7 +150,11 @@ jobs:
           version=$(jq -r .version package.json)
           setup=$(find "$base" -name '*-setup.exe' | head -1)
           if [ -z "$setup" ]; then echo "❌ NSIS setup.exe not found under $base"; exit 1; fi
-          7z a -tzip "out/Volt_${version}_x64-setup.zip" "$setup" >/dev/null
+          # Copy to a flat name and zip from inside out/ so the archive holds just
+          # the installer at its root — not the nested src-tauri/target/... path
+          # that `7z a <fullpath>` would otherwise preserve.
+          cp "$setup" "out/Volt_${version}_x64-setup.exe"
+          ( cd out && 7z a -tzip "Volt_${version}_x64-setup.zip" "Volt_${version}_x64-setup.exe" >/dev/null && rm "Volt_${version}_x64-setup.exe" )
           echo "Collected:"
           ls -la out
 
