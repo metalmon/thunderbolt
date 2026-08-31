@@ -16,8 +16,9 @@ describe('Spinner', () => {
     expect(svg.getAttribute('class')).toContain('size-4')
     // The mark must not spin — the charge animates internally instead.
     expect(svg.getAttribute('class')).not.toContain('animate-spin')
-    // The charge band carries the charge animation.
-    expect(container.querySelector('.animate-volt-charge')).toBeInTheDocument()
+    // The charge band sweeps via a SMIL <animate> on its `y` (engine-agnostic).
+    expect(container.querySelector('.volt-charge-band')).toBeInTheDocument()
+    expect(container.querySelector('animate')?.getAttribute('attributeName')).toBe('y')
   })
 
   it('gives each instance a unique clip id so multiple spinners never collide', () => {
