@@ -181,7 +181,16 @@
     "availableTools": "Доступные инструменты",
     "toolDescriptions": {
       "search": "Поиск в интернете. У каждого результата есть метка [Источник N]. Ссылайтесь через [N] в конце предложения.",
-      "fetch_content": "Загрузка и разбор содержимого ПУБЛИЧНОЙ веб-страницы по URL. У результата есть метка [Источник N]. Ссылайтесь через [N] в конце предложения. НЕ используйте для ссылок Google Drive, Docs, Sheets или Slides. НЕ используйте для ссылок OneDrive или SharePoint (используйте microsoft_get_onedrive_file_content)."
+      "fetch_content": "Загрузка и разбор содержимого ПУБЛИЧНОЙ веб-страницы по URL. У результата есть метка [Источник N]. Ссылайтесь через [N] в конце предложения. НЕ используйте для ссылок Google Drive, Docs, Sheets или Slides. НЕ используйте для ссылок OneDrive или SharePoint (используйте microsoft_get_onedrive_file_content).",
+      "google_check_inbox": "Проверить входящие Gmail или другие папки — недавние переписки (треды) с краткими сводками",
+      "google_search_emails": "Поиск по всем письмам Gmail через синтаксис запросов Gmail (напр. «from:example.com subject:important»)",
+      "google_get_email": "Получить полные детали письма Gmail, включая текст и вложения",
+      "google_draft_email": "Создать черновик письма (новое или ответ на существующее). Черновик сохранится, но не отправится.",
+      "google_check_calendar": "Проверить Google Календарь — предстоящие события в заданном интервале",
+      "microsoft_list_messages": "Список сообщений Microsoft Outlook с необязательной фильтрацией",
+      "microsoft_get_message": "Получить конкретное сообщение Microsoft Outlook по ID",
+      "microsoft_search_onedrive": "Поиск файлов OneDrive по имени или содержимому",
+      "microsoft_get_onedrive_file_content": "Получить текст из файла OneDrive. Поддерживаются только текстовые файлы; для остальных типов (PDF, документы Office, изображения и т.п.) вернёт метаданные (extraction_failed=true) — вежливо поясните ограничение пользователю."
     },
     "toolCount_one": "{{count}} инструмент",
     "toolCount_few": "{{count}} инструмента",

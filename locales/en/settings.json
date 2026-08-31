@@ -183,7 +183,16 @@
     "availableTools": "Available Tools",
     "toolDescriptions": {
       "search": "Search the web. Each result has a [Source N] label. Cite with [N] at end of sentence.",
-      "fetch_content": "Fetch and parse content from a PUBLIC webpage URL. Result has a [Source N] label. Cite with [N] at end of sentence. Do NOT use for Google Drive, Docs, Sheets, or Slides links. Do NOT use for OneDrive or SharePoint links (use microsoft_get_onedrive_file_content instead)."
+      "fetch_content": "Fetch and parse content from a PUBLIC webpage URL. Result has a [Source N] label. Cite with [N] at end of sentence. Do NOT use for Google Drive, Docs, Sheets, or Slides links. Do NOT use for OneDrive or SharePoint links (use microsoft_get_onedrive_file_content instead).",
+      "google_check_inbox": "Check Gmail inbox or other folders for recent email conversations (threads) with lightweight summaries",
+      "google_search_emails": "Search all Gmail messages using Gmail query syntax (e.g. \"from:example.com subject:important\")",
+      "google_get_email": "Get full details of a specific Gmail message including body content and attachments",
+      "google_draft_email": "Create a draft email (can be a new email or reply to existing). Draft will be saved but not sent.",
+      "google_check_calendar": "Check Google Calendar for upcoming events in the specified timeframe",
+      "microsoft_list_messages": "List Microsoft Outlook messages with optional filtering",
+      "microsoft_get_message": "Get a specific Microsoft Outlook message by ID",
+      "microsoft_search_onedrive": "Search OneDrive files by name or content",
+      "microsoft_get_onedrive_file_content": "Get text content from a OneDrive file. Currently supports text files only. For unsupported types (PDFs, Office docs, images, etc.), returns file metadata with extraction_failed=true - explain the limitation helpfully to the user."
     },
     "toolCount_one": "{{count}} tool",
     "toolCount_other": "{{count}} tools",
