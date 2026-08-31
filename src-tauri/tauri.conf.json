@@ -41,8 +41,7 @@
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
-        "languages": ["Russian", "English"],
-        "displayLanguageSelector": true
+        "languages": ["Russian", "English"]
       }
     },
     "icon": [
