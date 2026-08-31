@@ -641,26 +641,6 @@
   margin-inline: 0 -3px;
 }
 
-/* Volt loading spinner (see components/ui/spinner.tsx): a pulse of charge
-   sweeps up through the bolt silhouette. Translate is in SVG user units of the
-   spinner's 0 0 32 32 viewBox (band is 10 tall), so it scales with any size. */
-@keyframes volt-charge {
-  0% {
-    transform: translateY(34px);
-  }
-  100% {
-    transform: translateY(-14px);
-  }
-}
-.animate-volt-charge {
-  animation: volt-charge 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-volt-charge {
-    animation-duration: 3.4s;
-  }
-}
-
 @layer base {
   * {
     border-color: var(--color-border);
