@@ -95,8 +95,10 @@ describe('ConnectionsPage list', () => {
     // Pre-baked integrations render at the top (Thunderbolt renamed from
     // "Thunderbolt Pro").
     await waitForElement(() => screen.queryByText('Thunderbolt'))
-    expect(screen.getByText('Google')).toBeInTheDocument()
-    expect(screen.getByText('Microsoft')).toBeInTheDocument()
+    // Google & Microsoft are temporarily hidden until backend OAuth is configured
+    // (fork/hide-integrations); only Thunderbolt (Pro) remains pre-baked.
+    expect(screen.queryByText('Google')).not.toBeInTheDocument()
+    expect(screen.queryByText('Microsoft')).not.toBeInTheDocument()
     expect(screen.queryByText('Thunderbolt Pro')).not.toBeInTheDocument()
 
     await waitForElement(() => screen.queryByText('First Server'))

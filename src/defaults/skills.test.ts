@@ -135,9 +135,12 @@ describe('defaultSkills', () => {
     )
   })
 
-  it('seeds Important Emails disabled and everything else enabled', () => {
+  it('seeds Important Emails and Connect-Integration disabled, everything else enabled', () => {
     for (const skill of defaultSkills) {
-      expect(skill.enabled).toBe(skill === defaultSkillImportantEmails ? 0 : 1)
+      // connect-integration is a temporary opt-out until backend OAuth is configured
+      // (fork/hide-integrations); Important Emails ships disabled by design.
+      const shipsDisabled = skill === defaultSkillImportantEmails || skill === defaultSkillConnectIntegration
+      expect(skill.enabled).toBe(shipsDisabled ? 0 : 1)
     }
   })
 })
