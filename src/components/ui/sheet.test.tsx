@@ -20,9 +20,7 @@ describe('Sheet', () => {
       </Sheet>,
     )
 
-    expect(screen.getByText('Sheet title').closest('[data-slot="sheet-content"]')).toHaveClass(
-      'bg-background/80',
-      'backdrop-blur-lg',
-    )
+    // Solid bg (no backdrop-blur): a blurred surface that slides is janky on weak HW.
+    expect(screen.getByText('Sheet title').closest('[data-slot="sheet-content"]')).toHaveClass('bg-background')
   })
 })
