@@ -44,8 +44,7 @@
     "longDescription": "Volt, клиент ИИ-ассистента. Окта Плюс, info@oktaplus.ru",
     "windows": {
       "nsis": {
-        "languages": ["Russian", "English"],
-        "displayLanguageSelector": true
+        "languages": ["Russian", "English"]
       }
     },
     "icon": [
