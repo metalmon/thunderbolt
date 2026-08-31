@@ -4,6 +4,7 @@
 
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import dayjs from '@/lib/dayjs'
 
 import enCommon from '../../locales/en/common.json'
 import enSettings from '../../locales/en/settings.json'
@@ -63,6 +64,15 @@ void i18n.use(initReactI18next).init({
       }
     : false,
 })
+
+// Keep dayjs's locale in sync with the UI language so relative/absolute dates
+// (`.fromNow()`, day/month names) render in the active language instead of English
+// (e.g. "Доступен a few seconds ago" → "Доступен несколько секунд назад").
+const syncDayjsLocale = (lng: string): void => {
+  dayjs.locale(normalizeUiLanguage(lng) === 'ru' ? 'ru' : 'en')
+}
+syncDayjsLocale(i18n.language)
+i18n.on('languageChanged', syncDayjsLocale)
 
 export const setUiLanguage = (language: string): UiLanguage => {
   const normalized = normalizeUiLanguage(language)
