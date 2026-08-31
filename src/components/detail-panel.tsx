@@ -154,9 +154,10 @@ export const DetailPanelSurface = ({
 
   if (!isMobile) {
     return (
-      // The warm 6% glow is invisible on the dark background (same rationale
-      // as the .dark elevation overrides in index.css), so dark mode swaps in
-      // a slightly stronger black ink at the same blur radius.
+      // No drop-shadow glow: it read as a stray shadow at the panel edge and a
+      // drop-shadow filter re-rasterizes on every resize frame. The panel is set
+      // off from the list by its own bg + left border — the area behind it is
+      // just the flat background color.
       <SlideInPanel
         open={open}
         onCloseComplete={onCloseComplete}
@@ -165,7 +166,6 @@ export const DetailPanelSurface = ({
         // derive the 840px create-item-layout container breakpoint in
         // index.css — re-derive that literal if either floor changes.
         width="clamp(var(--create-panel-min-width), calc(50vw - 128px), 540px)"
-        className="[filter:drop-shadow(var(--shadow-glow-strong))] dark:[filter:drop-shadow(0_0_32px_rgb(0_0_0/24%))]"
       >
         <div className={cn('h-full pb-12', topInset && 'pt-12')}>
           <div

@@ -154,10 +154,13 @@ describe('DetailPanelSurface', () => {
     expect(document.querySelector('[data-slot="responsive-modal-content"]')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Close details' })).toBeInTheDocument()
     const surface = screen.getByText('Detail body').closest('.bg-sidebar')
-    expect(surface?.closest('[data-slot="slide-in-panel"]')).toHaveClass(
+    // No drop-shadow glow anywhere — it read as a stray edge shadow and re-rasterized
+    // on resize. The panel sits flat on the background, set off by its bg + left border.
+    expect(surface?.parentElement).toHaveClass('pb-12')
+    expect(surface?.parentElement).not.toHaveClass('[filter:drop-shadow(var(--shadow-glow-strong))]')
+    expect(surface?.closest('[data-slot="slide-in-panel"]')).not.toHaveClass(
       '[filter:drop-shadow(var(--shadow-glow-strong))]',
     )
-    expect(surface?.parentElement).toHaveClass('pb-12')
     expect(surface?.parentElement).not.toHaveClass('pt-3')
     expect(surface?.parentElement).not.toHaveClass('pl-4')
   })
