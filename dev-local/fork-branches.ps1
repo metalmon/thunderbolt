@@ -26,6 +26,9 @@
 #     tweaks (drop backdrop-blur on moving surfaces, transform-slide the sidebar,
 #     remove the detail-panel glow) across many UI primitives; apply after the
 #     content branches so its class-string diffs stay conflict-free.
+#   - fork/hide-integrations near the end — TEMPORARY, removable: hides Google/
+#     Microsoft integrations + disables the connect-integration skill until the
+#     backend has OAuth creds. Delete this line (and the branch) once configured.
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -39,6 +42,7 @@ $ForkBranches = @(
     "fork/sandbox-host",
     "fork/spinner",
     "fork/perf",
+    "fork/hide-integrations",
     "fork/dev"
 )
 
@@ -55,5 +59,6 @@ $ForkMainRangeBranches = @(
     "fork/sandbox-host",
     "fork/spinner",
     "fork/perf",
+    "fork/hide-integrations",
     "fork/dev"
 )
