@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cn } from '@/lib/utils'
+import { useReducedMotion } from 'framer-motion'
 import { type ComponentProps, useId } from 'react'
 
 /** The Volt logo bolt silhouette (from `assets/logo.svg`), in a 0 0 32 32 box. */
@@ -23,12 +24,18 @@ type SpinnerProps = ComponentProps<'svg'> & {
  * Drop-in replacement for the former `<Loader2 className="… animate-spin" />`:
  * the charge animates internally, so no `animate-spin` is needed (and the bolt
  * must never rotate — it's a recognizable mark).
+ *
+ * The charge sweep is a SMIL `<animate>` on the band's `y` (SVG user units), not
+ * a CSS `transform: translateY` — CSS transforms on SVG child elements resolve
+ * inconsistently across engines (they never showed on Android WebView), whereas
+ * animating the geometry attribute is unambiguous everywhere.
  */
 export const Spinner = ({ size = 24, className, ...props }: SpinnerProps) => {
   // Unique per instance so multiple spinners on a page don't collide on the clip
   // id. Strip the colons React's useId emits — a `url(#:r0:)` fragment reference
   // is unreliable across SVG renderers (incl. WebView2).
   const clipId = `volt-spin-${useId().replace(/:/g, '')}`
+  const reduce = useReducedMotion()
   return (
     <svg
       viewBox="0 0 32 32"
@@ -43,9 +50,22 @@ export const Spinner = ({ size = 24, className, ...props }: SpinnerProps) => {
       </clipPath>
       {/* Dim bolt silhouette — always visible, so the mark reads even mid-charge. */}
       <path d={BOLT_PATH} className="fill-current opacity-20" />
-      {/* Bright charge, clipped to the bolt, sweeping bottom→top on a steady beat. */}
+      {/* Bright charge, clipped to the bolt, sweeping bottom→top on a steady beat.
+          Reduced motion: hold a static half-charge instead of animating. */}
       <g clipPath={`url(#${clipId})`}>
-        <rect x="0" y="0" width="32" height="10" className="fill-current animate-volt-charge" />
+        <rect x="0" y={reduce ? 11 : 34} width="32" height="10" className="fill-current volt-charge-band">
+          {!reduce && (
+            <animate
+              attributeName="y"
+              values="34;-14"
+              dur="1.2s"
+              calcMode="spline"
+              keyTimes="0;1"
+              keySplines="0.45 0 0.55 1"
+              repeatCount="indefinite"
+            />
+          )}
+        </rect>
       </g>
     </svg>
   )
