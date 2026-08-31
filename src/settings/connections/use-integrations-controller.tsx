@@ -45,7 +45,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
 
   const integrations = useMemo((): Integration[] => {
     const isProUser = proStatus?.isProUser ?? false
-    const available: Integration[] = [
+    const allIntegrations: Integration[] = [
       {
         id: 'thunderbolt',
         name: 'Thunderbolt',
@@ -76,7 +76,15 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
         userEmail: status?.microsoftEmail ?? undefined,
       },
     ]
-    return available.filter((integration) => integration.provider !== 'thunderbolt-pro' || authenticated)
+    // TEMP (fork/hide-integrations): hide Google & Microsoft until the backend OAuth
+    // creds (GOOGLE_/MICROSOFT_CLIENT_ID/SECRET) are configured — otherwise connecting
+    // them just surfaces "OAuth is not configured". Drop this filter to re-enable them.
+    return allIntegrations.filter(
+      (integration) =>
+        integration.provider !== 'google' &&
+        integration.provider !== 'microsoft' &&
+        (integration.provider !== 'thunderbolt-pro' || authenticated),
+    )
   }, [authenticated, integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status, t])
 
   const toolConfigsByProvider: Record<Integration['provider'], { name: string; description: string }[]> = {
