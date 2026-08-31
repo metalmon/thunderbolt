@@ -222,7 +222,11 @@ export const defaultSkillConnectIntegration: Skill = {
   description:
     'Use this skill when the user asks to access email or calendar but required Google or Microsoft tools are unavailable.',
   instruction: connectIntegrationWidgetInstruction,
-  enabled: 1,
+  // TEMP (fork/hide-integrations): disabled until the backend Google/Microsoft OAuth
+  // creds are configured — with the integrations hidden this skill would only prompt a
+  // connect flow that dead-ends on "OAuth is not configured". The defaultSkillsVersion
+  // bump propagates this to existing accounts. Set back to 1 to re-enable.
+  enabled: 0,
   pinnedOrder: null,
   deletedAt: null,
   defaultHash: null,
@@ -290,4 +294,4 @@ export const defaultSkills: ReadonlyArray<Skill> = [
  * The paired snapshot test in `skills.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSkillsVersion = 6
+export const defaultSkillsVersion = 7
