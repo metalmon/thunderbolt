@@ -117,7 +117,11 @@ export const MemoizedMarkdown = memo(({ content, id, components }: MemoizedMarkd
 
   return (
     <div
-      className="prose prose-sm max-w-none dark:prose-invert"
+      // Fork: tighten chat prose leading — prose-sm ships p/li at ~1.71, which reads
+      // airy at the serif chat size; 1.5 is a touch denser but still breathes. Scoped
+      // to MemoizedMarkdown (chat + reasoning text) via [&_p]/[&_li] so it beats
+      // prose's low-specificity :where() rules without touching the rest of the UI.
+      className="prose prose-sm max-w-none dark:prose-invert [&_p]:leading-[1.5] [&_li]:leading-[1.5]"
       style={
         {
           // Override prose styles to match your design
