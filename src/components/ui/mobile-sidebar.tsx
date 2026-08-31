@@ -414,7 +414,7 @@ export const MobileSidebar = ({
                 data-sidebar="sidebar"
                 data-slot="sidebar"
                 data-mobile="true"
-                className="mobile-sidebar-popup pointer-events-auto fixed inset-y-0 left-0 flex h-full w-[var(--mobile-sidebar-width)] flex-col bg-sidebar/80 text-sidebar-foreground outline-none backdrop-blur-lg motion-reduce:transition-none"
+                className="mobile-sidebar-popup pointer-events-auto fixed inset-y-0 left-0 flex h-full w-[var(--mobile-sidebar-width)] flex-col bg-sidebar text-sidebar-foreground outline-none motion-reduce:transition-none"
                 style={mobileSidebarCssVars}
                 onPointerDown={handlePointerDown}
               >
