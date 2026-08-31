@@ -90,8 +90,11 @@ export const OnboardingNameStep = ({ state, actions, onFormDirtyChange }: Onboar
     onFormDirtyChange?.(false)
   }, [])
 
+  // Root uses my-auto so the step centers when there's room but lets the parent
+  // scroll instead of overflowing onto the footer when the mobile keyboard shrinks
+  // the viewport (onboarding keyboard overlap).
   return (
-    <div className="flex w-full flex-1 flex-col justify-center">
+    <div className="flex w-full flex-col my-auto">
       <OnboardingStepHeader
         icon={<User className="size-10 text-primary" />}
         title={t('name.title')}

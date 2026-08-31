@@ -136,8 +136,11 @@ export const OnboardingLocationStep = ({ actions, onFormDirtyChange }: Onboardin
     }
   }
 
+  // Root uses my-auto (not flex-1 + justify-center) so the step centers when there's
+  // room but lets the parent scroll instead of overflowing onto the footer when the
+  // mobile keyboard shrinks the viewport (onboarding keyboard overlap).
   return (
-    <div className="flex w-full flex-1 flex-col justify-center">
+    <div className="flex w-full flex-col my-auto">
       <OnboardingStepHeader
         icon={<MapPin className="size-10 text-primary" />}
         title={t('location.title')}
