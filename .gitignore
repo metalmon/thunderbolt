@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 dist-isolation
+dist-fork
 *.local
 
 # Editor directories and files
@@ -80,3 +81,6 @@ Pulumi.*.yaml
 
 # Astro
 .astro/
+
+# Local-only secrets (never commit)
+powersync-service/secrets.env
