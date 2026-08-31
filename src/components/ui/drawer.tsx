@@ -40,14 +40,16 @@ const Drawer = ({ open: controlledOpen, defaultOpen = false, onOpenChange, ...pr
  * `body { position: relative }` in index.css) keeps the backdrop covering the
  * viewport after the page has been scrolled. */
 const backdropClass =
-  'fixed inset-0 z-40 min-h-dvh bg-black/30 backdrop-blur-xs backdrop-saturate-75 select-none ' +
+  'fixed inset-0 z-40 min-h-dvh bg-black/40 select-none ' + // dim only; no backdrop-blur (animating opacity over a blur is costly on weak HW)
   'opacity-[calc(1-var(--drawer-swipe-progress,0))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[ending-style]:pointer-events-none ' +
   'data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-[swiping]:duration-0 ' +
   'supports-[-webkit-touch-callout:none]:absolute'
 
 const popupClass = cn(
-  'group/drawer-content pointer-events-auto fixed z-50 flex h-auto max-h-[85dvh] w-full flex-col bg-popover/80 text-popover-foreground outline-none backdrop-blur-lg select-none',
+  // Solid bg (was bg-popover/80 + backdrop-blur-lg): the drawer swipes/slides, and
+  // a blurred surface re-samples the backdrop every frame — janky on weak HW.
+  'group/drawer-content pointer-events-auto fixed z-50 flex h-auto max-h-[85dvh] w-full flex-col bg-popover text-popover-foreground outline-none select-none',
   // Swipe follows the finger; open/close slide from/to the sheet's edge.
   'transform-[translate3d(0,var(--translate-y,0px),0)] transition-transform duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
   'data-[starting-style]:transform-[var(--closed-transform)] data-[ending-style]:transform-[var(--closed-transform)]',
@@ -58,7 +60,7 @@ const popupClass = cn(
   // Bleed: fills the gap the sheet reveals at its own edge when a swipe
   // overshoots past the resting position. Sized generously (10rem) so even a
   // hard overshoot flick never exposes the sheet's outer edge.
-  'after:pointer-events-none after:absolute after:inset-x-0 after:bg-popover/80 after:backdrop-blur-lg',
+  'after:pointer-events-none after:absolute after:inset-x-0 after:bg-popover',
   'data-[swipe-direction=down]:inset-x-0 data-[swipe-direction=down]:bottom-[var(--drawer-effective-keyboard-inset)] data-[swipe-direction=down]:max-h-[calc(85dvh-var(--drawer-effective-keyboard-inset))] data-[swipe-direction=down]:rounded-t-3xl data-[swipe-direction=down]:border-t data-[swipe-direction=down]:shadow-[var(--shadow-drawer-down)] data-[swipe-direction=down]:after:top-full data-[swipe-direction=down]:after:h-[calc(10rem+var(--drawer-effective-keyboard-inset))] data-[swipe-direction=down]:[--closed-transform:translate3d(0,calc(100%+2px),0)] data-[swipe-direction=down]:[--drawer-effective-keyboard-inset:max(var(--drawer-keyboard-inset,0px),var(--kb,0px))] data-[swipe-direction=down]:[--translate-y:var(--drawer-swipe-movement-y)]',
   'data-[swipe-direction=up]:inset-x-0 data-[swipe-direction=up]:top-0 data-[swipe-direction=up]:rounded-b-3xl data-[swipe-direction=up]:border-b data-[swipe-direction=up]:shadow-[var(--shadow-drawer-up)] data-[swipe-direction=up]:after:bottom-full data-[swipe-direction=up]:after:h-40 data-[swipe-direction=up]:[--closed-transform:translate3d(0,calc(-100%-2px),0)] data-[swipe-direction=up]:[--translate-y:var(--drawer-swipe-movement-y)]',
 )

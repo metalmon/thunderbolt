@@ -88,7 +88,8 @@ describe('MobileSidebar', () => {
     render(<Harness onOpenChange={() => {}} />)
 
     expect(screen.getByRole('dialog', { name: 'Navigation' })).toBeInTheDocument()
-    expect(getSidebar()).toHaveClass('bg-sidebar/80', 'backdrop-blur-lg')
+    // Solid bg (no backdrop-blur): a blurred surface that slides is janky on weak HW.
+    expect(getSidebar()).toHaveClass('bg-sidebar')
     expect(getSidebar()).not.toHaveClass('shadow-lg')
     expect(getSidebar().style.getPropertyValue('--mobile-sidebar-footer-inset')).not.toBe('')
     expect(getSidebar()).toHaveAttribute('data-swipe-direction', 'left')
