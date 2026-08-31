@@ -280,7 +280,7 @@ const Sidebar = forwardRef<
     return (
       <div
         className={cn(
-          'flex h-full w-(--sidebar-width) flex-col bg-sidebar/80 text-sidebar-foreground backdrop-blur-lg',
+          'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
           className,
         )}
         ref={ref}
@@ -332,10 +332,13 @@ const Sidebar = forwardRef<
       />
       <div
         className={cn(
-          'duration-200 fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] ease-linear md:flex',
+          // Offcanvas hides via GPU transform (translateX), not `left/right` — a
+          // composited slide instead of a per-frame layout. Only transform+width
+          // transition; will-change keeps it on its own layer.
+          'duration-200 fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[transform,width] ease-linear will-change-transform md:flex',
           side === 'left'
-            ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
-            : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+            ? 'left-0 group-data-[collapsible=offcanvas]:-translate-x-full'
+            : 'right-0 group-data-[collapsible=offcanvas]:translate-x-full',
           // Adjust the padding for floating and inset variants.
           variant === 'floating' || variant === 'inset'
             ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
@@ -348,7 +351,11 @@ const Sidebar = forwardRef<
       >
         <div
           data-sidebar="sidebar"
-          className="flex h-full w-full flex-col bg-sidebar/80 backdrop-blur-lg group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
+          // Solid bg (not bg-sidebar/80 + backdrop-blur-lg): a moving/resizing
+          // backdrop-blur re-samples the page every frame — the top cause of jank
+          // on weak hardware. On macOS the unlayered `.mac-vibrancy` rule overrides
+          // this back to translucent glass (native window vibrancy does the blur).
+          className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
