@@ -124,16 +124,33 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-      - name: Collect bundles
+      - name: Collect bundles (Linux / macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           mkdir -p out
           base="src-tauri/target/${{ matrix.target }}/release/bundle"
           find "$base" -type f \( \
-            -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \
-            -o -name '*.exe' -o -name '*.msi' -o -name '*.dmg' \
-            -o -name '*.sig' -o -name '*.app.tar.gz' -o -name '*.AppImage.tar.gz' -o -name '*.nsis.zip' -o -name '*.msi.zip' \
+            -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' -o -name '*.dmg' \
+            -o -name '*.sig' -o -name '*.app.tar.gz' -o -name '*.AppImage.tar.gz' \
           \) -exec cp {} out/ \;
+          echo "Collected:"
+          ls -la out
+
+      - name: Collect bundle (Windows — zip the installer)
+        if: runner.os == 'Windows'
+        shell: bash
+        # Browser download protection (SmartScreen / Chrome Safe Browsing) flags an
+        # unsigned bare .exe/.msi, but not a .zip — so we ship the NSIS installer
+        # inside a zip. (The auto-updater is unaffected: it pulls from the
+        # CrabNebula CDN, not these GitHub Release assets.)
+        run: |
+          mkdir -p out
+          base="src-tauri/target/${{ matrix.target }}/release/bundle"
+          version=$(jq -r .version package.json)
+          setup=$(find "$base" -name '*-setup.exe' | head -1)
+          if [ -z "$setup" ]; then echo "❌ NSIS setup.exe not found under $base"; exit 1; fi
+          7z a -tzip "out/Volt_${version}_x64-setup.zip" "$setup" >/dev/null
           echo "Collected:"
           ls -la out
 
