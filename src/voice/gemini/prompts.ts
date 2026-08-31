@@ -78,7 +78,11 @@ const renderContext = (contextMessages: readonly ContextMessage[]): string =>
  * per-language functional base, then the user's personality prompt (if any),
  * then the prior chat context (if any) — most-stable-first, volatile last.
  */
-export const buildSystemInstruction = ({ lang, personality, contextMessages }: BuildSystemInstructionParams): string => {
+export const buildSystemInstruction = ({
+  lang,
+  personality,
+  contextMessages,
+}: BuildSystemInstructionParams): string => {
   const base = lang === 'ru' ? baseRu : baseEn
   const parts = [base]
   if (personality.trim().length > 0) {
