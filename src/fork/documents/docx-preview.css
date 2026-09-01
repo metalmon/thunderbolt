@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Theme the docx-preview canvas. docx-preview hardcodes a gray `.docx-wrapper`
+ * background and its own padding; neutralize both so the app's themed surface
+ * (`bg-muted` on the container) shows through. The pages themselves stay white —
+ * a document reads as a white sheet in any theme, like Word/Acrobat/Google Docs.
+ * Scoped under `.docx-viewer` so it wins over docx-preview's injected styles
+ * without leaking to the rest of the app. */
+.docx-viewer .docx-wrapper {
+  background: transparent;
+  padding: 0;
+}
+
+.docx-viewer .docx-wrapper > section.docx {
+  margin: 0 auto 1rem;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+}
