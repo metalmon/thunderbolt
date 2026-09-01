@@ -235,7 +235,8 @@
   },
   "documentPreview": {
     "unavailable": "Preview not available for this file type. Use the download button to view it.",
-    "downloadAria": "Download {{filename}}"
+    "downloadAria": "Download {{filename}}",
+    "renderError": "Could not render {{filename}}. Use the download button to open it."
   },
   "deleteThread": {
     "title": "Delete the thread?",

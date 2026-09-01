@@ -236,7 +236,8 @@
   },
   "documentPreview": {
     "unavailable": "Предпросмотр недоступен для этого типа файла. Используйте кнопку скачивания, чтобы открыть его.",
-    "downloadAria": "Скачать {{filename}}"
+    "downloadAria": "Скачать {{filename}}",
+    "renderError": "Не удалось отобразить {{filename}}. Откройте файл через кнопку скачивания."
   },
   "deleteThread": {
     "title": "Удалить ветку?",
