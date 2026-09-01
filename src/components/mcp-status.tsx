@@ -4,8 +4,10 @@
 
 import { useMCP } from '@/lib/mcp-provider'
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export const MCPStatus = () => {
+  const { t } = useTranslation('common')
   const { servers } = useMCP()
 
   const connectedServers = servers.filter((s) => s.isConnected && s.enabled)
@@ -16,7 +18,7 @@ export const MCPStatus = () => {
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle className="h-4 w-4" />
-        <span className="text-sm">MCP Connected ({connectedServers.length})</span>
+        <span className="text-sm">{t('mcpStatus.connected', { count: connectedServers.length })}</span>
       </div>
     )
   }
@@ -25,7 +27,7 @@ export const MCPStatus = () => {
     return (
       <div className="flex items-center gap-2 text-red-600">
         <XCircle className="h-4 w-4" />
-        <span className="text-sm">MCP Error ({errorServers.length})</span>
+        <span className="text-sm">{t('mcpStatus.error', { count: errorServers.length })}</span>
       </div>
     )
   }
@@ -34,7 +36,7 @@ export const MCPStatus = () => {
     return (
       <div className="flex items-center gap-2 text-yellow-600">
         <AlertCircle className="h-4 w-4" />
-        <span className="text-sm">MCP Connecting...</span>
+        <span className="text-sm">{t('mcpStatus.connecting')}</span>
       </div>
     )
   }

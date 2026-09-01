@@ -250,7 +250,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
       ) : (
         <div className={cn(pillClassName(true), 'cursor-default hover:bg-transparent')}>
           <Loader2 className={cn(iconSize, 'shrink-0 animate-spin text-muted-foreground')} />
-          <span className="truncate text-muted-foreground">Loading...</span>
+          <span className="truncate text-muted-foreground">{t('sidebarFooter.loading')}</span>
         </div>
       )
     }
@@ -381,14 +381,14 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
                 htmlFor="account-sync-toggle"
                 className="text-[length:var(--font-size-body)] font-medium cursor-pointer"
               >
-                Cloud Sync
+                {t('cloudSync.title')}
               </label>
               <Switch
                 id="account-sync-toggle"
                 checked={syncEnabled}
                 onCheckedChange={handleSyncToggle}
                 disabled={isConnecting}
-                aria-label="Enable cloud sync"
+                aria-label={t('cloudSync.enableAria')}
               />
             </div>
             <div className="flex items-center justify-between gap-2">
@@ -408,7 +408,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
                   ) : (
                     <RefreshCw className="mr-1 size-3" />
                   )}
-                  Retry
+                  {t('cloudSync.retry')}
                 </Button>
               )}
             </div>

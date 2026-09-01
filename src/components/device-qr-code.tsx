@@ -4,6 +4,7 @@
 
 import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type DeviceQrCodeProps = {
   /** The pairing string to encode (see `encodePairingTicket`). */
@@ -19,6 +20,7 @@ type DeviceQrCodeProps = {
  * lazily loaded — the `qrcode` dependency is only pulled in when pairing UI is shown.
  */
 const DeviceQrCode = ({ value, size = 160, encode = QRCode.toDataURL }: DeviceQrCodeProps) => {
+  const { t } = useTranslation('settings')
   const [dataUrl, setDataUrl] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
 
@@ -44,13 +46,15 @@ const DeviceQrCode = ({ value, size = 160, encode = QRCode.toDataURL }: DeviceQr
   }, [value, size, encode])
 
   if (failed) {
-    return <p className="text-[length:var(--font-size-xs)] text-muted-foreground">Could not render pairing code.</p>
+    return (
+      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('deviceQr.renderError')}</p>
+    )
   }
 
   return (
     <img
       src={dataUrl ?? undefined}
-      alt="Device pairing QR code"
+      alt={t('deviceQr.alt')}
       width={size}
       height={size}
       className="rounded-md bg-white p-2"

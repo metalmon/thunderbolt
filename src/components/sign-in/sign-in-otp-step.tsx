@@ -82,11 +82,11 @@ export const SignInOtpStep = ({
       successContent={
         <>
           <Check className="mr-2 h-4 w-4" />
-          Sent
+          {t('otp.sent')}
         </>
       }
     >
-      Resend Email
+      {t('otp.resendEmail')}
     </ActionFeedbackButton>
   )
 
@@ -112,7 +112,7 @@ export const SignInOtpStep = ({
             type="button"
             onClick={() => onOtpComplete(otp)}
             isLoading={isVerifying}
-            loadingLabel="Verifying…"
+            loadingLabel={t('otp.verifying')}
             disabled={otp.length !== otpLength}
             // Deliberate hero-CTA treatment for the auth flows (taller than
             // the standard button and rounded-xl instead of the usual
