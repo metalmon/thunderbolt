@@ -1,4 +1,17 @@
 {
+  "mcpStatus": {
+    "connected": "MCP подключён ({{count}})",
+    "error": "Ошибка MCP ({{count}})",
+    "connecting": "Подключение MCP…"
+  },
+  "cloudSync": {
+    "title": "Облачная синхронизация",
+    "enableAria": "Включить облачную синхронизацию",
+    "retry": "Повторить"
+  },
+  "sidebarFooter": {
+    "loading": "Загрузка…"
+  },
   "palette": {
     "searchTitle": "Поиск",
     "description": "Поиск по чатам, моделям, навыкам, агентам и другому",

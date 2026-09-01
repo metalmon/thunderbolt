@@ -1,4 +1,15 @@
 {
+  "removeBridge": {
+    "title": "Remove this bridge?",
+    "description": "This permanently removes the revoked bridge registration. The bridge can register again afterward.",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "removing": "Removing…"
+  },
+  "deviceQr": {
+    "renderError": "Could not render pairing code.",
+    "alt": "Device pairing QR code"
+  },
   "preferences": {
     "title": "Preferences",
     "userExperienceTitle": "User Experience",

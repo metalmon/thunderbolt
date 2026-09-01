@@ -1,4 +1,17 @@
 {
+  "mcpStatus": {
+    "connected": "MCP connected ({{count}})",
+    "error": "MCP error ({{count}})",
+    "connecting": "MCP connecting…"
+  },
+  "cloudSync": {
+    "title": "Cloud Sync",
+    "enableAria": "Enable cloud sync",
+    "retry": "Retry"
+  },
+  "sidebarFooter": {
+    "loading": "Loading…"
+  },
   "palette": {
     "searchTitle": "Search",
     "description": "Search across chats, models, skills, agents, and more",
