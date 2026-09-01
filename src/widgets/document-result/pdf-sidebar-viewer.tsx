@@ -15,6 +15,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useDocumentBlob, useLocalDocumentBlob, type DocumentBlobState, type FileType } from './use-document-blob'
 import { DocxPreview } from '@/fork/documents/docx-preview'
+import { saveBlobUrl } from '@/fork/documents/save-file'
 
 // Configure the pdfjs worker via Vite's `new URL(..., import.meta.url)` pattern
 // so the worker ships as its own bundle and is resolved relative to the build.
@@ -56,12 +57,7 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
     if (!blobUrl) {
       return
     }
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = fileName
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    void saveBlobUrl(blobUrl, fileName)
   }, [blobUrl, fileName])
 
   const onDocumentLoadSuccess = useCallback(({ numPages: pages }: { numPages: number }) => {
