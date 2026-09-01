@@ -29,6 +29,10 @@
 #   - fork/hide-integrations near the end — TEMPORARY, removable: hides Google/
 #     Microsoft integrations + disables the connect-integration skill until the
 #     backend has OAuth creds. Delete this line (and the branch) once configured.
+#   - fork/docx-viewer near the end — swaps the upstream mammoth-in-sandboxed-
+#     iframe docx preview for a paginated docx-preview renderer (fork-owned files
+#     under src/fork/documents/, one-line swap in the upstream pdf-sidebar-viewer).
+#     Additive + one small upstream hunk; apply after the content branches.
 #   - fork/dev last so local dev/build overrides win.
 
 $ForkBranches = @(
@@ -43,6 +47,7 @@ $ForkBranches = @(
     "fork/spinner",
     "fork/perf",
     "fork/hide-integrations",
+    "fork/docx-viewer",
     "fork/dev"
 )
 
@@ -60,5 +65,6 @@ $ForkMainRangeBranches = @(
     "fork/spinner",
     "fork/perf",
     "fork/hide-integrations",
+    "fork/docx-viewer",
     "fork/dev"
 )
