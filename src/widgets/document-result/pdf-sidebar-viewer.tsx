@@ -13,6 +13,7 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useDocumentBlob, useLocalDocumentBlob, type DocumentBlobState, type FileType } from './use-document-blob'
+import { DocxPreview } from '@/fork/documents/docx-preview'
 
 // Configure the pdfjs worker via Vite's `new URL(..., import.meta.url)` pattern
 // so the worker ships as its own bundle and is resolved relative to the build.
@@ -39,7 +40,7 @@ type DocumentPreviewProps = {
 
 /**
  * Presentational document preview for the sideview slot: header + download,
- * react-pdf for PDFs, mammoth-rendered HTML (sandboxed iframe) for DOCX, and a
+ * react-pdf for PDFs, docx-preview paginated pages for DOCX, and a
  * download fallback otherwise. Source-agnostic — the blob lifecycle is resolved
  * by the caller (Haystack-backed or local IndexedDB) and passed in as `state`.
  */
@@ -119,14 +120,7 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
             </Document>
           )}
 
-          {fileType === 'docx' && state.docxHtml && (
-            <iframe
-              title={fileName}
-              className="prose prose-sm dark:prose-invert max-w-none w-full h-full border-0"
-              sandbox=""
-              srcDoc={state.docxHtml}
-            />
-          )}
+          {fileType === 'docx' && <DocxPreview blobUrl={state.blobUrl} fileName={fileName} />}
 
           {fileType === 'unsupported' && (
             <div className="flex h-full items-center justify-center">
