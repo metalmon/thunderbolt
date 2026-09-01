@@ -133,6 +133,8 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "css-tree": "^3.2.1",
+    "dayjs": "^1.11.13",
+    "docx-preview": "^0.4.0",
     "drizzle-orm": "^0.45.2",
     "events": "^3.3.0",
     "framer-motion": "^12.23.12",
