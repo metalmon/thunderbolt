@@ -7,6 +7,7 @@
 import { FileCard } from '@/components/chat/file-card'
 import { Button } from '@/components/ui/button'
 import { useSideview } from '@/content-view/context'
+import { saveBlobUrl } from '@/fork/documents/save-file'
 import { getAttachment } from '@/lib/file-blob-storage'
 import { buildDocumentSideviewId } from '@/types/citation'
 import { Download } from 'lucide-react'
@@ -25,17 +26,13 @@ const downloadRef = async (ref: DeliveredFileRef): Promise<void> => {
     return
   }
   const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = ref.filename
-  // The anchor MUST be in the DOM for a programmatic `.click()` to trigger a save in
-  // Tauri's WebView (a detached anchor silently no-ops there), and the object URL is
-  // revoked on the next macrotask — revoking synchronously cancels the download before
-  // the webview streams the blob to disk. Mirrors lib/export-download.ts#downloadJson.
-  document.body.appendChild(anchor)
-  anchor.click()
-  anchor.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 0)
+  // Prompt for a save location (native "Save As") where supported, matching the
+  // artifact + document-preview download; falls back to a silent download on
+  // mobile / browsers without the File System Access API. Revoke on a delay: the
+  // anchor-fallback path streams the blob after this returns, so revoking
+  // synchronously would cancel the download (mirrors artifact-actions).
+  await saveBlobUrl(url, ref.filename)
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
 /**
