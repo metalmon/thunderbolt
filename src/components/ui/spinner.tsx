@@ -36,12 +36,16 @@ export const Spinner = ({ size = 24, className, ...props }: SpinnerProps) => {
   // is unreliable across SVG renderers (incl. WebView2).
   const clipId = `volt-spin-${useId().replace(/:/g, '')}`
   const reduce = useReducedMotion()
+  // This is the drop-in for lucide's `Loader2` (aliased at build time, see
+  // lucide-shim.ts), so call sites still pass `animate-spin`. Strip it: the charge
+  // animates internally and the bolt is a recognizable mark that must never rotate.
+  const cleanedClassName = className?.replace(/\banimate-spin\b/g, '').replace(/\s+/g, ' ').trim() || undefined
   return (
     <svg
       viewBox="0 0 32 32"
       width={size}
       height={size}
-      className={cn('volt-spinner shrink-0', className)}
+      className={cn('volt-spinner shrink-0', cleanedClassName)}
       aria-hidden={true}
       {...props}
     >
