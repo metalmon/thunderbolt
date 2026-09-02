@@ -11,7 +11,8 @@ import { getToolMetadataSync } from '@/lib/tool-metadata'
 import { useFormatters } from '@/i18n/use-formatters'
 import type { UIMessageMetadata } from '@/types'
 import { getToolName, type ReasoningUIPart } from 'ai'
-import { Brain, DotIcon, Loader2, type LucideIcon } from 'lucide-react'
+import { Brain, DotIcon, type LucideIcon } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import type { ComponentType, SVGProps } from 'react'
 
 type ReasoningItemProps = {
@@ -99,7 +100,7 @@ export const ReasoningItem = ({ part, onClick, reasoningTime, isGroupReasoning, 
     >
       <div className="flex gap-3 flex-row flex-1 items-center min-w-0">
         {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />
+          <Spinner className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         ) : (
           // color="currentColor" keeps simple-icons brand glyphs monochrome (their default), matching lucide.
           <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" color="currentColor" />
