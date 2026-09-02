@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Spinner } from '@/components/ui/spinner'
 import { useObjectView } from '@/content-view/context'
 import { useAutoScroll } from '@/hooks/use-auto-scroll'
 import { type ReasoningGroupItem, type ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
@@ -9,7 +10,6 @@ import { computeWallClockTime } from '@/lib/utils'
 import type { UIMessageMetadata } from '@/types'
 import { type ReasoningUIPart } from 'ai'
 import { CheckIcon } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
 import { Expandable } from '../ui/expandable'
 import { ReasoningDisplay } from './reasoning-display'
 import { ReasoningGroupTitle } from './reasoning-group-title'
@@ -23,6 +23,9 @@ type ReasoningGroupProps = {
   reasoningTime: Record<string, number>
   reasoningStartTimes?: Record<string, number>
   mcpTools?: UIMessageMetadata['mcpTools']
+  /** Fork: when true, suppress the live streaming preview below the accordion
+   *  (collapsed-by-default preference). Resolved by AssistantMessage. */
+  collapseReasoning?: boolean
 }
 
 export const ReasoningGroup = ({
@@ -33,6 +36,7 @@ export const ReasoningGroup = ({
   reasoningTime,
   reasoningStartTimes,
   mcpTools,
+  collapseReasoning,
 }: ReasoningGroupProps) => {
   const { openObjectSidebar } = useObjectView()
 
@@ -70,7 +74,50 @@ export const ReasoningGroup = ({
     dependencies: [parts.length],
     smooth: true,
     isStreaming: false,
-    rootMargin: '0px', }) return ( <div className="mt-6"> <Expandable className="shadow-none tool-invocation-card rounded-xl overflow-hidden transition-colors" icon={ isGroupReasoning ? ( <Spinner className={`h-4 w-4 text-muted-foreground`} /> ) : ( <CheckIcon className="h-4 w-4 text-muted-foreground" /> ) } defaultOpen={false} title={ <ReasoningGroupTitle totalDuration={totalDuration} isGroupReasoning={isGroupReasoning} tools={tools} mcpTools={mcpTools} /> } > <div className="max-h-[200px] overflow-y-auto" ref={scrollContainerRef}> {parts.map((part, index) => { return ( <ReasoningItem key={index} part={part} onClick={() => openObjectSidebar(part.content as ToolOrDynamicToolUIPart | ReasoningUIPart, mcpTools)} reasoningTime={reasoningTime?.[part.id]} isGroupReasoning={isGroupReasoning} mcpTools={mcpTools} /> ) })} <div ref={scrollTargetRef} /> </div> </Expandable> {!hasTextPart && ( <ReasoningDisplay text={currentReasoningPart?.content.text} isStreaming={currentReasoningPart?.content.state ==='streaming'}
+    rootMargin: '0px',
+  })
+
+  return (
+    <div className="mt-6">
+      <Expandable
+        className="shadow-none tool-invocation-card rounded-xl overflow-hidden transition-colors"
+        icon={
+          isGroupReasoning ? (
+            <Spinner className={`h-4 w-4 text-muted-foreground`}/>
+          ) : (
+            <CheckIcon className="h-4 w-4 text-muted-foreground" />
+          )
+        }
+        defaultOpen={false}
+        title={
+          <ReasoningGroupTitle
+            totalDuration={totalDuration}
+            isGroupReasoning={isGroupReasoning}
+            tools={tools}
+            mcpTools={mcpTools}
+          />
+        }
+      >
+        <div className="max-h-[200px] overflow-y-auto" ref={scrollContainerRef}>
+          {parts.map((part, index) => {
+            return (
+              <ReasoningItem
+                key={index}
+                part={part}
+                onClick={() => openObjectSidebar(part.content as ToolOrDynamicToolUIPart | ReasoningUIPart, mcpTools)}
+                reasoningTime={reasoningTime?.[part.id]}
+                isGroupReasoning={isGroupReasoning}
+                mcpTools={mcpTools}
+              />
+            )
+          })}
+          <div ref={scrollTargetRef} />
+        </div>
+      </Expandable>
+      {!hasTextPart && !collapseReasoning && (
+        <ReasoningDisplay
+          text={currentReasoningPart?.content.text}
+          isStreaming={currentReasoningPart?.content.state === 'streaming'}
           instanceKey={reasoningInstanceKey}
         />
       )}
