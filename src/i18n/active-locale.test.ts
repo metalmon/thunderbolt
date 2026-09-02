@@ -23,29 +23,29 @@ afterEach(() => {
 
 describe('setActiveLocale', () => {
   test('publishes the locale to synchronous readers', () => {
-    setActiveLocale('ja')
-    expect(getActiveLocale()).toBe('ja')
+    setActiveLocale('ru')
+    expect(getActiveLocale()).toBe('ru')
   })
 
   test('mirrors the locale to localStorage for the next boot', () => {
-    setActiveLocale('pt-BR')
-    expect(localStorage.getItem(storageKey)).toBe('pt-BR')
+    setActiveLocale('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   test('the last write wins', () => {
-    setActiveLocale('de')
-    setActiveLocale('fr')
-    expect(getActiveLocale()).toBe('fr')
-    expect(localStorage.getItem(storageKey)).toBe('fr')
+    setActiveLocale('en')
+    setActiveLocale('ru')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   test('mirrors even when the locale is unchanged, so the value survives a reload', () => {
-    setActiveLocale('de')
+    setActiveLocale('ru')
     localStorage.removeItem(storageKey)
 
-    setActiveLocale('de')
+    setActiveLocale('ru')
 
-    expect(localStorage.getItem(storageKey)).toBe('de')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 })
 
@@ -126,13 +126,13 @@ describe('subscribeActiveLocale', () => {
 })
 
 describe('readInitialLocale', () => {
-  test('returns the mirrored locale — a refresh must not fall back to en', () => {
-    localStorage.setItem(storageKey, 'ja')
-    expect(readInitialLocale()).toBe('ja')
+  test('returns the mirrored locale — a refresh must not fall back to the default', () => {
+    localStorage.setItem(storageKey, 'ru')
+    expect(readInitialLocale()).toBe('ru')
   })
 
   test('mirror outranks browser languages, as the synced setting it copies does', () => {
-    localStorage.setItem(storageKey, 'ja')
+    localStorage.setItem(storageKey, 'ru')
     // happy-dom reports `en-US`; the mirror must still win.
     expect(readInitialLocale()).not.toBe('en')
   })
