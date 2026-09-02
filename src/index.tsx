@@ -65,9 +65,21 @@ if (!redirecting) {
   // otherwise replay every mount transition — most visibly the sidebar sliding
   // "open" again even though it was already open. Re-enabled after the first
   // committed paint; user-driven transitions animate normally thereafter.
-  document.documentElement.classList.add('no-transitions')
+  // Suppress CSS transitions while the window is resizing (and for the first
+  // paint). Minimizing shrinks the window to ~146px, which clamps the
+  // `w-(--sidebar-width)` sidebar down; restoring animates the width back up
+  // (`transition-[width]`), so the sidebar appears to slide "open" again on every
+  // restore. Killing transitions during the resize burst and re-enabling once it
+  // settles keeps the sidebar (and any other size-driven transition) still.
+  const html = document.documentElement
+  html.classList.add('no-transitions')
   ReactDOM.createRoot(root).render(<App />)
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => document.documentElement.classList.remove('no-transitions')),
-  )
+  requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove('no-transitions')))
+
+  let resizeSettle: ReturnType<typeof setTimeout> | undefined
+  window.addEventListener('resize', () => {
+    html.classList.add('no-transitions')
+    clearTimeout(resizeSettle)
+    resizeSettle = setTimeout(() => html.classList.remove('no-transitions'), 200)
+  })
 }

@@ -164,7 +164,19 @@ export default function Page() {
             minSize="0%"
             collapsedSize="0%"
             onResize={(panelSize, _id, prevPanelSize) => {
-              if (prevPanelSize && prevPanelSize.asPercentage > 0 && panelSize.asPercentage === 0) {
+              // Windows shrinks the window to ~146×20 while minimizing; at that
+              // width the resizable layout forces this panel to 0%, which looks
+              // exactly like a user drag-collapse and would fire close() — dropping
+              // the open artifact on every minimize. The window minWidth is 500, so
+              // a genuine collapse only ever happens at a real width; ignore the 0%
+              // the minimize transient produces.
+              const windowMinimized = window.innerWidth < 400
+              if (
+                !windowMinimized &&
+                prevPanelSize &&
+                prevPanelSize.asPercentage > 0 &&
+                panelSize.asPercentage === 0
+              ) {
                 close()
               }
               handleResize(panelSize)
