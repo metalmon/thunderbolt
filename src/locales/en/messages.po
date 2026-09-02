@@ -164,6 +164,11 @@ msgstr "About"
 msgid "Accepts connections from your devices"
 msgstr "Accepts connections from your devices"
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Access token"
+msgstr "Access token"
+
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Access token required"
 msgstr "Access token required"
@@ -558,6 +563,14 @@ msgstr "Changes were saved, but reconnecting failed. Please retry."
 msgid "Chat actions"
 msgstr "Chat actions"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font"
+msgstr "Chat font"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font size"
+msgstr "Chat font size"
+
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Chat name"
 msgstr "Chat name"
@@ -737,6 +750,10 @@ msgstr "Code"
 #: src/components/device-approval.tsx
 msgid "Code didn't work"
 msgstr "Code didn't work"
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Collapse reasoning"
+msgstr "Collapse reasoning"
 
 #: src/layout/sidebar/sidebar-header.tsx
 msgid "Collapse Sidebar"
@@ -973,6 +990,10 @@ msgstr "Could not read QR code"
 msgid "Could not read the import file."
 msgstr "Could not read the import file."
 
+#: src/fork/documents/docx-preview.tsx
+msgid "Could not render {fileName}. Use the download button to open it."
+msgstr "Could not render {fileName}. Use the download button to open it."
+
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
 msgstr "Could not render pairing code."
@@ -1036,6 +1057,10 @@ msgstr "Couldn't restart to apply the update: {error}"
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update."
 msgstr "Couldn't restart to apply the update."
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Couldn't save {field}. Please try again."
+msgstr "Couldn't save {field}. Please try again."
 
 #: src/components/settings/agents/editable-field.tsx
 msgid "Couldn't save the {fieldName}. Please try again."
@@ -1260,6 +1285,10 @@ msgstr "Delete your account?"
 msgid "Deleting…"
 msgstr "Deleting…"
 
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Delivered"
+msgstr "Delivered"
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Dense drizzle"
 msgstr "Dense drizzle"
@@ -1407,8 +1436,18 @@ msgstr "Done"
 
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/update-notification.tsx
+#: src/fork/zeroclaw/delivered-file-card.tsx
 msgid "Download"
 msgstr "Download"
+
+#. placeholder {0}: ref.filename
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Download {0}"
+msgstr "Download {0}"
+
+#: src/widgets/document-result/pdf-sidebar-viewer.tsx
+msgid "Download {fileName}"
+msgstr "Download {fileName}"
 
 #: src/search/commands/use-commands.ts
 msgid "Download app"
@@ -1446,6 +1485,10 @@ msgstr "Drop"
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Drop file to attach"
 msgstr "Drop file to attach"
+
+#: src/settings/voice.tsx
+msgid "e.g. Speak concisely and warmly, like a helpful coworker."
+msgstr "e.g. Speak concisely and warmly, like a helpful coworker."
 
 #: src/settings/models/add-model-form.tsx
 msgid "e.g., GPT-4 Turbo"
@@ -1714,9 +1757,21 @@ msgstr "Flags"
 msgid "Foggy"
 msgstr "Foggy"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Font for reading chat messages."
+msgstr "Font for reading chat messages."
+
 #: src/projects/emoji-catalog.ts
 msgid "Food & drink"
 msgstr "Food & drink"
+
+#: src/settings/voice.tsx
+msgid "Gemini Live (realtime)"
+msgstr "Gemini Live (realtime)"
+
+#: src/settings/voice.tsx
+msgid "Gemini Live voice character. API key is managed server-side."
+msgstr "Gemini Live voice character. API key is managed server-side."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Generating keys…"
@@ -1781,6 +1836,10 @@ msgstr "Good morning"
 msgid "Got it, working on that next."
 msgstr "Got it, working on that next."
 
+#: src/settings/voice.tsx
+msgid "Half-cascade (STT → LLM → TTS)"
+msgstr "Half-cascade (STT → LLM → TTS)"
+
 #: src/settings/preferences.tsx
 msgid "Haptic Feedback"
 msgstr "Haptic Feedback"
@@ -1821,6 +1880,10 @@ msgstr "Hide QR"
 #: src/settings/devices.tsx
 msgid "Hide QR code for {deviceName}"
 msgstr "Hide QR code for {deviceName}"
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Hide the model's live thinking while it generates."
+msgstr "Hide the model's live thinking while it generates."
 
 #: src/settings/preferences.tsx
 msgid "How Thunderbolt salutes you"
@@ -1987,6 +2050,10 @@ msgstr "Keep your data synced across devices."
 msgid "Language"
 msgstr "Language"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Large"
+msgstr "Large"
+
 #: src/settings/devices.tsx
 msgid "Last seen {lastSeen}"
 msgstr "Last seen {lastSeen}"
@@ -2089,6 +2156,10 @@ msgstr "Log out"
 msgid "Logging out…"
 msgstr "Logging out…"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Lora"
+msgstr "Lora"
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Mainly clear"
 msgstr "Mainly clear"
@@ -2114,6 +2185,10 @@ msgstr "Maximize"
 msgid "MCP servers"
 msgstr "MCP servers"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Medium"
+msgstr "Medium"
+
 #: src/components/sidebar-footer.tsx
 #: src/search/commands/navigation.ts
 msgid "Message Simulator"
@@ -2138,6 +2213,7 @@ msgstr "Missing CSRF state — restart the authorization."
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/settings/models/model-detail.tsx
+#: src/settings/voice.tsx
 msgid "Model"
 msgstr "Model"
 
@@ -2213,6 +2289,14 @@ msgstr "Name"
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Name is required."
 msgstr "Name is required."
+
+#: src/settings/voice.tsx
+msgid "Native audio (end-to-end)"
+msgstr "Native audio (end-to-end)"
+
+#: src/settings/voice.tsx
+msgid "Native audio generates speech directly for lower latency and more expressive tone; half-cascade transcribes and synthesizes as separate steps."
+msgstr "Native audio generates speech directly for lower latency and more expressive tone; half-cascade transcribes and synthesizes as separate steps."
 
 #: src/components/ui/mobile-sidebar.tsx
 msgid "Navigation"
@@ -2518,6 +2602,10 @@ msgstr "Optional — leave blank for local servers that don’t require auth."
 msgid "Optional — what this project is for"
 msgstr "Optional — what this project is for"
 
+#: src/settings/voice.tsx
+msgid "Optional instructions appended to the assistant's system prompt to shape its tone and style during voice conversations."
+msgstr "Optional instructions appended to the assistant's system prompt to shape its tone and style during voice conversations."
+
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"
 msgstr "Or click the magic link in your email"
@@ -2554,6 +2642,11 @@ msgstr "Paste a pairing code or upload its QR image to bind this device to its p
 msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are supported; non-Bearer auth headers are ignored."
 msgstr "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are supported; non-Bearer auth headers are ignored."
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Paste the agent access token"
+msgstr "Paste the agent access token"
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Peer-to-peer via iroh — the connection is verified when a chat starts."
 msgstr "Peer-to-peer via iroh — the connection is verified when a chat starts."
@@ -2569,6 +2662,10 @@ msgstr "Permanently delete your account and all data on our servers and this dev
 #: src/components/chat/permission-dialog.tsx
 msgid "Permission Required"
 msgstr "Permission Required"
+
+#: src/settings/voice.tsx
+msgid "Personality prompt"
+msgstr "Personality prompt"
 
 #: src/settings/preferences.tsx
 msgid "Personalization"
@@ -2691,6 +2788,10 @@ msgstr "Reading {fileName}…"
 msgid "Ready to submit"
 msgstr "Ready to submit"
 
+#: src/settings/voice.tsx
+msgid "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
+msgstr "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
+
 #: src/content-view/context.tsx
 msgid "Reasoning"
 msgstr "Reasoning"
@@ -2750,6 +2851,10 @@ msgstr "Remove quote"
 #: src/components/remove-bridge-dialog.tsx
 msgid "Remove this bridge?"
 msgstr "Remove this bridge?"
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Remove token"
+msgstr "Remove token"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/lib/tool-metadata.ts
@@ -2884,6 +2989,7 @@ msgid "Run this on the machine hosting the bridge, then add it — the connectio
 msgstr "Run this on the machine hosting the bridge, then add it — the connection is verified on first use."
 
 #: src/components/set-node-id-dialog.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
@@ -3062,6 +3168,11 @@ msgstr "Sending…"
 #: src/components/ui/action-feedback-button.tsx
 msgid "Sent"
 msgstr "Sent"
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
+msgstr "Sent as a bearer credential, not in the URL. Stored only on this device."
 
 #: src/components/chat/file-card.tsx
 msgid "Sent as images"
@@ -3263,6 +3374,10 @@ msgstr "Slight snow showers"
 msgid "Slug"
 msgstr "Slug"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Small"
+msgstr "Small"
+
 #: src/projects/emoji-catalog.ts
 msgid "Smileys & people"
 msgstr "Smileys & people"
@@ -3359,6 +3474,7 @@ msgid "Synced {relative}"
 msgstr "Synced {relative}"
 
 #: src/components/theme-toggle-group.tsx
+#: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
 msgstr "System"
 
@@ -3444,6 +3560,10 @@ msgstr "Testing model…"
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Testing…"
 msgstr "Testing…"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Text size for chat messages."
+msgstr "Text size for chat messages."
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
@@ -3716,6 +3836,10 @@ msgstr "Toggle Sidebar"
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Token rejected"
 msgstr "Token rejected"
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Token set"
+msgstr "Token set"
 
 #: src/lib/otp-error-messages.ts
 msgid "Too many attempts. Please request a new code."
