@@ -1,4 +1,8 @@
 {
+  "dropList": {
+    "drop": "Drop",
+    "more": "{{count}} more"
+  },
   "title": "Projects",
   "newProject": "New project",
   "searchPlaceholder": "Search projects",

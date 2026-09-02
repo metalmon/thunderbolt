@@ -1,4 +1,8 @@
 {
+  "dropList": {
+    "drop": "Отпустите",
+    "more": "ещё {{count}}"
+  },
   "title": "Проекты",
   "newProject": "Новый проект",
   "searchPlaceholder": "Поиск проектов",

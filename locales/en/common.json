@@ -80,6 +80,7 @@
   "clearSearch": "Clear search",
   "navigation": "Navigation",
   "closeNavigation": "Close navigation",
+  "sending": "Sending…",
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",

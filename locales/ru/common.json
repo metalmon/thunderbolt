@@ -80,6 +80,7 @@
   "clearSearch": "Очистить поиск",
   "navigation": "Навигация",
   "closeNavigation": "Закрыть навигацию",
+  "sending": "Отправка…",
   "signIn": "Войти",
   "appError": {
     "title": "Не удалось запустить приложение",
