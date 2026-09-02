@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Trans } from '@lingui/react/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { ContentViewHeader } from '@/content-view/header'
 import { useContentView } from '@/content-view/context'
 import { Button } from '@/components/ui/button'
 import { useHttpClient } from '@/contexts'
 import { Download, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
@@ -45,7 +44,7 @@ type DocumentPreviewProps = {
  * by the caller (Haystack-backed or local IndexedDB) and passed in as `state`.
  */
 const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPreviewProps) => {
-  const { t } = useTranslation('chat')
+  const { t } = useLingui()
   const { close } = useContentView()
   const [numPages, setNumPages] = useState<number | null>(null)
 
@@ -85,7 +84,7 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
       variant="ghost"
       size="icon"
       className="h-8 w-8 rounded-full"
-      aria-label={t('documentPreview.downloadAria', { filename: fileName })}
+      aria-label={t`Download ${fileName}`}
     >
       <Download className="size-4" aria-hidden />
     </Button>
