@@ -136,6 +136,7 @@ const HistoryNavButtons = () => {
 
   const canGoBack = index > 0
   const canGoForward = index < ceiling
+  const { t } = useTranslation('common')
 
   return (
     <div className="flex items-center">
@@ -147,7 +148,7 @@ const HistoryNavButtons = () => {
         onClick={() => void navigate(-1)}
       >
         <ArrowLeft className="size-[var(--icon-size-default)]" />
-        <span className="sr-only">Go back</span>
+        <span className="sr-only">{t('goBack')}</span>
       </Button>
       <Button
         variant="ghost"
@@ -157,7 +158,7 @@ const HistoryNavButtons = () => {
         onClick={() => void navigate(1)}
       >
         <ArrowRight className="size-[var(--icon-size-default)]" />
-        <span className="sr-only">Go forward</span>
+        <span className="sr-only">{t('goForward')}</span>
       </Button>
     </div>
   )

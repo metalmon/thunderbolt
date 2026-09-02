@@ -4,6 +4,7 @@
 
 import { Check, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 
 type ActionFeedbackButtonProps = Omit<ComponentProps<typeof Button>, 'onClick'> & {
@@ -32,6 +33,7 @@ export const ActionFeedbackButton = ({
   disabled,
   ...props
 }: ActionFeedbackButtonProps) => {
+  const { t } = useTranslation()
   const [state, setState] = useState<'idle' | 'loading' | 'success'>('idle')
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -71,7 +73,7 @@ export const ActionFeedbackButton = ({
           loadingContent ?? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
+              {t('auth:signIn.sending')}
             </>
           )
         )
@@ -81,7 +83,7 @@ export const ActionFeedbackButton = ({
             {successContent ?? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Sent
+                {t('auth:otp.sent')}
               </>
             )}
           </span>

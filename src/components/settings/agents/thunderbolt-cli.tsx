@@ -75,7 +75,7 @@ export const ThunderboltCliRow = ({
       onOpen={onOpen}
       ariaLabel={t('agents.openCli')}
       icon={<Terminal className="size-5 text-muted-foreground" aria-hidden="true" />}
-      title="Thunderbolt CLI"
+      title={t('agents.cliTitle')}
       subtitle={t('agents.cliProvenance')}
     />
   )
@@ -127,7 +127,7 @@ export const ThunderboltCliDetail = ({
           <Terminal className="size-5 text-muted-foreground" aria-hidden="true" />
         </IconTile>
       }
-      title="Thunderbolt CLI"
+      title={t('agents.cliTitle')}
       subtitle={t('agents.cliProvenance')}
       onClose={onClose}
     >
