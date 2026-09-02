@@ -7,7 +7,8 @@ import { ContentViewHeader } from '@/content-view/header'
 import { useContentView } from '@/content-view/context'
 import { Button } from '@/components/ui/button'
 import { useHttpClient } from '@/contexts'
-import { Download, Loader2 } from 'lucide-react'
+import { Download } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useCallback, useEffect, useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
@@ -96,7 +97,7 @@ const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPre
 
       {state.status === 'loading' && (
         <div className="flex flex-1 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Spinner className="h-6 w-6 text-muted-foreground" />
         </div>
       )}
 

@@ -15,7 +15,8 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { decodePairingTicket } from '@/lib/pairing-ticket'
 import { decodeQrFromFile } from '@/lib/qr-scan'
-import { Loader2, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useRef, useState } from 'react'
 
 type SetNodeIdDialogProps = {
@@ -107,7 +108,7 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
             disabled={scanning}
             onClick={() => fileInputRef.current?.click()}
           >
-            {scanning ? <Loader2 className="size-4 mr-1 animate-spin" /> : <Upload className="size-4 mr-1" />}
+            {scanning ? <Spinner className="size-4 mr-1" /> : <Upload className="size-4 mr-1" />}
             <Trans>Scan from image</Trans>
           </Button>
 
@@ -121,7 +122,7 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
             <Trans>Cancel</Trans>
           </Button>
           <Button onClick={() => void handleSave()} disabled={isPending || scanning || text.trim().length === 0}>
-            {isPending ? <Loader2 className="size-4 mr-1 animate-spin" /> : null}
+            {isPending ? <Spinner className="size-4 mr-1" /> : null}
             <Trans>Save</Trans>
           </Button>
         </DialogFooter>
