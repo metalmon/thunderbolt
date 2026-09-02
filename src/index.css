@@ -12,6 +12,15 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* Kill CSS transitions during the first paint (see src/index.tsx). A WebView
+   reload on window restore would otherwise replay mount transitions — the
+   sidebar sliding open again, etc. The class is removed after the first frame. */
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+}
+
 /* Force-desktop: the Tauri desktop app always renders the desktop layout, no
    matter how narrow the window is (the 600px min window width sits below the
    640px sm and 768px md breakpoints). src/index.tsx adds .force-desktop to

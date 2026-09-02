@@ -60,5 +60,14 @@ if (!redirecting) {
 
   const root = document.getElementById('root') as HTMLElement
 
+  // Suppress CSS transitions during the first paint. A WebView reload (Windows
+  // discards a minimized window's renderer, so a restore reloads the page) would
+  // otherwise replay every mount transition — most visibly the sidebar sliding
+  // "open" again even though it was already open. Re-enabled after the first
+  // committed paint; user-driven transitions animate normally thereafter.
+  document.documentElement.classList.add('no-transitions')
   ReactDOM.createRoot(root).render(<App />)
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => document.documentElement.classList.remove('no-transitions')),
+  )
 }

@@ -57,6 +57,50 @@ type ContentViewContextType = {
 
 const ContentViewContext = createContext<ContentViewContextType | undefined>(undefined)
 
+// The side panel is ephemeral React state, so a WebView reload (Windows/WebView2
+// discards the renderer of a minimized window; a restore reloads the page) would
+// otherwise close whatever artifact/preview was open and lose the user's place.
+// Persist the open view to sessionStorage so a reload restores it verbatim rather
+// than fighting the reload by keeping the webview hot (which would defeat OS
+// background throttling). sessionStorage (not localStorage): the view is
+// per-window-session, not meant to resurrect across a genuine relaunch.
+const STORAGE_KEY = 'volt:content-view-state'
+
+const loadPersistedState = (): ContentViewState => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) {
+      return { type: null, data: null }
+    }
+    const parsed = JSON.parse(raw) as ContentViewState
+    if (!parsed || typeof parsed !== 'object' || !('type' in parsed)) {
+      return { type: null, data: null }
+    }
+    // `preview`'s onClose is a function JSON drops; the SidebarWebview closes via
+    // its own `onClose` prop, so a no-op placeholder keeps the type honest.
+    if (parsed.type === 'preview') {
+      return { type: 'preview', data: { ...parsed.data, onClose: () => {} } }
+    }
+    return parsed
+  } catch {
+    return { type: null, data: null }
+  }
+}
+
+const persistState = (state: ContentViewState): void => {
+  try {
+    if (state.type === null) {
+      sessionStorage.removeItem(STORAGE_KEY)
+    } else {
+      // JSON.stringify drops any function fields (e.g. preview's onClose).
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    }
+  } catch {
+    // Quota exceeded (a very large artifact) or storage unavailable — the panel
+    // just won't survive a reload; not worth surfacing.
+  }
+}
+
 /**
  * Unified provider for managing the content view
  *
@@ -74,8 +118,16 @@ export const ContentViewProvider = ({
   children: ReactNode
   trackEvent?: typeof defaultTrackEvent
 }) => {
-  const [state, setState] = useState<ContentViewState>({ type: null, data: null })
+  const [state, setStateRaw] = useState<ContentViewState>(loadPersistedState)
   const [previewHidden, setPreviewHidden] = useState(false)
+
+  // Persist on every change so a WebView reload restores the open view (see
+  // STORAGE_KEY above). Wrapping the setter keeps every call site — showArtifact,
+  // showPreview, close, … — persisted without threading an effect.
+  const setState = useCallback((next: ContentViewState) => {
+    persistState(next)
+    setStateRaw(next)
+  }, [])
 
   const showObjectView = useCallback(
     (content: ObjectViewContent, mcpTools?: UIMessageMetadata['mcpTools']) => {
