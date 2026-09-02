@@ -75,6 +75,8 @@
   "submit": "Submit",
   "goBack": "Go back",
   "goForward": "Go forward",
+  "private": "Private",
+  "closeDetails": "Close details",
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
