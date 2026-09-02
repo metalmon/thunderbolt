@@ -267,7 +267,7 @@ export const AddModelForm = ({
           <Button
             type="submit"
             isLoading={isPending}
-            loadingLabel="Adding…"
+            loadingLabel={t('mcpServers.adding')}
             disabled={shouldDisableAddModel({
               isPending,
               isFormValid: form.formState.isValid,
