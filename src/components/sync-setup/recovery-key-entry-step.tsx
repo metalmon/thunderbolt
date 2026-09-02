@@ -7,7 +7,8 @@ import { type KeyboardEvent } from 'react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Loader2, ShieldAlert } from 'lucide-react'
+import { ShieldAlert } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 
 type RecoveryKeyEntryStepProps = {
   value: string
@@ -99,7 +100,7 @@ export const RecoveryKeyEntryStep = ({
         <Button className="w-full" onClick={onSubmit} disabled={isLoading || wordCount !== 24}>
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2 h-4 w-4" />
               <Trans>Verifying…</Trans>
             </>
           ) : (

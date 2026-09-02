@@ -280,11 +280,11 @@ export const VoiceSettingsPage = () => {
                     eye lands on the commit where it ends the form. */}
                 <div className="flex flex-wrap justify-end gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
-                    {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
+                    {ui.loadingModels && <Spinner className="size-4" />}
                     <Trans>Load models</Trans>
                   </Button>
                   <Button type="button" onClick={runTest} disabled={!canTest || ui.conn.status === 'testing'}>
-                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
+                    {ui.conn.status === 'testing' && <Spinner className="size-4" />}
                     <Trans>Test connection</Trans>
                   </Button>
                 </div>
