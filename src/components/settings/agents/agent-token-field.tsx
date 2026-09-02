@@ -5,8 +5,8 @@
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { useQueryClient } from '@tanstack/react-query'
+import { useLingui } from '@lingui/react/macro'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,7 +20,7 @@ import { getAgentSecretsQuery, setAgentBearerToken } from '@/dal'
  * populated/empty indicator stays live across saves from this device.
  */
 export const AgentTokenField = ({ agentId }: { agentId: string }) => {
-  const { t } = useTranslation('settings')
+  const { t } = useLingui()
   const db = useDatabase()
   const queryClient = useQueryClient()
   const [draft, setDraft] = useState('')
@@ -52,7 +52,8 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
       await queryClient.invalidateQueries({ queryKey: secretsQueryKey })
     } catch (saveError) {
       console.error('Failed to save agent token', saveError)
-      setError(t('editableField.saveError', { field: t('agents.authToken').toLowerCase() }))
+      const field = t`Access token`.toLowerCase()
+      setError(t`Couldn't save ${field}. Please try again.`)
     } finally {
       setPending(false)
     }
@@ -67,7 +68,8 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
       await queryClient.invalidateQueries({ queryKey: secretsQueryKey })
     } catch (clearError) {
       console.error('Failed to clear agent token', clearError)
-      setError(t('editableField.saveError', { field: t('agents.authToken').toLowerCase() }))
+      const field = t`Access token`.toLowerCase()
+      setError(t`Couldn't save ${field}. Please try again.`)
     } finally {
       setPending(false)
     }
@@ -76,14 +78,14 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor="agent-detail-token" className="text-sm font-medium text-muted-foreground">
-        {t('agents.authToken')}
+        {t`Access token`}
       </label>
       <Input
         id="agent-detail-token"
         type="password"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        placeholder={populated ? t('agents.authTokenSet') : t('agents.authTokenPlaceholder')}
+        placeholder={populated ? t`Token set` : t`Paste the agent access token`}
         autoComplete="off"
         autoCapitalize="none"
         autoCorrect="off"
@@ -91,7 +93,9 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
         aria-invalid={error ? true : undefined}
         className="h-9"
       />
-      <p className="text-sm text-muted-foreground">{t('agents.authTokenHelper')}</p>
+      <p className="text-sm text-muted-foreground">
+        {t`Sent as a bearer credential, not in the URL. Stored only on this device.`}
+      </p>
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -101,12 +105,12 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
         <div className="flex justify-end gap-2">
           {populated && (
             <Button variant="ghost" size="sm" disabled={pending} onClick={() => void handleClear()}>
-              {t('agents.authTokenClear')}
+              {t`Remove token`}
             </Button>
           )}
           {trimmed !== '' && (
             <Button size="sm" disabled={pending} onClick={() => void handleSave()}>
-              {t('editableField.save')}
+              {t`Save`}
             </Button>
           )}
         </div>
