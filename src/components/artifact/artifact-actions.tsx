@@ -4,6 +4,7 @@
 
 import { wrapArtifactPreviewHtml } from '@/artifacts/harness'
 import { Button } from '@/components/ui/button'
+import { saveBlobUrl } from '@/fork/documents/save-file'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { useLingui } from '@lingui/react/macro'
@@ -38,14 +39,11 @@ export const ArtifactActions = ({ html, title, buttonClassName }: ArtifactAction
     // Ship the file with the same offline CSP the app renders it under, so opening the download in
     // a browser can't run it unsandboxed with network access — a self-contained artifact needs none.
     const url = URL.createObjectURL(new Blob([wrapArtifactPreviewHtml(html)], { type: 'text/html' }))
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `${toFileSlug(title)}.html`
-    document.body.appendChild(anchor)
-    anchor.click()
-    anchor.remove()
+    // Prompt for a save location where the platform supports it (native "Save As"),
+    // falling back to a silent Downloads write — same behavior as the document viewer.
+    void saveBlobUrl(url, `${toFileSlug(title)}.html`)
     // Defer revocation so the browser (notably WebKit in the Tauri webview) has time to start
-    // reading the blob — revoking synchronously after click() can cancel the download.
+    // reading the blob — revoking synchronously can cancel the download / picker write.
     setTimeout(() => URL.revokeObjectURL(url), 10_000)
   }
 
