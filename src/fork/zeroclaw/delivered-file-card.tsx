@@ -10,8 +10,8 @@ import { useSideview } from '@/content-view/context'
 import { getAttachment } from '@/lib/file-blob-storage'
 import { buildDocumentSideviewId } from '@/types/citation'
 import { Download } from 'lucide-react'
+import { useLingui } from '@lingui/react/macro'
 import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import { isDeliveredFilesOutput, type DeliveredFileRef, type DeliveredFilesOutput } from './outbound-resource-blob'
 
 type DeliveredFileCardProps = {
@@ -71,7 +71,7 @@ type ListProps = {
 }
 
 const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
-  const { t } = useTranslation('chat')
+  const { t } = useLingui()
   const open = useCallback(
     (ref: DeliveredFileRef) => {
       showSideview('local-file', buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.filename }))
@@ -81,7 +81,7 @@ const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
 
   return (
     <div className="my-2 flex flex-col gap-2">
-      {showLabel ? <p className="text-sm text-muted-foreground">{t('deliveredFile.delivered')}</p> : null}
+      {showLabel ? <p className="text-sm text-muted-foreground">{t`Delivered`}</p> : null}
       <div className="flex flex-wrap gap-3">
         {files.map((ref) => (
           <div key={ref.localFileId} className="flex flex-col items-start gap-1">
@@ -97,10 +97,10 @@ const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
               size="sm"
               className="h-7 gap-1 px-2"
               onClick={() => void downloadRef(ref)}
-              aria-label={t('deliveredFile.downloadAria', { filename: ref.filename })}
+              aria-label={t`Download ${ref.filename}`}
             >
               <Download className="size-3.5" aria-hidden />
-              {t('deliveredFile.download')}
+              {t`Download`}
             </Button>
           </div>
         ))}
