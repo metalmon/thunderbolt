@@ -39,7 +39,17 @@ import { useMutation } from '@tanstack/react-query'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { CheckCircle2, GripVertical, Plus } from 'lucide-react'
-import { type KeyboardEvent, memo, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
+import {
+  type KeyboardEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { translateDefaultField } from '@/i18n/translate-default'
 import { v7 as uuidv7 } from 'uuid'
@@ -84,6 +94,10 @@ type TaskItemProps = {
 }
 
 const TaskItem = memo(({ task, isCompleting, isPending = false, onComplete, onEdit, onDelete }: TaskItemProps) => {
+  const { t } = useTranslation()
+  // Default (built-in) tasks are seeded with English `item`; translate them for
+  // display by id. Custom tasks fall back to their own text.
+  const displayItem = translateDefaultField(t, 'tasks', task.id, 'item', task.item)
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(task.item)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -209,7 +223,7 @@ const TaskItem = memo(({ task, isCompleting, isPending = false, onComplete, onEd
             )}
           >
             <span ref={taskTextRef} className="block truncate">
-              {task.item}
+              {displayItem}
             </span>
             {/* The full-text overlay only adds information when the row text is
                 actually ellipsized. */}
@@ -218,7 +232,7 @@ const TaskItem = memo(({ task, isCompleting, isPending = false, onComplete, onEd
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 top-0 z-20 hidden whitespace-normal rounded-lg border bg-popover px-2 py-1.5 text-popover-foreground shadow-lg group-hover/task-text:block group-active/task-text:block group-focus-visible/task-text:block"
               >
-                {task.item}
+                {displayItem}
               </span>
             )}
           </button>
@@ -226,7 +240,7 @@ const TaskItem = memo(({ task, isCompleting, isPending = false, onComplete, onEd
       </div>
 
       <Checkbox
-        aria-label={`Complete ${task.item}`}
+        aria-label={`Complete ${displayItem}`}
         checked={isCompleting}
         disabled={interactionsDisabled}
         onCheckedChange={(checked) => {
