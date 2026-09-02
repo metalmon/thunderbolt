@@ -84,26 +84,6 @@ export default function Page() {
     prevIsDesktopPanelOpen.current = isDesktopPanelOpen
   }, [isDesktopPanelOpen, contentViewWidth])
 
-  // Minimizing shrinks the window to ~146px, which force-collapses this panel to
-  // 0% while the view stays open (onResize's close() is guarded against the
-  // minimize width). isDesktopPanelOpen never changes, so the effect above won't
-  // re-open it — restore it here when the window returns to a real size, so the
-  // artifact/preview reappears instead of staying at 0-width.
-  useEffect(() => {
-    const restorePanelOnWindowResize = () => {
-      if (window.innerWidth < 400 || !isDesktopPanelOpen || !panelRef.current) {
-        return
-      }
-      if (panelRef.current.getSize().asPercentage < 1) {
-        const savedWidth = contentViewWidth.value
-        const targetWidth = savedWidth && savedWidth >= minimumWidthThreshold ? savedWidth : defaultOpenWidth
-        panelRef.current.resize(`${targetWidth}%`)
-      }
-    }
-    window.addEventListener('resize', restorePanelOnWindowResize)
-    return () => window.removeEventListener('resize', restorePanelOnWindowResize)
-  }, [isDesktopPanelOpen, contentViewWidth])
-
   // Persist width changes as user resizes (but not on mobile)
   const handleResize = ({ asPercentage }: { asPercentage: number }) => {
     const shouldPersistWidthChange = isOpen && asPercentage > 0 && !isMobile
@@ -184,19 +164,8 @@ export default function Page() {
             minSize="0%"
             collapsedSize="0%"
             onResize={(panelSize, _id, prevPanelSize) => {
-              // Windows shrinks the window to ~146×20 while minimizing; at that
-              // width the resizable layout forces this panel to 0%, which looks
-              // exactly like a user drag-collapse and would fire close() — dropping
-              // the open artifact on every minimize. The window minWidth is 500, so
-              // a genuine collapse only ever happens at a real width; ignore the 0%
-              // the minimize transient produces.
-              const windowMinimized = window.innerWidth < 400
-              if (
-                !windowMinimized &&
-                prevPanelSize &&
-                prevPanelSize.asPercentage > 0 &&
-                panelSize.asPercentage === 0
-              ) {
+              // Dragging the panel fully closed collapses the content view.
+              if (prevPanelSize && prevPanelSize.asPercentage > 0 && panelSize.asPercentage === 0) {
                 close()
               }
               handleResize(panelSize)

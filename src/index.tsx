@@ -60,26 +60,36 @@ if (!redirecting) {
 
   const root = document.getElementById('root') as HTMLElement
 
-  // Suppress CSS transitions during the first paint. A WebView reload (Windows
-  // discards a minimized window's renderer, so a restore reloads the page) would
-  // otherwise replay every mount transition — most visibly the sidebar sliding
-  // "open" again even though it was already open. Re-enabled after the first
-  // committed paint; user-driven transitions animate normally thereafter.
-  // Suppress CSS transitions while the window is resizing (and for the first
-  // paint). Minimizing shrinks the window to ~146px, which clamps the
-  // `w-(--sidebar-width)` sidebar down; restoring animates the width back up
-  // (`transition-[width]`), so the sidebar appears to slide "open" again on every
-  // restore. Killing transitions during the resize burst and re-enabling once it
-  // settles keeps the sidebar (and any other size-driven transition) still.
+  // Suppress CSS transitions during the first committed paint so a mount doesn't
+  // replay every transition at once. Re-enabled after the first paint; user-driven
+  // transitions animate normally thereafter.
   const html = document.documentElement
   html.classList.add('no-transitions')
   ReactDOM.createRoot(root).render(<App />)
   requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove('no-transitions')))
 
-  let resizeSettle: ReturnType<typeof setTimeout> | undefined
+  // Freeze the app box while the window is minimized. Minimizing the desktop
+  // window shrinks the WebView2 client to ~146×20px, which reflows the entire
+  // responsive layout down to that size; restoring reflows it back, and every
+  // size-driven element (sidebar width, the framer nav thumb, the composer, the
+  // resizable content panel) visibly re-animates the change. The window minWidth
+  // is 500, so any viewport below that is the minimize transient — pin #root to
+  // its last real size for the duration so the inner layout never sees it and
+  // nothing reflows. The pinned size is invisible anyway (the window is minimized)
+  // and is released the instant the window returns to a real size. This replaces
+  // the per-element animation patches: with no reflow there is nothing to animate.
+  const MINIMIZE_VIEWPORT_WIDTH = 400
+  let lastNormalWidth = window.innerWidth
+  let lastNormalHeight = window.innerHeight
   window.addEventListener('resize', () => {
-    html.classList.add('no-transitions')
-    clearTimeout(resizeSettle)
-    resizeSettle = setTimeout(() => html.classList.remove('no-transitions'), 200)
+    if (window.innerWidth < MINIMIZE_VIEWPORT_WIDTH) {
+      root.style.width = `${lastNormalWidth}px`
+      root.style.height = `${lastNormalHeight}px`
+      return
+    }
+    root.style.width = ''
+    root.style.height = ''
+    lastNormalWidth = window.innerWidth
+    lastNormalHeight = window.innerHeight
   })
 }
