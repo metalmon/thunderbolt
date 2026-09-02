@@ -141,7 +141,7 @@ export const SyncSetupModal = ({ open, onOpenChange, onComplete }: SyncSetupModa
         }
       }}
     >
-      <ResponsiveModalTitle className="sr-only">Set up encrypted sync</ResponsiveModalTitle>
+      <ResponsiveModalTitle className="sr-only">{t('syncSetup.setUpTitle')}</ResponsiveModalTitle>
       {setup.step === 'recovery-key-entry' && (
         <button
           type="button"

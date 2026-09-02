@@ -6,6 +6,7 @@ import { useDebouncedCallback } from '@/hooks/use-debounce'
 import { cn } from '@/lib/utils'
 import { Search, X } from 'lucide-react'
 import { forwardRef, useState, type ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Input, type InputProps } from './input'
 
 export type SearchInputProps = InputProps & {
@@ -30,6 +31,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation()
     const [internalValue, setInternalValue] = useState(defaultValue?.toString() || '')
     const isControlled = value !== undefined
     const displayValue = isControlled ? value : internalValue
@@ -84,7 +86,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             type="button"
             onClick={handleClear}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/80 hover:text-foreground transition-colors focus:outline-none cursor-pointer"
-            aria-label="Clear search"
+            aria-label={t('common:clearSearch')}
           >
             <X className="h-4 w-4" />
           </button>

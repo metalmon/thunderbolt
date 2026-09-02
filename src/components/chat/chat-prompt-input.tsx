@@ -603,7 +603,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             className="flex items-center gap-2 px-3 h-[var(--touch-height-sm)] text-muted-foreground text-[length:var(--font-size-body)]"
           >
             <Loader2 className="size-[var(--icon-size-default)] shrink-0 animate-spin" />
-            <span>Connecting to {selectedAgent.name}...</span>
+            <span>{t('connect.connectingTo', { name: selectedAgent.name })}</span>
           </div>
         ) : isConnectionError ? (
           <div
@@ -612,7 +612,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           >
             <AlertCircle className="size-[var(--icon-size-default)] shrink-0" />
             <span className="truncate" title={extractErrorDisplay(connectionError)}>
-              Failed to connect to {selectedAgent.name}
+              {t('connect.failedTo', { name: selectedAgent.name })}
             </span>
           </div>
         ) : null}
@@ -677,7 +677,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           role="status"
           className="flex items-center justify-center px-4 py-3 text-muted-foreground text-[length:var(--font-size-sm)]"
         >
-          <span>This chat uses {selectedAgent.name}, which is not available on this platform.</span>
+          <span>{t('connect.chatUsesUnavailable', { name: selectedAgent.name })}</span>
         </div>
       )
     }
@@ -700,7 +700,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
           {isDragging && (
             <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-3xl border-2 border-dashed border-ring bg-muted/80 backdrop-blur-sm">
               <span className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground">
-                Drop file to attach
+                {t('prompt.dropFile')}
               </span>
             </div>
           )}
@@ -754,7 +754,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
                     <button
                       type="button"
                       onClick={() => setAttachError(null)}
-                      aria-label="Dismiss"
+                      aria-label={t('prompt.dismiss')}
                       className="shrink-0 cursor-pointer rounded p-0.5 hover:bg-destructive/15"
                     >
                       <X className="size-3.5" />
