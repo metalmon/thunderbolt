@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { appLocales, pseudoLocale, sourceLocale, type AppLocale } from '@shared/i18n/locales'
+import { appLocales, defaultLocale, pseudoLocale, type AppLocale } from '@shared/i18n/locales'
 
 /** Locales eligible for browser-language negotiation — every shipped locale except the CI pseudo-locale. */
 export const negotiableLocales = appLocales.filter((locale) => locale !== pseudoLocale)
@@ -44,7 +44,10 @@ export const matchLocale = (tag: string): AppLocale | null => {
  * Resolve the active app locale. Pure so it's unit-testable.
  *
  * Order: explicit settable setting → first `navigator.languages` entry that
- * matches the supported set (exact tag, then base language) → `'en'`.
+ * matches the supported set (exact tag, then base language) → `defaultLocale`.
+ * The final fallback is Russian (`defaultLocale`), not the English source:
+ * Volt is Russian-first, so a browser that matches no shipped locale lands on
+ * `ru`. An English browser still resolves to `en` through negotiation.
  * The `en-XA` pseudo-locale is honored as an explicit setting in dev builds
  * only (see {@link settableLocales}), and never offered through browser
  * negotiation in any build.
@@ -59,5 +62,5 @@ export const resolveLocale = (setting: string | null, browserLanguages: readonly
       return match
     }
   }
-  return sourceLocale
+  return defaultLocale
 }
