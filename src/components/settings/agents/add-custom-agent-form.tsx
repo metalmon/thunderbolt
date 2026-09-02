@@ -231,11 +231,11 @@ export const AddCustomAgentForm = ({
         </div>
         {!isIroh && (
           <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="agent-token">{t('agents.authToken')}</Label>
+            <Label htmlFor="agent-token">{t`Access token`}</Label>
             <Input
               id="agent-token"
               type="password"
-              placeholder={t('agents.authTokenPlaceholder')}
+              placeholder={t`Paste the agent access token`}
               value={state.authToken}
               onChange={(e) => dispatch({ type: 'TOKEN_CHANGED', value: e.target.value })}
               autoComplete="off"
@@ -243,7 +243,7 @@ export const AddCustomAgentForm = ({
               autoCorrect="off"
               spellCheck={false}
             />
-            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('agents.authTokenHelper')}</p>
+            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Sent as a bearer credential, not in the URL. Stored only on this device.`}</p>
           </div>
         )}
         {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
