@@ -74,6 +74,7 @@
   "tryAgain": "Try again",
   "submit": "Submit",
   "goBack": "Go back",
+  "goForward": "Go forward",
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
