@@ -2195,6 +2195,8 @@ describe('ACP session compaction and usage', () => {
     expect((await observeConnect(adapter.fetch(compactInit(text), threadCtx('invalid-command')))).rejected).toBe(true)
     expect(fake.calls.prompt).toHaveLength(0)
     adapter.disconnect()
+  })
+})
 
 describe('connectAcpAdapter — remote-acp bearer token', () => {
   it('forwards the token from getAgentAuthToken to openTransport', async () => {
