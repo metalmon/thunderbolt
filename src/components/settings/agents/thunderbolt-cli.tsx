@@ -5,7 +5,8 @@
 import { msg } from '@lingui/core/macro'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { arch } from '@tauri-apps/plugin-os'
-import { AlertTriangle, Check, Download, ExternalLink, Loader2, Terminal } from 'lucide-react'
+import { AlertTriangle, Check, Download, ExternalLink, Terminal } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useState, useTransition } from 'react'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { CopyCommandRow } from '@/components/settings/copy-command-row'
@@ -154,7 +155,7 @@ export const ThunderboltCliDetail = ({
         {isTauriEnv ? (
           <>
             <Button variant="secondary" className="self-start" disabled={isPending} onClick={handleInstall}>
-              {isPending ? <Loader2 className="animate-spin" /> : <Download />}
+              {isPending ? <Spinner className="" /> : <Download />}
               {isPending ? <Trans>Installing…</Trans> : <Trans>Install CLI</Trans>}
             </Button>
 

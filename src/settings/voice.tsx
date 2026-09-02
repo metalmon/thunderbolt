@@ -18,8 +18,9 @@ import { PageHeader } from '@/components/ui/page-header'
 import { SectionCard } from '@/components/ui/section-card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import { useVoiceSettingsState } from './use-voice-settings-state'
+import { Spinner } from '@/components/ui/spinner'
 
 const Field = ({
   id,
@@ -192,11 +193,11 @@ export const VoiceSettingsPage = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
-                    {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
+                    {ui.loadingModels && <Spinner className="size-4" />}
                     <Trans>Load models</Trans>
                   </Button>
                   <Button type="button" onClick={runTest} disabled={!canTest || ui.conn.status === 'testing'}>
-                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
+                    {ui.conn.status === 'testing' && <Spinner className="size-4" />}
                     <Trans>Test connection</Trans>
                   </Button>
                 </div>
