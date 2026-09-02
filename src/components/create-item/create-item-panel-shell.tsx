@@ -4,7 +4,7 @@
 
 import type { MessageDescriptor } from '@lingui/core'
 import { useLingui } from '@lingui/react/macro'
-import { Loader2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import type { ReactNode } from 'react'
 
 import { DetailPanel, DetailPanelSurface } from '@/components/detail-panel'
@@ -50,7 +50,7 @@ export const CreateItemPanelShell = ({
 export const CreateItemLoadingPanel = (props: Omit<CreateItemPanelShellProps, 'children'>) => (
   <CreateItemPanelShell {...props}>
     <div className="flex flex-1 items-center justify-center">
-      <Loader2 className="size-[var(--icon-size-default)] animate-spin text-muted-foreground" />
+      <Spinner className="size-[var(--icon-size-default)] text-muted-foreground" />
     </div>
   </CreateItemPanelShell>
 )

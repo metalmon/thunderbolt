@@ -13,7 +13,8 @@ import { useLongPress } from '@/hooks/use-long-press'
 import { useDraggable } from '@dnd-kit/core'
 import { chatDragId, type ChatDragData } from '@/projects/chat-drop'
 import { cn } from '@/lib/utils'
-import { FolderInput, Loader2, MessageCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { FolderInput, MessageCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { memo, useReducer, useRef, type ComponentType, type MouseEventHandler, type ReactNode } from 'react'
 import type { ChatListItemProps } from './types'
 import { useChatStore } from '@/chats/chat-store'
@@ -175,7 +176,7 @@ export const ChatListItem = memo(
           tooltip={chatTitleLabel(i18n, thread.title)}
         >
           {showSpinner ? (
-            <Loader2 className="size-[var(--icon-size-default)] animate-spin text-muted-foreground" />
+            <Spinner className="size-[var(--icon-size-default)] text-muted-foreground" />
           ) : (
             <MessageCircle className="size-[var(--icon-size-default)] shrink-0" />
           )}
@@ -200,7 +201,7 @@ export const ChatListItem = memo(
     }
 
     const deleteIcon = deleteChatMutation.isPending ? (
-      <Loader2 className="size-4 animate-spin" />
+      <Spinner className="size-4" />
     ) : (
       <Trash2 className="size-4" />
     )
@@ -258,7 +259,7 @@ export const ChatListItem = memo(
         >
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {showSpinner && (
-              <Loader2 className="size-[var(--icon-size-default)] shrink-0 animate-spin text-muted-foreground" />
+              <Spinner className="size-[var(--icon-size-default)] shrink-0 text-muted-foreground" />
             )}
             {thread.miniAppId && <MiniAppChatBadge appId={thread.miniAppId} />}
             <span className="min-w-0 flex-1 truncate">{displayTitle}</span>
@@ -337,7 +338,7 @@ export const ChatListItem = memo(
                           exit={{ opacity: 0, width: 0 }}
                           className="flex-shrink-0"
                         >
-                          <Loader2 className="size-[var(--icon-size-default)] animate-spin text-muted-foreground" />
+                          <Spinner className="size-[var(--icon-size-default)] text-muted-foreground" />
                         </m.div>
                       )}
                     </AnimatePresence>
