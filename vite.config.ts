@@ -136,6 +136,14 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, './shared'),
+      // Override lucide's `Loader2` spinner app-wide with the Volt Spinner without
+      // editing call sites: `lucide-react` resolves to a shim that re-exports the
+      // real package (`lucide-react-real`, aliased to the package dir so vite reads
+      // its entry from package.json) with `Loader2` swapped for our Spinner. See
+      // src/components/ui/lucide-shim.ts. The `-real` key has no trailing slash, so
+      // the bare `lucide-react` key never captures it (no alias loop).
+      'lucide-react-real': path.resolve(__dirname, 'node_modules/lucide-react'),
+      'lucide-react': path.resolve(__dirname, './src/components/ui/lucide-shim.ts'),
       // Exposes PowerSync internal lib path so our custom SharedWorker can extend
       // SharedSyncImplementation (not in public exports map).
       'powersync-web-internal': path.resolve(__dirname, 'node_modules/@powersync/web/lib/src'),
