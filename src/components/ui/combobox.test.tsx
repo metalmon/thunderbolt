@@ -72,7 +72,7 @@ describe('Combobox', () => {
   describe('loading', () => {
     it('shows spinner in search input when loading', () => {
       render(<Combobox items={[]} onValueChange={() => {}} open={true} onOpenChange={() => {}} loading />)
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument()
+      expect(document.querySelector('.volt-spinner')).toBeInTheDocument()
     })
 
     it('keeps items visible while loading', () => {
