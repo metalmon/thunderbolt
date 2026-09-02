@@ -44,7 +44,22 @@ const subscribeForceCollapse = (callback: () => void) => {
   mediaQuery.addEventListener('change', callback)
   return () => mediaQuery.removeEventListener('change', callback)
 }
-const getForceCollapseSnapshot = () => forceCollapseMql().matches
+// Minimizing the desktop window drops the WebView viewport to ~146px, far below
+// any real window (minWidth is 500). Left unguarded, that transient trips the
+// 700px force-collapse and the sidebar collapses on minimize / re-expands on
+// restore — a visible "unfold" every time. Freeze the last real decision below
+// this width so the minimize transient is ignored; the window returns to the same
+// size on restore, so the frozen value still matches and nothing animates. Mirrors
+// the #root size-freeze in src/index.tsx — the two places a minimize viewport leaks in.
+const minimizeViewportWidth = 400
+let lastRealForceCollapse = forceCollapseMql().matches
+const getForceCollapseSnapshot = () => {
+  if (window.innerWidth < minimizeViewportWidth) {
+    return lastRealForceCollapse
+  }
+  lastRealForceCollapse = forceCollapseMql().matches
+  return lastRealForceCollapse
+}
 
 const sidebarCookieName = 'sidebar_state'
 const sidebarCookieMaxAge = 60 * 60 * 24 * 7
