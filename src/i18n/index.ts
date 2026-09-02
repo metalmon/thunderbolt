@@ -13,8 +13,8 @@ export { appLocales, sourceLocale, type AppLocale }
 export { getActiveLocale, getBrowserLanguages } from './active-locale'
 
 // Each translated catalog loads through import() so it ships as its own async
-// chunk — statically bundling all seven would grow the entry chunk with bytes
-// only one locale ever uses. `en` is the exception: see the activation below.
+// chunk — statically bundling every catalog would grow the entry chunk with
+// bytes only one locale ever uses. `en` is the exception: see the activation below.
 const catalogLoaders: Record<AppLocale, () => Promise<{ messages: Messages }>> = {
   en: async () => ({ messages: sourceMessages }),
   de: () => import('@/locales/de/messages.po'),
@@ -22,6 +22,7 @@ const catalogLoaders: Record<AppLocale, () => Promise<{ messages: Messages }>> =
   es: () => import('@/locales/es/messages.po'),
   'pt-BR': () => import('@/locales/pt-BR/messages.po'),
   ja: () => import('@/locales/ja/messages.po'),
+  ru: () => import('@/locales/ru/messages.po'),
   'en-XA': () => import('@/locales/en-XA/messages.po'),
 }
 
