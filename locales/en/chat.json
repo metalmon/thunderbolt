@@ -290,7 +290,14 @@
       "speaking": "Speaking"
     }
   },
+  "citationSources": {
+    "sources_one": "{{count}} source",
+    "sources_other": "{{count}} sources"
+  },
   "connect": {
+    "connectingTo": "Connecting to {{name}}…",
+    "failedTo": "Failed to connect to {{name}}",
+    "chatUsesUnavailable": "This chat uses {{name}}, which is not available on this platform.",
     "chooseProvider": "Choose your email provider to access your email and calendar",
     "google": "Google",
     "microsoft": "Microsoft",

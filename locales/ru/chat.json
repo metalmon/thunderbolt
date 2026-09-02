@@ -291,7 +291,15 @@
       "speaking": "Говорю"
     }
   },
+  "citationSources": {
+    "sources_one": "{{count}} источник",
+    "sources_few": "{{count}} источника",
+    "sources_many": "{{count}} источников"
+  },
   "connect": {
+    "connectingTo": "Подключение к {{name}}…",
+    "failedTo": "Не удалось подключиться к {{name}}",
+    "chatUsesUnavailable": "Этот чат использует {{name}}, недоступного на этой платформе.",
     "chooseProvider": "Выберите почтовый провайдер, чтобы получить доступ к почте и календарю",
     "google": "Google",
     "microsoft": "Microsoft",

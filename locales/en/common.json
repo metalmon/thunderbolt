@@ -77,6 +77,7 @@
   "goForward": "Go forward",
   "private": "Private",
   "closeDetails": "Close details",
+  "clearSearch": "Clear search",
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
@@ -145,6 +146,7 @@
     "denying": "Denying…"
   },
   "syncSetup": {
+    "setUpTitle": "Set up encrypted sync",
     "introTitle": "Set up sync",
     "introDescription": "Keep your data in sync across all your devices. Everything is encrypted end-to-end — only your devices can read your data.",
     "settingUp": "Setting up…",
