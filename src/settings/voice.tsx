@@ -138,7 +138,7 @@ export const VoiceSettingsPage = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="thunderbolt">Thunderbolt (hosted, private)</SelectItem>
+                <SelectItem value="thunderbolt">{t('voice.voltOption')}</SelectItem>
                 <SelectItem value="openai-compatible">{t('voice.customEndpointOption')}</SelectItem>
               </SelectContent>
             </Select>
@@ -185,7 +185,7 @@ export const VoiceSettingsPage = () => {
               </div>
               <ComboField
                 id="voice-tts-voice"
-                label="TTS voice"
+                label={t('voice.ttsVoice')}
                 placeholder="af_bella"
                 options={voiceOptions}
                 value={config.ttsVoice}
@@ -196,19 +196,16 @@ export const VoiceSettingsPage = () => {
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
                     {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
-                    Load models
+                    {t('voice.loadModels')}
                   </Button>
                   <Button type="button" onClick={runTest} disabled={!canTest || ui.conn.status === 'testing'}>
                     {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
-                    Test connection
+                    {t('agentDetail.testConnection')}
                   </Button>
                 </div>
 
                 {ui.models !== null && ui.models.stt.length === 0 && ui.models.tts.length === 0 && (
-                  <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                    No models returned (server unreachable, or it doesn’t list models). Enter model and voice ids
-                    manually.
-                  </p>
+                  <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('voice.noModels')}</p>
                 )}
 
                 {ui.conn.status === 'ok' && (

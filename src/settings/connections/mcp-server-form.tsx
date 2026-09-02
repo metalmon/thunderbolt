@@ -179,7 +179,7 @@ export const McpServerForm = ({
         <Button
           onClick={onUpdateServer}
           isLoading={isSavePending}
-          loadingLabel="Saving…"
+          loadingLabel={t('mcpServers.saving')}
           // A fresh successful probe is required only when the edit touches
           // the connection and no waiver applies (see `isEditProbeWaived`):
           // iroh has no probe, and metadata-only / bearer-clear / empty-token
@@ -202,7 +202,7 @@ export const McpServerForm = ({
         <Button
           onClick={onAddAndAuthorize}
           isLoading={isAddAuthorizePending}
-          loadingLabel="Authorizing…"
+          loadingLabel={t('mcpServers.authorizing')}
           disabled={!isUrlReady}
         >
           <LockKeyhole className="h-3.5 w-3.5 mr-1.5" />
@@ -214,7 +214,7 @@ export const McpServerForm = ({
       <Button
         onClick={onAddServer}
         isLoading={isSavePending}
-        loadingLabel="Adding…"
+        loadingLabel={t('mcpServers.adding')}
         disabled={!isSaveReady || (!isIroh && testResult.kind !== 'success')}
       >
         {isSavePending ? t('mcpServers.adding') : t('mcpServers.addServerButton')}
