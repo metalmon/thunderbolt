@@ -133,15 +133,15 @@ describe('useAppLanguage', () => {
    * immediately after mount, while the query is still in flight.
    */
   it('does not announce the fallback locale while the setting is loading', () => {
-    setActiveLocale('ja')
+    setActiveLocale('ru')
     const announced = recordAnnouncements()
 
     const { result } = renderWithSettingReader()
 
     expect(result.current.language.isLoading).toBe(true)
     expect(announced).not.toContain('en')
-    expect(getActiveLocale()).toBe('ja')
-    expect(localStorage.getItem(storageKey)).toBe('ja')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   /**
@@ -153,8 +153,8 @@ describe('useAppLanguage', () => {
    * reload inside it would start from `en` instead of negotiating.
    */
   it('keeps the negotiated locale when the stored setting is merely unset', async () => {
-    stubBrowserLanguages(['de'])
-    setActiveLocale('de')
+    stubBrowserLanguages(['ru'])
+    setActiveLocale('ru')
     const announced = recordAnnouncements()
 
     const { result } = renderWithSettingReader()
@@ -162,20 +162,20 @@ describe('useAppLanguage', () => {
 
     expect(result.current.language.isLoading).toBe(false)
     expect(announced).not.toContain('en')
-    expect(getActiveLocale()).toBe('de')
-    expect(localStorage.getItem(storageKey)).toBe('de')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   it('publishes an explicit stored setting over the browser languages', async () => {
-    stubBrowserLanguages(['de'])
-    await updateSettings(getDb(), { language: 'ja' })
+    stubBrowserLanguages(['en'])
+    await updateSettings(getDb(), { language: 'ru' })
 
     const { result } = renderWithSettingReader()
     await flush()
 
     expect(result.current.language.isLoading).toBe(false)
-    expect(getActiveLocale()).toBe('ja')
-    expect(localStorage.getItem(storageKey)).toBe('ja')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   /**
