@@ -5,13 +5,17 @@
 import { describe, expect, test } from 'bun:test'
 import { negotiableLocales, resolveLocale, settableLocales } from './resolve-locale'
 
+// Volt ships only `en` (source) and `ru` (product language), plus the `en-XA`
+// CI pseudo-locale. With no explicit setting and no browser match the resolver
+// falls back to `ru` (defaultLocale), not the English source — Volt is
+// Russian-first.
 describe('resolveLocale', () => {
   test('explicit supported setting wins over browser languages', () => {
-    expect(resolveLocale('ja', ['pt-BR', 'en'])).toBe('ja')
+    expect(resolveLocale('ru', ['en', 'en-US'])).toBe('ru')
   })
 
-  test('explicit pt-BR setting is returned as-is', () => {
-    expect(resolveLocale('pt-BR', ['en'])).toBe('pt-BR')
+  test('explicit en setting is returned as-is', () => {
+    expect(resolveLocale('en', ['ru'])).toBe('en')
   })
 
   // `language` is synced, so a dev-build selection would otherwise land on that
@@ -19,27 +23,23 @@ describe('resolveLocale', () => {
   // run with `import.meta.env.DEV` unset, i.e. against the production contract.
   test('refuses the en-XA pseudo-locale outside dev builds', () => {
     expect(settableLocales).not.toContain('en-XA')
-    expect(resolveLocale('en-XA', ['de'])).toBe('de')
+    expect(resolveLocale('en-XA', ['en'])).toBe('en')
   })
 
   test('unsupported setting falls through to browser negotiation', () => {
-    expect(resolveLocale('zh-CN', ['fr-FR', 'en'])).toBe('fr')
+    expect(resolveLocale('zh-CN', ['ru-RU', 'en'])).toBe('ru')
   })
 
   test('null setting uses the first matching browser language', () => {
-    expect(resolveLocale(null, ['de-DE', 'en-US'])).toBe('de')
+    expect(resolveLocale(null, ['ru-RU', 'en-US'])).toBe('ru')
   })
 
-  test('matches exact regional tags', () => {
-    expect(resolveLocale(null, ['pt-BR'])).toBe('pt-BR')
+  test('matches a regional tag to its base locale', () => {
+    expect(resolveLocale(null, ['en-US', 'ru'])).toBe('en')
   })
 
-  test('maps base language to the regional shipped locale (pt → pt-BR)', () => {
-    expect(resolveLocale(null, ['pt'])).toBe('pt-BR')
-  })
-
-  test('maps sibling regions to the shipped locale (pt-PT → pt-BR)', () => {
-    expect(resolveLocale(null, ['pt-PT'])).toBe('pt-BR')
+  test('maps a regional tag to the base shipped locale (ru-RU → ru)', () => {
+    expect(resolveLocale(null, ['ru-RU'])).toBe('ru')
   })
 
   test('strips regions when only the base is shipped (en-GB → en)', () => {
@@ -47,23 +47,25 @@ describe('resolveLocale', () => {
   })
 
   test('is case-insensitive on browser tags', () => {
-    expect(resolveLocale(null, ['PT-br'])).toBe('pt-BR')
-    expect(resolveLocale(null, ['JA'])).toBe('ja')
+    expect(resolveLocale(null, ['RU'])).toBe('ru')
+    expect(resolveLocale(null, ['EN-us'])).toBe('en')
   })
 
   test('skips unsupported browser languages until one matches', () => {
-    expect(resolveLocale(null, ['zh-CN', 'ko', 'es-MX'])).toBe('es')
+    expect(resolveLocale(null, ['zh-CN', 'ko', 'ru-RU'])).toBe('ru')
   })
 
-  test('falls back to en when nothing matches', () => {
-    expect(resolveLocale(null, ['zh-CN', 'ko'])).toBe('en')
+  test('falls back to ru (default) when nothing matches', () => {
+    expect(resolveLocale(null, ['zh-CN', 'ko'])).toBe('ru')
   })
 
-  test('falls back to en on an empty browser list', () => {
-    expect(resolveLocale(null, [])).toBe('en')
+  test('falls back to ru (default) on an empty browser list', () => {
+    expect(resolveLocale(null, [])).toBe('ru')
   })
 
   test('never negotiates the en-XA pseudo-locale from the browser', () => {
+    // en-XA is not negotiable; its base `en` is, so the tag resolves to `en`,
+    // never to the pseudo-locale itself.
     expect(resolveLocale(null, ['en-XA'])).toBe('en')
     expect(negotiableLocales).not.toContain('en-XA')
   })
