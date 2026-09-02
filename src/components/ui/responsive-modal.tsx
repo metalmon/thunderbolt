@@ -99,6 +99,7 @@ const ResponsiveModalDialogContent = ({
   ...props
 }: ResponsiveModalDialogContentProps) => {
   const { isMobile } = useIsMobile()
+  const { t } = useTranslation('common')
 
   return (
     <ResponsiveModalContext value={{ isMobile }}>
@@ -136,7 +137,7 @@ const ResponsiveModalDialogContent = ({
               }}
             >
               <XIcon className="size-[var(--icon-size-default)]" />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t('close')}</span>
             </DialogClose>
           )}
         </DialogPrimitive.Content>

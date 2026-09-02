@@ -162,7 +162,7 @@ export const PromptInput = forwardRef<HTMLFormElement, PromptInputProps>(
         <Button
           type="button"
           variant="default"
-          aria-label="Stop generating"
+          aria-label={t('chat:prompt.stopGenerating')}
           className="size-[var(--touch-height-control)] rounded-[var(--radius-control)] flex items-center justify-center flex-shrink-0"
           onClick={onStop}
         >

@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useRef, useState, type ChangeEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import { Button, mutedIconButtonClass } from './button'
 import { useMobileForegroundPortalTarget } from './mobile-foreground-portal'
@@ -70,6 +71,7 @@ export const PageSearch = ({ onSearch, children }: PageSearchProps) => {
 }
 
 const PageSearchButton = () => {
+  const { t } = useTranslation()
   const { open, toggle } = usePageSearchContext()
   const { isMobile } = useIsMobile()
   const portalTarget = useMobileForegroundPortalTarget()
@@ -85,7 +87,7 @@ const PageSearchButton = () => {
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Search"
+        aria-label={t('chat:toolNames.search')}
         className={cn(
           mutedIconButtonClass,
           mobileHeaderControlFillClass,
@@ -105,7 +107,7 @@ const PageSearchButton = () => {
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Search"
+      aria-label={t('chat:toolNames.search')}
       className={cn('rounded-lg hover:bg-accent', open && 'bg-accent')}
       onClick={toggle}
     >

@@ -115,7 +115,7 @@ export const SidebarHeader = ({ onToggle, navToggle }: SidebarHeaderProps) => {
                       className="cursor-pointer size-8 justify-center text-muted-foreground"
                     >
                       <PanelLeftRounded className="size-[var(--icon-size-default)]" />
-                      <span className="sr-only">Toggle Sidebar</span>
+                      <span className="sr-only">{t('chat:sidebar.toggle')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
