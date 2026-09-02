@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { lazy, Suspense } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { parseDocumentSideviewId } from '@/types/citation'
 import { useSideview } from './context'
 
@@ -20,7 +20,7 @@ const LocalPdfSidebarViewer = lazy(() =>
 
 const loadingFallback = (
   <div className="flex h-full items-center justify-center">
-    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    <Spinner className="h-6 w-6 text-muted-foreground" />
   </div>
 )
 
