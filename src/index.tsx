@@ -60,5 +60,36 @@ if (!redirecting) {
 
   const root = document.getElementById('root') as HTMLElement
 
+  // Suppress CSS transitions during the first committed paint so a mount doesn't
+  // replay every transition at once. Re-enabled after the first paint; user-driven
+  // transitions animate normally thereafter.
+  const html = document.documentElement
+  html.classList.add('no-transitions')
   ReactDOM.createRoot(root).render(<App />)
+  requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove('no-transitions')))
+
+  // Freeze the app box while the window is minimized. Minimizing the desktop
+  // window shrinks the WebView2 client to ~146×20px, which reflows the entire
+  // responsive layout down to that size; restoring reflows it back, and every
+  // size-driven element (sidebar width, the framer nav thumb, the composer, the
+  // resizable content panel) visibly re-animates the change. The window minWidth
+  // is 500, so any viewport below that is the minimize transient — pin #root to
+  // its last real size for the duration so the inner layout never sees it and
+  // nothing reflows. The pinned size is invisible anyway (the window is minimized)
+  // and is released the instant the window returns to a real size. This replaces
+  // the per-element animation patches: with no reflow there is nothing to animate.
+  const MINIMIZE_VIEWPORT_WIDTH = 400
+  let lastNormalWidth = window.innerWidth
+  let lastNormalHeight = window.innerHeight
+  window.addEventListener('resize', () => {
+    if (window.innerWidth < MINIMIZE_VIEWPORT_WIDTH) {
+      root.style.width = `${lastNormalWidth}px`
+      root.style.height = `${lastNormalHeight}px`
+      return
+    }
+    root.style.width = ''
+    root.style.height = ''
+    lastNormalWidth = window.innerWidth
+    lastNormalHeight = window.innerHeight
+  })
 }
