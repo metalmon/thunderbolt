@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { DiscardCreateDialog } from '@/skills/discard-create-dialog'
 import { skillDisplayName } from '@/skills/display'
@@ -68,6 +69,7 @@ type CreateSkillPanelProps = {
 
 /** Creates or edits a skill over the current screen without changing routes. */
 export const CreateSkillPanel = ({ open, onClose, onCloseComplete, initialName, skillId }: CreateSkillPanelProps) => {
+  const { t } = useTranslation('settings')
   const createSkillTracked = useCreateSkillTracked()
   const { skills, isLoading, updateSkill } = useLibrarySkills()
   const trackSkillEvent = useSkillTelemetry()
@@ -150,8 +152,8 @@ export const CreateSkillPanel = ({ open, onClose, onCloseComplete, initialName, 
       <DiscardCreateDialog
         open={state.isDiscardOpen}
         onOpenChange={(nextOpen) => !nextOpen && dispatch({ type: 'DISCARD_CLOSED' })}
-        title={isEditing ? 'Leave without saving?' : undefined}
-        description={isEditing ? "Your changes won't be saved." : undefined}
+        title={isEditing ? t('skills.leaveWithoutSavingTitle') : undefined}
+        description={isEditing ? t('skills.leaveWithoutSavingDescription') : undefined}
         onConfirm={() => {
           dispatch({ type: 'DISCARD_CLOSED' })
           onClose()
