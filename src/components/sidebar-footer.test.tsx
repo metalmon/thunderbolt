@@ -200,7 +200,7 @@ describe('SyncStateIcon', () => {
   it('renders a spinner while connecting', () => {
     const svg = renderSvg(<SyncStateIcon isLoggedIn={true} syncEnabled={true} connectionStatus="connecting" />)
     expect(pathData(svg)).toEqual(referencePaths(<Spinner />))
-    expect(svg.classList.contains('animate-spin')).toBe(true)
+    expect(svg.classList.contains('volt-spinner')).toBe(true)
   })
 
   it('renders the warning CloudAlert when sync is on but not connected', () => {
