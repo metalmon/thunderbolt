@@ -78,39 +78,42 @@ const PendingDeviceRow = ({
   isDenyingThisDevice,
   onApprove,
   onDeny,
-}: PendingDeviceRowProps) => (
-  <DeviceCard>
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">{device.name}</p>
-        <p className="text-[length:var(--font-size-sm)] text-muted-foreground">Waiting for approval</p>
+}: PendingDeviceRowProps) => {
+  const { t } = useTranslation('settings')
+  return (
+    <DeviceCard>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{device.name}</p>
+          <p className="text-[length:var(--font-size-sm)] text-muted-foreground">{t('devices.waitingForApproval')}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 md:flex md:shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={t('devices.denyAria', { name: device.name })}
+            onClick={onDeny}
+            disabled={isDenyPending}
+            isLoading={isDenyingThisDevice}
+            loadingLabel={t('devices.denying')}
+          >
+            {t('devices.deny')}
+          </Button>
+          <Button
+            size="sm"
+            aria-label={t('devices.approveAria', { name: device.name })}
+            onClick={onApprove}
+            disabled={isApprovePending}
+            isLoading={isApprovingThisDevice}
+            loadingLabel={t('devices.approving')}
+          >
+            {t('devices.approve')}
+          </Button>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 md:flex md:shrink-0">
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Deny ${device.name}`}
-          onClick={onDeny}
-          disabled={isDenyPending}
-          isLoading={isDenyingThisDevice}
-          loadingLabel="Denying…"
-        >
-          Deny
-        </Button>
-        <Button
-          size="sm"
-          aria-label={`Approve ${device.name}`}
-          onClick={onApprove}
-          disabled={isApprovePending}
-          isLoading={isApprovingThisDevice}
-          loadingLabel="Approving…"
-        >
-          Approve
-        </Button>
-      </div>
-    </div>
-  </DeviceCard>
-)
+    </DeviceCard>
+  )
+}
 
 type TrustedDeviceRowProps = {
   device: Device
@@ -140,6 +143,7 @@ const TrustedDeviceRow = ({
   onToggleQr,
   onOpenPairingDialog,
 }: TrustedDeviceRowProps) => {
+  const { t } = useTranslation('settings')
   const isRevoked = device.revokedAt != null
   const isBridge = device.deviceType === 'bridge'
   const pairingPanelId = `device-pairing-${device.id}`
@@ -149,16 +153,16 @@ const TrustedDeviceRow = ({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="min-w-0 truncate font-medium">{device.name}</p>
-            {isBridge && <DeviceBadge>Bridge</DeviceBadge>}
-            {isCurrent && <DeviceBadge>This device</DeviceBadge>}
-            {isRevoked && <DeviceBadge>Revoked</DeviceBadge>}
+            {isBridge && <DeviceBadge>{t('devices.badgeBridge')}</DeviceBadge>}
+            {isCurrent && <DeviceBadge>{t('devices.thisDevice')}</DeviceBadge>}
+            {isRevoked && <DeviceBadge>{t('devices.revoked')}</DeviceBadge>}
           </div>
           <p className="text-[length:var(--font-size-sm)] text-muted-foreground">
             {isRevoked && isBridge
-              ? 'No longer accepts device connections'
+              ? t('devices.bridgeRevokedStatus')
               : isBridge
-                ? 'Accepts connections from your devices'
-                : `Last seen ${formatLastSeen(device.lastSeen)}`}
+                ? t('devices.bridgeAcceptsConnections')
+                : t('devices.lastSeen', { value: formatLastSeen(device.lastSeen) })}
           </p>
         </div>
         <div className="grid grid-cols-1 md:shrink-0">
@@ -166,13 +170,13 @@ const TrustedDeviceRow = ({
             <Button
               variant="outline"
               size="sm"
-              aria-label={`Revoke ${device.name}`}
+              aria-label={t('devices.revokeAria', { name: device.name })}
               onClick={onRevoke}
               disabled={isRevokePending}
               isLoading={isRevokingThisDevice}
-              loadingLabel="Revoking…"
+              loadingLabel={t('devices.revoking')}
             >
-              Revoke
+              {t('devices.revoke')}
             </Button>
           )}
           {isRevoked && isBridge && (
@@ -182,9 +186,9 @@ const TrustedDeviceRow = ({
               onClick={onRemove}
               disabled={isRemovePending}
               isLoading={isRemovingThisDevice}
-              loadingLabel="Removing…"
+              loadingLabel={t('devices.removing')}
             >
-              Remove
+              {t('devices.remove')}
             </Button>
           )}
         </div>
@@ -193,37 +197,47 @@ const TrustedDeviceRow = ({
       {!isRevoked && (
         <div className="mt-3 flex flex-col gap-2 border-t pt-3">
           <p className="text-[length:var(--font-size-xs)] font-medium uppercase tracking-wide text-muted-foreground">
-            Pairing identity
+            {t('devices.pairingIdentity')}
           </p>
           <p className="break-all font-mono text-[length:var(--font-size-xs)] text-muted-foreground">
-            {device.nodeId ?? 'Not configured'}
+            {device.nodeId ?? t('devices.notConfigured')}
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:justify-end">
             {device.nodeId && (
               <Button
                 variant="outline"
                 size="sm"
-                aria-label={`${isQrVisible ? 'Hide' : 'Show'} QR code for ${device.name}`}
+                aria-label={
+                  isQrVisible
+                    ? t('devices.hideQrAria', { name: device.name })
+                    : t('devices.showQrAria', { name: device.name })
+                }
                 aria-expanded={isQrVisible}
                 aria-controls={pairingPanelId}
                 onClick={onToggleQr}
               >
-                {isQrVisible ? 'Hide QR' : 'Show QR'}
+                {isQrVisible ? t('devices.hideQr') : t('devices.showQr')}
               </Button>
             )}
             <Button
               variant="outline"
               size="sm"
-              aria-label={`${device.nodeId ? 'Update' : 'Set up'} pairing for ${device.name}`}
+              aria-label={
+                device.nodeId
+                  ? t('devices.updatePairingAria', { name: device.name })
+                  : t('devices.setUpPairingAria', { name: device.name })
+              }
               onClick={onOpenPairingDialog}
             >
-              {device.nodeId ? 'Update pairing' : 'Set up pairing'}
+              {device.nodeId ? t('devices.updatePairing') : t('devices.setUpPairing')}
             </Button>
           </div>
           {device.nodeId && isQrVisible && (
             <div id={pairingPanelId} className="flex justify-center pt-2 md:justify-start">
               <Suspense
-                fallback={<p className="text-[length:var(--font-size-xs)] text-muted-foreground">Loading code…</p>}
+                fallback={
+                  <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t('devices.loadingCode')}</p>
+                }
               >
                 <DeviceQrCode value={encodePairingTicket({ nodeId: device.nodeId, name: device.name })} />
               </Suspense>
