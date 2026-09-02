@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useLingui } from '@lingui/react/macro'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import './docx-preview.css'
 
@@ -32,7 +32,7 @@ type RenderStatus = 'loading' | 'ready' | 'error'
  * to the `.docx-viewer` container.
  */
 export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
-  const { t } = useTranslation('chat')
+  const { t } = useLingui()
   const containerRef = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<RenderStatus>('loading')
 
@@ -116,7 +116,7 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
       {status === 'error' && (
         <div className="absolute inset-0 flex items-center justify-center px-4">
           <p className="text-center text-sm text-destructive">
-            {t('documentPreview.renderError', { filename: fileName })}
+            {t`Could not render ${fileName}. Use the download button to open it.`}
           </p>
         </div>
       )}
