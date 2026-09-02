@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Check, Loader2, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 
 import { Button } from '@/components/ui/button'
 import { StatusCard } from '@/components/ui/status-card'
@@ -48,7 +49,7 @@ export const ConnectionTestSection = ({
         <Button type="button" onClick={onTest} disabled={isTesting} variant="outline" className="w-full">
           {isTesting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2 h-4 w-4" />
               <Trans>Testing model…</Trans>
             </>
           ) : (
