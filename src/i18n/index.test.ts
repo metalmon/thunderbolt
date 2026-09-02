@@ -19,15 +19,15 @@ describe('applyLanguageSetting', () => {
    * land before this promise settles — not after the catalog chunk loads.
    */
   test('publishes the locale without waiting on the returned promise', () => {
-    const pending = applyLanguageSetting('pt-BR')
+    const pending = applyLanguageSetting('ru')
 
-    expect(getActiveLocale()).toBe('pt-BR')
+    expect(getActiveLocale()).toBe('ru')
 
     return pending
   })
 
   test('treats null as auto and negotiates from the browser', async () => {
-    await applyLanguageSetting('pt-BR')
+    await applyLanguageSetting('ru')
 
     await applyLanguageSetting(null)
 
@@ -38,12 +38,13 @@ describe('applyLanguageSetting', () => {
   test('falls back rather than activating an unshipped locale', async () => {
     await applyLanguageSetting('zh-CN')
 
+    // zh-CN isn't shipped, so it negotiates the browser — happy-dom reports en-US.
     expect(getActiveLocale()).toBe('en')
   })
 
   test('mirrors the change so the next page load starts from it', async () => {
-    await applyLanguageSetting('ja')
+    await applyLanguageSetting('ru')
 
-    expect(localStorage.getItem('thunderbolt_locale')).toBe('ja')
+    expect(localStorage.getItem('thunderbolt_locale')).toBe('ru')
   })
 })
