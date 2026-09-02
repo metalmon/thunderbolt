@@ -11,11 +11,9 @@ let renderImpl: (...args: unknown[]) => Promise<void>
 const renderAsyncMock = mock((...args: unknown[]) => renderImpl(...args))
 mock.module('docx-preview', () => ({ renderAsync: renderAsyncMock }))
 
-// Render t() as `key:filename` so assertions can check both the chosen key and
-// the interpolated file name without booting the real i18next instance.
-mock.module('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, opts?: { filename?: string }) => `${key}:${opts?.filename ?? ''}` }),
-}))
+// Lingui macros are mocked to identity implementations globally in
+// src/testing-library.ts (a bunfig preload), so `t` renders the English source
+// text with the file name interpolated — assertions match on that below.
 
 const originalFetch = globalThis.fetch
 
@@ -43,7 +41,7 @@ describe('DocxPreview', () => {
     const [blobArg, containerArg] = renderAsyncMock.mock.calls[0]
     expect(blobArg).toBeInstanceOf(Blob)
     expect(containerArg).toBe(document.querySelector('.docx-viewer'))
-    expect(screen.queryByText(/documentPreview\.renderError/)).toBeNull()
+    expect(screen.queryByText(/Could not render/)).toBeNull()
   })
 
   it('shows a download-fallback message when rendering fails', async () => {
@@ -52,7 +50,7 @@ describe('DocxPreview', () => {
     }
     render(<DocxPreview blobUrl="blob:bad" fileName="broken.docx" />)
 
-    await waitFor(() => expect(screen.getByText(/documentPreview\.renderError/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Could not render/)).toBeTruthy())
     expect(screen.getByText(/broken\.docx/)).toBeTruthy()
   })
 })
