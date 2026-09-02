@@ -16,19 +16,23 @@ describe('localeForRegion', () => {
   })
 
   test('maps a region to the shipped locale of its dominant language', () => {
-    expect(localeForRegion('DE')).toBe('de')
-    expect(localeForRegion('FR')).toBe('fr')
-    expect(localeForRegion('MX')).toBe('es')
-    expect(localeForRegion('JP')).toBe('ja')
+    // Volt ships only `en` and `ru`, so only regions dominant in those resolve.
+    expect(localeForRegion('RU')).toBe('ru')
+    expect(localeForRegion('US')).toBe('en')
   })
 
-  test('maps regional variants onto the shipped locale', () => {
-    expect(localeForRegion('PT')).toBe('pt-BR')
-    expect(localeForRegion('AT')).toBe('de')
+  test('maps regional variants onto the shipped base locale', () => {
     expect(localeForRegion('GB')).toBe('en')
+    expect(localeForRegion('AU')).toBe('en')
   })
 
   test('returns null when the app ships no catalog for the language', () => {
+    // Languages upstream shipped but Volt drops all resolve to null now.
+    expect(localeForRegion('DE')).toBeNull()
+    expect(localeForRegion('FR')).toBeNull()
+    expect(localeForRegion('MX')).toBeNull()
+    expect(localeForRegion('JP')).toBeNull()
+    expect(localeForRegion('PT')).toBeNull()
     expect(localeForRegion('IT')).toBeNull()
     expect(localeForRegion('PL')).toBeNull()
   })
