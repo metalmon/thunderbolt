@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans } from '@lingui/react/macro'
-import { Check, Loader2 } from 'lucide-react'
+import { Check } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import { Button } from './button'
 
@@ -71,7 +72,7 @@ export const ActionFeedbackButton = ({
         return (
           loadingContent ?? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2 h-4 w-4" />
               <Trans>Sending…</Trans>
             </>
           )
