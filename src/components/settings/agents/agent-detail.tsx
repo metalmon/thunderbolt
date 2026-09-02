@@ -5,7 +5,8 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useQuery } from '@powersync/tanstack-react-query'
-import { Loader2, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useState } from 'react'
 import { Link } from 'react-router'
 
@@ -440,7 +441,7 @@ const TestStatus = ({ result }: { result: TestState }) => {
   if (result === 'testing') {
     return (
       <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+        <Spinner className="size-3.5" aria-hidden="true" />
         <Trans>Testing…</Trans>
       </span>
     )

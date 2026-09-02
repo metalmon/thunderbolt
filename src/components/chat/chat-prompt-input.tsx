@@ -34,7 +34,8 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { messageBookkeepingThrottleMs } from '@/chats/chat-throttle'
 import { useDraftInput } from '@/hooks/use-draft-input'
 import { AnimatePresence, m } from 'framer-motion'
-import { AlertCircle, Loader2, X } from 'lucide-react'
+import { AlertCircle, X } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { type ClipboardEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { useLocation as useLocation_default, useNavigate as useNavigate_default } from 'react-router'
 import { ChatAddMenu } from './chat-add-menu'
@@ -623,7 +624,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             aria-live="polite"
             className="flex items-center gap-2 px-3 h-[var(--touch-height-sm)] text-muted-foreground text-[length:var(--font-size-body)]"
           >
-            <Loader2 className="size-[var(--icon-size-default)] shrink-0 animate-spin" />
+            <Spinner className="size-[var(--icon-size-default)] shrink-0" />
             <span>
               <Trans>Connecting to {agentName}…</Trans>
             </span>
