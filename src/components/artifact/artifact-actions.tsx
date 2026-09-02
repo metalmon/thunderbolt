@@ -4,10 +4,10 @@
 
 import { wrapArtifactPreviewHtml } from '@/artifacts/harness'
 import { Button } from '@/components/ui/button'
+import { saveBlobUrl } from '@/fork/documents/save-file'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { useLingui } from '@lingui/react/macro'
-import { downloadFile } from '@/lib/download'
 import { useTransientFlag } from '@/hooks/use-transient-flag'
 import { Check, Copy, Download, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
@@ -58,14 +58,20 @@ export const ArtifactActions = ({ html, title, buttonClassName }: ArtifactAction
   const handleDownload = async () => {
     setSaveError(null)
     try {
-      await downloadFile({
-        name: `${toFileSlug(title)}.html`,
-        // Ship the file with the same offline CSP the app renders it under, so opening the download
-        // in a browser can't run it unsandboxed with network access — a self-contained artifact
-        // needs none.
-        contents: wrapArtifactPreviewHtml(html),
-        mimeType: 'text/html',
-      })
+      // Ship the file with the same offline CSP the app renders it under, so opening the
+      // download in a browser can't run it unsandboxed with network access — a
+      // self-contained artifact needs none.
+      const url = URL.createObjectURL(new Blob([wrapArtifactPreviewHtml(html)], { type: 'text/html' }))
+      try {
+        // Fork: prompt for a location where the platform supports it (native "Save As"),
+        // falling back to a silent Downloads write — the same behaviour as the document
+        // viewer. Upstream's downloadFile always writes to Downloads unseen.
+        await saveBlobUrl(url, `${toFileSlug(title)}.html`)
+      } finally {
+        // Defer revocation so the webview (notably WebKit under Tauri) has time to start
+        // reading the blob — revoking synchronously can cancel the picker's write.
+        setTimeout(() => URL.revokeObjectURL(url), 10_000)
+      }
       flagSaved()
     } catch (error) {
       console.error('[artifacts] Could not save the artifact', error)
