@@ -21,8 +21,8 @@ import { defaultTasks, defaultTasksVersion, hashTask } from './tasks'
 const computeSnapshotHash = () => defaultTasks.map((task, index) => `${index}:${task.id}:${hashTask(task)}`).join('|')
 
 const expected = {
-  version: 3,
-  hash: '0:0198ecc5-cc2b-735b-b478-93f8db7202ce:ewc0es|1:0198ecc5-cc2b-735b-b478-96071aa92f62:-9v5tnk|2:0198ecc5-cc2b-735b-b478-99e9874d61ba:-lm7nfv',
+  version: 4,
+  hash: '0:0198ecc5-cc2b-735b-b478-93f8db7202ce:-9loz0n|1:0198ecc5-cc2b-735b-b478-96071aa92f62:9sb415|2:0198ecc5-cc2b-735b-b478-99e9874d61ba:h9y34f',
 }
 
 describe('defaultTasks version snapshot', () => {

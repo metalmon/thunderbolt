@@ -20,7 +20,7 @@ export const hashTask = (task: Task): string => {
  */
 export const defaultTaskConnectEmail: Task = {
   id: '0198ecc5-cc2b-735b-b478-93f8db7202ce',
-  item: 'Connect your email account to get started',
+  item: 'Подключите почтовый аккаунт, чтобы начать',
   order: 100,
   isComplete: 0,
   defaultHash: null,
@@ -30,7 +30,7 @@ export const defaultTaskConnectEmail: Task = {
 
 export const defaultTaskSetPreferences: Task = {
   id: '0198ecc5-cc2b-735b-b478-96071aa92f62',
-  item: 'Set your name and location in preferences for better AI responses',
+  item: 'Укажите имя и местоположение в настройках для лучших ответов ИИ',
   order: 200,
   isComplete: 0,
   defaultHash: null,
@@ -40,7 +40,7 @@ export const defaultTaskSetPreferences: Task = {
 
 export const defaultTaskExplorePro: Task = {
   id: '0198ecc5-cc2b-735b-b478-99e9874d61ba',
-  item: 'Explore Volt Pro tools to extend capabilities',
+  item: 'Изучите инструменты Volt Pro для расширения возможностей',
   order: 300,
   isComplete: 0,
   defaultHash: null,
@@ -67,4 +67,4 @@ export const defaultTasks: ReadonlyArray<Task> = [
  * The paired snapshot test in `tasks.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultTasksVersion = 3
+export const defaultTasksVersion = 4

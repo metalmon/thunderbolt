@@ -135,9 +135,9 @@ Do not add a Sources or References section at the end — inline [N] citations a
 export const defaultSkillDailyBrief: Skill = {
   id: '01996330-0000-7000-8000-000000000001',
   name: 'daily-brief',
-  label: 'Daily Brief',
+  label: 'Утренняя сводка',
   description:
-    'Use this skill when the user asks for a daily brief, a morning rundown, or a summary of weather, news, inbox, and calendar.',
+    'Используй этот навык, когда пользователь просит дневную сводку, утренний обзор или сводку погоды, новостей, почты и календаря.',
   instruction: dailyBriefInstruction,
   enabled: 1,
   pinnedOrder: null,
@@ -149,9 +149,9 @@ export const defaultSkillDailyBrief: Skill = {
 export const defaultSkillImportantEmails: Skill = {
   id: '01996330-0000-7000-8000-000000000002',
   name: 'important-emails',
-  label: 'Important Emails',
+  label: 'Важные письма',
   description:
-    'Use this skill when the user wants to triage their inbox, see what needs attention, or surface the most important emails of the day.',
+    'Используй этот навык, когда пользователь хочет разобрать почту, увидеть, что требует внимания, или выделить самые важные письма дня.',
   instruction: importantEmailsInstruction,
   enabled: 0,
   pinnedOrder: null,
@@ -163,9 +163,9 @@ export const defaultSkillImportantEmails: Skill = {
 export const defaultSkillSearch: Skill = {
   id: '01996330-0000-7000-8000-000000000003',
   name: 'search',
-  label: 'Search',
+  label: 'Поиск',
   description:
-    'Use this skill when the user wants web search results as link previews — current events, products, places, or anything best answered with a list of sources.',
+    'Используй этот навык, когда пользователь хочет результаты веб-поиска в виде превью ссылок — новости, товары, места или что угодно, что лучше ответить списком источников.',
   instruction: searchInstruction,
   enabled: 1,
   pinnedOrder: 0,
@@ -177,9 +177,9 @@ export const defaultSkillSearch: Skill = {
 export const defaultSkillResearch: Skill = {
   id: '01996330-0000-7000-8000-000000000004',
   name: 'research',
-  label: 'Research',
+  label: 'Исследование',
   description:
-    'Use this skill when the user wants an exhaustive, multi-source deep dive on a topic rather than a quick answer.',
+    'Используй этот навык, когда пользователь хочет исчерпывающее многоисточниковое погружение в тему, а не быстрый ответ.',
   instruction: researchInstruction,
   enabled: 1,
   pinnedOrder: 1,
@@ -191,8 +191,8 @@ export const defaultSkillResearch: Skill = {
 export const defaultSkillWeather: Skill = {
   id: '01996330-0000-7000-8000-000000000005',
   name: 'weather',
-  label: 'Weather',
-  description: 'Use this skill when the user asks about the weather or wants a forecast for a location.',
+  label: 'Погода',
+  description: 'Используй этот навык, когда пользователь спрашивает о погоде или хочет прогноз для места.',
   instruction: weatherForecastWidgetInstruction,
   enabled: 1,
   pinnedOrder: 2,
@@ -204,9 +204,9 @@ export const defaultSkillWeather: Skill = {
 export const defaultSkillLinkPreview: Skill = {
   id: '01996330-0000-7000-8000-000000000006',
   name: 'link-preview',
-  label: 'Link Preview',
+  label: 'Превью ссылок',
   description:
-    'Use this skill when the user wants web results, news, products, recommendations, or other fetched pages shown as rich link previews.',
+    'Используй этот навык, когда пользователь хочет веб-результаты, новости, товары, рекомендации или другие страницы в виде богатых превью ссылок.',
   instruction: linkPreviewWidgetInstruction,
   enabled: 1,
   pinnedOrder: null,
@@ -218,9 +218,9 @@ export const defaultSkillLinkPreview: Skill = {
 export const defaultSkillConnectIntegration: Skill = {
   id: '01996330-0000-7000-8000-000000000007',
   name: 'connect-integration',
-  label: 'Connect Integration',
+  label: 'Подключить интеграцию',
   description:
-    'Use this skill when the user asks to access email or calendar but required Google or Microsoft tools are unavailable.',
+    'Используй этот навык, когда пользователь просит доступ к почте или календарю, но нужные инструменты Google или Microsoft недоступны.',
   instruction: connectIntegrationWidgetInstruction,
   // TEMP (fork/hide-integrations): disabled until the backend Google/Microsoft OAuth
   // creds are configured — with the integrations hidden this skill would only prompt a
@@ -236,8 +236,8 @@ export const defaultSkillConnectIntegration: Skill = {
 export const defaultSkillAsk: Skill = {
   id: '01996330-0000-7000-8000-000000000008',
   name: 'ask',
-  label: 'Ask',
-  description: 'Use this skill when asking the user to choose from options or answer an interactive quiz prompt.',
+  label: 'Спросить',
+  description: 'Используй этот навык, когда нужно предложить пользователю выбрать из вариантов или ответить на интерактивный опрос.',
   instruction: askWidgetInstruction,
   enabled: 1,
   pinnedOrder: null,
@@ -249,9 +249,9 @@ export const defaultSkillAsk: Skill = {
 export const defaultSkillMap: Skill = {
   id: '01996330-0000-7000-8000-000000000009',
   name: 'map',
-  label: 'Map',
+  label: 'Карта',
   description:
-    'Use this skill when the user asks to see locations, routes, regions, or other geographic results on an interactive map.',
+    'Используй этот навык, когда пользователь просит показать места, маршруты, регионы или другие географические результаты на интерактивной карте.',
   instruction: mapWidgetInstruction,
   enabled: 1,
   pinnedOrder: null,
@@ -294,4 +294,4 @@ export const defaultSkills: ReadonlyArray<Skill> = [
  * The paired snapshot test in `skills.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSkillsVersion = 7
+export const defaultSkillsVersion = 8

@@ -42,8 +42,8 @@ const computeSnapshotHash = () =>
   defaultSkills.map((skill, index) => `${index}:${skill.id}:${hashSkill(skill)}`).join('|')
 
 const expectedSnapshot = {
-  version: 7,
-  hash: '0:01996330-0000-7000-8000-000000000001:mfmi05|1:01996330-0000-7000-8000-000000000002:-669lkj|2:01996330-0000-7000-8000-000000000003:-30vmih|3:01996330-0000-7000-8000-000000000004:-cz2tdq|4:01996330-0000-7000-8000-000000000005:-hc6mv3|5:01996330-0000-7000-8000-000000000006:-o0c0ul|6:01996330-0000-7000-8000-000000000007:atrnpq|7:01996330-0000-7000-8000-000000000008:-ue9tpd|8:01996330-0000-7000-8000-000000000009:o1nire',
+  version: 8,
+  hash: '0:01996330-0000-7000-8000-000000000001:1rvogi|1:01996330-0000-7000-8000-000000000002:-txlgmd|2:01996330-0000-7000-8000-000000000003:9g0jxm|3:01996330-0000-7000-8000-000000000004:vh5dpu|4:01996330-0000-7000-8000-000000000005:8al5n3|5:01996330-0000-7000-8000-000000000006:-s97tzr|6:01996330-0000-7000-8000-000000000007:-y8zl7p|7:01996330-0000-7000-8000-000000000008:-vtbdme|8:01996330-0000-7000-8000-000000000009:-mdgibw',
 }
 
 describe('defaultSkills version snapshot', () => {
@@ -60,30 +60,30 @@ describe('defaultSkills', () => {
     const widgetSkills = [
       {
         skill: defaultSkillWeather,
-        description: 'Use this skill when the user asks about the weather or wants a forecast for a location.',
+        description: 'Используй этот навык, когда пользователь спрашивает о погоде или хочет прогноз для места.',
         instruction: weatherForecastWidgetInstruction,
       },
       {
         skill: defaultSkillLinkPreview,
         description:
-          'Use this skill when the user wants web results, news, products, recommendations, or other fetched pages shown as rich link previews.',
+          'Используй этот навык, когда пользователь хочет веб-результаты, новости, товары, рекомендации или другие страницы в виде богатых превью ссылок.',
         instruction: linkPreviewWidgetInstruction,
       },
       {
         skill: defaultSkillConnectIntegration,
         description:
-          'Use this skill when the user asks to access email or calendar but required Google or Microsoft tools are unavailable.',
+          'Используй этот навык, когда пользователь просит доступ к почте или календарю, но нужные инструменты Google или Microsoft недоступны.',
         instruction: connectIntegrationWidgetInstruction,
       },
       {
         skill: defaultSkillAsk,
-        description: 'Use this skill when asking the user to choose from options or answer an interactive quiz prompt.',
+        description: 'Используй этот навык, когда нужно предложить пользователю выбрать из вариантов или ответить на интерактивный опрос.',
         instruction: askWidgetInstruction,
       },
       {
         skill: defaultSkillMap,
         description:
-          'Use this skill when the user asks to see locations, routes, regions, or other geographic results on an interactive map.',
+          'Используй этот навык, когда пользователь просит показать места, маршруты, регионы или другие географические результаты на интерактивной карте.',
         instruction: mapWidgetInstruction,
       },
     ]

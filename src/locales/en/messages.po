@@ -22,98 +22,62 @@ msgid "\"{filename}\" isn't a supported file type."
 msgstr "\"{filename}\" isn't a supported file type."
 
 #. placeholder {0}: mcpServers.length
-#. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+MCP+server%7D+other+%7B%23+MCP+servers%7D%7D&pluralize_on=0
 #: src/components/settings/agents/agent-detail.tsx
-msgid "# MCP server"
-msgid_plural "# MCP servers"
-msgstr[0] "# MCP server"
-msgstr[1] "# MCP servers"
+msgid "{0, plural, one {# MCP server} other {# MCP servers}}"
+msgstr "{0, plural, one {# MCP server} other {# MCP servers}}"
 
 #. placeholder {0}: tools.length
-#. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+tool%7D+other+%7B%23+tools%7D%7D&pluralize_on=0
 #: src/components/available-tools.tsx
-msgid "# tool"
-msgid_plural "# tools"
-msgstr[0] "# tool"
-msgstr[1] "# tools"
+msgid "{0, plural, one {# tool} other {# tools}}"
+msgstr "{0, plural, one {# tool} other {# tools}}"
 
-#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7B%23+chat%7D+other+%7B%23+chats%7D%7D&pluralize_on=count
 #: src/projects/index.tsx
-msgid "# chat"
-msgid_plural "# chats"
-msgstr[0] "# chat"
-msgstr[1] "# chats"
+msgid "{count, plural, one {# chat} other {# chats}}"
+msgstr "{count, plural, one {# chat} other {# chats}}"
 
-#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+delete+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+delete+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
-msgid "One skill references this. If you delete it, that skill may no longer resolve."
-msgid_plural "# skills reference this. If you delete it, they may no longer resolve."
-msgstr[0] "One skill references this. If you delete it, that skill may no longer resolve."
-msgstr[1] "# skills reference this. If you delete it, they may no longer resolve."
+msgid "{count, plural, one {One skill references this. If you delete it, that skill may no longer resolve.} other {# skills reference this. If you delete it, they may no longer resolve.}}"
+msgstr "{count, plural, one {One skill references this. If you delete it, that skill may no longer resolve.} other {# skills reference this. If you delete it, they may no longer resolve.}}"
 
-#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+disable+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+disable+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
-msgid "One skill references this. If you disable it, that skill may no longer resolve."
-msgid_plural "# skills reference this. If you disable it, they may no longer resolve."
-msgstr[0] "One skill references this. If you disable it, that skill may no longer resolve."
-msgstr[1] "# skills reference this. If you disable it, they may no longer resolve."
+msgid "{count, plural, one {One skill references this. If you disable it, that skill may no longer resolve.} other {# skills reference this. If you disable it, they may no longer resolve.}}"
+msgstr "{count, plural, one {One skill references this. If you disable it, that skill may no longer resolve.} other {# skills reference this. If you disable it, they may no longer resolve.}}"
 
-#. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
-msgid "# skill"
-msgid_plural "# skills"
-msgstr[0] "# skill"
-msgstr[1] "# skills"
+msgid "{enabledSkills, plural, one {# skill} other {# skills}}"
+msgstr "{enabledSkills, plural, one {# skill} other {# skills}}"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "{label} — already in this project"
 msgstr "{label} — already in this project"
 
-#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
-msgid "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
-msgid_plural "This file contains # rows exported by {importSourceEmail} on {importExportedAt}."
-msgstr[0] "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
-msgstr[1] "This file contains # rows exported by {importSourceEmail} on {importExportedAt}."
+msgid "{rows, plural, one {This file contains # row exported by {importSourceEmail} on {importExportedAt}.} other {This file contains # rows exported by {importSourceEmail} on {importExportedAt}.}}"
+msgstr "{rows, plural, one {This file contains # row exported by {importSourceEmail} on {importExportedAt}.} other {This file contains # rows exported by {importSourceEmail} on {importExportedAt}.}}"
 
-#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
-msgid "This file contains # row exported by {importSourceEmail}."
-msgid_plural "This file contains # rows exported by {importSourceEmail}."
-msgstr[0] "This file contains # row exported by {importSourceEmail}."
-msgstr[1] "This file contains # rows exported by {importSourceEmail}."
+msgid "{rows, plural, one {This file contains # row exported by {importSourceEmail}.} other {This file contains # rows exported by {importSourceEmail}.}}"
+msgstr "{rows, plural, one {This file contains # row exported by {importSourceEmail}.} other {This file contains # rows exported by {importSourceEmail}.}}"
 
-#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
-msgid "This file contains # row on {importExportedAt}."
-msgid_plural "This file contains # rows on {importExportedAt}."
-msgstr[0] "This file contains # row on {importExportedAt}."
-msgstr[1] "This file contains # rows on {importExportedAt}."
+msgid "{rows, plural, one {This file contains # row on {importExportedAt}.} other {This file contains # rows on {importExportedAt}.}}"
+msgstr "{rows, plural, one {This file contains # row on {importExportedAt}.} other {This file contains # rows on {importExportedAt}.}}"
 
-#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row.%7D+other+%7BThis+file+contains+%23+rows.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
-msgid "This file contains # row."
-msgid_plural "This file contains # rows."
-msgstr[0] "This file contains # row."
-msgstr[1] "This file contains # rows."
+msgid "{rows, plural, one {This file contains # row.} other {This file contains # rows.}}"
+msgstr "{rows, plural, one {This file contains # row.} other {This file contains # rows.}}"
 
-#. js-lingui:icu=%7BstepCount%2C+plural%2C+one+%7BCompleted+%23+step+in+%7Bduration%7D%7D+other+%7BCompleted+%23+steps+in+%7Bduration%7D%7D%7D&pluralize_on=stepCount
 #: src/components/chat/reasoning-group-title.tsx
-msgid "Completed # step in {duration}"
-msgid_plural "Completed # steps in {duration}"
-msgstr[0] "Completed # step in {duration}"
-msgstr[1] "Completed # steps in {duration}"
+msgid "{stepCount, plural, one {Completed # step in {duration}} other {Completed # steps in {duration}}}"
+msgstr "{stepCount, plural, one {Completed # step in {duration}} other {Completed # steps in {duration}}}"
 
 #: src/components/chat/artifact-message-part.tsx
 msgid "{title} — shown in side panel"
 msgstr "{title} — shown in side panel"
 
-#. js-lingui:icu=%7Btotal%2C+plural%2C+one+%7BImported+%23+row.+The+app+may+take+a+moment+to+reflect+new+chats.%7D+other+%7BImported+%23+rows.+The+app+may+take+a+moment+to+reflect+new+chats.%7D%7D&pluralize_on=total
 #: src/settings/preferences.tsx
-msgid "Imported # row. The app may take a moment to reflect new chats."
-msgid_plural "Imported # rows. The app may take a moment to reflect new chats."
-msgstr[0] "Imported # row. The app may take a moment to reflect new chats."
-msgstr[1] "Imported # rows. The app may take a moment to reflect new chats."
+msgid "{total, plural, one {Imported # row. The app may take a moment to reflect new chats.} other {Imported # rows. The app may take a moment to reflect new chats.}}"
+msgstr "{total, plural, one {Imported # row. The app may take a moment to reflect new chats.} other {Imported # rows. The app may take a moment to reflect new chats.}}"
 
 #: src/lib/tool-metadata.ts
 msgid "{verbPhrase}…"
@@ -122,6 +86,28 @@ msgstr "{verbPhrase}…"
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "{wordCount}/24 words"
 msgstr "{wordCount}/24 words"
+
+#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7B%23+chat%7D+other+%7B%23+chats%7D%7D&pluralize_on=count
+#: src/projects/index.tsx
+#~ msgid "# chat"
+#~ msgstr "# chat"
+
+#. placeholder {0}: mcpServers.length
+#. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+MCP+server%7D+other+%7B%23+MCP+servers%7D%7D&pluralize_on=0
+#: src/components/settings/agents/agent-detail.tsx
+#~ msgid "# MCP server"
+#~ msgstr "# MCP server"
+
+#. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
+#: src/components/settings/agents/agent-detail.tsx
+#~ msgid "# skill"
+#~ msgstr "# skill"
+
+#. placeholder {0}: tools.length
+#. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+tool%7D+other+%7B%23+tools%7D%7D&pluralize_on=0
+#: src/components/available-tools.tsx
+#~ msgid "# tool"
+#~ msgstr "# tool"
 
 #: src/settings/preferences.tsx
 msgid "⚠ This export was made by a different account ({importSourceEmail}). Importing it here will mix that data into your account. Confirm only if you intend to."
@@ -770,6 +756,11 @@ msgstr "Complete new task"
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Complete the setup process to get started with Thunderbolt"
 msgstr "Complete the setup process to get started with Thunderbolt"
+
+#. js-lingui:icu=%7BstepCount%2C+plural%2C+one+%7BCompleted+%23+step+in+%7Bduration%7D%7D+other+%7BCompleted+%23+steps+in+%7Bduration%7D%7D%7D&pluralize_on=stepCount
+#: src/components/chat/reasoning-group-title.tsx
+#~ msgid "Completed # step in {duration}"
+#~ msgstr "Completed # step in {duration}"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Completing…"
@@ -1933,6 +1924,11 @@ msgstr "Import Your Data"
 msgid "Import your data from previously exported JSON."
 msgstr "Import your data from previously exported JSON."
 
+#. js-lingui:icu=%7Btotal%2C+plural%2C+one+%7BImported+%23+row.+The+app+may+take+a+moment+to+reflect+new+chats.%7D+other+%7BImported+%23+rows.+The+app+may+take+a+moment+to+reflect+new+chats.%7D%7D&pluralize_on=total
+#: src/settings/preferences.tsx
+#~ msgid "Imported # row. The app may take a moment to reflect new chats."
+#~ msgstr "Imported # row. The app may take a moment to reflect new chats."
+
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/preferences.tsx
 msgid "Importing…"
@@ -2511,6 +2507,16 @@ msgstr "One app, every AI model"
 msgid "One moment while we look up the code."
 msgstr "One moment while we look up the code."
 
+#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+delete+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+delete+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
+#: src/skills/dependents-dialog.tsx
+#~ msgid "One skill references this. If you delete it, that skill may no longer resolve."
+#~ msgstr "One skill references this. If you delete it, that skill may no longer resolve."
+
+#. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+disable+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+disable+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
+#: src/skills/dependents-dialog.tsx
+#~ msgid "One skill references this. If you disable it, that skill may no longer resolve."
+#~ msgstr "One skill references this. If you disable it, that skill may no longer resolve."
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
 msgstr "OneDrive Access"
@@ -2620,6 +2626,14 @@ msgstr "Pair {deviceName}"
 #: src/settings/devices.tsx
 msgid "Pairing identity"
 msgstr "Pairing identity"
+
+#: src/components/theme-toggle-group.tsx
+msgid "Paper"
+msgstr "Paper"
+
+#: src/components/theme-toggle-group.tsx
+msgid "Paper theme"
+msgstr "Paper theme"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
@@ -3624,6 +3638,26 @@ msgstr "This device has been signed out remotely. Choose what to do with your lo
 #: src/hooks/use-sync-setup.ts
 msgid "This device has not been approved yet. Please approve it from a trusted device first."
 msgstr "This device has not been approved yet. Please approve it from a trusted device first."
+
+#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
+#: src/settings/preferences.tsx
+#~ msgid "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
+#~ msgstr "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
+
+#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D.%7D%7D&pluralize_on=rows
+#: src/settings/preferences.tsx
+#~ msgid "This file contains # row exported by {importSourceEmail}."
+#~ msgstr "This file contains # row exported by {importSourceEmail}."
+
+#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
+#: src/settings/preferences.tsx
+#~ msgid "This file contains # row on {importExportedAt}."
+#~ msgstr "This file contains # row on {importExportedAt}."
+
+#. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row.%7D+other+%7BThis+file+contains+%23+rows.%7D%7D&pluralize_on=rows
+#: src/settings/preferences.tsx
+#~ msgid "This file contains # row."
+#~ msgstr "This file contains # row."
 
 #: src/settings/preferences.tsx
 msgid "This file doesn't look like a Thunderbolt export."
