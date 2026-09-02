@@ -12,7 +12,7 @@
  */
 
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Loader2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useEffect, useRef, useState } from 'react'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { CopyCommandRow } from './copy-command-row'
@@ -88,7 +88,7 @@ export const IrohPairingPanel = ({ appNodeId }: { appNodeId: AppNodeIdState }) =
         </p>
       ) : (
         <span className="flex items-center gap-2 text-[length:var(--font-size-xs)] text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
+          <Spinner className="size-4" />
           <Trans>Loading this app&apos;s pairing identity…</Trans>
         </span>
       )}

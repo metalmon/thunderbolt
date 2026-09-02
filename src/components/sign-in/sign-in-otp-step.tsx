@@ -11,7 +11,8 @@ import { otpLength } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
-import { Check, Loader2 } from 'lucide-react'
+import { Check } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 
 type SignInOtpStepProps = {
   email: string
@@ -163,7 +164,7 @@ export const SignInOtpStep = ({
 
           {isVerifying && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Spinner className="h-4 w-4" />
               <Trans>Verifying…</Trans>
             </div>
           )}
