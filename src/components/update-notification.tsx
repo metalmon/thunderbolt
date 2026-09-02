@@ -15,7 +15,7 @@ import { isDesktop } from '@/lib/platform'
 
 const statusConfig: Record<
   UpdateStatus,
-  { icon: typeof Download; message: MessageDescriptor | null; showActions: boolean }
+  { icon: typeof Download | typeof Spinner; message: MessageDescriptor | null; showActions: boolean }
 > = {
   initial: { icon: CheckCircle, message: null, showActions: false },
   idle: { icon: CheckCircle, message: null, showActions: false },
