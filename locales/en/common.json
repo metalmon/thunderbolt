@@ -81,6 +81,12 @@
   "navigation": "Navigation",
   "closeNavigation": "Close navigation",
   "sending": "Sending…",
+  "preview": {
+    "title": "Preview",
+    "unavailable": "Preview webview is only available in the desktop app",
+    "openInBrowser": "Open in browser",
+    "loading": "Loading preview…"
+  },
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
