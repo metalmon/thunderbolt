@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useHaptics } from '@/hooks/use-haptics'
+import { useTranslation } from 'react-i18next'
 import { getMobileBottomInset, getMobileSidebarWidth, mobileSidebarWidthCss } from '@/lib/constants'
 import { isMobile as isPlatformMobile } from '@/lib/platform'
 import { cn } from '@/lib/utils'
@@ -357,6 +358,7 @@ export const MobileSidebar = ({
   sidebar,
   children,
 }: MobileSidebarProps) => {
+  const { t } = useTranslation('common')
   const isNativeMobile = isPlatformMobile()
   const {
     x,
@@ -416,7 +418,7 @@ export const MobileSidebar = ({
                 style={mobileSidebarCssVars}
                 onPointerDown={handlePointerDown}
               >
-                <DrawerPrimitive.Title className="sr-only">Navigation</DrawerPrimitive.Title>
+                <DrawerPrimitive.Title className="sr-only">{t('navigation')}</DrawerPrimitive.Title>
                 <DrawerPrimitive.Content className="relative h-full select-text">
                   <div className="flex h-full w-full flex-col">{sidebar}</div>
                 </DrawerPrimitive.Content>
@@ -464,7 +466,7 @@ export const MobileSidebar = ({
         <m.button
           type="button"
           tabIndex={-1}
-          aria-label="Close navigation"
+          aria-label={t('closeNavigation')}
           aria-hidden={!isDrawerOpen}
           data-sidebar-drag-surface
           className={cn(
