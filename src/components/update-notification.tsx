@@ -21,7 +21,7 @@ const statusConfig = {
   downloading: { icon: Spinner, message: msg`Downloading update…`, showActions: false },
   ready: { icon: RefreshCw, message: msg`Update ready! Restart to apply.`, showActions: true },
   error: { icon: AlertCircle, message: msg`Update failed`, showActions: true },
-} satisfies Record<UpdateStatus, { icon: typeof Download; message: MessageDescriptor | null; showActions: boolean }>
+} satisfies Record<UpdateStatus, { icon: typeof Download | typeof Spinner; message: MessageDescriptor | null; showActions: boolean }>
 
 type UpdateNotificationContentProps = {
   desktop: boolean
