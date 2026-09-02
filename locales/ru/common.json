@@ -78,6 +78,8 @@
   "private": "Приватная",
   "closeDetails": "Закрыть детали",
   "clearSearch": "Очистить поиск",
+  "navigation": "Навигация",
+  "closeNavigation": "Закрыть навигацию",
   "signIn": "Войти",
   "appError": {
     "title": "Не удалось запустить приложение",

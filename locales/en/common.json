@@ -78,6 +78,8 @@
   "private": "Private",
   "closeDetails": "Close details",
   "clearSearch": "Clear search",
+  "navigation": "Navigation",
+  "closeNavigation": "Close navigation",
   "signIn": "Sign in",
   "appError": {
     "title": "Failed to initialize app",
