@@ -5,7 +5,8 @@
 import { useLingui } from '@lingui/react/macro'
 import { cn } from '@/lib/utils'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { CheckIcon, ChevronDownIcon, Loader2 } from 'lucide-react'
+import { CheckIcon, ChevronDownIcon } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { type ComponentPropsWithoutRef, type ReactNode, useCallback, useState } from 'react'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from './command'
 
@@ -144,7 +145,7 @@ export const Combobox = ({
                 onValueChange={isAsync ? onSearchChange : setInternalSearch}
               />
               {loading && (
-                <Loader2 className="absolute right-4 top-[calc(50%+2px)] -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
+                <Spinner className="absolute right-4 top-[calc(50%+2px)] -translate-y-1/2 size-4 text-muted-foreground" />
               )}
             </div>
             {hasListContent && (
