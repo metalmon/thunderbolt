@@ -14,7 +14,7 @@ import {
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Loader2 } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { memo } from 'react'
 
 const defaultChatErrorMessage = msg`Something went wrong. Please try again.`
@@ -96,7 +96,7 @@ export const ErrorMessage = memo(
       return (
         <div className="px-4 py-3 rounded-2xl bg-amber-500/10 mr-auto w-full mt-2">
           <div className="flex items-center gap-2">
-            <Loader2 className="size-[var(--icon-size-sm)] text-amber-500 animate-spin" />
+            <Spinner className="size-[var(--icon-size-sm)] text-amber-500" />
             <p className="text-amber-500/80 text-[length:var(--font-size-body)]">
               <Trans>
                 Something went wrong. Retrying ({retryCount}/{maxRetries})…
