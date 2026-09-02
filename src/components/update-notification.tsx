@@ -5,7 +5,8 @@
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Download, RefreshCw, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Download, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useState } from 'react'
 import { useDesktopUpdate, type DesktopUpdateState, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { Button } from '@/components/ui/button'
@@ -15,9 +16,9 @@ import { isDesktop } from '@/lib/platform'
 const statusConfig = {
   initial: { icon: CheckCircle, message: null, showActions: false },
   idle: { icon: CheckCircle, message: null, showActions: false },
-  checking: { icon: Loader2, message: msg`Checking for updates…`, showActions: false },
+  checking: { icon: Spinner, message: msg`Checking for updates…`, showActions: false },
   available: { icon: Download, message: msg`A new version is available!`, showActions: true },
-  downloading: { icon: Loader2, message: msg`Downloading update…`, showActions: false },
+  downloading: { icon: Spinner, message: msg`Downloading update…`, showActions: false },
   ready: { icon: RefreshCw, message: msg`Update ready! Restart to apply.`, showActions: true },
   error: { icon: AlertCircle, message: msg`Update failed`, showActions: true },
 } satisfies Record<UpdateStatus, { icon: typeof Download; message: MessageDescriptor | null; showActions: boolean }>
