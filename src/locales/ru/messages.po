@@ -1,11 +1,11 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-08-24 08:43-0300\n"
+"POT-Creation-Date: 2026-09-02 07:39+0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
-"Language: pt-BR\n"
+"Language: ru\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: \n"
@@ -15,117 +15,105 @@ msgstr ""
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "\"{filename}\" is too large (max {maxMegabytes}MB)."
-msgstr "“{filename}” é muito grande (máx. {maxMegabytes} MB)."
+msgstr "«{filename}» слишком большой (макс. {maxMegabytes} МБ)."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "\"{filename}\" isn't a supported file type."
-msgstr "“{filename}” não é um tipo de arquivo compatível."
+msgstr "«{filename}» — неподдерживаемый тип файла."
 
 #. placeholder {0}: mcpServers.length
 #. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+MCP+server%7D+other+%7B%23+MCP+servers%7D%7D&pluralize_on=0
 #: src/components/settings/agents/agent-detail.tsx
 msgid "# MCP server"
 msgid_plural "# MCP servers"
-msgstr[0] "# servidor MCP"
-msgstr[1] "# servidores MCP"
-msgstr[2] "# servidores MCP"
+msgstr[0] "# MCP-сервер"
+msgstr[1] "# MCP-серверов"
 
 #. placeholder {0}: tools.length
 #. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+tool%7D+other+%7B%23+tools%7D%7D&pluralize_on=0
 #: src/components/available-tools.tsx
 msgid "# tool"
 msgid_plural "# tools"
-msgstr[0] "# ferramenta"
-msgstr[1] "# ferramentas"
-msgstr[2] "# ferramentas"
+msgstr[0] "# инструмент"
+msgstr[1] "# инструментов"
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7B%23+chat%7D+other+%7B%23+chats%7D%7D&pluralize_on=count
 #: src/projects/index.tsx
 msgid "# chat"
 msgid_plural "# chats"
-msgstr[0] "# conversa"
-msgstr[1] "# conversas"
-msgstr[2] "# conversas"
+msgstr[0] "# чат"
+msgstr[1] "# чатов"
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+delete+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+delete+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
 msgid "One skill references this. If you delete it, that skill may no longer resolve."
 msgid_plural "# skills reference this. If you delete it, they may no longer resolve."
-msgstr[0] "Uma habilidade faz referência a isto. Se você excluir, essa habilidade pode não ser mais resolvida."
-msgstr[1] "# habilidades fazem referência a isto. Se você excluir, elas podem não ser mais resolvidas."
-msgstr[2] "# habilidades fazem referência a isto. Se você excluir, elas podem não ser mais resolvidas."
+msgstr[0] "# навык ссылается на это. Если удалить, он может перестать разрешаться."
+msgstr[1] "# навыков ссылаются на это. Если удалить, они могут перестать разрешаться."
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+disable+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+disable+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
 msgid "One skill references this. If you disable it, that skill may no longer resolve."
 msgid_plural "# skills reference this. If you disable it, they may no longer resolve."
-msgstr[0] "Uma habilidade faz referência a isto. Se você desativar, essa habilidade pode não ser mais resolvida."
-msgstr[1] "# habilidades fazem referência a isto. Se você desativar, elas podem não ser mais resolvidas."
-msgstr[2] "# habilidades fazem referência a isto. Se você desativar, elas podem não ser mais resolvidas."
+msgstr[0] "# навык ссылается на это. Если отключить, он может перестать разрешаться."
+msgstr[1] "# навыков ссылаются на это. Если отключить, они могут перестать разрешаться."
 
 #. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
 msgid "# skill"
 msgid_plural "# skills"
-msgstr[0] "# habilidade"
-msgstr[1] "# habilidades"
-msgstr[2] "# habilidades"
+msgstr[0] "# навык"
+msgstr[1] "# навыков"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "{label} — already in this project"
-msgstr "{label} — já está neste projeto"
+msgstr "{label} — уже в этом проекте"
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
 msgid_plural "This file contains # rows exported by {importSourceEmail} on {importExportedAt}."
-msgstr[0] "Este arquivo contém # linha exportada por {importSourceEmail} em {importExportedAt}."
-msgstr[1] "Este arquivo contém # linhas exportadas por {importSourceEmail} em {importExportedAt}."
-msgstr[2] "Este arquivo contém # linhas exportadas por {importSourceEmail} em {importExportedAt}."
+msgstr[0] "Файл содержит # строку, экспортированную {importSourceEmail} {importExportedAt}."
+msgstr[1] "Файл содержит # строк, экспортированных {importSourceEmail} {importExportedAt}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row exported by {importSourceEmail}."
 msgid_plural "This file contains # rows exported by {importSourceEmail}."
-msgstr[0] "Este arquivo contém # linha exportada por {importSourceEmail}."
-msgstr[1] "Este arquivo contém # linhas exportadas por {importSourceEmail}."
-msgstr[2] "Este arquivo contém # linhas exportadas por {importSourceEmail}."
+msgstr[0] "Файл содержит # строку, экспортированную {importSourceEmail}."
+msgstr[1] "Файл содержит # строк, экспортированных {importSourceEmail}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row on {importExportedAt}."
 msgid_plural "This file contains # rows on {importExportedAt}."
-msgstr[0] "Este arquivo contém # linha de {importExportedAt}."
-msgstr[1] "Este arquivo contém # linhas de {importExportedAt}."
-msgstr[2] "Este arquivo contém # linhas de {importExportedAt}."
+msgstr[0] "Файл содержит # строку от {importExportedAt}."
+msgstr[1] "Файл содержит # строк от {importExportedAt}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row.%7D+other+%7BThis+file+contains+%23+rows.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row."
 msgid_plural "This file contains # rows."
-msgstr[0] "Este arquivo contém # linha."
-msgstr[1] "Este arquivo contém # linhas."
-msgstr[2] "Este arquivo contém # linhas."
+msgstr[0] "Файл содержит # строку."
+msgstr[1] "Файл содержит # строк."
 
 #. js-lingui:icu=%7BstepCount%2C+plural%2C+one+%7BCompleted+%23+step+in+%7Bduration%7D%7D+other+%7BCompleted+%23+steps+in+%7Bduration%7D%7D%7D&pluralize_on=stepCount
 #: src/components/chat/reasoning-group-title.tsx
 msgid "Completed # step in {duration}"
 msgid_plural "Completed # steps in {duration}"
-msgstr[0] "# etapa concluída em {duration}"
-msgstr[1] "# etapas concluídas em {duration}"
-msgstr[2] "# etapas concluídas em {duration}"
+msgstr[0] "Выполнен # шаг за {duration}"
+msgstr[1] "Выполнено # шагов за {duration}"
 
 #: src/components/chat/artifact-message-part.tsx
 msgid "{title} — shown in side panel"
-msgstr "{title} — exibido no painel lateral"
+msgstr "{title} — показано в боковой панели"
 
 #. js-lingui:icu=%7Btotal%2C+plural%2C+one+%7BImported+%23+row.+The+app+may+take+a+moment+to+reflect+new+chats.%7D+other+%7BImported+%23+rows.+The+app+may+take+a+moment+to+reflect+new+chats.%7D%7D&pluralize_on=total
 #: src/settings/preferences.tsx
 msgid "Imported # row. The app may take a moment to reflect new chats."
 msgid_plural "Imported # rows. The app may take a moment to reflect new chats."
-msgstr[0] "# linha importada. O app pode levar um momento para refletir as novas conversas."
-msgstr[1] "# linhas importadas. O app pode levar um momento para refletir as novas conversas."
-msgstr[2] "# linhas importadas. O app pode levar um momento para refletir as novas conversas."
+msgstr[0] "Импортирована # строка. Приложению может понадобиться время, чтобы показать новые чаты."
+msgstr[1] "Импортировано # строк. Приложению может понадобиться время, чтобы показать новые чаты."
 
 #: src/lib/tool-metadata.ts
 msgid "{verbPhrase}…"
@@ -133,72 +121,72 @@ msgstr "{verbPhrase}…"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "{wordCount}/24 words"
-msgstr "{wordCount}/24 palavras"
+msgstr "{wordCount}/24 слов"
 
 #: src/settings/preferences.tsx
 msgid "⚠ This export was made by a different account ({importSourceEmail}). Importing it here will mix that data into your account. Confirm only if you intend to."
-msgstr "⚠ Esta exportação foi feita por outra conta ({importSourceEmail}). Importá-la aqui vai misturar esses dados com os da sua conta. Confirme apenas se for a sua intenção."
+msgstr "⚠ Этот экспорт сделан другим аккаунтом ({importSourceEmail}). Импорт смешает эти данные с вашим аккаунтом. Подтверждайте, только если действительно этого хотите."
 
 #: src/components/device-approval.tsx
 msgid "A device wants to sign in to your account as the Thunderbolt CLI. Only approve if you just started this from your own terminal."
-msgstr "Um dispositivo quer entrar na sua conta como a CLI do Thunderbolt. Aprove apenas se você mesmo acabou de iniciar isso no seu terminal."
+msgstr "Устройство пытается войти в ваш аккаунт как Volt CLI. Подтверждайте, только если вы сами запустили это из своего терминала."
 
 #: src/components/pending-device-modal.tsx
 msgid "A new device is requesting access to your encrypted data."
-msgstr "Um novo dispositivo está solicitando acesso aos seus dados criptografados."
+msgstr "Новое устройство запрашивает доступ к вашим зашифрованным данным."
 
 #: src/components/update-notification.tsx
 msgid "A new version is available!"
-msgstr "Uma nova versão está disponível!"
+msgstr "Доступна новая версия!"
 
 #: src/settings/app-version-section.tsx
 msgid "A new version is available. See the update prompt to install."
-msgstr "Uma nova versão está disponível. Veja o aviso de atualização para instalar."
+msgstr "Доступна новая версия. Установите обновление в появившемся окне."
 
 #: src/projects/index.tsx
 msgid "A project keeps your instructions in one place, so every chat inside it starts with the same context."
-msgstr "Um projeto reúne suas instruções em um só lugar, então cada conversa dentro dele começa com o mesmo contexto."
+msgstr "Проект хранит ваши инструкции в одном месте, чтобы каждый чат внутри него начинался с одного и того же контекста."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "A URL, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable)."
-msgstr "Uma URL, ou cole um ticket iroh do seu bridge para uma conexão ponto a ponto (um NodeId sozinho só funciona se o peer for detectável)."
+msgstr "URL или вставьте iroh-тикет с вашего моста для peer-to-peer подключения (голый NodeId работает только если пир доступен для обнаружения)."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "A WebSocket endpoint, or paste an iroh ticket from your bridge for a peer-to-peer connection (a bare NodeId works only if the peer is discoverable)."
-msgstr "Um endpoint WebSocket, ou cole um ticket iroh do seu bridge para uma conexão ponto a ponto (um NodeId sozinho só funciona se o peer for detectável)."
+msgstr "WebSocket-эндпоинт или вставьте iroh-тикет с вашего моста для peer-to-peer подключения (голый NodeId работает только если пир доступен для обнаружения)."
 
 #: src/components/settings/agents/agent-detail.tsx
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "About"
-msgstr "Sobre"
+msgstr "Об агенте"
 
 #: src/settings/devices.tsx
 msgid "Accepts connections from your devices"
-msgstr "Aceita conexões dos seus dispositivos"
+msgstr "Принимает подключения от ваших устройств"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Access token required"
-msgstr "Token de acesso obrigatório"
+msgstr "Требуется токен доступа"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Account"
-msgstr "Conta"
+msgstr "Аккаунт"
 
 #: src/components/account-deleted.tsx
 msgid "Account Deleted"
-msgstr "Conta excluída"
+msgstr "Аккаунт удалён"
 
 #: src/components/sidebar-footer.tsx
 msgid "Account menu"
-msgstr "Menu da conta"
+msgstr "Меню аккаунта"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Action"
-msgstr "Ação"
+msgstr "Действие"
 
 #: src/search/palette/search-palette.tsx
 msgid "Actions"
-msgstr "Ações"
+msgstr "Действия"
 
 #: src/settings/devices.tsx
 msgid "Active"
@@ -206,41 +194,41 @@ msgstr ""
 
 #: src/projects/emoji-catalog.ts
 msgid "Activity"
-msgstr "Atividade"
+msgstr "Активность"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Add & Authorize"
-msgstr "Adicionar e autorizar"
+msgstr "Добавить и авторизовать"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
-msgstr "Adicione <0>~/.local/bin</0> ao seu PATH e reinicie o shell:"
+msgstr "Добавьте <0>~/.local/bin</0> в PATH и перезапустите оболочку:"
 
 #: src/tasks/index.tsx
 msgid "Add a new task…"
-msgstr "Adicionar uma nova tarefa…"
+msgstr "Добавить задачу…"
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Add a skill"
-msgstr "Adicionar uma habilidade"
+msgstr "Добавить навык"
 
 #: src/components/create-item/context.tsx
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Add Agent"
-msgstr "Adicionar agente"
+msgstr "Добавить агента"
 
 #: src/settings/connections/index.tsx
 msgid "Add failed"
-msgstr "Falha ao adicionar"
+msgstr "Ошибка добавления"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Add instructions to chat"
-msgstr "Adicionar instruções à conversa"
+msgstr "Добавить инструкции в чат"
 
 #: src/settings/connections/index.tsx
 msgid "Add MCP Server"
-msgstr "Adicionar servidor MCP"
+msgstr "Добавить MCP-сервер"
 
 #: src/components/create-item/context.tsx
 #: src/components/ui/model-selector/model-selector.tsx
@@ -248,283 +236,283 @@ msgstr "Adicionar servidor MCP"
 #: src/settings/models/index.tsx
 #: src/settings/models/models-list.tsx
 msgid "Add Model"
-msgstr "Adicionar modelo"
+msgstr "Добавить модель"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Add Server"
-msgstr "Adicionar servidor"
+msgstr "Добавить сервер"
 
 #: src/components/chat/chat-add-menu.tsx
 #: src/skills/suggestion-chip.tsx
 msgid "Add to chat"
-msgstr "Adicionar à conversa"
+msgstr "Добавить в чат"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Add your first server"
-msgstr "Adicione seu primeiro servidor"
+msgstr "Добавьте первый сервер"
 
 #: src/tasks/index.tsx
 msgid "Add Your First Task"
-msgstr "Adicione sua primeira tarefa"
+msgstr "Добавить первую задачу"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/models/add-model-form.tsx
 msgid "Adding…"
-msgstr "Adicionando…"
+msgstr "Добавление…"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Advanced (JSON)"
-msgstr "Avançado (JSON)"
+msgstr "Расширенный (JSON)"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/routes/settings/agents/index.tsx
 #: src/search/palette/entity-meta.ts
 msgid "Agents"
-msgstr "Agentes"
+msgstr "Агенты"
 
 #: src/components/chat/error-message.tsx
 msgid "AI usage limit reached"
-msgstr "Limite de uso da IA atingido"
+msgstr "Достигнут лимит использования ИИ"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
 msgid "All agents"
-msgstr "Todos os agentes"
+msgstr "Все агенты"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "All projects"
-msgstr "Todos os projetos"
+msgstr "Все проекты"
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "All skills are pinned"
-msgstr "Todas as habilidades estão fixadas"
+msgstr "Все навыки закреплены"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
-msgstr "Sempre permitir todas as ações deste tipo"
+msgstr "Всегда разрешать все действия этого типа"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow all Delete actions"
-msgstr "Sempre permitir todas as ações de exclusão"
+msgstr "Всегда разрешать все действия удаления"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow all Edit file actions"
-msgstr "Sempre permitir todas as ações de edição de arquivo"
+msgstr "Всегда разрешать все действия правки файлов"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow all Move file actions"
-msgstr "Sempre permitir todas as ações de mover arquivo"
+msgstr "Всегда разрешать все действия перемещения файлов"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow all Run command actions"
-msgstr "Sempre permitir todas as ações de executar comando"
+msgstr "Всегда разрешать все действия запуска команд"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow everything from this agent"
-msgstr "Sempre permitir tudo deste agente"
+msgstr "Всегда разрешать всё от этого агента"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
-msgstr "Perguntar sempre"
+msgstr "Всегда спрашивать"
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
-msgstr "Analisando…"
+msgstr "Анализ…"
 
 #: src/projects/emoji-catalog.ts
 msgid "Animals & nature"
-msgstr "Animais e natureza"
+msgstr "Животные и природа"
 
 #: src/settings/preferences.tsx
 msgid "Anonymous Usage Data"
-msgstr "Dados de uso anônimos"
+msgstr "Анонимная статистика"
 
 #: src/widgets/ask/display.tsx
 msgid "Answer"
-msgstr "Resposta"
+msgstr "Ответ"
 
 #: src/settings/voice.tsx
 msgid "API key"
-msgstr "Chave de API"
+msgstr "API-ключ"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 msgid "API Key"
-msgstr "Chave de API"
+msgstr "API-ключ"
 
 #: src/settings/models/add-model-form.tsx
 msgid "API Key (Optional)"
-msgstr "Chave de API (opcional)"
+msgstr "API-ключ (необязательно)"
 
 #: src/settings/models/use-add-model-form.ts
 msgid "API Key is required for this provider"
-msgstr "Este provedor exige uma chave de API"
+msgstr "Для этого провайдера нужен API-ключ"
 
 #: src/components/ui/model-selector/model-selector.tsx
 #: src/settings/models/model-detail.tsx
 #: src/settings/models/models-list.tsx
 msgid "API key not configured"
-msgstr "Chave de API não configurada"
+msgstr "API-ключ не настроен"
 
 #: src/settings/app-version-section.tsx
 msgid "App Version"
-msgstr "Versão do app"
+msgstr "Версия приложения"
 
 #: src/projects/project-form.tsx
 msgid "Applied to every chat in this project."
-msgstr "Aplicado a todas as conversas deste projeto."
+msgstr "Применяются к каждому чату в этом проекте."
 
 #: src/components/approve-device-dialog.tsx
 #: src/components/device-approval.tsx
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "Approve"
-msgstr "Aprovar"
+msgstr "Разрешить"
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
-msgstr "Aprovar {deviceName}"
+msgstr "Одобрить {deviceName}"
 
 #: src/components/device-approval.tsx
 msgid "Approve CLI sign-in?"
-msgstr "Aprovar o login da CLI?"
+msgstr "Разрешить вход в CLI?"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Approve this device"
-msgstr "Aprovar este dispositivo"
+msgstr "Подтвердите это устройство"
 
 #: src/components/approve-device-dialog.tsx
 msgid "Approve this device?"
-msgstr "Aprovar este dispositivo?"
+msgstr "Разрешить это устройство?"
 
 #: src/components/approve-device-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Approving…"
-msgstr "Aprovando…"
+msgstr "Подтверждаем…"
 
 #: src/components/modification-indicator.tsx
 msgid "Are you sure? You will lose any changes that you made."
-msgstr "Tem certeza? Você perderá todas as alterações que fez."
+msgstr "Сбросить? Все ваши изменения будут потеряны."
 
 #: src/components/chat/artifact-message-part.tsx
 msgid "Artifact"
-msgstr "Artefato"
+msgstr "Артефакт"
 
 #: src/projects/project-detail-panel.tsx
 msgid "Artifacts"
-msgstr "Artefatos"
+msgstr "Артефакты"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Ask"
-msgstr "Perguntar"
+msgstr "Вопрос"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Ask me anything…"
-msgstr "Pergunte o que quiser…"
+msgstr "Спросите что угодно…"
 
 #: src/components/sync-enable-warning-dialog.tsx
 msgid "At this time, synced data is not encrypted. Enabling sync will store your data on our servers without encryption. Do you want to continue?"
-msgstr "No momento, os dados sincronizados não são criptografados. Ao ativar a sincronização, seus dados serão armazenados em nossos servidores sem criptografia. Deseja continuar?"
+msgstr "Сейчас синхронизируемые данные не шифруются. При включении синхронизации данные будут храниться на наших серверах без шифрования. Продолжить?"
 
 #: src/settings/connections/index.tsx
 msgid "Authorization error"
-msgstr "Erro de autorização"
+msgstr "Ошибка авторизации"
 
 #: src/hooks/use-mcp-server-oauth.ts
 msgid "Authorization failed."
-msgstr "Falha na autorização."
+msgstr "Авторизация не удалась."
 
 #: src/hooks/use-mcp-server-oauth.ts
 msgid "Authorization failed. Please try again."
-msgstr "Falha na autorização. Tente novamente."
+msgstr "Авторизация не удалась. Попробуйте ещё раз."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Authorization required"
-msgstr "Autorização necessária"
+msgstr "Требуется авторизация"
 
 #: src/lib/mcp-auth/callback-validation.ts
 msgid "Authorization server omitted the required issuer (iss)."
-msgstr "O servidor de autorização omitiu o emissor obrigatório (iss)."
+msgstr "Сервер авторизации не указал обязательный issuer (iss)."
 
 #: src/hooks/use-mcp-server-oauth.ts
 msgid "Authorization was cancelled."
-msgstr "A autorização foi cancelada."
+msgstr "Авторизация отменена."
 
 #: src/hooks/use-mcp-server-oauth.ts
 msgid "Authorization was declined."
-msgstr "A autorização foi recusada."
+msgstr "В авторизации отказано."
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Authorize"
-msgstr "Autorizar"
+msgstr "Авторизовать"
 
 #: src/components/settings/iroh-pairing-panel.tsx
 msgid "Authorize this app on your bridge"
-msgstr "Autorize este app no seu bridge"
+msgstr "Разрешите это приложение на мосте"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Authorized. Re-run the OAuth flow if access was revoked."
-msgstr "Autorizado. Execute o fluxo OAuth novamente se o acesso tiver sido revogado."
+msgstr "Авторизовано. Повторите OAuth, если доступ был отозван."
 
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Authorizing…"
-msgstr "Autorizando…"
+msgstr "Авторизация…"
 
 #: src/components/available-tools.tsx
 msgid "Available Tools"
-msgstr "Ferramentas disponíveis"
+msgstr "Доступные инструменты"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Available tools:"
-msgstr "Ferramentas disponíveis:"
+msgstr "Доступные инструменты:"
 
 #: src/components/account-deleted.tsx
 #: src/components/not-found.tsx
 msgid "Back to App"
-msgstr "Voltar ao app"
+msgstr "Вернуться в приложение"
 
 #: src/settings/voice.tsx
 msgid "Base URL"
-msgstr "URL base"
+msgstr "Базовый URL"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Bearer token or API key"
-msgstr "Token Bearer ou chave de API"
+msgstr "Bearer-токен или API-ключ"
 
 #: src/settings/devices.tsx
 msgid "Bridge"
-msgstr "Bridge"
+msgstr "Мост"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Bridge target"
-msgstr "Destino do bridge"
+msgstr "Адрес моста"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Browser"
-msgstr "Navegador"
+msgstr "Браузер"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Build it from source instead (requires Bun):"
-msgstr "Compilar a partir do código-fonte (requer Bun):"
+msgstr "Или соберите из исходников (нужен Bun):"
 
 #: src/settings/models/model-detail.tsx
 msgid "Built-in models can't be edited or removed"
-msgstr "Modelos integrados não podem ser editados nem removidos"
+msgstr "Встроенные модели нельзя изменить или удалить"
 
 #: src/skills/skill-detail.tsx
 msgid "Built-in skill · Read-only"
-msgstr "Habilidade integrada · Somente leitura"
+msgstr "Встроенный навык · Только чтение"
 
 #: src/waitlist/waitlist-page.tsx
 msgid "By continuing, you agree to our <0>Terms of Service</0> and <1>Privacy Policy</1>."
-msgstr "Ao continuar, você concorda com nossos <0>termos de serviço</0> e nossa <1>política de privacidade</1>."
+msgstr "Продолжая, вы соглашаетесь с <0>Условиями использования</0> и <1>Политикой конфиденциальности</1>."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Calendar"
-msgstr "Agenda"
+msgstr "Календарь"
 
 #: src/components/app-error-screen.tsx
 #: src/components/approve-device-dialog.tsx
@@ -547,165 +535,161 @@ msgstr "Agenda"
 #: src/settings/preferences.tsx
 #: src/skills/dependents-dialog.tsx
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Отмена"
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Cannot change agent during reply"
-msgstr "Não é possível trocar de agente durante uma resposta"
+msgstr "Нельзя сменить агента во время ответа"
 
 #: src/i18n/unit-labels.ts
 #: src/widgets/weather-forecast/display.tsx
 msgid "Celsius"
-msgstr "Celsius"
+msgstr "Цельсий"
 
 #: src/settings/preferences.tsx
 msgid "Change Language?"
-msgstr "Alterar o idioma?"
+msgstr "Сменить язык?"
 
 #: src/settings/connections/use-mcp-server-form-controller.ts
 msgid "Changes were saved, but reconnecting failed. Please retry."
-msgstr "As alterações foram salvas, mas a reconexão falhou. Tente novamente."
+msgstr "Изменения сохранены, но переподключиться не удалось. Повторите попытку."
 
 #: src/layout/sidebar/chat-list-item.tsx
 msgid "Chat actions"
-msgstr "Ações da conversa"
+msgstr "Действия с чатом"
 
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Chat name"
-msgstr "Nome da conversa"
+msgstr "Название чата"
 
 #: src/layout/sidebar/nav-toggle.tsx
 #: src/projects/project-detail-panel.tsx
 #: src/search/palette/entity-meta.ts
 msgid "Chats"
-msgstr "Conversas"
+msgstr "Чаты"
 
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "Chats in a project inherit its instructions."
-msgstr "Conversas em um projeto herdam as instruções dele."
+msgstr "Чаты в проекте наследуют его инструкции."
 
 #: src/components/upgrade-required.tsx
 #: src/settings/app-version-section.tsx
 msgid "Check for updates"
-msgstr "Verificar atualizações"
+msgstr "Проверить обновления"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Check now"
-msgstr "Verificar agora"
+msgstr "Проверить сейчас"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Check the backend logs"
-msgstr "Confira os logs do backend"
+msgstr "Проверьте логи бэкенда"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Check your email"
-msgstr "Confira seu e-mail"
+msgstr "Проверьте почту"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Checking automatically…"
-msgstr "Verificando automaticamente…"
+msgstr "Автоматическая проверка…"
 
 #: src/components/update-notification.tsx
 #: src/settings/app-version-section.tsx
 msgid "Checking for updates…"
-msgstr "Verificando atualizações…"
+msgstr "Проверка обновлений…"
 
 #: src/components/device-approval.tsx
 msgid "Checking sign-in request…"
-msgstr "Verificando a solicitação de login…"
+msgstr "Проверяем запрос на вход…"
 
 #: src/components/device-approval.tsx
 msgid "Checking your session."
-msgstr "Verificando sua sessão."
+msgstr "Проверяем вашу сессию."
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 #: src/components/upgrade-required.tsx
 #: src/settings/app-version-section.tsx
 msgid "Checking…"
-msgstr "Verificando…"
+msgstr "Проверка…"
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Choose agent"
-msgstr "Escolher agente"
+msgstr "Выберите агента"
 
 #: src/projects/emoji-picker.tsx
 msgid "Choose an icon"
-msgstr "Escolha um ícone"
+msgstr "Выбрать значок"
 
 #: src/projects/emoji-picker.tsx
 msgid "Choose an icon for {label}"
-msgstr "Escolha um ícone para {label}"
+msgstr "Выбрать значок для {label}"
 
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Choose an option"
-msgstr "Escolha uma opção"
+msgstr "Выберите вариант"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Choose model"
-msgstr "Escolher modelo"
+msgstr "Выберите модель"
 
 #: src/widgets/ask/display.tsx
 msgid "Choose one"
-msgstr "Escolha uma"
-
-#: src/widgets/connect-integration/widget.tsx
-#~ msgid "Choose your email provider {displayReason}"
-#~ msgstr "Escolha seu provedor de e-mail {displayReason}"
+msgstr "Выберите один вариант"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Choose your email provider {reason}"
-msgstr "Escolha seu provedor de e-mail {reason}"
+msgstr "Выберите почтовый провайдер {reason}"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Choose your email provider to access your calendar"
-msgstr "Escolha seu provedor de e-mail para acessar sua agenda"
+msgstr "Выберите почтовый провайдер для доступа к календарю"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Choose your email provider to access your email"
-msgstr "Escolha seu provedor de e-mail para acessar seu e-mail"
+msgstr "Выберите почтовый провайдер для доступа к почте"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Choose your email provider to access your email and calendar"
-msgstr "Escolha seu provedor de e-mail para acessar seu e-mail e sua agenda"
+msgstr "Выберите почтовый провайдер, чтобы получить доступ к почте и календарю"
 
 #: src/layout/sidebar/chat-actions.tsx
 #: src/layout/sidebar/chat-list.tsx
 #: src/search/commands/use-commands.ts
 msgid "Clear all chats"
-msgstr "Apagar todas as conversas"
+msgstr "Очистить все чаты"
 
 #: src/components/app-error-screen.tsx
 msgid "Clear Database"
-msgstr "Apagar banco de dados"
+msgstr "Очистить базу"
 
 #: src/components/app-error-screen.tsx
 msgid "Clear Local Database"
-msgstr "Apagar banco de dados local"
+msgstr "Очистить локальную базу"
 
 #: src/components/app-error-screen.tsx
 msgid "Clear Local Database?"
-msgstr "Apagar o banco de dados local?"
+msgstr "Очистить локальную базу?"
 
 #: src/settings/models/edit-model-form.tsx
 msgid "Clear saved API key"
-msgstr "Apagar a chave de API salva"
+msgstr "Очистить сохранённый API-ключ"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Clear saved credential"
-msgstr "Apagar a credencial salva"
+msgstr "Очистить сохранённые учётные данные"
 
 #: src/components/ui/search-input.tsx
 msgid "Clear search"
-msgstr "Limpar a busca"
+msgstr "Очистить поиск"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Clear sky"
-msgstr "Céu limpo"
+msgstr "Ясно"
 
 #: src/components/app-error-screen.tsx
 msgid "Clearing Database…"
-msgstr "Apagando o banco de dados…"
+msgstr "Очистка базы данных…"
 
 #: src/settings/devices.tsx
 msgid "CLI"
@@ -713,7 +697,7 @@ msgstr ""
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Clipboard unavailable. Please select the phrase above and copy it manually."
-msgstr "Área de transferência indisponível. Selecione a frase acima e copie manualmente."
+msgstr "Буфер обмена недоступен. Выделите фразу выше и скопируйте вручную."
 
 #: src/components/chat/external-link-dialog.tsx
 #: src/components/context-overflow-modal.tsx
@@ -724,165 +708,165 @@ msgstr "Área de transferência indisponível. Selecione a frase acima e copie m
 #: src/components/ui/sheet.tsx
 #: src/components/window-controls.tsx
 msgid "Close"
-msgstr "Fechar"
+msgstr "Закрыть"
 
 #: src/components/detail-panel.tsx
 msgid "Close details"
-msgstr "Fechar detalhes"
+msgstr "Закрыть детали"
 
 #: src/components/ui/mobile-sidebar.tsx
 msgid "Close navigation"
-msgstr "Fechar a navegação"
+msgstr "Закрыть навигацию"
 
 #: src/skills/reorder-panel.tsx
 msgid "Close reorder"
-msgstr "Fechar a reordenação"
+msgstr "Закрыть изменение порядка"
 
 #: src/components/sidebar-footer.tsx
 msgid "Cloud Sync"
-msgstr "Sincronização na nuvem"
+msgstr "Облачная синхронизация"
 
 #: src/components/device-approval.tsx
 msgid "Code"
-msgstr "Código"
+msgstr "Код"
 
 #: src/components/device-approval.tsx
 msgid "Code didn't work"
-msgstr "O código não funcionou"
+msgstr "Код не подошёл"
 
 #: src/layout/sidebar/sidebar-header.tsx
 msgid "Collapse Sidebar"
-msgstr "Recolher a barra lateral"
+msgstr "Свернуть боковую панель"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Command / arguments"
-msgstr "Comando / argumentos"
+msgstr "Команда / аргументы"
 
 #: src/components/ui/command.tsx
 msgid "Command Palette"
-msgstr "Paleta de comandos"
+msgstr "Палитра команд"
 
 #: src/tasks/index.tsx
 msgid "Complete {taskItem}"
-msgstr "Concluir {taskItem}"
+msgstr "Выполнить {taskItem}"
 
 #: src/tasks/index.tsx
 msgid "Complete new task"
-msgstr "Concluir a nova tarefa"
+msgstr "Завершить новую задачу"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Complete the setup process to get started with Thunderbolt"
-msgstr "Conclua a configuração para começar a usar o Thunderbolt"
+msgstr "Завершите настройку, чтобы начать работу с Volt"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Completing…"
-msgstr "Concluindo…"
+msgstr "Завершение…"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Configuration"
-msgstr "Configuração"
+msgstr "Конфигурация"
 
 #: src/components/modification-indicator.tsx
 #: src/components/revoked-device-modal.tsx
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr "Подтвердить"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Confirm opening an external link"
-msgstr "Confirmar a abertura de um link externo"
+msgstr "Подтвердите открытие внешней ссылки"
 
 #: src/components/device-approval.tsx
 msgid "Confirm this code matches the one in your terminal."
-msgstr "Confirme que este código é igual ao do seu terminal."
+msgstr "Убедитесь, что код совпадает с тем, что в терминале."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connect {providerName}"
-msgstr "Conectar {providerName}"
+msgstr "Подключить {providerName}"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Connect a remote agent that speaks the Agent Client Protocol."
-msgstr "Conecte um agente remoto que fale o Agent Client Protocol."
+msgstr "Подключите удалённого агента по Agent Client Protocol."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Google"
-msgstr "Conectar Google"
+msgstr "Подключить Google"
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Microsoft"
-msgstr "Conectar Microsoft"
+msgstr "Подключить Microsoft"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Connect your account to make these tools available to agents."
-msgstr "Conecte sua conta para disponibilizar estas ferramentas aos agentes."
+msgstr "Подключите аккаунт, чтобы эти инструменты стали доступны агентам."
 
 #: src/settings/connections/connections-list.tsx
 msgid "Connect your own MCP servers to give agents more tools."
-msgstr "Conecte seus próprios servidores MCP para dar mais ferramentas aos agentes."
+msgstr "Подключите свои MCP-серверы, чтобы дать агентам больше инструментов."
 
 #: src/components/sidebar-footer.tsx
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected"
-msgstr "Conectado"
+msgstr "Подключён"
 
 #: src/voice/engine/openai-compatible-engine.ts
 msgid "Connected — synthesis succeeded."
-msgstr "Conectado — a síntese funcionou."
+msgstr "Подключено — синтез успешен."
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
-msgstr "Conectado ao {connectedProviderName} Agenda"
+msgstr "Подключено к календарю {connectedProviderName}"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Email"
-msgstr "Conectado ao {connectedProviderName} E-mail"
+msgstr "Подключено к почте {connectedProviderName}"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Email and Calendar"
-msgstr "Conectado ao {connectedProviderName} E-mail e Agenda"
+msgstr "Подключено к почте и календарю {connectedProviderName}"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Connected to {integrationName}"
-msgstr "Conectado a {integrationName}"
+msgstr "Подключено к {integrationName}"
 
 #: src/components/connect-provider-button.tsx
 msgid "Connected!"
-msgstr "Conectado!"
+msgstr "Подключено!"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Connecting to {agentName}…"
-msgstr "Conectando a {agentName}…"
+msgstr "Подключение к {agentName}…"
 
 #: src/components/connect-provider-button.tsx
 #: src/components/sidebar-footer.tsx
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connecting…"
-msgstr "Conectando…"
+msgstr "Подключение…"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Connection"
-msgstr "Conexão"
+msgstr "Подключение"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Connection error"
-msgstr "Erro de conexão"
+msgstr "Ошибка соединения"
 
 #: src/components/chat/chat-prompt-input.tsx
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Connection failed"
-msgstr "Falha na conexão"
+msgstr "Не удалось подключиться"
 
 #: src/components/chat/error-message.tsx
 msgid "Connection problem. Check your internet and try again."
-msgstr "Problema de conexão. Verifique sua Internet e tente novamente."
+msgstr "Проблема с соединением. Проверьте интернет и попробуйте ещё раз."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Connection successful!"
-msgstr "Conexão bem-sucedida!"
+msgstr "Соединение установлено!"
 
 #: src/components/chat/chat-add-menu.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
@@ -890,15 +874,15 @@ msgstr "Conexão bem-sucedida!"
 #: src/search/palette/entity-meta.ts
 #: src/settings/connections/connections-list.tsx
 msgid "Connections"
-msgstr "Conexões"
+msgstr "Подключения"
 
 #: src/components/app-error-screen.tsx
 msgid "Contact Support"
-msgstr "Falar com o suporte"
+msgstr "Связаться с поддержкой"
 
 #: src/components/context-overflow-modal.tsx
 msgid "Context Window Exceeded"
-msgstr "Janela de contexto excedida"
+msgstr "Превышен контекст модели"
 
 #: src/components/device-approval.tsx
 #: src/components/magic-link-verify.tsx
@@ -910,258 +894,246 @@ msgstr "Janela de contexto excedida"
 #: src/components/sync-setup/sync-setup-modal.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Continue"
-msgstr "Continuar"
+msgstr "Продолжить"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Copied"
-msgstr "Copiado"
+msgstr "Скопировано"
 
 #: src/components/chat/mobile-user-message.tsx
 msgid "Copy"
-msgstr "Copiar"
+msgstr "Копировать"
 
 #: src/components/settings/iroh-pairing-panel.tsx
 msgid "Copy allow command"
-msgstr "Copiar o comando de permissão"
+msgstr "Скопировать команду разрешения"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Copy bridge target"
-msgstr "Copiar o destino do bridge"
+msgstr "Скопировать адрес моста"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Copy build command"
-msgstr "Copiar o comando de compilação"
+msgstr "Скопировать команду сборки"
 
 #: src/components/artifact/artifact-actions.tsx
 msgid "Copy HTML"
-msgstr "Copiar HTML"
+msgstr "Копировать HTML"
 
 #: src/components/chat/copy-message-button.tsx
 msgid "Copy message"
-msgstr "Copiar mensagem"
+msgstr "Копировать сообщение"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Copy PATH command"
-msgstr "Copiar o comando de PATH"
+msgstr "Скопировать команду PATH"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Copy to clipboard"
-msgstr "Copiar para a área de transferência"
+msgstr "Скопировать"
 
 #: src/content-view/sidebar-webview.tsx
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Copy URL"
-msgstr "Copiar URL"
+msgstr "Скопировать URL"
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not bind the pairing code"
-msgstr "Não foi possível vincular o código de emparelhamento"
+msgstr "Не удалось привязать код сопряжения"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Could not connect to the agent."
-msgstr "Não foi possível conectar ao agente."
+msgstr "Не удалось подключиться к агенту."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Could not connect to the MCP server. Please check the URL and try again."
-msgstr "Não foi possível conectar ao servidor MCP. Verifique a URL e tente novamente."
+msgstr "Не удалось подключиться к MCP-серверу. Проверьте URL и попробуйте снова."
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Could not connect to this server. Check the URL and that the server is reachable."
-msgstr "Não foi possível conectar a este servidor. Verifique a URL e se o servidor está acessível."
+msgstr "Не удалось подключиться к серверу. Проверьте URL и доступность сервера."
 
 #: src/projects/project-form.tsx
 msgid "Could not create the project."
-msgstr "Não foi possível criar o projeto."
+msgstr "Не удалось создать проект."
 
 #: src/hooks/use-external-link-dialog.ts
 msgid "Could not open link. Please try again or copy the URL."
-msgstr "Não foi possível abrir o link. Tente novamente ou copie a URL."
+msgstr "Не удалось открыть ссылку. Попробуйте ещё раз или скопируйте URL."
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
-msgstr "Não foi possível ler o código QR"
+msgstr "Не удалось прочитать QR-код"
 
 #: src/settings/preferences.tsx
 msgid "Could not read the import file."
-msgstr "Não foi possível ler o arquivo de importação."
+msgstr "Не удалось прочитать файл импорта."
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
-msgstr "Não foi possível exibir o código de emparelhamento."
+msgstr "Не удалось отрисовать код сопряжения."
 
 #: src/projects/project-form.tsx
 msgid "Could not save the project."
-msgstr "Não foi possível salvar o projeto."
+msgstr "Не удалось сохранить проект."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Couldn't add the agent. Please try again."
-msgstr "Não foi possível adicionar o agente. Tente novamente."
+msgstr "Не удалось добавить агента. Попробуйте ещё раз."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Couldn't attach \"{filename}\" — your browser's storage is full or unavailable."
-msgstr "Não foi possível anexar “{filename}” — o armazenamento do seu navegador está cheio ou indisponível."
-
-#: src/settings/app-version-section.tsx
-#~ msgid "Couldn't check for updates"
-#~ msgstr "Não foi possível verificar atualizações"
+msgstr "Не удалось прикрепить «{filename}» — хранилище браузера заполнено или недоступно."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't check for updates: {error}"
-msgstr "Não foi possível verificar atualizações: {error}"
+msgstr "Не удалось проверить обновления: {error}"
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't check for updates."
-msgstr "Não foi possível verificar atualizações."
-
-#: src/settings/app-version-section.tsx
-#~ msgid "Couldn't download the update"
-#~ msgstr "Não foi possível baixar a atualização"
+msgstr "Не удалось проверить обновления."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't download the update: {error}"
-msgstr "Não foi possível baixar a atualização: {error}"
+msgstr "Не удалось загрузить обновление: {error}"
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't download the update."
-msgstr "Não foi possível baixar a atualização."
+msgstr "Не удалось загрузить обновление."
 
 #: src/projects/emoji-picker.tsx
 msgid "Couldn’t load the emoji list. Close and reopen this picker to try again."
-msgstr "Não foi possível carregar a lista de emojis. Feche e abra o seletor novamente para tentar de novo."
+msgstr "Не удалось загрузить список эмодзи. Закройте и снова откройте выбор, чтобы повторить попытку."
 
 #: src/components/settings/iroh-pairing-panel.tsx
 msgid "Couldn't load this app's pairing identity: {error}"
-msgstr "Não foi possível carregar a identidade de emparelhamento deste app: {error}"
+msgstr "Не удалось загрузить идентификатор сопряжения приложения: {error}"
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Couldn't pin {name}."
-msgstr "Não foi possível fixar {name}."
-
-#: src/settings/app-version-section.tsx
-#~ msgid "Couldn't restart to apply the update"
-#~ msgstr "Não foi possível reiniciar para aplicar a atualização"
+msgstr "Не удалось закрепить {name}."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update: {error}"
-msgstr "Não foi possível reiniciar para aplicar a atualização: {error}"
+msgstr "Не удалось перезапустить для установки обновления: {error}"
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update."
-msgstr "Não foi possível reiniciar para aplicar a atualização."
+msgstr "Не удалось перезапустить для установки обновления."
 
 #: src/components/settings/agents/editable-field.tsx
 msgid "Couldn't save the {fieldName}. Please try again."
-msgstr "Não foi possível salvar {fieldName}. Tente novamente."
+msgstr "Не удалось сохранить {fieldName}. Попробуйте ещё раз."
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Couldn't save the new order."
-msgstr "Não foi possível salvar a nova ordem."
+msgstr "Не удалось сохранить новый порядок."
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Couldn't unpin {name}."
-msgstr "Não foi possível desafixar {name}."
+msgstr "Не удалось открепить {name}."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Couldn't update. Please try again."
-msgstr "Não foi possível atualizar. Tente novamente."
+msgstr "Не удалось обновить. Попробуйте ещё раз."
 
 #: src/components/chat/error-message.tsx
 msgid "Couldn't verify the secure AI connection. This is usually temporary — try again in a moment."
-msgstr "Não foi possível verificar a conexão segura com a IA. Isso costuma ser temporário — tente novamente em instantes."
+msgstr "Не удалось подтвердить защищённое соединение с ИИ. Обычно это временно — попробуйте ещё раз через мгновение."
 
 #: src/projects/project-form.tsx
 #: src/search/palette/search-palette.tsx
 #: src/skills/skill-form.tsx
 msgid "Create"
-msgstr "Criar"
+msgstr "Создать навык"
 
 #: src/search/commands/create-commands.ts
 msgid "Create Agent"
-msgstr "Criar agente"
+msgstr "Создать агента"
 
 #: src/search/commands/create-commands.ts
 msgid "Create Model"
-msgstr "Criar modelo"
+msgstr "Создать модель"
 
 #: src/projects/create-project-panel.tsx
 msgid "Create project"
-msgstr "Criar projeto"
+msgstr "Создать проект"
 
 #: src/components/create-item/context.tsx
 #: src/search/commands/create-commands.ts
 #: src/skills/skills-view.tsx
 msgid "Create Skill"
-msgstr "Criar habilidade"
+msgstr "Создать навык"
 
 #: src/projects/index.tsx
 msgid "Create your first project"
-msgstr "Crie seu primeiro projeto"
+msgstr "Создайте первый проект"
 
 #: src/skills/skills-list.tsx
 msgid "Create your first skill"
-msgstr "Crie sua primeira habilidade"
+msgstr "Создать первый навык"
 
 #: src/lib/tool-metadata.ts
 #: src/projects/project-form.tsx
 #: src/skills/skill-form.tsx
 msgid "Creating…"
-msgstr "Criando…"
+msgstr "Создание…"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Credential (optional)"
-msgstr "Credencial (opcional)"
+msgstr "Учётные данные (необязательно)"
 
 #: src/settings/preferences.tsx
 msgid "Currency"
-msgstr "Moeda"
+msgstr "Валюта"
 
 #: src/settings/app-version-section.tsx
 msgid "Current version"
-msgstr "Versão atual"
+msgstr "Текущая версия"
 
 #: src/settings/models/model-presentation.tsx
 msgid "Custom"
-msgstr "Personalizado"
+msgstr "Другая"
 
 #: src/settings/voice.tsx
 msgid "Custom — OpenAI-compatible endpoint"
-msgstr "Personalizado — endpoint compatível com OpenAI"
+msgstr "Свой — совместимый с OpenAI сервер"
 
 #: src/settings/preferences.tsx
 msgid "Custom voice provider"
-msgstr "Provedor de voz personalizado"
+msgstr "Свой провайдер голоса"
 
 #: src/settings/models/model-detail.tsx
 msgid "Customized model"
-msgstr "Modelo personalizado"
+msgstr "Изменённая модель"
 
 #: src/skills/skill-form.tsx
 msgid "Daily Brief"
-msgstr "Resumo diário"
+msgstr "Ежедневная сводка"
 
 #: src/skills/skill-form.tsx
 msgid "daily-brief"
-msgstr "daily-brief"
+msgstr "утренняя-сводка"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Dark"
-msgstr "Escuro"
+msgstr "Тёмная"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Dark mode"
-msgstr "Modo escuro"
+msgstr "Тёмная тема"
 
 #: src/settings/preferences.tsx
 msgid "Data"
-msgstr "Dados"
+msgstr "Данные"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Data is stored securely on your device."
-msgstr "Os dados são armazenados com segurança no seu dispositivo."
+msgstr "Данные надёжно хранятся на вашем устройстве."
 
 #: src/components/modification-indicator.tsx
 msgid "Default setting"
-msgstr "Configuração padrão"
+msgstr "Значение по умолчанию"
 
 #: src/components/chat/permission-dialog.tsx
 #: src/components/settings/detail-actions-menu.tsx
@@ -1172,97 +1144,97 @@ msgstr "Configuração padrão"
 #: src/settings/models/index.tsx
 #: src/skills/library-row.tsx
 msgid "Delete"
-msgstr "Excluir"
+msgstr "Удалить"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Delete {agentName}?"
-msgstr "Excluir {agentName}?"
+msgstr "Удалить {agentName}?"
 
 #: src/skills/delete-skill-dialog.tsx
 msgid "Delete {skillName}?"
-msgstr "Excluir {skillName}?"
+msgstr "Удалить {skillName}?"
 
 #: src/skills/dependents-dialog.tsx
 msgid "Delete {targetName}?"
-msgstr "Excluir {targetName}?"
+msgstr "Удалить {targetName}?"
 
 #: src/settings/preferences.tsx
 msgid "Delete account"
-msgstr "Excluir conta"
+msgstr "Удалить аккаунт"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Delete agent"
-msgstr "Excluir agente"
+msgstr "Удалить агента"
 
 #: src/components/delete-all-chats-dialog.tsx
 msgid "Delete All Chats"
-msgstr "Excluir todas as conversas"
+msgstr "Удалить все чаты"
 
 #: src/components/delete-all-chats-dialog.tsx
 msgid "Delete all chats?"
-msgstr "Excluir todas as conversas?"
+msgstr "Удалить все чаты?"
 
 #: src/settings/preferences.tsx
 msgid "Delete All Local Data"
-msgstr "Excluir todos os dados locais"
+msgstr "Удалить все локальные данные"
 
 #: src/components/delete-chat-dialog.tsx
 msgid "Delete Chat"
-msgstr "Excluir conversa"
+msgstr "Удалить чат"
 
 #: src/components/logout-modal.tsx
 #: src/components/revoked-device-modal.tsx
 msgid "Delete data from device"
-msgstr "Excluir os dados do dispositivo"
+msgstr "Удалить данные с устройства"
 
 #: src/settings/models/index.tsx
 msgid "Delete Model"
-msgstr "Excluir modelo"
+msgstr "Удалить модель"
 
 #: src/settings/preferences.tsx
 msgid "Delete My Account"
-msgstr "Excluir minha conta"
+msgstr "Удалить мой аккаунт"
 
 #: src/projects/project-detail-panel.tsx
 msgid "Delete project"
-msgstr "Excluir projeto"
+msgstr "Удалить проект"
 
 #: src/settings/connections/index.tsx
 msgid "Delete Server"
-msgstr "Excluir servidor"
+msgstr "Удалить сервер"
 
 #: src/skills/delete-skill-dialog.tsx
 #: src/skills/dependents-dialog.tsx
 msgid "Delete skill"
-msgstr "Excluir habilidade"
+msgstr "Удалить навык"
 
 #: src/components/ui/chat-nav-button.tsx
 msgid "Delete the thread?"
-msgstr "Excluir a conversa?"
+msgstr "Удалить ветку?"
 
 #: src/components/delete-chat-dialog.tsx
 msgid "Delete this chat?"
-msgstr "Excluir esta conversa?"
+msgstr "Удалить этот чат?"
 
 #: src/settings/connections/index.tsx
 msgid "Delete this MCP server and its saved credentials?"
-msgstr "Excluir este servidor MCP e as credenciais salvas dele?"
+msgstr "Удалить этот MCP-сервер и сохранённые учётные данные?"
 
 #: src/settings/models/index.tsx
 msgid "Delete this model from your configured models?"
-msgstr "Excluir este modelo dos seus modelos configurados?"
+msgstr "Удалить эту модель из настроенных?"
 
 #: src/projects/project-detail-panel.tsx
 msgid "Delete this project?"
-msgstr "Excluir este projeto?"
+msgstr "Удалить этот проект?"
 
 #: src/settings/preferences.tsx
 msgid "Delete Your Account"
-msgstr "Excluir sua conta"
+msgstr "Удалить аккаунт"
 
 #: src/settings/preferences.tsx
 msgid "Delete your account?"
-msgstr "Excluir sua conta?"
+msgstr "Удалить аккаунт?"
 
 #: src/components/logout-modal.tsx
 #: src/components/revoked-device-modal.tsx
@@ -1270,39 +1242,39 @@ msgstr "Excluir sua conta?"
 #: src/settings/models/index.tsx
 #: src/settings/preferences.tsx
 msgid "Deleting…"
-msgstr "Excluindo…"
+msgstr "Удаление…"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Dense drizzle"
-msgstr "Garoa densa"
+msgstr "Сильная морось"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Dense freezing drizzle"
-msgstr "Garoa congelante densa"
+msgstr "Сильная ледяная морось"
 
 #: src/components/device-approval.tsx
 #: src/components/pending-device-modal.tsx
 #: src/components/revoke-device-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Deny"
-msgstr "Recusar"
+msgstr "Отклонить"
 
 #: src/settings/devices.tsx
 msgid "Deny {deviceName}"
-msgstr "Recusar {deviceName}"
+msgstr "Отклонить {deviceName}"
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Deny this device?"
-msgstr "Recusar este dispositivo?"
+msgstr "Отклонить это устройство?"
 
 #: src/components/revoke-device-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Denying…"
-msgstr "Recusando…"
+msgstr "Отклоняем…"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Depositing rime fog"
-msgstr "Nevoeiro com geada"
+msgstr "Изморозь"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
@@ -1310,906 +1282,906 @@ msgstr "Nevoeiro com geada"
 #: src/skills/skill-detail.tsx
 #: src/skills/skill-form.tsx
 msgid "Description"
-msgstr "Descrição"
+msgstr "Описание"
 
 #: src/components/sidebar-footer.tsx
 #: src/search/commands/navigation.ts
 msgid "Dev Settings"
-msgstr "Configurações de desenvolvimento"
+msgstr "Настройки разработчика"
 
 #: src/components/revoked-device-modal.tsx
 msgid "Device access revoked"
-msgstr "Acesso do dispositivo revogado"
+msgstr "Доступ устройства отозван"
 
 #: src/components/device-qr-code.tsx
 msgid "Device pairing QR code"
-msgstr "Código QR de emparelhamento do dispositivo"
+msgstr "QR-код для сопряжения устройства"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
 #: src/search/palette/entity-meta.ts
 #: src/settings/devices.tsx
 msgid "Devices"
-msgstr "Dispositivos"
+msgstr "Устройства"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Disable {customAgentName}"
-msgstr "Desativar {customAgentName}"
+msgstr "Отключить {customAgentName}"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Disable {integrationName}"
-msgstr "Desativar {integrationName}"
+msgstr "Отключить {integrationName}"
 
 #: src/settings/models/models-list.tsx
 msgid "Disable {modelName}"
-msgstr "Desativar {modelName}"
+msgstr "Отключить {modelName}"
 
 #: src/skills/library-row.tsx
 msgid "Disable {skillName}"
-msgstr "Desativar {skillName}"
+msgstr "Отключить {skillName}"
 
 #: src/skills/dependents-dialog.tsx
 msgid "Disable {targetName}?"
-msgstr "Desativar {targetName}?"
+msgstr "Отключить {targetName}?"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Disable {title}"
-msgstr "Desativar {title}"
+msgstr "Отключить {title}"
 
 #: src/skills/dependents-dialog.tsx
 msgid "Disable skill"
-msgstr "Desativar habilidade"
+msgstr "Отключить навык"
 
 #: src/components/telemetry-warning-modal.tsx
 msgid "Disable Telemetry"
-msgstr "Desativar a telemetria"
+msgstr "Отключить телеметрию"
 
 #: src/components/settings/agents/agent-row.tsx
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/skills/skills-list.tsx
 msgid "Disabled"
-msgstr "Desativado"
+msgstr "Отключён"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Disabled agents stay out of the chat agent picker."
-msgstr "Agentes desativados não aparecem no seletor de agentes da conversa."
+msgstr "Отключённые агенты не показываются в выборе агента чата."
 
 #: src/components/settings/agents/editable-field.tsx
 #: src/skills/discard-create-dialog.tsx
 msgid "Discard"
-msgstr "Descartar"
+msgstr "Отменить"
 
 #: src/components/connect-provider-button.tsx
 #: src/settings/connections/integration-detail.tsx
 msgid "Disconnect"
-msgstr "Desconectar"
+msgstr "Отключить"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Disconnected"
-msgstr "Desconectado"
+msgstr "Отключён"
 
 #: src/components/chat/chat-prompt-input.tsx
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/ui/mobile-blur-backdrop.tsx
 #: src/components/update-notification.tsx
 msgid "Dismiss"
-msgstr "Dispensar"
+msgstr "Закрыть"
 
 #: src/settings/models/add-model-form.tsx
 msgid "Display Name"
-msgstr "Nome de exibição"
+msgstr "Отображаемое имя"
 
 #: src/settings/preferences.tsx
 msgid "Distance"
-msgstr "Distância"
+msgstr "Расстояние"
 
 #: src/settings/preferences.tsx
 msgid "Distance unit"
-msgstr "Unidade de distância"
+msgstr "Единица расстояния"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Do not ask again"
-msgstr "Não perguntar novamente"
+msgstr "Больше не спрашивать"
 
 #: src/components/device-approval.tsx
 #: src/components/sync-setup/recovery-key-display-step.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Done"
-msgstr "Concluído"
+msgstr "Готово"
 
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/update-notification.tsx
 msgid "Download"
-msgstr "Baixar"
+msgstr "Скачать"
 
 #: src/search/commands/use-commands.ts
 msgid "Download app"
-msgstr "Baixar o app"
+msgstr "Скачать приложение"
 
 #: src/components/download-app-banner-desktop.tsx
 #: src/components/sidebar-footer.tsx
 msgid "Download App"
-msgstr "Baixar o app"
+msgstr "Скачать приложение"
 
 #: src/components/artifact/artifact-actions.tsx
 msgid "Download HTML"
-msgstr "Baixar HTML"
+msgstr "Скачать HTML"
 
 #: src/components/upgrade-required.tsx
 msgid "Download update"
-msgstr "Baixar atualização"
+msgstr "Скачать обновление"
 
 #: src/components/update-notification.tsx
 msgid "Downloading update…"
-msgstr "Baixando a atualização…"
+msgstr "Загрузка обновления…"
 
 #: src/settings/app-version-section.tsx
 msgid "Downloading update… {downloadProgress}%"
-msgstr "Baixando a atualização… {downloadProgress}%"
+msgstr "Загрузка обновления… {downloadProgress}%"
 
 #: src/components/upgrade-required.tsx
 msgid "Downloading…"
-msgstr "Baixando…"
+msgstr "Загрузка…"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "Drop"
-msgstr "Solte"
+msgstr "Отпустите"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Drop file to attach"
-msgstr "Solte o arquivo para anexar"
+msgstr "Отпустите файл, чтобы прикрепить"
 
 #: src/settings/models/add-model-form.tsx
 msgid "e.g., GPT-4 Turbo"
-msgstr "ex.: GPT-4 Turbo"
+msgstr "напр., GPT-4 Turbo"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 msgid "e.g., gpt-4-turbo-preview"
-msgstr "ex.: gpt-4-turbo-preview"
+msgstr "напр., gpt-4-turbo-preview"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Early Access Login"
-msgstr "Login de acesso antecipado"
+msgstr "Вход по раннему доступу"
 
 #: src/components/settings/detail-actions-menu.tsx
 #: src/components/settings/edit-delete-context-menu.tsx
 #: src/skills/library-row.tsx
 msgid "Edit"
-msgstr "Editar"
+msgstr "Изменить"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Edit file"
-msgstr "Editar arquivo"
+msgstr "Изменить файл"
 
 #: src/settings/connections/index.tsx
 msgid "Edit MCP Server"
-msgstr "Editar servidor MCP"
+msgstr "Изменить MCP-сервер"
 
 #: src/settings/models/index.tsx
 msgid "Edit Model"
-msgstr "Editar modelo"
+msgstr "Изменить модель"
 
 #: src/projects/index.tsx
 msgid "Edit project"
-msgstr "Editar projeto"
+msgstr "Изменить проект"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Edit skill"
-msgstr "Editar habilidade"
+msgstr "Изменить навык"
 
 #: src/components/create-item/context.tsx
 #: src/skills/skills-view.tsx
 msgid "Edit Skill"
-msgstr "Editar habilidade"
+msgstr "Изменить навык"
 
 #: src/lib/tool-metadata.ts
 msgid "Editing {fileName}…"
-msgstr "Editando {fileName}…"
+msgstr "Правка {fileName}…"
 
 #: src/lib/tool-metadata.ts
 msgid "Editing…"
-msgstr "Editando…"
+msgstr "Правка…"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Email"
-msgstr "E-mail"
+msgstr "Почта"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Email address"
-msgstr "Endereço de e-mail"
+msgstr "Адрес почты"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Enable {customAgentName}"
-msgstr "Ativar {customAgentName}"
+msgstr "Включить {customAgentName}"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Enable {integrationName}"
-msgstr "Ativar {integrationName}"
+msgstr "Включить {integrationName}"
 
 #: src/settings/models/models-list.tsx
 msgid "Enable {modelName}"
-msgstr "Ativar {modelName}"
+msgstr "Включить {modelName}"
 
 #: src/skills/library-row.tsx
 msgid "Enable {skillName}"
-msgstr "Ativar {skillName}"
+msgstr "Включить {skillName}"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Enable {title}"
-msgstr "Ativar {title}"
+msgstr "Включить {title}"
 
 #: src/components/sidebar-footer.tsx
 msgid "Enable cloud sync"
-msgstr "Ativar a sincronização na nuvem"
+msgstr "Включить облачную синхронизацию"
 
 #: src/components/sync-enable-warning-dialog.tsx
 msgid "Enable sync without encryption"
-msgstr "Ativar a sincronização sem criptografia"
+msgstr "Включить синхронизацию без шифрования"
 
 #: src/components/sync-enable-warning-dialog.tsx
 msgid "Enable sync?"
-msgstr "Ativar a sincronização?"
+msgstr "Включить синхронизацию?"
 
 #: src/components/telemetry-required-modal.tsx
 msgid "Enable Telemetry"
-msgstr "Ativar a telemetria"
+msgstr "Включить телеметрию"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Enabled"
-msgstr "Ativado"
+msgstr "Включён"
 
 #: src/settings/preferences.tsx
 msgid "Enables location-based responses"
-msgstr "Permite respostas com base na localização"
+msgstr "Включает ответы с учётом местоположения"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Endpoint"
-msgstr "Endpoint"
+msgstr "Адрес"
 
 #: src/components/device-approval.tsx
 msgid "Enter a different code"
-msgstr "Inserir outro código"
+msgstr "Ввести другой код"
 
 #: src/lib/mcp-url-validation.ts
 msgid "Enter a valid URL"
-msgstr "Insira uma URL válida"
+msgstr "Введите корректный URL"
 
 #: src/components/settings/agents/validate-agent-url.ts
 msgid "Enter a wss:// or ws:// URL, or an iroh ticket"
-msgstr "Insira uma URL wss:// ou ws://, ou um ticket iroh"
+msgstr "Введите URL wss:// или ws://, либо iroh-тикет"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Enter an API key to test the connection before saving."
-msgstr "Insira uma chave de API para testar a conexão antes de salvar."
+msgstr "Введите API-ключ, чтобы проверить соединение перед сохранением."
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter recovery phrase"
-msgstr "Inserir a frase de recuperação"
+msgstr "Введите фразу восстановления"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter the 24-word recovery phrase you saved when you first set up sync."
-msgstr "Insira a frase de recuperação de 24 palavras que você salvou ao configurar a sincronização."
+msgstr "Введите фразу из 24 слов, которую вы сохранили при первой настройке синхронизации."
 
 #: src/components/device-approval.tsx
 msgid "Enter the code shown in your terminal to continue."
-msgstr "Insira o código exibido no seu terminal para continuar."
+msgstr "Введите код из терминала, чтобы продолжить."
 
 #: src/components/sign-in-modal.tsx
 msgid "Enter your code"
-msgstr "Insira seu código"
+msgstr "Введите код"
 
 #: src/components/onboarding/onboarding-name-step.tsx
 msgid "Enter your name"
-msgstr "Insira seu nome"
+msgstr "Введите имя"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Exit voice mode"
-msgstr "Sair do modo de voz"
+msgstr "Выйти из голосового режима"
 
 #: src/components/ui/header.tsx
 msgid "Expand Sidebar"
-msgstr "Expandir a barra lateral"
+msgstr "Развернуть боковую панель"
 
 #: src/settings/preferences.tsx
 msgid "Export all of your data as JSON."
-msgstr "Exporte todos os seus dados em JSON."
+msgstr "Экспортировать все данные в формате JSON."
 
 #: src/settings/preferences.tsx
 msgid "Export My Data"
-msgstr "Exportar meus dados"
+msgstr "Экспортировать данные"
 
 #: src/settings/preferences.tsx
 msgid "Export Your Data"
-msgstr "Exportar seus dados"
+msgstr "Экспорт данных"
 
 #: src/settings/preferences.tsx
 msgid "Exporting…"
-msgstr "Exportando…"
+msgstr "Экспорт…"
 
 #: src/settings/preferences.tsx
 msgid "External Links"
-msgstr "Links externos"
+msgstr "Внешние ссылки"
 
 #: src/i18n/unit-labels.ts
 #: src/widgets/weather-forecast/display.tsx
 msgid "Fahrenheit"
-msgstr "Fahrenheit"
+msgstr "Фаренгейт"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Failed to check approval"
-msgstr "Não foi possível verificar a aprovação"
+msgstr "Не удалось проверить одобрение"
 
 #: src/hooks/use-oauth-connect.ts
 msgid "Failed to complete authentication"
-msgstr "Não foi possível concluir a autenticação"
+msgstr "Не удалось завершить аутентификацию"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Failed to connect to {agentName}"
-msgstr "Falha ao conectar a {agentName}"
+msgstr "Не удалось подключиться к {agentName}"
 
 #: src/hooks/use-model-connection-test.ts
 msgid "Failed to connect to model"
-msgstr "Falha ao conectar ao modelo"
+msgstr "Не удалось подключиться к модели"
 
 #: src/settings/preferences.tsx
 msgid "Failed to delete account."
-msgstr "Não foi possível excluir a conta."
+msgstr "Не удалось удалить аккаунт."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Failed to disconnect integration"
-msgstr "Não foi possível desconectar a integração"
+msgstr "Не удалось отключить интеграцию"
 
 #: src/settings/preferences.tsx
 msgid "Failed to export data."
-msgstr "Não foi possível exportar os dados."
+msgstr "Не удалось экспортировать данные."
 
 #: src/settings/preferences.tsx
 msgid "Failed to import data."
-msgstr "Não foi possível importar os dados."
+msgstr "Не удалось импортировать данные."
 
 #: src/components/app-error-screen.tsx
 msgid "Failed to initialize app"
-msgstr "Não foi possível inicializar o app"
+msgstr "Не удалось запустить приложение"
 
 #: src/widgets/document-result/use-document-blob.ts
 msgid "Failed to load document"
-msgstr "Não foi possível carregar o documento"
+msgstr "Не удалось загрузить документ"
 
 #: src/settings/models/model-catalog.ts
 msgid "Failed to load models"
-msgstr "Não foi possível carregar os modelos"
+msgstr "Не удалось загрузить модели"
 
 #: src/settings/connections/index.tsx
 msgid "Failed to reconnect MCP server"
-msgstr "Não foi possível reconectar o servidor MCP"
+msgstr "Не удалось переподключить MCP-сервер"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Failed to register device"
-msgstr "Não foi possível registrar o dispositivo"
+msgstr "Не удалось зарегистрировать устройство"
 
 #: src/settings/connections/use-mcp-server-form-controller.ts
 msgid "Failed to remove MCP server"
-msgstr "Não foi possível remover o servidor MCP"
+msgstr "Не удалось удалить MCP-сервер"
 
 #: src/components/sign-in/use-sign-in-form-state.ts
 msgid "Failed to resend verification code. Please check your connection."
-msgstr "Não foi possível reenviar o código de verificação. Verifique sua conexão."
+msgstr "Не удалось повторно отправить код. Проверьте подключение."
 
 #: src/components/sign-in/use-sign-in-form-state.ts
 msgid "Failed to send verification code. Please check your connection."
-msgstr "Não foi possível enviar o código de verificação. Verifique sua conexão."
+msgstr "Не удалось отправить код подтверждения. Проверьте подключение."
 
 #: src/hooks/use-sync-setup.ts
 msgid "Failed to set up encryption"
-msgstr "Não foi possível configurar a criptografia"
+msgstr "Не удалось настроить шифрование"
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Failed to update integration"
-msgstr "Não foi possível atualizar a integração"
+msgstr "Не удалось обновить интеграцию"
 
 #: src/settings/connections/use-mcp-server-form-controller.ts
 msgid "Failed to update MCP server"
-msgstr "Não foi possível atualizar o servidor MCP"
+msgstr "Не удалось обновить MCP-сервер"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "First device setup"
-msgstr "Configuração do primeiro dispositivo"
+msgstr "Первое устройство"
 
 #: src/projects/emoji-catalog.ts
 msgid "Flags"
-msgstr "Bandeiras"
+msgstr "Флаги"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Foggy"
-msgstr "Nevoeiro"
+msgstr "Туман"
 
 #: src/projects/emoji-catalog.ts
 msgid "Food & drink"
-msgstr "Comida e bebida"
+msgstr "Еда и напитки"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Generating keys…"
-msgstr "Gerando chaves…"
+msgstr "Генерация ключей…"
 
 #: src/components/chat/inline-artifact-card.tsx
 msgid "Generating…"
-msgstr "Gerando…"
+msgstr "Генерация…"
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Get Pro"
-msgstr "Assinar o Pro"
+msgstr "Получить Pro"
 
 #: src/settings/models/models-list.tsx
 msgid "Get started by adding your first AI model."
-msgstr "Comece adicionando seu primeiro modelo de IA."
+msgstr "Начните с добавления первой ИИ-модели."
 
 #: src/components/download-app-banner-desktop.tsx
 #: src/components/download-app-banner-mobile.tsx
 msgid "Get Thunderbolt free app"
-msgstr "Baixe o app gratuito do Thunderbolt"
+msgstr "Получить бесплатное приложение Volt"
 
 #: src/lib/tool-metadata.ts
 msgid "Getting weather for {location}…"
-msgstr "Obtendo o tempo de {location}…"
+msgstr "Получение погоды для {location}…"
 
 #: src/lib/tool-metadata.ts
 msgid "Getting weather…"
-msgstr "Obtendo o tempo…"
+msgstr "Получение погоды…"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Gmail & Calendar"
-msgstr "Gmail e Agenda"
+msgstr "Gmail и Календарь"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 #: src/components/ui/back-button.tsx
 #: src/components/ui/header.tsx
 msgid "Go back"
-msgstr "Voltar"
+msgstr "Вернуться"
 
 #: src/components/ui/header.tsx
 msgid "Go forward"
-msgstr "Avançar"
+msgstr "Вперёд"
 
 #: src/search/palette/search-palette.tsx
 msgid "Go to"
-msgstr "Ir para"
+msgstr "Перейти"
 
 #: src/components/chat/chat-ui-greeting.ts
 msgid "Good afternoon"
-msgstr "Boa tarde"
+msgstr "Добрый день"
 
 #: src/components/chat/chat-ui-greeting.ts
 msgid "Good evening"
-msgstr "Boa noite"
+msgstr "Добрый вечер"
 
 #: src/components/chat/chat-ui-greeting.ts
 msgid "Good morning"
-msgstr "Bom dia"
+msgstr "Доброе утро"
 
 #: src/widgets/ask/display.tsx
 msgid "Got it, working on that next."
-msgstr "Entendi, vou cuidar disso em seguida."
+msgstr "Понял, скоро займусь этим."
 
 #: src/settings/preferences.tsx
 msgid "Haptic Feedback"
-msgstr "Retorno tátil"
+msgstr "Тактильный отклик"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Heavy freezing rain"
-msgstr "Chuva congelante forte"
+msgstr "Сильный ледяной дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Heavy rain"
-msgstr "Chuva forte"
+msgstr "Сильный дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Heavy snow fall"
-msgstr "Neve forte"
+msgstr "Сильный снегопад"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Heavy snow showers"
-msgstr "Pancadas de neve fortes"
+msgstr "Сильный снежный ливень"
 
 #: src/settings/preferences.tsx
 msgid "Help Thunderbolt Improve"
-msgstr "Ajude a melhorar o Thunderbolt"
+msgstr "Помогите улучшить Volt"
 
 #: src/settings/preferences.tsx
 msgid "Help us improve the app by sending anonymous usage info such as crashes, performance, and usage. Read more about our <0>privacy policy</0>."
-msgstr "Ajude a melhorar o app enviando informações de uso anônimas, como falhas, desempenho e uso. Saiba mais na nossa <0>política de privacidade</0>."
+msgstr "Помогите улучшить приложение, отправляя анонимные данные — сбои, производительность и использование. Подробнее в нашей <0>политике конфиденциальности</0>."
 
 #: src/skills/skill-detail.tsx
 #: src/skills/skill-form.tsx
 msgid "Helps the agent decide when to use this skill. Be specific about when it applies."
-msgstr "Ajuda o agente a decidir quando usar esta habilidade. Seja específico sobre quando ela se aplica."
+msgstr "Помогает агенту решить, когда использовать навык. Опишите конкретные ситуации."
 
 #: src/settings/devices.tsx
 msgid "Hide QR"
-msgstr "Ocultar o QR"
+msgstr "Скрыть QR"
 
 #: src/settings/devices.tsx
 msgid "Hide QR code for {deviceName}"
-msgstr "Ocultar o código QR de {deviceName}"
+msgstr "Скрыть QR-код для {deviceName}"
 
 #: src/settings/preferences.tsx
 msgid "How Thunderbolt salutes you"
-msgstr "Como o Thunderbolt se dirige a você"
+msgstr "Как Volt к вам обращается"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "I agree to the <0>Privacy Policy</0> and <1>Terms of Service</1>."
-msgstr "Concordo com a <0>política de privacidade</0> e os <1>termos de serviço</1>."
+msgstr "Я согласен с <0>Политикой конфиденциальности</0> и <1>Условиями использования</1>."
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "I have saved my recovery phrase"
-msgstr "Salvei minha frase de recuperação"
+msgstr "Я сохранил(а) фразу восстановления"
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app."
-msgstr "Se você usa o Modo de Isolamento do iOS, exclua o Thunderbolt da configuração “Configurar navegação na web” e abra o app novamente."
+msgstr "Если вы используете режим блокировки iOS, исключите Volt из настройки «Configure Web Browsing» и снова откройте приложение."
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "If you have access, we've sent an 8-digit code to <0>{email}</0>"
-msgstr "Se você tiver acesso, enviamos um código de 8 dígitos para <0>{email}</0>"
+msgstr "Если у вас есть доступ, мы отправили 8-значный код на <0>{email}</0>"
 
 #: src/waitlist/waitlist-page.tsx
 msgid "If you received a code to log in, enter it here:"
-msgstr "Se você recebeu um código para entrar, insira-o aqui:"
+msgstr "Если вы получили код для входа, введите его здесь:"
 
 #: src/i18n/unit-labels.ts
 msgid "Imperial"
-msgstr "Imperial"
+msgstr "Имперская"
 
 #: src/settings/preferences.tsx
 msgid "Import"
-msgstr "Importar"
+msgstr "Импорт"
 
 #: src/settings/preferences.tsx
 msgid "Import Data"
-msgstr "Importar dados"
+msgstr "Импортировать данные"
 
 #: src/settings/connections/index.tsx
 msgid "Import failed"
-msgstr "Falha na importação"
+msgstr "Ошибка импорта"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Import Servers"
-msgstr "Importar servidores"
+msgstr "Импортировать серверы"
 
 #: src/settings/preferences.tsx
 msgid "Import this backup?"
-msgstr "Importar este backup?"
+msgstr "Импортировать эту резервную копию?"
 
 #: src/settings/preferences.tsx
 msgid "Import Your Data"
-msgstr "Importar seus dados"
+msgstr "Импорт данных"
 
 #: src/settings/preferences.tsx
 msgid "Import your data from previously exported JSON."
-msgstr "Importe seus dados de um JSON exportado anteriormente."
+msgstr "Импортировать данные из ранее экспортированного JSON."
 
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/preferences.tsx
 msgid "Importing…"
-msgstr "Importando…"
+msgstr "Импорт…"
 
 #: src/components/telemetry-required-modal.tsx
 msgid "In order to use preview features, we ask that you help us improve the product by sharing telemetry data."
-msgstr "Para usar os recursos em prévia, pedimos que você nos ajude a melhorar o produto compartilhando dados de telemetria."
+msgstr "Чтобы пользоваться предварительными функциями, помогите улучшить продукт, делясь данными телеметрии."
 
 #: src/settings/voice.tsx
 msgid "Include the version prefix (e.g. /v1). Then hit “Load models” to populate the pickers below."
-msgstr "Inclua o prefixo da versão (ex.: /v1). Depois clique em “Carregar modelos” para preencher os seletores abaixo."
+msgstr "Укажите префикс версии (напр. /v1). Затем нажмите «Загрузить модели», чтобы заполнить списки ниже."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Install"
-msgstr "Instalar"
+msgstr "Установка"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Install CLI"
-msgstr "Instalar a CLI"
+msgstr "Установить CLI"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Installed to <0>{installedPath}</0>"
-msgstr "Instalado em <0>{installedPath}</0>"
+msgstr "Установлено в <0>{installedPath}</0>"
 
 #: src/components/upgrade-required.tsx
 msgid "Installed: {currentVersion} · Minimum required: {minVersion}"
-msgstr "Instalada: {currentVersion} · Mínima necessária: {minVersion}"
+msgstr "Установлена: {currentVersion} · Минимум: {minVersion}"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Installing…"
-msgstr "Instalando…"
+msgstr "Установка…"
 
 #: src/projects/project-form.tsx
 #: src/skills/skill-detail.tsx
 #: src/skills/skill-form.tsx
 msgid "Instructions"
-msgstr "Instruções"
+msgstr "Инструкции"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Integrations"
-msgstr "Integrações"
+msgstr "Интеграции"
 
 #: src/lib/otp-error-messages.ts
 msgid "Invalid code. Please try again."
-msgstr "Código inválido. Tente novamente."
+msgstr "Неверный код. Попробуйте ещё раз."
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Invalid pairing code"
-msgstr "Código de emparelhamento inválido"
+msgstr "Неверный код сопряжения"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Invalid recovery phrase. Please check that all words are correct and in the right order."
-msgstr "Frase de recuperação inválida. Verifique se todas as palavras estão corretas e na ordem certa."
+msgstr "Неверная фраза восстановления. Проверьте, что все слова правильны и в нужном порядке."
 
 #: src/components/magic-link-verify.tsx
 msgid "Invalid verification link. Please request a new one."
-msgstr "Link de verificação inválido. Solicite um novo."
+msgstr "Недействительная ссылка подтверждения. Запросите новую."
 
 #: src/components/settings/agents/validate-agent-url.ts
 msgid "iOS requires a secure URL (wss://)"
-msgstr "O iOS exige uma URL segura (wss://)"
+msgstr "На iOS нужен защищённый URL (wss://)"
 
 #: src/projects/project-detail-panel.tsx
 msgid "Its instructions are removed. Chats in the project are kept and become ordinary chats."
-msgstr "As instruções dele são removidas. As conversas do projeto são mantidas e se tornam conversas comuns."
+msgstr "Его инструкции удаляются. Чаты проекта сохраняются и становятся обычными чатами."
 
 #: src/components/sidebar-footer.tsx
 msgid "Just synced"
-msgstr "Sincronizado agora"
+msgstr "Только что синхронизировано"
 
 #: src/settings/preferences.tsx
 msgid "Keep {activeLanguageLabel}"
-msgstr "Manter {activeLanguageLabel}"
+msgstr "Оставить {activeLanguageLabel}"
 
 #: src/settings/preferences.tsx
 msgid "Keep Current Units"
-msgstr "Manter as unidades atuais"
+msgstr "Оставить текущие"
 
 #: src/components/revoked-device-modal.tsx
 msgid "Keep data on device"
-msgstr "Manter os dados no dispositivo"
+msgstr "Оставить данные на устройстве"
 
 #: src/skills/discard-create-dialog.tsx
 msgid "Keep editing"
-msgstr "Continuar editando"
+msgstr "Продолжить редактирование"
 
 #: src/settings/models/edit-model-form.tsx
 msgid "Keep saved API key"
-msgstr "Manter a chave de API salva"
+msgstr "Оставить сохранённый API-ключ"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Keep saved credential"
-msgstr "Manter a credencial salva"
+msgstr "Оставить сохранённые учётные данные"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Keep your data in sync across all your devices. Everything is encrypted end-to-end. Only your devices can read your data."
-msgstr "Mantenha seus dados sincronizados em todos os seus dispositivos. Tudo é criptografado de ponta a ponta. Só os seus dispositivos podem ler seus dados."
+msgstr "Держите данные синхронизированными на всех устройствах. Всё шифруется сквозным шифрованием. Только ваши устройства могут читать данные."
 
 #: src/components/sidebar-footer.tsx
 msgid "Keep your data synced across devices."
-msgstr "Mantenha seus dados sincronizados entre dispositivos."
+msgstr "Держите данные синхронизированными между устройствами."
 
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
 msgid "Language"
-msgstr "Idioma"
+msgstr "Язык"
 
 #: src/settings/devices.tsx
 msgid "Last seen {lastSeen}"
-msgstr "Visto por último {lastSeen}"
+msgstr "Последняя активность {lastSeen}"
 
 #: src/components/download-app-banner-desktop.tsx
 #: src/components/update-notification.tsx
 msgid "Later"
-msgstr "Mais tarde"
+msgstr "Позже"
 
 #: src/components/logout-modal.tsx
 msgid "Leave data on device"
-msgstr "Deixar os dados no dispositivo"
+msgstr "Оставить данные на устройстве"
 
 #: src/skills/discard-create-dialog.tsx
 #: src/skills/skills-view.tsx
 msgid "Leave without creating?"
-msgstr "Sair sem criar?"
+msgstr "Уйти без создания?"
 
 #: src/components/create-item/create-skill-panel.tsx
 #: src/skills/skills-view.tsx
 msgid "Leave without saving?"
-msgstr "Sair sem salvar?"
+msgstr "Уйти без сохранения?"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Light"
-msgstr "Claro"
+msgstr "Светлая"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Light drizzle"
-msgstr "Garoa fraca"
+msgstr "Слабая морось"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Light freezing drizzle"
-msgstr "Garoa congelante fraca"
+msgstr "Слабая ледяная морось"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Light freezing rain"
-msgstr "Chuva congelante fraca"
+msgstr "Слабый ледяной дождь"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Light mode"
-msgstr "Modo claro"
+msgstr "Светлая тема"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Listening"
-msgstr "Ouvindo"
+msgstr "Слушаю"
 
 #: src/settings/voice.tsx
 msgid "Load models"
-msgstr "Carregar modelos"
+msgstr "Загрузить модели"
 
 #: src/settings/devices.tsx
 msgid "Loading code…"
-msgstr "Carregando o código…"
+msgstr "Загрузка кода…"
 
 #: src/settings/devices.tsx
 msgid "Loading devices…"
-msgstr "Carregando os dispositivos…"
+msgstr "Загрузка устройств…"
 
 #: src/projects/emoji-picker.tsx
 msgid "Loading emoji…"
-msgstr "Carregando emojis…"
+msgstr "Загрузка эмодзи…"
 
 #: src/content-view/sidebar-webview.tsx
 msgid "Loading preview…"
-msgstr "Carregando a prévia…"
+msgstr "Загрузка предпросмотра…"
 
 #: src/components/settings/iroh-pairing-panel.tsx
 msgid "Loading this app's pairing identity…"
-msgstr "Carregando a identidade de emparelhamento deste app…"
+msgstr "Загрузка идентификатора сопряжения…"
 
 #: src/components/device-approval.tsx
 #: src/components/sidebar-footer.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Loading…"
-msgstr "Carregando…"
+msgstr "Загрузка…"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Local Storage"
-msgstr "Armazenamento local"
+msgstr "Локальное хранение"
 
 #: src/settings/preferences.tsx
 msgid "Localization"
-msgstr "Localização"
+msgstr "Локализация"
 
 #: src/settings/preferences.tsx
 msgid "Location"
-msgstr "Local"
+msgstr "Местоположение"
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "Location is required."
-msgstr "O local é obrigatório."
+msgstr "Укажите местоположение."
 
 #: src/components/logout-modal.tsx
 #: src/components/sidebar-footer.tsx
 msgid "Log out"
-msgstr "Sair"
+msgstr "Выйти"
 
 #: src/components/logout-modal.tsx
 msgid "Logging out…"
-msgstr "Saindo…"
+msgstr "Выход…"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Mainly clear"
-msgstr "Predominantemente limpo"
+msgstr "Преимущественно ясно"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Manage integrations"
-msgstr "Gerenciar integrações"
+msgstr "Управление интеграциями"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Managed by your deployment — always available, no setup needed."
-msgstr "Gerenciado pela sua implantação — sempre disponível, sem configuração."
+msgstr "Управляется вашим развёртыванием — всегда доступно, настройка не нужна."
 
 #: src/widgets/map/widget.tsx
 msgid "Maps can’t be displayed here — WebGL is disabled or unavailable in this browser."
-msgstr "Não é possível exibir mapas aqui — o WebGL está desativado ou indisponível neste navegador."
+msgstr "Карту нельзя показать — WebGL отключён или недоступен в этом браузере."
 
 #: src/components/window-controls.tsx
 msgid "Maximize"
-msgstr "Maximizar"
+msgstr "Развернуть"
 
 #: src/components/settings/agents/agent-detail.tsx
 #: src/settings/connections/connections-list.tsx
 msgid "MCP servers"
-msgstr "Servidores MCP"
+msgstr "MCP-серверы"
 
 #: src/components/sidebar-footer.tsx
 #: src/search/commands/navigation.ts
 msgid "Message Simulator"
-msgstr "Simulador de mensagens"
+msgstr "Симулятор сообщений"
 
 #: src/search/palette/entity-meta.ts
 msgid "Messages"
-msgstr "Mensagens"
+msgstr "Сообщения"
 
 #: src/i18n/unit-labels.ts
 msgid "Metric"
-msgstr "Métrico"
+msgstr "Метрическая"
 
 #: src/components/window-controls.tsx
 msgid "Minimize"
-msgstr "Minimizar"
+msgstr "Свернуть"
 
 #: src/lib/mcp-auth/callback-validation.ts
 msgid "Missing CSRF state — restart the authorization."
-msgstr "Estado CSRF ausente — reinicie a autorização."
+msgstr "Отсутствует CSRF-состояние — начните авторизацию заново."
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/settings/models/model-detail.tsx
 msgid "Model"
-msgstr "Modelo"
+msgstr "Модель"
 
 #: src/settings/models/add-model-form.tsx
 msgid "Model may not be compatible"
-msgstr "O modelo pode não ser compatível"
+msgstr "Модель может быть несовместима"
 
 #: src/settings/models/use-add-model-form.ts
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Model name is required."
-msgstr "O nome do modelo é obrigatório."
+msgstr "Укажите имя модели."
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
 #: src/search/palette/entity-meta.ts
 #: src/settings/models/index.tsx
 msgid "Models"
-msgstr "Modelos"
+msgstr "Модели"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Moderate drizzle"
-msgstr "Garoa moderada"
+msgstr "Умеренная морось"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Moderate rain"
-msgstr "Chuva moderada"
+msgstr "Умеренный дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Moderate rain showers"
-msgstr "Pancadas de chuva moderadas"
+msgstr "Умеренный ливневый дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Moderate snow fall"
-msgstr "Neve moderada"
+msgstr "Умеренный снегопад"
 
 #: src/components/modification-indicator.tsx
 msgid "Modified item"
-msgstr "Item modificado"
+msgstr "Изменённый параметр"
 
 #: src/settings/models/model-detail.tsx
 msgid "Modified model"
-msgstr "Modelo modificado"
+msgstr "Изменённая модель"
 
 #: src/components/settings/detail-actions-menu.tsx
 msgid "More"
-msgstr "Mais"
+msgstr "Ещё"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"
-msgstr "Mover arquivo"
+msgstr "Переместить файл"
 
 #: src/layout/sidebar/chat-list-item.tsx
 #: src/layout/sidebar/project-drop-list.tsx
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "Move to project"
-msgstr "Mover para um projeto"
+msgstr "Переместить в проект"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "My Agent"
-msgstr "Meu agente"
+msgstr "Мой агент"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
@@ -2218,653 +2190,653 @@ msgstr "Meu agente"
 #: src/settings/models/edit-model-form.tsx
 #: src/skills/skill-form.tsx
 msgid "Name"
-msgstr "Nome"
+msgstr "Имя"
 
 #: src/components/onboarding/onboarding-name-step.tsx
 #: src/settings/models/use-add-model-form.ts
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Name is required."
-msgstr "O nome é obrigatório."
+msgstr "Укажите название."
 
 #: src/components/ui/mobile-sidebar.tsx
 msgid "Navigation"
-msgstr "Navegação"
+msgstr "Навигация"
 
 #: src/settings/preferences.tsx
 msgid "Network"
-msgstr "Rede"
+msgstr "Сеть"
 
 #: src/settings/models/model-catalog.ts
 msgid "Network request failed (the browser blocked the request or the server is unreachable)."
-msgstr "A solicitação de rede falhou (o navegador bloqueou a solicitação ou o servidor está inacessível)."
+msgstr "Сетевой запрос не удался (браузер заблокировал запрос или сервер недоступен)."
 
 #: src/routes/settings/agents/index.tsx
 msgid "New Agent"
-msgstr "Novo agente"
+msgstr "Новый агент"
 
 #: src/search/commands/use-commands.ts
 msgid "New chat"
-msgstr "Nova conversa"
+msgstr "Новый чат"
 
 #: src/components/context-overflow-modal.tsx
 #: src/components/sidebar-footer.tsx
 #: src/layout/sidebar/chat-sidebar.tsx
 #: src/lib/title-generator.ts
 msgid "New Chat"
-msgstr "Nova conversa"
+msgstr "Новый чат"
 
 #: src/projects/project-detail-panel.tsx
 msgid "New chat in this project"
-msgstr "Nova conversa neste projeto"
+msgstr "Новый чат в этом проекте"
 
 #: src/settings/connections/connections-list.tsx
 msgid "New Connection"
-msgstr "Nova conexão"
+msgstr "Новое подключение"
 
 #: src/components/pending-device-modal.tsx
 msgid "New device waiting"
-msgstr "Novo dispositivo aguardando"
+msgstr "Ожидает новое устройство"
 
 #: src/settings/models/index.tsx
 msgid "New Model"
-msgstr "Novo modelo"
+msgstr "Новая модель"
 
 #: src/projects/index.tsx
 msgid "New project"
-msgstr "Novo projeto"
+msgstr "Новый проект"
 
 #: src/components/chat/chat-skills-bar.tsx
 #: src/skills/skills-list.tsx
 msgid "New Skill"
-msgstr "Nova habilidade"
+msgstr "Новый навык"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "New tab"
-msgstr "Nova aba"
+msgstr "Новая вкладка"
 
 #: src/tasks/index.tsx
 msgid "New Task"
-msgstr "Nova tarefa"
+msgstr "Новая задача"
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "No agents found"
-msgstr "Nenhum agente encontrado"
+msgstr "Агенты не найдены"
 
 #: src/projects/project-detail-panel.tsx
 msgid "No artifacts yet."
-msgstr "Ainda não há artefatos."
+msgstr "Пока нет артефактов."
 
 #: src/layout/sidebar/chat-list.tsx
 msgid "No chats yet"
-msgstr "Ainda não há conversas"
+msgstr "Пока нет чатов"
 
 #: src/projects/project-detail-panel.tsx
 msgid "No chats yet."
-msgstr "Ainda não há conversas."
+msgstr "Пока нет чатов."
 
 #: src/settings/devices.tsx
 msgid "No devices yet. Sign in with sync to see devices here."
-msgstr "Ainda não há dispositivos. Entre com a sincronização para vê-los aqui."
+msgstr "Устройств пока нет. Войдите с синхронизацией, чтобы увидеть их здесь."
 
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "No items found"
-msgstr "Nenhum item encontrado"
+msgstr "Ничего не найдено"
 
 #: src/components/ui/combobox.tsx
 msgid "No items found."
-msgstr "Nenhum item encontrado."
+msgstr "Ничего не найдено."
 
 #: src/components/location-search-combobox.tsx
 msgid "No locations found."
-msgstr "Nenhum local encontrado."
+msgstr "Местоположения не найдены."
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "No logs or training on your data"
-msgstr "Sem logs nem treinamento com seus dados"
+msgstr "Без логов и обучения на ваших данных"
 
 #: src/settings/devices.tsx
 msgid "No longer accepts device connections"
-msgstr "Não aceita mais conexões de dispositivos"
+msgstr "Больше не принимает подключения устройств"
 
 #: src/projects/emoji-picker.tsx
 msgid "No matches"
-msgstr "Nenhuma correspondência"
+msgstr "Ничего не найдено"
 
 #: src/settings/connections/connections-list.tsx
 msgid "No matching connections."
-msgstr "Nenhuma conexão correspondente."
+msgstr "Подходящих подключений нет."
 
 #: src/projects/index.tsx
 msgid "No matching projects"
-msgstr "Nenhum projeto correspondente"
+msgstr "Нет подходящих проектов"
 
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "No matching projects."
-msgstr "Nenhum projeto correspondente."
+msgstr "Нет подходящих проектов."
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "No matching skills"
-msgstr "Nenhuma habilidade correspondente"
+msgstr "Нет подходящих навыков"
 
 #: src/skills/skills-list.tsx
 msgid "No matching skills."
-msgstr "Nenhuma habilidade correspondente."
+msgstr "Подходящих навыков нет."
 
 #: src/settings/models/models-list.tsx
 msgid "No models configured"
-msgstr "Nenhum modelo configurado"
+msgstr "Модели не настроены"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "No models found"
-msgstr "Nenhum modelo encontrado"
+msgstr "Модели не найдены"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 msgid "No models found."
-msgstr "Nenhum modelo encontrado."
+msgstr "Модели не найдены."
 
 #: src/settings/voice.tsx
 msgid "No models returned (server unreachable, or it doesn’t list models). Enter model and voice ids manually."
-msgstr "Nenhum modelo retornado (servidor inacessível ou não lista modelos). Insira os ids de modelo e de voz manualmente."
+msgstr "Модели не получены (сервер недоступен или не отдаёт список). Введите id модели и голоса вручную."
 
 #: src/projects/index.tsx
 msgid "No projects yet"
-msgstr "Ainda não há projetos"
+msgstr "Пока нет проектов"
 
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "No projects yet. Create one from the Projects page, then move this chat into it."
-msgstr "Ainda não há projetos. Crie um na página Projetos e depois mova esta conversa para ele."
+msgstr "Пока нет проектов. Создайте проект на странице «Проекты», затем переместите этот чат в него."
 
 #: src/search/palette/search-palette.tsx
 msgid "No results found."
-msgstr "Nenhum resultado encontrado."
+msgstr "Ничего не найдено."
 
 #: src/skills/skills-list.tsx
 msgid "No skills yet"
-msgstr "Ainda não há habilidades"
+msgstr "Пока нет навыков"
 
 #: src/components/chat/source-list.tsx
 msgid "No sources available"
-msgstr "Nenhuma fonte disponível"
+msgstr "Источники недоступны"
 
 #: src/tasks/index.tsx
 msgid "No tasks found matching \"{searchQuery}\""
-msgstr "Nenhuma tarefa encontrada para “{searchQuery}”"
+msgstr "Не найдено задач по запросу «{searchQuery}»"
 
 #: src/tasks/index.tsx
 msgid "No tasks yet"
-msgstr "Ainda não há tarefas"
+msgstr "Пока нет задач"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Not available in private chats."
-msgstr "Não disponível em conversas privadas."
+msgstr "Недоступны в конфиденциальных чатах."
 
 #: src/settings/devices.tsx
 msgid "Not configured"
-msgstr "Não configurado"
+msgstr "Не настроено"
 
 #: src/components/not-found.tsx
 msgid "Not Found"
-msgstr "Não encontrado"
+msgstr "Не найдено"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Not now"
-msgstr "Agora não"
+msgstr "Не сейчас"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Not tested"
-msgstr "Não testado"
+msgstr "Не проверено"
 
 #: src/lib/mcp-auth/callback-validation.ts
 msgid "OAuth issuer mismatch — authorization rejected."
-msgstr "Emissor OAuth divergente — autorização rejeitada."
+msgstr "Несовпадение issuer OAuth — авторизация отклонена."
 
 #: src/lib/mcp-auth/callback-validation.ts
 msgid "OAuth state mismatch — possible CSRF, authorization rejected."
-msgstr "Estado OAuth divergente — possível CSRF, autorização rejeitada."
+msgstr "Несовпадение состояния OAuth — возможный CSRF, авторизация отклонена."
 
 #: src/hooks/use-oauth-connect.ts
 msgid "OAuth validation failed"
-msgstr "A validação do OAuth falhou"
+msgstr "Проверка OAuth не удалась"
 
 #: src/projects/emoji-catalog.ts
 msgid "Objects"
-msgstr "Objetos"
+msgstr "Объекты"
 
 #: src/components/sidebar-footer.tsx
 msgid "Offline. Changes will sync when back online."
-msgstr "Offline. As alterações serão sincronizadas quando você voltar a ficar online."
+msgstr "Офлайн. Изменения синхронизируются при подключении."
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Onboarding Wizard"
-msgstr "Assistente de configuração"
+msgstr "Мастер настройки"
 
 #: src/components/download-app-banner-desktop.tsx
 #: src/components/download-app-banner-mobile.tsx
 msgid "One app, every AI model"
-msgstr "Um app, todos os modelos de IA"
+msgstr "Одно приложение — все модели ИИ"
 
 #: src/components/device-approval.tsx
 msgid "One moment while we look up the code."
-msgstr "Um momento, estamos procurando o código."
+msgstr "Секунду, ищем код."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
-msgstr "Acesso ao OneDrive"
+msgstr "Доступ к OneDrive"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Only available in private chats."
-msgstr "Disponível apenas em conversas privadas."
+msgstr "Доступны только в конфиденциальных чатах."
 
 #: src/settings/models/models-list.tsx
 msgid "Open {modelName}"
-msgstr "Abrir {modelName}"
+msgstr "Открыть {modelName}"
 
 #: src/skills/library-row.tsx
 msgid "Open {skillName}"
-msgstr "Abrir {skillName}"
+msgstr "Открыть {skillName}"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Open {title}"
-msgstr "Abrir {title}"
+msgstr "Открыть {title}"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Open External Link"
-msgstr "Abrir link externo"
+msgstr "Открыть внешнюю ссылку"
 
 #: src/components/external-link-toggle-group.tsx
 #: src/content-view/sidebar-webview.tsx
 msgid "Open in browser"
-msgstr "Abrir no navegador"
+msgstr "Открыть в браузере"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Open in Browser"
-msgstr "Abrir no navegador"
+msgstr "Открыть в браузере"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Open in new tab"
-msgstr "Abrir em uma nova aba"
+msgstr "Открыть в новой вкладке"
 
 #: src/components/chat/inline-artifact-card.tsx
 msgid "Open in side panel"
-msgstr "Abrir no painel lateral"
+msgstr "Открыть в боковой панели"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Open in sidebar"
-msgstr "Abrir na barra lateral"
+msgstr "Открыть в боковой панели"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Open in Sidebar"
-msgstr "Abrir na barra lateral"
+msgstr "Открыть в боковой панели"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Open Link"
-msgstr "Abrir link"
+msgstr "Открыть ссылку"
 
 #: src/settings/app-version-section.tsx
 msgid "Open the store to check for updates."
-msgstr "Abra a loja para verificar atualizações."
+msgstr "Откройте магазин приложений, чтобы проверить обновления."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Open Thunderbolt CLI"
-msgstr "Abrir a CLI do Thunderbolt"
+msgstr "Открыть Volt CLI"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
-msgstr "Abra o Thunderbolt em um dos seus dispositivos confiáveis e vá em Configurações → Dispositivos para aprovar este dispositivo."
+msgstr "Откройте Volt на одном из доверенных устройств и перейдите в Настройки → Устройства, чтобы одобрить это устройство."
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
-msgstr "Abrindo…"
+msgstr "Открытие…"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
-msgstr "Opcional"
+msgstr "Необязательно"
 
 #: src/settings/voice.tsx
 msgid "Optional — leave blank for local servers that don’t require auth."
-msgstr "Opcional — deixe em branco para servidores locais que não exigem autenticação."
+msgstr "Необязательно — оставьте пустым для локальных серверов без авторизации."
 
 #: src/projects/project-form.tsx
 msgid "Optional — what this project is for"
-msgstr "Opcional — para que serve este projeto"
+msgstr "Необязательно — для чего этот проект"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"
-msgstr "Ou clique no link mágico no seu e-mail"
+msgstr "Или перейдите по ссылке из письма"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or enter the 8-digit code"
-msgstr "Ou insira o código de 8 dígitos"
+msgstr "Или введите 8-значный код"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Outlook & Calendar"
-msgstr "Outlook e Agenda"
+msgstr "Outlook и Календарь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Overcast"
-msgstr "Encoberto"
+msgstr "Пасмурно"
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Pair {deviceName}"
-msgstr "Emparelhar {deviceName}"
+msgstr "Сопряжение «{deviceName}»"
 
 #: src/settings/devices.tsx
 msgid "Pairing identity"
-msgstr "Identidade de emparelhamento"
+msgstr "Идентификатор сопряжения"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
-msgstr "Parcialmente nublado"
+msgstr "Переменная облачность"
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Paste a pairing code or upload its QR image to bind this device to its peer-to-peer identity."
-msgstr "Cole um código de emparelhamento ou envie a imagem QR dele para vincular este dispositivo à sua identidade ponto a ponto."
+msgstr "Вставьте код сопряжения или загрузите QR-изображение, чтобы привязать устройство к peer-to-peer-идентичности."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are supported; non-Bearer auth headers are ignored."
-msgstr "Cole uma configuração <0>mcpServers</0>. Só há suporte para servidores remotos (http/sse); cabeçalhos de autenticação que não sejam Bearer são ignorados."
+msgstr "Вставьте конфиг <0>mcpServers</0>. Поддерживаются только удалённые (http/sse) серверы; не-Bearer заголовки авторизации игнорируются."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Peer-to-peer via iroh — the connection is verified when a chat starts."
-msgstr "Ponto a ponto via iroh — a conexão é verificada quando uma conversa começa."
+msgstr "Peer-to-peer через iroh — соединение проверяется при старте чата."
 
 #: src/settings/devices.tsx
 msgid "Pending approvals"
-msgstr "Aprovações pendentes"
+msgstr "Ожидают подтверждения"
 
 #: src/settings/preferences.tsx
 msgid "Permanently delete your account and all data on our servers and this device."
-msgstr "Exclui permanentemente sua conta e todos os dados nos nossos servidores e neste dispositivo."
+msgstr "Безвозвратно удалить аккаунт и все данные на наших серверах и на этом устройстве."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Permission Required"
-msgstr "Permissão necessária"
+msgstr "Требуется разрешение"
 
 #: src/settings/preferences.tsx
 msgid "Personalization"
-msgstr "Personalização"
+msgstr "Персонализация"
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Pin limit reached ({maxPinnedSkills}). Unpin one first."
-msgstr "Limite de itens fixados atingido ({maxPinnedSkills}). Desafixe um primeiro."
+msgstr "Достигнут лимит закреплений ({maxPinnedSkills}). Сначала открепите один."
 
 #: src/skills/suggestion-chip.tsx
 msgid "Pinned skill {label}"
-msgstr "Habilidade fixada {label}"
+msgstr "Закреплённый навык {label}"
 
 #: src/voice/speakable.ts
 msgid "Please choose one of the options on screen."
-msgstr "Escolha uma das opções na tela."
+msgstr "Выберите один из вариантов на экране."
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "Please select a location from the dropdown to get coordinates."
-msgstr "Selecione um local na lista para obter as coordenadas."
+msgstr "Выберите местоположение из списка, чтобы получить координаты."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Please store your recovery key somewhere safe. You'll need it to access your data if you ever lose all your devices."
-msgstr "Guarde sua chave de recuperação em um lugar seguro. Você vai precisar dela para acessar seus dados caso perca todos os seus dispositivos."
+msgstr "Сохраните ключ восстановления в надёжном месте. Он понадобится для доступа к данным, если вы потеряете все устройства."
 
 #: src/components/magic-link-verify.tsx
 msgid "Please wait while we verify your link."
-msgstr "Aguarde enquanto verificamos seu link."
+msgstr "Подождите, пока мы проверим ссылку."
 
 #: src/settings/voice.tsx
 msgid "Point at any server exposing /v1/audio/transcriptions and /v1/audio/speech. Its CORS must allow this app’s origin."
-msgstr "Aponte para qualquer servidor que exponha /v1/audio/transcriptions e /v1/audio/speech. O CORS dele precisa permitir a origem deste app."
+msgstr "Укажите любой сервер с /v1/audio/transcriptions и /v1/audio/speech. Его CORS должен разрешать origin этого приложения."
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
 #: src/settings/preferences.tsx
 msgid "Preferences"
-msgstr "Preferências"
+msgstr "Параметры"
 
 #: src/settings/preferences.tsx
 msgid "Preferred Name"
-msgstr "Nome preferido"
+msgstr "Как к вам обращаться"
 
 #: src/content-view/sidebar-webview.tsx
 msgid "Preview"
-msgstr "Prévia"
+msgstr "Предпросмотр"
 
 #: src/settings/preferences.tsx
 msgid "Preview Features"
-msgstr "Recursos em prévia"
+msgstr "Предварительные функции"
 
 #: src/components/telemetry-warning-modal.tsx
 msgid "Preview Features Will Be Disabled"
-msgstr "Os recursos em prévia serão desativados"
+msgstr "Предварительные функции будут отключены"
 
 #: src/widgets/document-result/pdf-sidebar-viewer.tsx
 msgid "Preview not available for this file type. Use the download button to view it."
-msgstr "Não há prévia para este tipo de arquivo. Use o botão de download para visualizar."
+msgstr "Предпросмотр недоступен для этого типа файла. Используйте кнопку скачивания, чтобы открыть его."
 
 #: src/content-view/sidebar-webview.tsx
 msgid "Preview webview is only available in the desktop app"
-msgstr "A prévia em webview só está disponível no app para desktop"
+msgstr "Предпросмотр веб-страниц доступен только в десктоп-приложении"
 
 #: src/settings/models/model-detail.tsx
 msgid "Privacy"
-msgstr "Privacidade"
+msgstr "Конфиденциальность"
 
 #: src/components/ui/private-badge.tsx
 msgid "Private"
-msgstr "Privado"
+msgstr "Приватная"
 
 #: src/lib/tool-metadata.ts
 msgid "Processing…"
-msgstr "Processando…"
+msgstr "Обработка…"
 
 #: src/layout/sidebar/chat-sidebar.tsx
 #: src/projects/index.tsx
 #: src/search/palette/entity-meta.ts
 msgid "Projects"
-msgstr "Projetos"
+msgstr "Проекты"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/voice.tsx
 msgid "Provider"
-msgstr "Provedor"
+msgstr "Провайдер"
 
 #: src/settings/preferences.tsx
 msgid "Proxying is required in the web app to bypass browser CORS restrictions."
-msgstr "No app web, o proxy é necessário para contornar as restrições de CORS do navegador."
+msgstr "В веб-приложении прокси обязателен, чтобы обойти ограничения CORS браузера."
 
 #: src/projects/project-form.tsx
 msgid "Q3 planning"
-msgstr "Planejamento do 3º trimestre"
+msgstr "Планы на 3-й квартал"
 
 #: src/lib/tray.tsx
 msgid "Quit"
-msgstr "Sair"
+msgstr "Выйти"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Re-authorize"
-msgstr "Autorizar novamente"
+msgstr "Повторить авторизацию"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Reachable {relative}"
-msgstr "Acessível {relative}"
+msgstr "Доступно {relative}"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
-msgstr "Ler seus e-mails e escrever rascunhos."
+msgstr "Читайте письма и составляйте черновики."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
-msgstr "Ler, escrever e organizar seus e-mails."
+msgstr "Читайте, пишите и организуйте письма."
 
 #: src/lib/tool-metadata.ts
 msgid "Reading {fileName}…"
-msgstr "Lendo {fileName}…"
+msgstr "Чтение {fileName}…"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Ready to submit"
-msgstr "Pronto para enviar"
+msgstr "Можно отправить"
 
 #: src/content-view/context.tsx
 msgid "Reasoning"
-msgstr "Raciocínio"
+msgstr "Рассуждение"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Received an error while testing the model."
-msgstr "Ocorreu um erro ao testar o modelo."
+msgstr "При проверке модели произошла ошибка."
 
 #: src/layout/sidebar/chat-list.tsx
 msgid "Recent Chats"
-msgstr "Conversas recentes"
+msgstr "Недавние чаты"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "Recent Projects"
-msgstr "Projetos recentes"
+msgstr "Недавние проекты"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Recovery failed"
-msgstr "Falha na recuperação"
+msgstr "Восстановление не удалось"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Recovery phrase"
-msgstr "Frase de recuperação"
+msgstr "Фраза восстановления"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Registering this device and detecting your account status."
-msgstr "Registrando este dispositivo e detectando o status da sua conta."
+msgstr "Регистрируем устройство и определяем состояние аккаунта."
 
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx
 msgid "Reload"
-msgstr "Recarregar"
+msgstr "Перезагрузить"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Remove"
-msgstr "Remover"
+msgstr "Удалить"
 
 #: src/components/logout-modal.tsx
 #: src/components/revoked-device-modal.tsx
 msgid "Remove all chats, settings, and cached data from this device."
-msgstr "Remover todas as conversas, configurações e dados em cache deste dispositivo."
+msgstr "Удалить все чаты, настройки и кэш с этого устройства."
 
 #: src/layout/sidebar/project-drop-list.tsx
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "Remove from project"
-msgstr "Remover do projeto"
+msgstr "Убрать из проекта"
 
 #: src/projects/emoji-picker.tsx
 msgid "Remove icon"
-msgstr "Remover o ícone"
+msgstr "Убрать значок"
 
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
-msgstr "Remover a citação"
+msgstr "Убрать цитату"
 
 #: src/components/remove-bridge-dialog.tsx
 msgid "Remove this bridge?"
-msgstr "Remover este bridge?"
+msgstr "Убрать этот мост?"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/lib/tool-metadata.ts
 #: src/settings/devices.tsx
 msgid "Removing…"
-msgstr "Removendo…"
+msgstr "Удаляем…"
 
 #: src/layout/sidebar/chat-list-item.tsx
 msgid "Rename"
-msgstr "Renomear"
+msgstr "Переименовать"
 
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
-msgstr "Renomear conversa"
+msgstr "Переименовать чат"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
-msgstr "Reordenar"
+msgstr "Переупорядочить"
 
 #: src/components/chat/chat-skills-bar.tsx
 #: src/skills/reorder-panel.tsx
 msgid "Reorder skills"
-msgstr "Reordenar habilidades"
+msgstr "Изменить порядок навыков"
 
 #: src/components/chat/quote-reply-button.tsx
 msgid "Reply"
-msgstr "Responder"
+msgstr "Ответить"
 
 #: src/projects/project-form.tsx
 msgid "Reply in British English. Prefer bullet points over prose."
-msgstr "Responda em inglês britânico. Prefira tópicos em vez de texto corrido."
+msgstr "Отвечай на русском. Предпочитай списки сплошному тексту."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Request denied"
-msgstr "Solicitação recusada"
+msgstr "Запрос отклонён"
 
 #: src/components/device-approval.tsx
 msgid "Request expired"
-msgstr "Solicitação expirada"
+msgstr "Запрос истёк"
 
 #: src/components/chat/file-card.tsx
 msgid "Resend as images"
-msgstr "Reenviar como imagens"
+msgstr "Отправить снова как изображения"
 
 #: src/components/chat/file-card.tsx
 msgid "Resend as text"
-msgstr "Reenviar como texto"
+msgstr "Отправить снова как текст"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Resend Email"
-msgstr "Reenviar o e-mail"
+msgstr "Отправить письмо снова"
 
 #: src/settings/preferences.tsx
 msgid "Reset Database"
-msgstr "Redefinir o banco de dados"
+msgstr "Сбросить базу данных"
 
 #: src/settings/preferences.tsx
 msgid "Reset Local Database?"
-msgstr "Redefinir o banco de dados local?"
+msgstr "Сбросить локальную базу?"
 
 #: src/components/modification-indicator.tsx
 msgid "Reset to Default"
-msgstr "Restaurar o padrão"
+msgstr "Сбросить"
 
 #: src/settings/preferences.tsx
 msgid "Resetting…"
-msgstr "Redefinindo…"
+msgstr "Сброс…"
 
 #: src/components/update-notification.tsx
 msgid "Restart Now"
-msgstr "Reiniciar agora"
+msgstr "Перезапустить"
 
 #: src/components/upgrade-required.tsx
 msgid "Restart to update"
-msgstr "Reiniciar para atualizar"
+msgstr "Перезапустить для обновления"
 
 #: src/lib/tool-metadata.ts
 msgid "Retrieving data…"
-msgstr "Obtendo dados…"
+msgstr "Получение данных…"
 
 #: src/components/chat/error-message.tsx
 #: src/components/sidebar-footer.tsx
 #: src/components/update-notification.tsx
 #: src/components/upgrade-required.tsx
 msgid "Retry"
-msgstr "Tentar novamente"
+msgstr "Повторить"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Retry connection"
-msgstr "Tentar conectar novamente"
+msgstr "Повторить подключение"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Retrying…"
-msgstr "Tentando novamente…"
+msgstr "Повтор…"
 
 #: src/components/revoke-device-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Revoke"
-msgstr "Revogar"
+msgstr "Отозвать"
 
 #: src/settings/devices.tsx
 msgid "Revoke {deviceName}"
-msgstr "Revogar {deviceName}"
+msgstr "Отозвать {deviceName}"
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Revoke this CLI?"
@@ -2872,28 +2844,28 @@ msgstr ""
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Revoke this device?"
-msgstr "Revogar este dispositivo?"
+msgstr "Отозвать это устройство?"
 
 #: src/settings/devices.tsx
 msgid "Revoked"
-msgstr "Revogado"
+msgstr "Отозвано"
 
 #: src/components/revoke-device-dialog.tsx
 #: src/settings/devices.tsx
 msgid "Revoking…"
-msgstr "Revogando…"
+msgstr "Отзываем…"
 
 #: src/settings/preferences.tsx
 msgid "Rows that share an ID with existing data will be overwritten with the file's version and synced to your other devices. This can't be undone."
-msgstr "Linhas que compartilham um ID com dados existentes serão sobrescritas pela versão do arquivo e sincronizadas com seus outros dispositivos. Isso não pode ser desfeito."
+msgstr "Строки с тем же ID, что и существующие данные, будут перезаписаны версией из файла и синхронизированы на другие устройства. Это нельзя отменить."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Run command"
-msgstr "Executar comando"
+msgstr "Выполнить команду"
 
 #: src/components/settings/iroh-pairing-panel.tsx
 msgid "Run this on the machine hosting the bridge, then add it — the connection is verified on first use."
-msgstr "Execute isto na máquina que hospeda o bridge e depois adicione-o — a conexão é verificada no primeiro uso."
+msgstr "Выполните это на машине с мостом, затем добавьте — соединение проверяется при первом использовании."
 
 #: src/components/set-node-id-dialog.tsx
 #: src/components/settings/agents/editable-field.tsx
@@ -2901,287 +2873,283 @@ msgstr "Execute isto na máquina que hospeda o bridge e depois adicione-o — a 
 #: src/settings/models/edit-model-form.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
-msgstr "Salvar"
+msgstr "Сохранить"
 
 #: src/projects/project-form.tsx
 msgid "Save changes"
-msgstr "Salvar alterações"
+msgstr "Сохранить изменения"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Save Changes"
-msgstr "Salvar alterações"
+msgstr "Сохранить изменения"
 
 #: src/settings/connections/index.tsx
 msgid "Save failed"
-msgstr "Falha ao salvar"
+msgstr "Ошибка сохранения"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Save your recovery phrase"
-msgstr "Salve sua frase de recuperação"
+msgstr "Сохраните фразу восстановления"
 
 #: src/projects/project-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/skills/skill-form.tsx
 msgid "Saving…"
-msgstr "Salvando…"
+msgstr "Сохранение…"
 
 #: src/components/ui/prompt-input.tsx
 msgid "Say something…"
-msgstr "Diga algo…"
+msgstr "Скажите что-нибудь…"
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Scan from image"
-msgstr "Ler de uma imagem"
+msgstr "Сканировать из изображения"
 
 #: src/components/chat/scroll-to-bottom-button.tsx
 msgid "Scroll to bottom"
-msgstr "Ir para o final"
+msgstr "Прокрутить вниз"
 
 #: src/components/ui/page-search.tsx
 #: src/layout/sidebar/chat-actions.tsx
 #: src/layout/sidebar/chat-list.tsx
 #: src/search/palette/search-palette.tsx
 msgid "Search"
-msgstr "Buscar"
+msgstr "Поиск"
 
 #: src/search/palette/search-palette.tsx
 msgid "Search across chats, models, skills, agents, and more"
-msgstr "Busque em conversas, modelos, habilidades, agentes e mais"
+msgstr "Поиск по чатам, моделям, навыкам, агентам и другому"
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Search agents"
-msgstr "Buscar agentes"
+msgstr "Поиск агентов"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Search and work with your OneDrive files and documents."
-msgstr "Buscar e trabalhar com seus arquivos e documentos do OneDrive."
+msgstr "Ищите и работайте с файлами и документами в OneDrive."
 
 #: src/search/palette/search-palette.tsx
 msgid "Search chats, models, skills, agents…"
-msgstr "Buscar conversas, modelos, habilidades, agentes…"
+msgstr "Поиск чатов, моделей, навыков, агентов…"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Search connections"
-msgstr "Buscar conexões"
-
-#: src/settings/preferences.tsx
-#~ msgid "Search currencies..."
-#~ msgstr ""
+msgstr "Поиск подключений"
 
 #: src/settings/preferences.tsx
 msgid "Search currencies…"
-msgstr "Buscar moedas…"
+msgstr "Поиск валют…"
 
 #: src/projects/emoji-picker.tsx
 msgid "Search emoji"
-msgstr "Buscar emoji"
+msgstr "Поиск эмодзи"
 
 #: src/components/ui/command.tsx
 msgid "Search for a command to run…"
-msgstr "Busque um comando para executar…"
+msgstr "Поиск команды для запуска…"
 
 #: src/components/location-search-combobox.tsx
 msgid "Search locations…"
-msgstr "Buscar locais…"
+msgstr "Поиск мест…"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Search Models"
-msgstr "Buscar modelos"
+msgstr "Поиск моделей"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 msgid "Search models…"
-msgstr "Buscar modelos…"
+msgstr "Поиск моделей…"
 
 #: src/projects/index.tsx
 #: src/projects/move-chat-to-project-dialog.tsx
 msgid "Search projects"
-msgstr "Buscar projetos"
+msgstr "Поиск проектов"
 
 #: src/components/chat/chat-skills-bar.tsx
 #: src/skills/skills-list.tsx
 msgid "Search skills"
-msgstr "Buscar habilidades"
+msgstr "Поиск навыков"
 
 #: src/tasks/index.tsx
 msgid "Search tasks…"
-msgstr "Buscar tarefas…"
+msgstr "Поиск задач…"
 
 #: src/components/ui/combobox.tsx
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Search…"
-msgstr "Buscar…"
+msgstr "Поиск…"
 
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"
-msgstr "Buscando \"{query}\"…"
+msgstr "Поиск «{query}»…"
 
 #: src/lib/tool-metadata.ts
 msgid "Searching…"
-msgstr "Buscando…"
+msgstr "Поиск…"
 
 #: src/voice/speakable.ts
 msgid "See the document on screen."
-msgstr "Veja o documento na tela."
+msgstr "Смотрите документ на экране."
 
 #: src/voice/speakable.ts
 msgid "See the equation on screen."
-msgstr "Veja a equação na tela."
+msgstr "Смотрите уравнение на экране."
 
 #: src/widgets/ask/display.tsx
 msgid "Select all that apply"
-msgstr "Selecione tudo o que se aplica"
+msgstr "Выберите все подходящие варианты"
 
 #: src/components/location-search-combobox.tsx
 msgid "Select location…"
-msgstr "Selecione um local…"
+msgstr "Выберите место…"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Select model"
-msgstr "Selecione um modelo"
+msgstr "Выбрать модель"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 msgid "Select model…"
-msgstr "Selecione um modelo…"
+msgstr "Выберите модель…"
 
 #: src/settings/models/add-model-form.tsx
 msgid "Select provider"
-msgstr "Selecione um provedor"
+msgstr "Выберите провайдера"
 
 #: src/components/ui/combobox.tsx
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Select…"
-msgstr "Selecionar…"
+msgstr "Выберите…"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Send Magic Link"
-msgstr "Enviar link mágico"
+msgstr "Отправить ссылку для входа"
 
 #: src/components/ui/prompt-input.tsx
 msgid "Send message"
-msgstr "Enviar mensagem"
+msgstr "Отправить сообщение"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/components/ui/action-feedback-button.tsx
 #: src/lib/tool-metadata.ts
 #: src/waitlist/waitlist-page.tsx
 msgid "Sending…"
-msgstr "Enviando…"
+msgstr "Отправка…"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 #: src/components/ui/action-feedback-button.tsx
 msgid "Sent"
-msgstr "Enviado"
+msgstr "Отправлено"
 
 #: src/components/chat/file-card.tsx
 msgid "Sent as images"
-msgstr "Enviado como imagens"
+msgstr "Отправлено как изображения"
 
 #: src/components/chat/file-card.tsx
 msgid "Sent as text"
-msgstr "Enviado como texto"
+msgstr "Отправлено как текст"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Server name (used to prefix tools)"
-msgstr "Nome do servidor (usado como prefixo das ferramentas)"
+msgstr "Имя сервера (префикс для инструментов)"
 
 #: src/settings/models/model-catalog.ts
 msgid "Server responded with an unknown error."
-msgstr "O servidor respondeu com um erro desconhecido."
+msgstr "Сервер ответил неизвестной ошибкой."
 
 #: src/settings/models/model-catalog.ts
 msgid "Server responded with status {status} {statusText}"
-msgstr "O servidor respondeu com o status {status} {statusText}"
+msgstr "Сервер ответил со статусом {status} {statusText}"
 
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Server URL"
-msgstr "URL do servidor"
+msgstr "URL сервера"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Servers JSON"
-msgstr "JSON dos servidores"
+msgstr "JSON серверов"
 
 #: src/search/commands/use-commands.ts
 msgid "Set Dark"
-msgstr "Usar tema escuro"
+msgstr "Тёмная тема"
 
 #: src/search/commands/use-commands.ts
 msgid "Set Light"
-msgstr "Usar tema claro"
+msgstr "Светлая тема"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Set up encrypted sync"
-msgstr "Configurar a sincronização criptografada"
+msgstr "Настроить шифрованную синхронизацию"
 
 #: src/settings/devices.tsx
 msgid "Set up pairing"
-msgstr "Configurar o emparelhamento"
+msgstr "Настроить сопряжение"
 
 #: src/settings/devices.tsx
 msgid "Set up pairing for {deviceName}"
-msgstr "Configurar o emparelhamento de {deviceName}"
+msgstr "Настроить сопряжение для {deviceName}"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Set up sync"
-msgstr "Configurar a sincronização"
+msgstr "Настройка синхронизации"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Setting up encryption…"
-msgstr "Configurando a criptografia…"
+msgstr "Настройка шифрования…"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Setting up…"
-msgstr "Configurando…"
+msgstr "Настройка…"
 
 #: src/layout/sidebar/nav-toggle.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 msgid "Settings"
-msgstr "Configurações"
+msgstr "Настройки"
 
 #: src/lib/tray.tsx
 msgid "Show"
-msgstr "Mostrar"
+msgstr "Показать"
 
 #: src/components/chat/artifact-message-part.tsx
 msgid "Show inline"
-msgstr "Mostrar na conversa"
+msgstr "Показать в тексте"
 
 #: src/settings/devices.tsx
 msgid "Show QR"
-msgstr "Mostrar o QR"
+msgstr "Показать QR"
 
 #: src/settings/devices.tsx
 msgid "Show QR code for {deviceName}"
-msgstr "Mostrar o código QR de {deviceName}"
+msgstr "Показать QR-код для {deviceName}"
 
 #: src/tasks/index.tsx
 msgid "Showing 50 of {totalCount} tasks"
-msgstr "Mostrando 50 de {totalCount} tarefas"
+msgstr "Показано 50 из {totalCount} задач"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Sidebar"
-msgstr "Barra lateral"
+msgstr "Боковая панель"
 
 #: src/layout/sidebar/nav-toggle.tsx
 msgid "Sidebar sections"
-msgstr "Seções da barra lateral"
+msgstr "Разделы боковой панели"
 
 #: src/components/signed-out.tsx
 msgid "Sign back in"
-msgstr "Entrar novamente"
+msgstr "Войти снова"
 
 #: src/components/device-approval.tsx
 #: src/components/sidebar-footer.tsx
 msgid "Sign in"
-msgstr "Entrar"
+msgstr "Войти"
 
 #: src/components/sign-in-modal.tsx
 #: src/settings/preferences.tsx
 msgid "Sign In"
-msgstr "Entrar"
+msgstr "Войти"
 
 #: src/components/device-approval.tsx
 msgid "Sign in to a Thunderbolt account to approve this CLI request."
@@ -3193,47 +3161,47 @@ msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Sign in to enable cloud proxy."
-msgstr "Entre na sua conta para ativar o proxy na nuvem."
+msgstr "Войдите, чтобы включить облачный прокси."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to the CLI"
-msgstr "Entrar na CLI"
+msgstr "Вход в CLI"
 
 #: src/components/sign-in-modal.tsx
 msgid "Sign in to Thunderbolt"
-msgstr "Entrar no Thunderbolt"
+msgstr "Войти в Volt"
 
 #: src/search/commands/use-commands.ts
 msgid "Sign out"
-msgstr "Sair"
+msgstr "Выйти"
 
 #: src/components/device-approval.tsx
 msgid "Sign-in approved"
-msgstr "Login aprovado"
+msgstr "Вход разрешён"
 
 #: src/components/device-approval.tsx
 msgid "Sign-in denied"
-msgstr "Login recusado"
+msgstr "Вход отклонён"
 
 #: src/components/welcome-dialog.tsx
 msgid "Sign-in successful"
-msgstr "Login bem-sucedido"
+msgstr "Вход выполнен успешно"
 
 #: src/components/signed-out.tsx
 msgid "Signed Out"
-msgstr "Sessão encerrada"
+msgstr "Вы вышли"
 
 #: src/components/revoked-device-modal.tsx
 msgid "Signing out…"
-msgstr "Saindo…"
+msgstr "Выход…"
 
 #: src/components/magic-link-verify.tsx
 msgid "Signing you in…"
-msgstr "Entrando…"
+msgstr "Выполняется вход…"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Simple"
-msgstr "Simples"
+msgstr "Простой"
 
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
@@ -3241,93 +3209,93 @@ msgstr "Simples"
 #: src/search/palette/entity-meta.ts
 #: src/skills/skills-list.tsx
 msgid "Skills"
-msgstr "Habilidades"
+msgstr "Навыки"
 
 #: src/skills/skills-list.tsx
 msgid "Skills are reusable instruction templates you summon in chat with <0>/name</0>."
-msgstr "Habilidades são modelos de instruções reutilizáveis que você chama na conversa com <0>/name</0>."
+msgstr "Навыки — это переиспользуемые шаблоны инструкций, вызываемые в чате через <0>/name</0>."
 
 #: src/components/onboarding/onboarding-action-buttons.tsx
 msgid "Skip"
-msgstr "Pular"
+msgstr "Пропустить"
 
 #: src/skills/slash-popup.tsx
 msgid "Slash commands"
-msgstr "Comandos de barra"
+msgstr "Слеш-команды"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Slight rain"
-msgstr "Chuva fraca"
+msgstr "Небольшой дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Slight rain showers"
-msgstr "Pancadas de chuva fracas"
+msgstr "Небольшой ливневый дождь"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Slight snow fall"
-msgstr "Neve fraca"
+msgstr "Небольшой снегопад"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Slight snow showers"
-msgstr "Pancadas de neve fracas"
+msgstr "Небольшой снежный ливень"
 
 #: src/skills/skill-form.tsx
 msgid "Slug"
-msgstr "Slug"
+msgstr "Идентификатор"
 
 #: src/projects/emoji-catalog.ts
 msgid "Smileys & people"
-msgstr "Carinhas e pessoas"
+msgstr "Смайлы и люди"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Snow grains"
-msgstr "Grãos de neve"
+msgstr "Снежные зёрна"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/settings/models/index.tsx
 msgid "Something went wrong"
-msgstr "Algo deu errado"
+msgstr "Что-то пошло не так"
 
 #: src/components/chat/error-message.tsx
 #: src/components/magic-link-verify.tsx
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/waitlist/use-waitlist-state.ts
 msgid "Something went wrong. Please try again."
-msgstr "Algo deu errado. Tente novamente."
+msgstr "Что-то пошло не так. Попробуйте ещё раз."
 
 #: src/components/chat/error-message.tsx
 msgid "Something went wrong. Retrying ({retryCount}/{maxRetries})…"
-msgstr "Algo deu errado. Tentando novamente ({retryCount}/{maxRetries})…"
+msgstr "Что-то пошло не так. Повтор ({retryCount}/{maxRetries})…"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Speaking"
-msgstr "Falando"
+msgstr "Говорю"
 
 #: src/settings/voice.tsx
 msgid "Speech-to-text and text-to-speech run in Thunderbolt’s confidential enclave."
-msgstr "A transcrição e a síntese de voz são executadas no enclave confidencial do Thunderbolt."
+msgstr "Распознавание и синтез речи выполняются в конфиденциальном анклаве Volt."
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Start Using Thunderbolt"
-msgstr "Começar a usar o Thunderbolt"
+msgstr "Начать пользоваться Volt"
 
 #: src/voice/ui/voice-mode-button.tsx
 msgid "Start voice mode"
-msgstr "Iniciar o modo de voz"
+msgstr "Начать голосовой режим"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Starting…"
-msgstr "Iniciando…"
+msgstr "Запуск…"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Status"
-msgstr "Status"
+msgstr "Статус"
 
 #: src/components/ui/prompt-input.tsx
 msgid "Stop generating"
-msgstr "Parar a geração"
+msgstr "Остановить генерацию"
 
 #: src/components/ui/prompt-input.tsx
 msgid "Stopping"
@@ -3335,68 +3303,68 @@ msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "Storage is disabled"
-msgstr "O armazenamento está desativado"
+msgstr "Хранилище отключено"
 
 #: src/settings/voice.tsx
 msgid "STT model"
-msgstr "Modelo de STT"
+msgstr "Модель распознавания речи"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 #: src/widgets/ask/display.tsx
 msgid "Submit"
-msgstr "Enviar"
+msgstr "Отправить"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Successfully connected to the agent."
-msgstr "Conexão com o agente bem-sucedida."
+msgstr "Удалось подключиться к агенту."
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Successfully got a response from the model."
-msgstr "Resposta do modelo obtida com sucesso."
+msgstr "Удалось получить ответ от модели."
 
 #: src/projects/emoji-picker.tsx
 msgid "Suggested"
-msgstr "Sugeridos"
+msgstr "Рекомендуемые"
 
 #: src/settings/preferences.tsx
 msgid "Switch to {suggestedLanguageLabel}"
-msgstr "Mudar para {suggestedLanguageLabel}"
+msgstr "Переключить на {suggestedLanguageLabel}"
 
 #: src/projects/emoji-catalog.ts
 msgid "Symbols"
-msgstr "Símbolos"
+msgstr "Символы"
 
 #: src/settings/preferences.tsx
 msgid "Sync This Device With Cloud"
-msgstr "Sincronizar este dispositivo com a nuvem"
+msgstr "Синхронизировать это устройство с облаком"
 
 #: src/components/sidebar-footer.tsx
 msgid "Synced {relative}"
-msgstr "Sincronizado {relative}"
+msgstr "Синхронизировано {relative}"
 
 #: src/components/theme-toggle-group.tsx
 msgid "System"
-msgstr "Sistema"
+msgstr "Системные"
 
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
-msgstr "Agentes do sistema"
+msgstr "Системные агенты"
 
 #: src/components/theme-toggle-group.tsx
 msgid "System theme"
-msgstr "Tema do sistema"
+msgstr "Системная тема"
 
 #: src/voice/speakable.ts
 msgid "Take a look at the map on screen."
-msgstr "Veja o mapa na tela."
+msgstr "Посмотрите на карту на экране."
 
 #: src/voice/speakable.ts
 msgid "Take a look at the weather forecast on screen."
-msgstr "Veja a previsão do tempo na tela."
+msgstr "Посмотрите прогноз погоды на экране."
 
 #: src/settings/app-version-section.tsx
 msgid "Tap to check for updates."
-msgstr "Toque para verificar atualizações."
+msgstr "Нажмите, чтобы проверить обновления."
 
 #: src/layout/sidebar/chat-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -3404,78 +3372,78 @@ msgstr "Toque para verificar atualizações."
 #: src/settings/preferences.tsx
 #: src/tasks/index.tsx
 msgid "Tasks"
-msgstr "Tarefas"
+msgstr "Задачи"
 
 #: src/settings/preferences.tsx
 msgid "Telemetry isn't configured for this organization, so no usage data is being collected."
-msgstr "A telemetria não está configurada para esta organização, então nenhum dado de uso é coletado."
+msgstr "Телеметрия не настроена для этой организации, данные об использовании не собираются."
 
 #: src/components/telemetry-required-modal.tsx
 msgid "Telemetry Required"
-msgstr "Telemetria necessária"
+msgstr "Нужна телеметрия"
 
 #: src/settings/preferences.tsx
 msgid "Temperature"
-msgstr "Temperatura"
+msgstr "Температура"
 
 #: src/settings/preferences.tsx
 msgid "Temperature unit"
-msgstr "Unidade de temperatura"
+msgstr "Единица температуры"
 
 #: src/widgets/weather-forecast/display.tsx
 msgid "Temperature Unit"
-msgstr "Unidade de temperatura"
+msgstr "Единица температуры"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/voice.tsx
 msgid "Test connection"
-msgstr "Testar a conexão"
+msgstr "Проверить подключение"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Test failed"
-msgstr "O teste falhou"
+msgstr "Проверка не удалась"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Test model"
-msgstr "Testar o modelo"
+msgstr "Проверить модель"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Test successful!"
-msgstr "Teste bem-sucedido!"
+msgstr "Проверка успешна!"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Testing agent…"
-msgstr "Testando o agente…"
+msgstr "Проверка агента…"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Testing connection…"
-msgstr "Testando a conexão…"
+msgstr "Проверка соединения…"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Testing model…"
-msgstr "Testando o modelo…"
+msgstr "Проверка модели…"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Testing…"
-msgstr "Testando…"
+msgstr "Проверка…"
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
-msgstr "Esse código é inválido ou já foi usado. Confira seu terminal e tente novamente."
+msgstr "Этот код неверен или уже использован. Проверьте терминал и попробуйте снова."
 
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
-msgstr "A conexão com o agente foi perdida no turno anterior. Tentar novamente pode repetir ações que o agente já realizou."
+msgstr "Соединение с агентом было потеряно на предыдущем шаге. Повтор может продублировать уже выполненные агентом действия."
 
 #: src/components/chat/error-message.tsx
 msgid "The AI provider is having trouble right now. Try again in a moment."
-msgstr "O provedor de IA está com problemas neste momento. Tente novamente em instantes."
+msgstr "У провайдера ИИ сейчас неполадки. Попробуйте ещё раз через мгновение."
 
 #: src/components/chat/error-message.tsx
 msgid "The AI provider took too long to respond. Try again."
-msgstr "O provedor de IA demorou demais para responder. Tente novamente."
+msgstr "Провайдер ИИ отвечал слишком долго. Попробуйте ещё раз."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
@@ -3483,384 +3451,368 @@ msgstr ""
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The device will be signed out and its local data will be cleared on next sync. This device will need to sign in again to use sync."
-msgstr "A sessão do dispositivo será encerrada e os dados locais dele serão apagados na próxima sincronização. Este dispositivo precisará entrar novamente para usar a sincronização."
+msgstr "Устройство будет выведено из сессии, а локальные данные очистятся при следующей синхронизации. Чтобы снова пользоваться синхронизацией, потребуется войти заново."
 
 #: src/widgets/map/widget.tsx
 msgid "The map couldn’t be loaded."
-msgstr "Não foi possível carregar o mapa."
+msgstr "Не удалось загрузить карту."
 
 #: src/components/device-approval.tsx
 msgid "The request was denied. You can safely close this page."
-msgstr "A solicitação foi recusada. Você pode fechar esta página com segurança."
+msgstr "Запрос отклонён. Эту страницу можно закрыть."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "The server rejected the credential. Check your bearer token or API key."
-msgstr "O servidor rejeitou a credencial. Verifique seu token Bearer ou sua chave de API."
+msgstr "Сервер отклонил учётные данные. Проверьте bearer-токен или API-ключ."
 
 #: src/lib/device-grant.ts
 msgid "The sign-in service is unavailable right now. Check your connection and try again."
-msgstr "O serviço de login está indisponível neste momento. Verifique sua conexão e tente novamente."
+msgstr "Служба входа сейчас недоступна. Проверьте соединение и попробуйте снова."
 
 #: src/settings/preferences.tsx
 msgid "Theme"
-msgstr "Tema"
+msgstr "Тема"
 
 #: src/components/chat/reasoning-item.tsx
 #: src/components/chat/reasoning-part.tsx
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Thinking"
-msgstr "Pensando"
+msgstr "Думаю"
 
 #: src/components/ui/chat-nav-button.tsx
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
-msgstr "Esta ação não pode ser desfeita. Isso excluirá permanentemente esta conversa e todas as suas mensagens."
+msgstr "Это действие нельзя отменить. Чат и все сообщения будут удалены безвозвратно."
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
-msgstr "Isso pode acontecer em janelas privadas ou quando os dados do site estão bloqueados. Ative o armazenamento para este site e recarregue."
+msgstr "Так бывает в приватных окнах или когда данные сайта заблокированы. Разрешите хранилище для этого сайта и перезагрузите страницу."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "This chat uses {agentName}, which is not available on this platform."
-msgstr "Esta conversa usa o {agentName}, que não está disponível nesta plataforma."
+msgstr "Этот чат использует {agentName}, недоступный на этой платформе."
 
 #: src/lib/otp-error-messages.ts
 msgid "This code has expired. Please request a new one."
-msgstr "Este código expirou. Solicite um novo."
+msgstr "Срок действия кода истёк. Запросите новый."
 
 #: src/components/chat/error-message.tsx
 msgid "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window."
-msgstr "Esta conversa é grande demais para a janela de contexto do modelo. Comece uma nova conversa, remova alguns anexos ou troque para um modelo com janela de contexto maior."
+msgstr "Разговор слишком большой для окна контекста модели. Начните новый чат, удалите часть вложений или выберите модель с большим контекстом."
 
 #: src/settings/devices.tsx
 msgid "This device"
-msgstr "Este dispositivo"
+msgstr "Это устройство"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This device has been approved and sync is now enabled across your devices."
-msgstr "Este dispositivo foi aprovado e a sincronização já está ativa em todos os seus dispositivos."
+msgstr "Устройство одобрено, синхронизация включена на всех ваших устройствах."
 
 #: src/components/revoked-device-modal.tsx
 msgid "This device has been signed out remotely. Choose what to do with your local data."
-msgstr "A sessão deste dispositivo foi encerrada remotamente. Escolha o que fazer com seus dados locais."
+msgstr "Это устройство было выведено из сессии удалённо. Выберите, что сделать с локальными данными."
 
 #: src/hooks/use-sync-setup.ts
 msgid "This device has not been approved yet. Please approve it from a trusted device first."
-msgstr "Este dispositivo ainda não foi aprovado. Aprove-o primeiro em um dispositivo confiável."
+msgstr "Это устройство ещё не одобрено. Сначала одобрите его с доверенного устройства."
 
 #: src/settings/preferences.tsx
 msgid "This file doesn't look like a Thunderbolt export."
-msgstr "Este arquivo não parece ser uma exportação do Thunderbolt."
+msgstr "Этот файл не похож на экспорт Volt."
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "This helps us personalize your experience with local settings and features."
-msgstr "Isso nos ajuda a personalizar sua experiência com configurações e recursos locais."
+msgstr "Это поможет персонализировать опыт с учётом местных настроек и функций."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
-msgstr "Este é o primeiro dispositivo da sua conta. Vamos criar uma chave de criptografia para proteger seus dados e fornecer uma chave de recuperação para você guardar em segurança."
+msgstr "Это первое устройство в аккаунте. Мы создадим ключ шифрования для защиты данных и выдадим фразу восстановления — сохраните её в надёжном месте."
 
 #: src/lib/otp-error-messages.ts
 msgid "This link has expired. Please request a new one."
-msgstr "Este link expirou. Solicite um novo."
+msgstr "Срок действия ссылки истёк. Запросите новую."
 
 #: src/lib/otp-error-messages.ts
 msgid "This link is invalid. Please request a new one."
-msgstr "Este link é inválido. Solicite um novo."
+msgstr "Ссылка недействительна. Запросите новую."
 
 #: src/hooks/use-external-link-dialog.ts
 msgid "This link uses an address the app cannot open."
-msgstr "Este endereço não pode ser aberto pelo app."
+msgstr "Эта ссылка использует адрес, который приложение не может открыть."
 
 #: src/components/chat/error-message.tsx
 msgid "This model couldn't read the attached file. Try a different model."
-msgstr "Este modelo não conseguiu ler o arquivo anexado. Tente outro modelo."
+msgstr "Эта модель не смогла прочитать прикреплённый файл. Попробуйте другую модель."
 
 #: src/settings/models/add-model-form.tsx
 msgid "This model does not seem to support tool usage."
-msgstr "Este modelo parece não ter suporte ao uso de ferramentas."
+msgstr "Похоже, эта модель не поддерживает инструменты."
 
 #: src/components/remove-bridge-dialog.tsx
 msgid "This permanently removes the revoked bridge registration. The bridge can register again afterward."
-msgstr "Isso remove permanentemente o registro do bridge revogado. O bridge pode se registrar novamente depois."
+msgstr "Это навсегда удалит регистрацию отозванного моста. Мост сможет зарегистрироваться снова."
 
 #: src/projects/project-form.tsx
 msgid "this project"
-msgstr "este projeto"
+msgstr "этот проект"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
-msgstr "Isso remove a conexão apenas do Thunderbolt. Nada é alterado no servidor remoto."
+msgstr "Это удаляет подключение только из Volt. На удалённом сервере ничего не меняется."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "This server needs a personal access token or API key. Paste it in the Credential field above, then test again."
-msgstr "Este servidor precisa de um token de acesso pessoal ou chave de API. Cole no campo Credencial acima e teste novamente."
+msgstr "Серверу нужен персональный токен или API-ключ. Вставьте его в поле «Учётные данные» выше и проверьте снова."
 
 #: src/settings/connections/use-mcp-server-form-controller.ts
 msgid "This server no longer exists. It may have been removed on another device."
-msgstr "Este servidor não existe mais. Ele pode ter sido removido em outro dispositivo."
+msgstr "Этого сервера больше нет. Возможно, он был удалён на другом устройстве."
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "This server requires authorization. Click Authorize to connect."
-msgstr "Este servidor exige autorização. Clique em Autorizar para conectar."
+msgstr "Серверу нужна авторизация. Нажмите «Авторизовать», чтобы подключиться."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "This server uses OAuth. Add it and authorize to connect."
-msgstr "Este servidor usa OAuth. Adicione-o e autorize para conectar."
+msgstr "Этот сервер использует OAuth. Добавьте его и авторизуйтесь для подключения."
 
 #: src/lib/device-grant.ts
 msgid "This sign-in request has expired. Start a new one from your terminal."
-msgstr "Esta solicitação de login expirou. Inicie uma nova no seu terminal."
+msgstr "Этот запрос на вход истёк. Создайте новый из терминала."
 
 #: src/components/upgrade-required.tsx
 msgid "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
-msgstr "Esta versão do Thunderbolt não tem mais suporte. Atualize o app para continuar conversando e sincronizando."
+msgstr "Эта версия Volt больше не поддерживается. Обновите приложение, чтобы продолжить общение и синхронизацию."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "This will deny the device access to your encrypted data. The device will need to set up sync again."
-msgstr "Isso vai negar ao dispositivo o acesso aos seus dados criptografados. O dispositivo precisará configurar a sincronização novamente."
+msgstr "Устройству будет отказано в доступе к зашифрованным данным. Чтобы снова пользоваться синхронизацией, его нужно настроить заново."
 
 #: src/settings/preferences.tsx
 msgid "This will permanently delete all of your local data including settings, chat history, and cached information. This action cannot be undone."
-msgstr "Isso excluirá permanentemente todos os seus dados locais, incluindo configurações, histórico de conversas e informações em cache. Esta ação não pode ser desfeita."
+msgstr "Будут безвозвратно удалены все локальные данные: настройки, история чатов и кэш. Это действие нельзя отменить."
 
 #: src/components/delete-all-chats-dialog.tsx
 msgid "This will permanently delete all your chats."
-msgstr "Isso excluirá permanentemente todas as suas conversas."
+msgstr "Все ваши чаты будут удалены безвозвратно."
 
 #: src/skills/delete-skill-dialog.tsx
 msgid "This will permanently delete the skill. Other skills that reference it may no longer resolve."
-msgstr "Isso excluirá permanentemente a habilidade. Outras habilidades que fazem referência a ela podem não ser mais resolvidas."
+msgstr "Навык будет удалён безвозвратно. Другие навыки, которые на него ссылаются, могут перестать работать."
 
 #: src/components/delete-chat-dialog.tsx
 msgid "This will permanently delete this chat."
-msgstr "Isso excluirá permanentemente esta conversa."
+msgstr "Чат будет удалён безвозвратно."
 
 #: src/settings/preferences.tsx
 msgid "This will permanently delete your account and all of your data on our servers and on this device, including settings, chat history, and cached information. This action cannot be undone."
-msgstr "Isso excluirá permanentemente sua conta e todos os seus dados nos nossos servidores e neste dispositivo, incluindo configurações, histórico de conversas e informações em cache. Esta ação não pode ser desfeita."
+msgstr "Аккаунт и все данные на наших серверах и на этом устройстве — настройки, история чатов и кэш — будут удалены безвозвратно. Это действие нельзя отменить."
 
 #: src/components/approve-device-dialog.tsx
 msgid "This will share your encryption key with the device, allowing it to decrypt and sync your data."
-msgstr "Isso compartilhará sua chave de criptografia com o dispositivo, permitindo que ele descriptografe e sincronize seus dados."
+msgstr "Ключ шифрования будет передан устройству — оно сможет расшифровывать и синхронизировать ваши данные."
 
 #: src/components/chat/reasoning-group-title.tsx
 msgid "Thought for {duration}"
-msgstr "Pensou por {duration}"
+msgstr "Думал {duration}"
 
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
-msgstr "Thunderbolt (hospedado, privado)"
+msgstr "Volt (хостинг, приватно)"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Thunderbolt CLI"
-msgstr "CLI do Thunderbolt"
+msgstr "Volt CLI"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Thunderbolt is open-source"
-msgstr "O Thunderbolt é código aberto"
+msgstr "Volt — открытый исходный код"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
-msgstr "O Thunderbolt é o agente embutido no app — sempre presente, sem configuração. Ele usa tudo o que você ativou na sua biblioteca (habilidades, integrações e servidores MCP) para ajudar no que você estiver fazendo."
+msgstr "Volt — это агент, встроенный в приложение: всегда рядом, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с любой задачей."
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled."
-msgstr "O Thunderbolt precisa do armazenamento do navegador (IndexedDB) para funcionar, mas ele está desativado agora."
+msgstr "Volt нужно хранилище браузера (IndexedDB), но сейчас оно отключено."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Thunderbolt Pro is not available yet. Stay tuned!"
-msgstr "O Thunderbolt Pro ainda não está disponível. Fique de olho!"
+msgstr "Volt Pro пока недоступен. Следите за новостями!"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Calendar"
-msgstr "O Thunderbolt quer se conectar ao {providerName} Agenda"
+msgstr "Volt хочет подключиться к календарю {providerName}"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Email"
-msgstr "O Thunderbolt quer se conectar ao {providerName} E-mail"
+msgstr "Volt хочет подключиться к почте {providerName}"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Email and Calendar"
-msgstr "O Thunderbolt quer se conectar ao {providerName} E-mail e Agenda"
+msgstr "Volt хочет подключиться к почте и календарю {providerName}"
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "Thunderbolt will use it across the app. You can change it later in Preferences."
-msgstr "O Thunderbolt vai usá-lo em todo o app. Você pode alterá-lo depois em Preferências."
+msgstr "Volt будет использовать это во всём приложении. Позже можно изменить в настройках."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm"
-msgstr "Trovoada"
+msgstr "Гроза"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm with heavy hail"
-msgstr "Trovoada com granizo forte"
+msgstr "Гроза с сильным градом"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm with slight hail"
-msgstr "Trovoada com granizo fraco"
+msgstr "Гроза с небольшим градом"
 
 #: src/settings/preferences.tsx
 msgid "Time format"
-msgstr "Formato de hora"
+msgstr "Формат времени"
 
 #: src/settings/preferences.tsx
 msgid "Time Format"
-msgstr "Formato de hora"
-
-#: src/widgets/connect-integration/widget.tsx
-#~ msgid "to access your calendar"
-#~ msgstr "para acessar sua agenda"
-
-#: src/widgets/connect-integration/widget.tsx
-#~ msgid "to access your email"
-#~ msgstr "para acessar seu e-mail"
-
-#: src/widgets/connect-integration/widget.tsx
-#~ msgid "to access your email and calendar"
-#~ msgstr "para acessar seu e-mail e sua agenda"
+msgstr "Формат времени"
 
 #: src/search/commands/use-commands.ts
 msgid "Toggle sidebar"
-msgstr "Mostrar ou ocultar a barra lateral"
+msgstr "Боковая панель"
 
 #: src/components/ui/header.tsx
 #: src/components/ui/sidebar.tsx
 #: src/layout/sidebar/sidebar-header.tsx
 msgid "Toggle Sidebar"
-msgstr "Mostrar ou ocultar a barra lateral"
+msgstr "Переключить боковую панель"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Token rejected"
-msgstr "Token rejeitado"
+msgstr "Токен отклонён"
 
 #: src/lib/otp-error-messages.ts
 msgid "Too many attempts. Please request a new code."
-msgstr "Muitas tentativas. Solicite um novo código."
+msgstr "Слишком много попыток. Запросите новый код."
 
 #: src/components/chat/error-message.tsx
 msgid "Too many requests. Please try again in a moment."
-msgstr "Muitas solicitações. Tente novamente em instantes."
+msgstr "Слишком много запросов. Подождите немного и попробуйте снова."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Tool input"
-msgstr "Entrada da ferramenta"
+msgstr "Ввод инструмента"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Transport"
-msgstr "Transporte"
+msgstr "Транспорт"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Transport: {transportLabel}"
-msgstr "Transporte: {transportLabel}"
+msgstr "Транспорт: {transportLabel}"
 
 #: src/projects/emoji-catalog.ts
 msgid "Travel & places"
-msgstr "Viagens e lugares"
+msgstr "Путешествия и места"
 
 #: src/settings/devices.tsx
 msgid "Trusted devices"
-msgstr "Dispositivos confiáveis"
+msgstr "Доверенные устройства"
 
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Try again"
-msgstr "Tentar novamente"
+msgstr "Попробовать снова"
 
 #: src/settings/voice.tsx
 msgid "TTS model"
-msgstr "Modelo de TTS"
+msgstr "Модель синтеза речи"
 
 #: src/settings/voice.tsx
 msgid "TTS voice"
-msgstr "Voz de TTS"
+msgstr "Голос TTS"
 
 #: src/components/telemetry-warning-modal.tsx
 msgid "Turning off telemetry will disable all preview features. Are you sure you want to continue?"
-msgstr "Desativar a telemetria vai desativar todos os recursos em prévia. Tem certeza de que quer continuar?"
+msgstr "Отключение телеметрии отключит все предварительные функции. Продолжить?"
 
 #: src/components/sso-redirect.tsx
 msgid "Unable to connect to the identity provider. Check your network connection and SSO configuration."
-msgstr "Não foi possível conectar ao provedor de identidade. Verifique sua conexão de rede e a configuração de SSO."
+msgstr "Не удалось подключиться к провайдеру идентификации. Проверьте сеть и настройки SSO."
 
 #: src/widgets/weather-forecast/widget.tsx
 msgid "Unable to load weather forecast: {errorMessage}"
-msgstr "Não foi possível carregar a previsão do tempo: {errorMessage}"
+msgstr "Не удалось загрузить прогноз погоды: {errorMessage}"
 
 #: src/widgets/weather-forecast/widget.tsx
 msgid "Unable to load weather forecast."
-msgstr "Não foi possível carregar a previsão do tempo."
+msgstr "Не удалось загрузить прогноз погоды."
 
 #: src/components/app-error-screen.tsx
 msgid "Unfortunately, the local database encountered an error while being migrated to the latest version of this app. Deleting your local data will resolve the issue but you will permanently lose your settings and chat history. This action cannot be undone."
-msgstr "Infelizmente, o banco de dados local apresentou um erro ao ser migrado para a versão mais recente deste app. Apagar seus dados locais resolve o problema, mas você perderá permanentemente suas configurações e seu histórico de conversas. Esta ação não pode ser desfeita."
+msgstr "К сожалению, при миграции локальной базы на новую версию приложения произошла ошибка. Удаление локальных данных устранит проблему, но настройки и история чатов будут безвозвратно потеряны. Это действие нельзя отменить."
 
 #: src/components/context-overflow-modal.tsx
 msgid "unknown"
-msgstr "desconhecida"
+msgstr "Неизвестно"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Unknown (code {code})"
-msgstr "Desconhecido (código {code})"
-
-#: src/widgets/weather-forecast/widget.tsx
-#~ msgid "Unknown error"
-#~ msgstr "Erro desconhecido"
+msgstr "Неизвестно (код {code})"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Unpin"
-msgstr "Desafixar"
+msgstr "Открепить"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Unreachable {relative}"
-msgstr "Inacessível {relative}"
+msgstr "Недоступно {relative}"
 
 #: src/lib/title-generator.ts
 msgid "Untitled chat"
-msgstr "Conversa sem título"
+msgstr "Без названия"
 
 #: src/components/chat/chat-ui-greeting.ts
 msgid "Up late?"
-msgstr "Ainda acordado?"
+msgstr "Не спится?"
 
 #: src/settings/preferences.tsx
 msgid "Update Defaults?"
-msgstr "Atualizar os padrões?"
+msgstr "Обновить значения по умолчанию?"
 
 #: src/components/update-notification.tsx
 msgid "Update failed"
-msgstr "Falha na atualização"
+msgstr "Не удалось обновить"
 
 #: src/settings/devices.tsx
 msgid "Update pairing"
-msgstr "Atualizar o emparelhamento"
+msgstr "Обновить сопряжение"
 
 #: src/settings/devices.tsx
 msgid "Update pairing for {deviceName}"
-msgstr "Atualizar o emparelhamento de {deviceName}"
+msgstr "Обновить сопряжение для {deviceName}"
 
 #: src/components/update-notification.tsx
 msgid "Update ready! Restart to apply."
-msgstr "Atualização pronta! Reinicie para aplicar."
+msgstr "Обновление готово! Перезапустите, чтобы применить."
 
 #: src/settings/app-version-section.tsx
 msgid "Update ready. Restart to apply."
-msgstr "Atualização pronta. Reinicie para aplicar."
+msgstr "Обновление готово. Перезапустите, чтобы применить."
 
 #: src/components/upgrade-required.tsx
 msgid "Update required"
-msgstr "Atualização necessária"
+msgstr "Требуется обновление"
 
 #: src/settings/preferences.tsx
 msgid "Update Units"
-msgstr "Atualizar as unidades"
+msgstr "Обновить единицы"
 
 #: src/settings/app-version-section.tsx
 msgid "Updates"
-msgstr "Atualizações"
+msgstr "Обновления"
 
 #: src/components/chat/chat-add-menu.tsx
 msgid "Upload file"
-msgstr "Enviar arquivo"
+msgstr "Загрузить файл"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
@@ -3871,364 +3823,360 @@ msgstr "URL"
 #: src/settings/models/use-add-model-form.ts
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "URL is required for Custom providers"
-msgstr "A URL é obrigatória para provedores personalizados"
+msgstr "Для пользовательских провайдеров нужен URL"
 
 #: src/lib/mcp-url-validation.ts
 msgid "Use an http:// or https:// URL"
-msgstr "Use uma URL http:// ou https://"
+msgstr "Используйте URL http:// или https://"
 
 #: src/settings/preferences.tsx
 msgid "Use Cloud Proxy"
-msgstr "Usar o proxy na nuvem"
+msgstr "Облачный прокси"
 
 #: src/lib/mcp-url-validation.ts
 msgid "Use https:// (http is only allowed for localhost or a local network)"
-msgstr "Use https:// (http só é permitido para localhost ou uma rede local)"
+msgstr "Используйте https:// (http допустим только для localhost или локальной сети)"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Use my recovery key"
-msgstr "Usar minha chave de recuperação"
+msgstr "Использовать фразу восстановления"
 
 #: src/search/commands/use-commands.ts
 msgid "Use System"
-msgstr "Usar o do sistema"
+msgstr "Как в системе"
 
 #: src/voice/speakable.ts
 msgid "Use the connection prompt on screen to continue."
-msgstr "Use o aviso de conexão na tela para continuar."
+msgstr "Используйте запрос подключения на экране, чтобы продолжить."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
-msgstr "Use o Thunderbolt pela linha de comando."
+msgstr "Используйте Volt из командной строки."
 
 #: src/settings/preferences.tsx
 msgid "User Experience"
-msgstr "Experiência do usuário"
+msgstr "Интерфейс"
 
 #: src/components/context-usage-indicator.tsx
 msgid "Using {usedTokensLabel} of {maxTokensLabel} Context Window"
-msgstr "{usedTokensLabel} de {maxTokensLabel} da janela de contexto em uso"
+msgstr "Использовано {usedTokensLabel} из {maxTokensLabel} контекстного окна"
 
 #: src/components/magic-link-verify.tsx
 msgid "Verification Failed"
-msgstr "Falha na verificação"
+msgstr "Не удалось подтвердить"
 
 #: src/components/sign-in/use-sign-in-form-state.ts
 #: src/lib/otp-error-messages.ts
 #: src/waitlist/use-waitlist-state.ts
 msgid "Verification failed. Please try again."
-msgstr "Falha na verificação. Tente novamente."
+msgstr "Не удалось подтвердить. Попробуйте ещё раз."
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Verifying…"
-msgstr "Verificando…"
+msgstr "Проверка…"
 
 #: src/components/update-notification.tsx
 msgid "Version {updateVersion}"
-msgstr "Versão {updateVersion}"
+msgstr "Версия {updateVersion}"
 
 #: src/settings/app-version-section.tsx
 msgid "Version {updateVersion} is available. See the update prompt to install."
-msgstr "A versão {updateVersion} está disponível. Veja o aviso de atualização para instalar."
+msgstr "Доступна версия {updateVersion}. Смотрите запрос на обновление для установки."
 
 #: src/settings/preferences.tsx
 msgid "Vibrate on tap"
-msgstr "Vibrar ao toque"
+msgstr "Вибрация при нажатии"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "View and manage your schedule; create + reschedule events."
-msgstr "Ver e gerenciar sua agenda; criar e reagendar eventos."
+msgstr "Просматривайте и управляйте расписанием; создавайте и переносите события."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "View install guide"
-msgstr "Ver o guia de instalação"
+msgstr "Открыть руководство по установке"
 
 #: src/components/chat/quote-chip.tsx
 msgid "View quote"
-msgstr "Ver a citação"
+msgstr "Показать цитату"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "View your schedule and upcoming events."
-msgstr "Ver sua agenda e os próximos eventos."
+msgstr "Просматривайте расписание и предстоящие события."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Violent rain showers"
-msgstr "Pancadas de chuva violentas"
+msgstr "Очень сильный ливень"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
 #: src/settings/voice.tsx
 msgid "Voice"
-msgstr "Voz"
+msgstr "Голос"
 
 #: src/settings/voice.tsx
 msgid "Voice engine"
-msgstr "Motor de voz"
+msgstr "Голосовой движок"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Voice mode: {status}"
-msgstr "Modo de voz: {status}"
+msgstr "Голосовой режим: {status}"
 
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "Waiting for approval"
-msgstr "Aguardando aprovação"
+msgstr "Ожидание подтверждения"
 
 #: src/waitlist/waitlist-page.tsx
 msgid "Want early access?"
-msgstr "Quer acesso antecipado?"
+msgstr "Хотите ранний доступ?"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "We don't keep logs of your conversations."
-msgstr "Não guardamos logs das suas conversas."
+msgstr "Мы не храним логи ваших разговоров."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "We don't train models on your data."
-msgstr "Não treinamos modelos com seus dados."
+msgstr "Мы не обучаем модели на ваших данных."
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "We sent a code to <0>{email}</0>"
-msgstr "Enviamos um código para <0>{email}</0>"
+msgstr "Мы отправили код на <0>{email}</0>"
 
 #: src/waitlist/waitlist-page.tsx
 msgid "We've sent an email to <0>{email}</0> with your next steps."
-msgstr "Enviamos um e-mail para <0>{email}</0> com os próximos passos."
+msgstr "Мы отправили письмо на <0>{email}</0> с дальнейшими шагами."
 
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
-msgstr "Dados meteorológicos fornecidos por Open-Meteo.com"
+msgstr "Данные о погоде предоставлены Open-Meteo.com"
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"
-msgstr "Bem-vindo"
+msgstr "Добро пожаловать"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Welcome to Thunderbolt!"
-msgstr "Bem-vindo ao Thunderbolt!"
+msgstr "Добро пожаловать в Volt!"
 
 #: src/components/magic-link-verify.tsx
 msgid "Welcome, {displayName}"
-msgstr "Bem-vindo, {displayName}"
+msgstr "Добро пожаловать, {displayName}"
 
 #: src/components/sign-in/sign-in-success-step.tsx
 msgid "Welcome, {displayName}!"
-msgstr "Bem-vindo, {displayName}!"
+msgstr "Добро пожаловать, {displayName}!"
 
 #: src/components/magic-link-verify.tsx
 #: src/components/sign-in/sign-in-success-step.tsx
 msgid "Welcome!"
-msgstr "Bem-vindo!"
+msgstr "Добро пожаловать!"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 msgid "What agents use"
-msgstr "O que os agentes usam"
+msgstr "Что используют агенты"
 
 #: src/skills/skill-detail.tsx
 #: src/skills/skill-form.tsx
 msgid "What is this for?"
-msgstr "Para que isto serve?"
+msgstr "Для чего это нужно?"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "What it uses"
-msgstr "O que ele usa"
+msgstr "Что он использует"
 
 #: src/components/onboarding/onboarding-name-step.tsx
 msgid "What should we call you?"
-msgstr "Como devemos chamar você?"
+msgstr "Как к вам обращаться?"
 
 #: src/skills/skill-form.tsx
 msgid "What the assistant should do…"
-msgstr "O que o assistente deve fazer…"
+msgstr "Что должен делать помощник…"
 
 #: src/components/logout-modal.tsx
 msgid "What would you like to do with your local data?"
-msgstr "O que você quer fazer com seus dados locais?"
+msgstr "Что сделать с локальными данными?"
 
 #: src/settings/preferences.tsx
 msgid "When enabled, requests are routed through Thunderbolt's cloud proxy."
-msgstr "Quando ativado, as solicitações passam pelo proxy na nuvem do Thunderbolt."
+msgstr "Когда включено, запросы идут через облачный прокси Volt."
 
 #: src/skills/skill-form.tsx
 msgid "When to use this skill…"
-msgstr "Quando usar esta habilidade…"
+msgstr "Когда использовать этот навык…"
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "Where are you located?"
-msgstr "Onde você está?"
+msgstr "Где вы находитесь?"
 
 #: src/settings/preferences.tsx
 msgid "Where links in chats open"
-msgstr "Onde os links das conversas abrem"
+msgstr "Где открываются ссылки из чатов"
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "Which language do you prefer?"
-msgstr "Qual idioma você prefere?"
+msgstr "Какой язык вы предпочитаете?"
 
 #: src/components/window-controls.tsx
 msgid "Window controls"
-msgstr "Controles da janela"
+msgstr "Управление окном"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "word1 word2 word3 ..."
-msgstr "palavra1 palavra2 palavra3 ..."
+msgstr "слово1 слово2 слово3 …"
 
 #: src/settings/preferences.tsx
 msgid "Would you like to change the language to {suggestedLanguageLabel}?"
-msgstr "Você quer mudar o idioma para {suggestedLanguageLabel}?"
+msgstr "Сменить язык на {suggestedLanguageLabel}?"
 
 #: src/settings/preferences.tsx
 msgid "Would you like to update your units based on the new location?"
-msgstr "Quer atualizar suas unidades com base no novo local?"
+msgstr "Обновить единицы измерения для нового местоположения?"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Write down these 24 words in order and store them somewhere safe. You'll need them to recover your data if you lose access to all your devices. This phrase won't be shown again."
-msgstr "Anote estas 24 palavras na ordem e guarde-as em um lugar seguro. Você vai precisar delas para recuperar seus dados se perder o acesso a todos os seus dispositivos. Esta frase não será exibida novamente."
+msgstr "Запишите эти 24 слова по порядку и храните их в надёжном месте. Они понадобятся, чтобы восстановить данные, если вы потеряете доступ ко всем устройствам. Фраза больше не будет показана."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "wss://example.com/ws or paste an iroh ticket"
-msgstr "wss://example.com/ws ou cole um ticket iroh"
+msgstr "wss://example.com/ws или вставьте iroh-тикет"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "You appear to be using a <0>localhost</0> backend. Check your backend server logs for the code or magic link."
-msgstr "Parece que você está usando um backend em <0>localhost</0>. Procure o código ou o link mágico nos logs do seu servidor backend."
+msgstr "Похоже, вы используете <0>localhost</0>-бэкенд. Проверьте логи сервера, чтобы найти код или magic-ссылку."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "You can attach up to {maxAttachmentCount} files."
-msgstr "Você pode anexar até {maxAttachmentCount} arquivos."
+msgstr "Можно прикрепить до {maxAttachmentCount} файлов."
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "You can connect integrations later in Settings."
-msgstr "Você pode conectar integrações mais tarde em Configurações."
+msgstr "Вы можете подключить интеграции позже в настройках."
 
 #: src/components/device-approval.tsx
 msgid "You can return to your terminal."
-msgstr "Você pode voltar ao seu terminal."
+msgstr "Можете вернуться в терминал."
 
 #: src/components/signed-out.tsx
 msgid "You have been signed out successfully."
-msgstr "Você saiu da sua conta."
+msgstr "Вы успешно вышли из аккаунта."
 
 #: src/hooks/use-sync-setup.ts
 msgid "You have reached the maximum number of devices. Revoke an existing device to add a new one."
-msgstr "Você atingiu o número máximo de dispositivos. Revogue um dispositivo existente para adicionar um novo."
+msgstr "Достигнуто максимальное число устройств. Отзовите одно, чтобы добавить новое."
 
 #: src/settings/preferences.tsx
 msgid "You must be signed in to import data."
-msgstr "Você precisa estar conectado para importar dados."
+msgstr "Чтобы импортировать данные, нужно войти в аккаунт."
 
 #: src/skills/discard-create-dialog.tsx
 #: src/skills/skills-view.tsx
 msgid "You'll lose what you've added so far."
-msgstr "Você perderá o que adicionou até agora."
+msgstr "Введённые данные будут потеряны."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "You're all set!"
-msgstr "Tudo pronto!"
+msgstr "Всё готово! 🎉"
 
 #: src/components/onboarding/onboarding-celebration-step.tsx
 msgid "You're all set! 🎉"
-msgstr "Tudo pronto! 🎉"
+msgstr "Всё готово! 🎉"
 
 #: src/components/magic-link-verify.tsx
 #: src/components/sign-in/sign-in-success-step.tsx
 msgid "You're now signed in."
-msgstr "Você entrou na sua conta."
+msgstr "Вы вошли в аккаунт."
 
 #: src/settings/app-version-section.tsx
 msgid "You're on the latest version."
-msgstr "Você está na versão mais recente."
+msgstr "У вас последняя версия."
 
 #: src/settings/models/model-detail.tsx
 msgid "You've customized this model."
-msgstr "Você personalizou este modelo."
+msgstr "Вы изменили эту модель."
 
 #: src/components/modification-indicator.tsx
 msgid "You've customized this setting."
-msgstr "Você personalizou esta configuração."
+msgstr "Вы изменили эту настройку."
 
 #: src/components/chat/error-message.tsx
 msgid "You've reached your AI usage limit for the current 5-hour window. Try again later."
-msgstr "Você atingiu seu limite de uso da IA para a janela atual de 5 horas. Tente novamente mais tarde."
+msgstr "Вы достигли лимита использования ИИ в текущем 5-часовом окне. Попробуйте позже."
 
 #: src/components/chat/error-message.tsx
 msgid "You've reached your AI usage limit for the current 7-day window. Try again later."
-msgstr "Você atingiu seu limite de uso da IA para a janela atual de 7 dias. Tente novamente mais tarde."
+msgstr "Вы достигли лимита использования ИИ в текущем 7-дневном окне. Попробуйте позже."
 
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
-msgstr "Sua conta foi excluída e os dados locais foram apagados."
+msgstr "Ваш аккаунт удалён, локальные данные очищены."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
-msgstr "Seu agente · roda no seu terminal"
+msgstr "Ваш агент · работает в терминале"
 
 #: src/components/settings/agents/agent-list.tsx
 msgid "Your agents"
-msgstr "Seus agentes"
+msgstr "Ваши агенты"
 
 #: src/components/onboarding/onboarding-name-step.tsx
 msgid "Your AI assistant will use this name to address you personally."
-msgstr "Seu assistente de IA vai usar este nome para falar com você."
+msgstr "ИИ-помощник будет использовать это имя в общении с вами."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Your assistant can help you manage your email and calendar."
-msgstr "Seu assistente pode ajudar a gerenciar seu e-mail e sua agenda."
+msgstr "Помощник поможет управлять почтой и календарём."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Your assistant can help you manage your email, calendar, and documents."
-msgstr "Seu assistente pode ajudar a gerenciar seu e-mail, sua agenda e seus documentos."
+msgstr "Помощник поможет управлять почтой, календарём и документами."
 
 #: src/widgets/ask/display.tsx
 msgid "Your call"
-msgstr "Você decide"
+msgstr "На ваше усмотрение"
 
 #: src/components/create-item/create-skill-panel.tsx
 #: src/skills/skills-view.tsx
 msgid "Your changes won't be saved."
-msgstr "Suas alterações não serão salvas."
+msgstr "Изменения не будут сохранены."
 
 #: src/components/logout-modal.tsx
 msgid "Your chats and settings will remain on this device for next time."
-msgstr "Suas conversas e configurações continuarão neste dispositivo para a próxima vez."
+msgstr "Чаты и настройки останутся на этом устройстве для следующего раза."
 
 #: src/components/revoked-device-modal.tsx
 msgid "Your chats and settings will remain on this device for offline use."
-msgstr "Suas conversas e configurações continuarão neste dispositivo para uso offline."
+msgstr "Чаты и настройки останутся на этом устройстве для офлайн-использования."
 
 #: src/components/context-overflow-modal.tsx
 msgid "Your message would exceed the model's {formattedMaxTokens}-token context window."
-msgstr "Sua mensagem passaria da janela de contexto do modelo, de {formattedMaxTokens} tokens."
+msgstr "Ваше сообщение превысит контекстное окно модели в {formattedMaxTokens} токенов."
 
 #: src/settings/preferences.tsx
 msgid "Your name"
-msgstr "Seu nome"
-
-#: src/settings/preferences.tsx
-#~ msgid "Your new location mostly speaks {suggestedLanguageLabel}. Would you like to use Thunderbolt in {suggestedLanguageLabel}?"
-#~ msgstr "No seu novo local, fala-se principalmente {suggestedLanguageLabel}. Você quer usar o Thunderbolt em {suggestedLanguageLabel}?"
+msgstr "Ваше имя"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Your private AI assistant"
-msgstr "Seu assistente de IA privado"
+msgstr "ИИ-помощник с приоритетом конфиденциальности"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Your request to sync this device was denied by another device. You can try again or close this dialog."
-msgstr "Outro dispositivo recusou sua solicitação para sincronizar este dispositivo. Você pode tentar novamente ou fechar esta caixa de diálogo."
+msgstr "Запрос на синхронизацию этого устройства отклонён с другого устройства. Можно попробовать снова или закрыть окно."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Zero Logs"
-msgstr "Zero logs"
+msgstr "Без логов"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Zero Training"
-msgstr "Zero treinamento"
+msgstr "Без обучения на данных"
 
 #: src/widgets/map/widget.tsx
 msgid "Zoom in"
-msgstr "Ampliar"
+msgstr "Увеличить"
 
 #: src/widgets/map/widget.tsx
 msgid "Zoom out"
-msgstr "Reduzir"
+msgstr "Уменьшить"
