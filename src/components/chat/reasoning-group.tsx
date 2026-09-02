@@ -8,7 +8,8 @@ import { type ReasoningGroupItem, type ToolOrDynamicToolUIPart } from '@/lib/ass
 import { computeWallClockTime } from '@/lib/utils'
 import type { UIMessageMetadata } from '@/types'
 import { type ReasoningUIPart } from 'ai'
-import { CheckIcon, Loader2 } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { Expandable } from '../ui/expandable'
 import { ReasoningDisplay } from './reasoning-display'
 import { ReasoningGroupTitle } from './reasoning-group-title'
@@ -79,7 +80,7 @@ export const ReasoningGroup = ({
         className="shadow-none tool-invocation-card rounded-xl overflow-hidden transition-colors"
         icon={
           isGroupReasoning ? (
-            <Loader2 className={`h-4 w-4 animate-spin text-muted-foreground`} />
+            <Spinner className={`h-4 w-4 text-muted-foreground`} />
           ) : (
             <CheckIcon className="h-4 w-4 text-muted-foreground" />
           )

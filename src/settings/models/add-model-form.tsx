@@ -4,7 +4,8 @@
 
 import { useProviderVisibility } from '@/providers/use-provider-visibility'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Loader2, X } from 'lucide-react'
+import { X } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import type { UseFormReturn } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -158,7 +159,7 @@ export const AddModelForm = ({
                     />
                   </FormControl>
                   {isLoadingCatalog && (
-                    <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    <Spinner className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   )}
                 </div>
                 {catalogError && <p className="mt-1 whitespace-pre-line text-sm text-destructive">{catalogError}</p>}
