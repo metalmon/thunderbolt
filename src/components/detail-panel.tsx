@@ -4,6 +4,7 @@
 
 import { X } from 'lucide-react'
 import type { AnimationEvent, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SlideInPanel } from '@/components/slide-in-panel'
 import { Button, mutedIconButtonClass } from '@/components/ui/button'
@@ -55,6 +56,7 @@ type DetailPanelProps = {
  * flat on the surface with hairline dividers instead of nested cards.
  */
 export const DetailPanel = ({ icon, title, subtitle, actions, onClose, children }: DetailPanelProps) => {
+  const { t } = useTranslation('common')
   const { isMobile } = useResponsiveModalContext()
 
   return (
@@ -91,7 +93,7 @@ export const DetailPanel = ({ icon, title, subtitle, actions, onClose, children 
               variant="ghost"
               size="icon"
               onClick={onClose}
-              aria-label="Close details"
+              aria-label={t('closeDetails')}
               className={mutedIconButtonClass}
             >
               <X />

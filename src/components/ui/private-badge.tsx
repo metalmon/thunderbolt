@@ -4,6 +4,7 @@
 
 import { GradientLock } from '@/components/ui/gradient-lock'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Confidential-model indicator: gradient lock + "Private" in one continuous
@@ -13,9 +14,12 @@ import { cn } from '@/lib/utils'
  * viewBox units at the 14px icon size) so it samples only the gold lead-in.
  * Used in the model selector dropdown and the models settings page.
  */
-export const PrivateBadge = ({ className }: { className?: string }) => (
-  <span className={cn('flex items-center gap-1 bg-clip-text [background-image:var(--gradient-brand)]', className)}>
-    <GradientLock className="size-3.5" gradientEndX={89} />
-    <span className="text-transparent text-[length:var(--font-size-xs)] font-medium">Private</span>
-  </span>
-)
+export const PrivateBadge = ({ className }: { className?: string }) => {
+  const { t } = useTranslation()
+  return (
+    <span className={cn('flex items-center gap-1 bg-clip-text [background-image:var(--gradient-brand)]', className)}>
+      <GradientLock className="size-3.5" gradientEndX={89} />
+      <span className="text-transparent text-[length:var(--font-size-xs)] font-medium">{t('common:private')}</span>
+    </span>
+  )
+}
