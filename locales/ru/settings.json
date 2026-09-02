@@ -404,6 +404,7 @@
     "emptyDescriptionPrefix": "Навыки — это шаблоны инструкций, которые вызываются в чате через",
     "createFirstButton": "Создать первый навык",
     "leaveWithoutSavingTitle": "Уйти без сохранения?",
+    "leaveWithoutSavingDescription": "Изменения не будут сохранены.",
     "leaveWithoutCreatingTitle": "Уйти без создания?",
     "unsavedChangesDescription": "Изменения не будут сохранены.",
     "unsavedCreateDescription": "Введённые данные будут потеряны.",

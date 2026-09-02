@@ -416,6 +416,7 @@
     "emptyDescriptionPrefix": "Skills are reusable instruction templates you summon in chat with",
     "createFirstButton": "Create your first skill",
     "leaveWithoutSavingTitle": "Leave without saving?",
+    "leaveWithoutSavingDescription": "Your changes won't be saved.",
     "leaveWithoutCreatingTitle": "Leave without creating?",
     "unsavedChangesDescription": "Your changes won't be saved.",
     "unsavedCreateDescription": "You'll lose what you've added so far.",
