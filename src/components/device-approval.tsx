@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans } from '@lingui/react/macro'
-import { AlertCircle, Loader2, ShieldQuestion, Terminal } from 'lucide-react'
+import { AlertCircle, ShieldQuestion, Terminal } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { type FormEvent, type ReactNode, useEffect, useReducer, useRef } from 'react'
 import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 
@@ -148,7 +149,7 @@ const DeviceApprovalContent = ({ initialCode }: { initialCode: string }) => {
       {state.status === 'verifying' && (
         <DialogHeader>
           <div className={`${iconWrapperClass} bg-gradient-to-br from-amber-400 to-orange-500`}>
-            <Loader2 className="size-[var(--icon-size-default)] animate-spin text-white" />
+            <Spinner className="size-[var(--icon-size-default)] text-white" />
           </div>
           <DialogTitle className="text-center text-xl">
             <Trans>Checking sign-in request…</Trans>
@@ -218,14 +219,14 @@ const DeviceApprovalContent = ({ initialCode }: { initialCode: string }) => {
             <div className="flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={deny} disabled={isSubmitting}>
                 {state.pendingAction === 'deny' ? (
-                  <Loader2 className="size-[var(--icon-size-sm)] animate-spin" />
+                  <Spinner className="size-[var(--icon-size-sm)]" />
                 ) : (
                   <Trans>Deny</Trans>
                 )}
               </Button>
               <Button className="flex-1" onClick={approve} disabled={isSubmitting}>
                 {state.pendingAction === 'approve' ? (
-                  <Loader2 className="size-[var(--icon-size-sm)] animate-spin" />
+                  <Spinner className="size-[var(--icon-size-sm)]" />
                 ) : (
                   <Trans>Approve</Trans>
                 )}
@@ -318,7 +319,7 @@ export const DeviceApproval = () => {
       <ApprovalShell>
         <DialogHeader>
           <div className={`${iconWrapperClass} bg-gradient-to-br from-amber-400 to-orange-500`}>
-            <Loader2 className="size-[var(--icon-size-default)] animate-spin text-white" />
+            <Spinner className="size-[var(--icon-size-default)] text-white" />
           </div>
           <DialogTitle className="text-center text-xl">
             <Trans>Loading…</Trans>

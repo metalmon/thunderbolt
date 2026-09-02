@@ -4,7 +4,8 @@
 
 import { useLingui } from '@lingui/react/macro'
 import { SidebarMenuButton } from '@/components/ui/sidebar'
-import { Flame, Loader2, Search } from 'lucide-react'
+import { Flame, Search } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import type { ChatActionsProps } from './types'
 
 const actionButtonClass =
@@ -35,7 +36,7 @@ export const ChatActions = ({
           disabled={deleteAllChatsMutation.isPending}
         >
           {deleteAllChatsMutation.isPending ? (
-            <Loader2 className="size-[var(--icon-size-default)] animate-spin" />
+            <Spinner className="size-[var(--icon-size-default)]" />
           ) : (
             <Flame className="size-[var(--icon-size-default)]" />
           )}

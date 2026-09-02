@@ -8,7 +8,8 @@ import { type ReasoningGroupItem, type ToolOrDynamicToolUIPart } from '@/lib/ass
 import { computeWallClockTime } from '@/lib/utils'
 import type { UIMessageMetadata } from '@/types'
 import { type ReasoningUIPart } from 'ai'
-import { CheckIcon, Loader2 } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { Expandable } from '../ui/expandable'
 import { ReasoningDisplay } from './reasoning-display'
 import { ReasoningGroupTitle } from './reasoning-group-title'
@@ -69,50 +70,7 @@ export const ReasoningGroup = ({
     dependencies: [parts.length],
     smooth: true,
     isStreaming: false,
-    rootMargin: '0px',
-  })
-
-  return (
-    <div className="mt-6">
-      <Expandable
-        className="shadow-none tool-invocation-card rounded-xl overflow-hidden transition-colors"
-        icon={
-          isGroupReasoning ? (
-            <Loader2 className={`h-4 w-4 animate-spin text-muted-foreground`} />
-          ) : (
-            <CheckIcon className="h-4 w-4 text-muted-foreground" />
-          )
-        }
-        defaultOpen={false}
-        title={
-          <ReasoningGroupTitle
-            totalDuration={totalDuration}
-            isGroupReasoning={isGroupReasoning}
-            tools={tools}
-            mcpTools={mcpTools}
-          />
-        }
-      >
-        <div className="max-h-[200px] overflow-y-auto" ref={scrollContainerRef}>
-          {parts.map((part, index) => {
-            return (
-              <ReasoningItem
-                key={index}
-                part={part}
-                onClick={() => openObjectSidebar(part.content as ToolOrDynamicToolUIPart | ReasoningUIPart, mcpTools)}
-                reasoningTime={reasoningTime?.[part.id]}
-                isGroupReasoning={isGroupReasoning}
-                mcpTools={mcpTools}
-              />
-            )
-          })}
-          <div ref={scrollTargetRef} />
-        </div>
-      </Expandable>
-      {!hasTextPart && (
-        <ReasoningDisplay
-          text={currentReasoningPart?.content.text}
-          isStreaming={currentReasoningPart?.content.state === 'streaming'}
+    rootMargin: '0px', }) return ( <div className="mt-6"> <Expandable className="shadow-none tool-invocation-card rounded-xl overflow-hidden transition-colors" icon={ isGroupReasoning ? ( <Spinner className={`h-4 w-4 text-muted-foreground`} /> ) : ( <CheckIcon className="h-4 w-4 text-muted-foreground" /> ) } defaultOpen={false} title={ <ReasoningGroupTitle totalDuration={totalDuration} isGroupReasoning={isGroupReasoning} tools={tools} mcpTools={mcpTools} /> } > <div className="max-h-[200px] overflow-y-auto" ref={scrollContainerRef}> {parts.map((part, index) => { return ( <ReasoningItem key={index} part={part} onClick={() => openObjectSidebar(part.content as ToolOrDynamicToolUIPart | ReasoningUIPart, mcpTools)} reasoningTime={reasoningTime?.[part.id]} isGroupReasoning={isGroupReasoning} mcpTools={mcpTools} /> ) })} <div ref={scrollTargetRef} /> </div> </Expandable> {!hasTextPart && ( <ReasoningDisplay text={currentReasoningPart?.content.text} isStreaming={currentReasoningPart?.content.state ==='streaming'}
           instanceKey={reasoningInstanceKey}
         />
       )}

@@ -5,7 +5,8 @@
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Download, RefreshCw, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Download, RefreshCw, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Spinner } from '@/components/ui/spinner'
 import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { useDesktopUpdate, type UpdateStatus } from '@/hooks/use-desktop-update'
@@ -18,9 +19,9 @@ const statusConfig: Record<
 > = {
   initial: { icon: CheckCircle, message: null, showActions: false },
   idle: { icon: CheckCircle, message: null, showActions: false },
-  checking: { icon: Loader2, message: msg`Checking for updates…`, showActions: false },
+  checking: { icon: Spinner, message: msg`Checking for updates…`, showActions: false },
   available: { icon: Download, message: msg`A new version is available!`, showActions: true },
-  downloading: { icon: Loader2, message: msg`Downloading update…`, showActions: false },
+  downloading: { icon: Spinner, message: msg`Downloading update…`, showActions: false },
   ready: { icon: RefreshCw, message: msg`Update ready! Restart to apply.`, showActions: true },
   error: { icon: AlertCircle, message: msg`Update failed`, showActions: true },
 }
@@ -58,7 +59,7 @@ export const UpdateNotification = () => {
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <Icon
-                  className={`size-5 ${status === 'downloading' ? 'animate-spin' : ''} ${
+                  className={`size-5 ${
                     status === 'error' ? 'text-destructive' : 'text-primary'
                   }`}
                 />
