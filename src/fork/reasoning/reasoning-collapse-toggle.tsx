@@ -6,7 +6,7 @@
 
 import { Switch } from '@/components/ui/switch'
 import { useSettings } from '@/hooks/use-settings'
-import { useTranslation } from 'react-i18next'
+import { useLingui } from '@lingui/react/macro'
 
 /**
  * Preferences row for the "collapse reasoning by default" setting. Self-contained
@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next'
  * fallback when no row exists.
  */
 export const ReasoningCollapseToggle = () => {
-  const { t } = useTranslation('settings')
+  const { t } = useLingui()
   const { collapseReasoningByDefault } = useSettings({ collapse_reasoning_by_default: true })
 
   return (
@@ -30,13 +30,13 @@ export const ReasoningCollapseToggle = () => {
 
       <div className="flex-row flex items-center gap-4">
         <div className="flex-1">
-          <label className="text-sm font-medium">{t('preferences.collapseReasoningLabel')}</label>
-          <p className="text-sm text-muted-foreground">{t('preferences.collapseReasoningDescription')}</p>
+          <label className="text-sm font-medium">{t`Collapse reasoning`}</label>
+          <p className="text-sm text-muted-foreground">{t`Hide the model's live thinking while it generates.`}</p>
         </div>
         <Switch
           checked={collapseReasoningByDefault.value}
           onCheckedChange={(value) => void collapseReasoningByDefault.setValue(value)}
-          aria-label={t('preferences.collapseReasoningLabel')}
+          aria-label={t`Collapse reasoning`}
         />
       </div>
     </>
