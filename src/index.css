@@ -10,6 +10,15 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* Applied to <html> for the first paint (and reserved for any deliberate
+   snap-not-animate moment) — kills every transition so a fresh mount doesn't
+   replay them all at once. See src/index.tsx. */
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+}
+
 /* Force-desktop: the Tauri desktop app always renders the desktop layout, no
    matter how narrow the window is (the 600px min window width sits below the
    640px sm and 768px md breakpoints). src/index.tsx adds .force-desktop to
