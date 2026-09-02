@@ -76,7 +76,7 @@ export const WaitlistPage = () => {
               type="button"
               onClick={() => actions.handleOtpComplete(state.otp)}
               isLoading={isVerifying}
-              loadingLabel="Verifying…"
+              loadingLabel={t('common:syncSetup.verifying')}
               disabled={state.otp.length !== otpLength}
               className="h-[46px] w-full rounded-xl text-base"
             >
@@ -117,7 +117,7 @@ export const WaitlistPage = () => {
             <Button
               type="submit"
               isLoading={state.status === 'joining'}
-              loadingLabel="Sending…"
+              loadingLabel={t('common:sending')}
               disabled={!isValidEmail}
               className="h-[46px] w-full rounded-xl text-base"
             >

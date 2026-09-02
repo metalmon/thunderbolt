@@ -294,7 +294,7 @@ const NewTaskInput = ({ onAdd, onCancel }: NewTaskInputProps) => {
           style={{ height: '20px' }}
         />
       </div>
-      <Checkbox aria-label="Complete new task" disabled />
+      <Checkbox aria-label={t('completeNewTask')} disabled />
     </div>
   )
 }

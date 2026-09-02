@@ -39,6 +39,7 @@ type DropRowProps = {
 }
 
 const DropRow = ({ dropId, label, icon, isDragging, isCurrent, isActive, onClick }: DropRowProps) => {
+  const { t } = useTranslation('projects')
   const { setNodeRef, isOver } = useDroppable({ id: dropId, disabled: isCurrent })
 
   return (
@@ -59,7 +60,7 @@ const DropRow = ({ dropId, label, icon, isDragging, isCurrent, isActive, onClick
         <span className="truncate">{label}</span>
         {isDragging && !isCurrent && (
           <span className="ml-auto text-[length:var(--font-size-xs)] text-muted-foreground">
-            {isOver ? 'Drop' : ''}
+            {isOver ? t('dropList.drop') : ''}
           </span>
         )}
       </SidebarMenuButton>
@@ -161,7 +162,7 @@ export const ProjectDropRows = ({ projects, isDragging, draggingFromProjectId }:
               className="cursor-pointer text-muted-foreground"
             >
               <Ellipsis className="size-[var(--icon-size-default)]" aria-hidden="true" />
-              <span className="truncate">{hiddenCount} more</span>
+              <span className="truncate">{t('projects:dropList.more', { count: hiddenCount })}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         )}
@@ -169,7 +170,7 @@ export const ProjectDropRows = ({ projects, isDragging, draggingFromProjectId }:
         {isDragging && draggingFromProjectId !== null && (
           <DropRow
             dropId={unassignDropId}
-            label="Remove from project"
+            label={t('projects:move.removeFromProject')}
             icon={<FolderMinus className="size-[var(--icon-size-default)] text-muted-foreground" aria-hidden="true" />}
             isDragging
           />
