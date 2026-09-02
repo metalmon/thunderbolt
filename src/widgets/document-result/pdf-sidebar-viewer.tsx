@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { useHttpClient } from '@/contexts'
 import { Download, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
@@ -45,7 +44,6 @@ type DocumentPreviewProps = {
  * by the caller (Haystack-backed or local IndexedDB) and passed in as `state`.
  */
 const DocumentPreview = ({ fileName, fileType, state, initialPage }: DocumentPreviewProps) => {
-  const { t } = useTranslation('chat')
   const { close } = useContentView()
   const [numPages, setNumPages] = useState<number | null>(null)
 
