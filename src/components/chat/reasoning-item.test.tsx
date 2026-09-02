@@ -99,7 +99,7 @@ describe('ReasoningItem', () => {
 
       // Check for loader (Loader2 has animate-spin class)
       const button = screen.getByRole('button')
-      const loader = button.querySelector('.animate-spin')
+      const loader = button.querySelector('.volt-spinner')
       expect(loader).toBeInTheDocument()
     })
 
@@ -188,7 +188,7 @@ describe('ReasoningItem', () => {
       render(<ReasoningItem part={part} onClick={mockOnClick} reasoningTime={testReasoningTime} isGroupReasoning />)
 
       const button = screen.getByRole('button')
-      const loader = button.querySelector('.animate-spin')
+      const loader = button.querySelector('.volt-spinner')
       expect(loader).toBeInTheDocument()
     })
 
@@ -200,7 +200,7 @@ describe('ReasoningItem', () => {
       render(<ReasoningItem part={part} onClick={mockOnClick} reasoningTime={testReasoningTime} isGroupReasoning />)
 
       const button = screen.getByRole('button')
-      const loader = button.querySelector('.animate-spin')
+      const loader = button.querySelector('.volt-spinner')
       expect(loader).toBeInTheDocument()
     })
 
@@ -214,7 +214,7 @@ describe('ReasoningItem', () => {
       )
 
       const button = screen.getByRole('button')
-      const loader = button.querySelector('.animate-spin')
+      const loader = button.querySelector('.volt-spinner')
       expect(loader).not.toBeInTheDocument()
     })
 
@@ -228,7 +228,7 @@ describe('ReasoningItem', () => {
       )
 
       const button = screen.getByRole('button')
-      const loader = button.querySelector('.animate-spin')
+      const loader = button.querySelector('.volt-spinner')
       expect(loader).not.toBeInTheDocument()
     })
 
