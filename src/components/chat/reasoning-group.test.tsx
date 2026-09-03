@@ -116,7 +116,7 @@ describe('ReasoningGroup', () => {
       )
 
       // CheckIcon should be present (not Loader2)
-      const loader = container.querySelector('.volt-spinner')
+      const loader = container.querySelector('.animate-spin')
       expect(loader).not.toBeInTheDocument()
     })
 
@@ -135,7 +135,7 @@ describe('ReasoningGroup', () => {
       )
 
       // Loader2 should be present with animate-spin class
-      const loader = container.querySelector('.volt-spinner')
+      const loader = container.querySelector('.animate-spin')
       expect(loader).toBeInTheDocument()
     })
 
@@ -193,7 +193,7 @@ describe('ReasoningGroup', () => {
       )
 
       // Should show loader
-      const loader = container.querySelector('.volt-spinner')
+      const loader = container.querySelector('.animate-spin')
       expect(loader).toBeInTheDocument()
     })
 
@@ -212,7 +212,7 @@ describe('ReasoningGroup', () => {
       )
 
       // Should not show loader
-      const loader = container.querySelector('.volt-spinner')
+      const loader = container.querySelector('.animate-spin')
       expect(loader).not.toBeInTheDocument()
     })
 
@@ -231,7 +231,7 @@ describe('ReasoningGroup', () => {
       )
 
       // Should not show loader
-      const loader = container.querySelector('.volt-spinner')
+      const loader = container.querySelector('.animate-spin')
       expect(loader).not.toBeInTheDocument()
     })
   })

@@ -18,8 +18,7 @@ import { SectionCard } from '@/components/ui/section-card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { type DiscoveredModels, fetchOpenAiModels, testOpenAiConnection } from '@/voice/engine/openai-compatible-engine'
 import { type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
-import { CheckCircle2, XCircle } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
 type ConnState = { status: 'idle' | 'testing' | 'ok' | 'error'; detail?: string }
@@ -209,11 +208,11 @@ export const VoiceSettingsPage = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
-                    {ui.loadingModels && <Spinner className="size-4" />}
+                    {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
                     <Trans>Load models</Trans>
                   </Button>
                   <Button type="button" onClick={runTest} disabled={!canTest || ui.conn.status === 'testing'}>
-                    {ui.conn.status === 'testing' && <Spinner className="size-4" />}
+                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
                     <Trans>Test connection</Trans>
                   </Button>
                 </div>
