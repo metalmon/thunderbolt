@@ -4,7 +4,7 @@
 
 import { Trans } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
+import { Loader2 } from 'lucide-react'
 
 type ApprovalWaitingStepProps = {
   error: string | null
@@ -33,7 +33,7 @@ export const ApprovalWaitingStep = ({
       </p>
       {isPolling && (
         <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Spinner className="h-3 w-3" />
+          <Loader2 className="h-3 w-3 animate-spin" />
           <Trans>Checking automatically…</Trans>
         </p>
       )}
@@ -45,7 +45,7 @@ export const ApprovalWaitingStep = ({
       <Button className="w-full" onClick={onContinue} disabled={isLoading}>
         {isLoading ? (
           <>
-            <Spinner className="mr-2 h-4 w-4" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             <Trans>Checking…</Trans>
           </>
         ) : (

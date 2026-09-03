@@ -6,7 +6,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { type KeyboardEvent } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
+import { Loader2 } from 'lucide-react'
 
 type RecoveryKeyEntryStepProps = {
   value: string
@@ -78,7 +78,7 @@ export const RecoveryKeyEntryStep = ({ value, error, onChange, onSubmit, isLoadi
         <Button className="w-full" onClick={onSubmit} disabled={isLoading || wordCount !== 24}>
           {isLoading ? (
             <>
-              <Spinner className="mr-2 h-4 w-4" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               <Trans>Verifying…</Trans>
             </>
           ) : (

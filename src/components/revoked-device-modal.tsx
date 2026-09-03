@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans, useLingui } from '@lingui/react/macro'
-import { HardDrive, Trash2 } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { HardDrive, Loader2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -77,7 +76,7 @@ export const RevokedDeviceModal = ({ open }: RevokedDeviceModalProps) => {
         >
           {isProcessing ? (
             <>
-              <Spinner className="mr-2 h-4 w-4" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {selectedOption === 'delete' ? <Trans>Deleting…</Trans> : <Trans>Signing out…</Trans>}
             </>
           ) : (
