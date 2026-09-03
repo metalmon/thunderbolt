@@ -14,8 +14,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
-import { Flame, Search } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { Flame, Loader2, Search } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type Ref } from 'react'
 import { Virtualizer, type CustomContainerComponentProps, type CustomItemComponentProps } from 'virtua'
 import { ChatActions } from './chat-actions'
@@ -161,7 +160,7 @@ export const ChatList = ({
               className="cursor-pointer text-muted-foreground hover:text-sidebar-foreground"
             >
               {deleteAllChatsMutation.isPending ? (
-                <Spinner className="size-[var(--icon-size-default)]" />
+                <Loader2 className="size-[var(--icon-size-default)] animate-spin" />
               ) : (
                 <Flame className="size-[var(--icon-size-default)]" />
               )}
