@@ -265,11 +265,11 @@ export const VoiceSettingsPage = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
-                    {ui.loadingModels && <Spinner className="size-4" />}
+                    {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
                     <Trans>Load models</Trans>
                   </Button>
                   <Button type="button" onClick={runTest} disabled={!canTest || ui.conn.status === 'testing'}>
-                    {ui.conn.status === 'testing' && <Spinner className="size-4" />}
+                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
                     <Trans>Test connection</Trans>
                   </Button>
                 </div>
