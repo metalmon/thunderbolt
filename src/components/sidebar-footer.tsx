@@ -123,7 +123,7 @@ export const SyncStateIcon = ({
     return <CloudOff className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
   }
   if (connectionStatus === 'connecting') {
-    return <Spinner className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
+    return <Loader2 className={cn(iconSize, 'shrink-0 animate-spin text-muted-foreground')} />
   }
   if (connectionStatus !== 'connected') {
     return <CloudAlert className={cn(iconSize, 'shrink-0 text-warning')} />
@@ -294,11 +294,11 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
             isMobile ? 'size-[var(--touch-height-lg)] bg-sidebar-accent' : 'size-[var(--touch-height-default)]',
           )}
         >
-          <Spinner className={cn(iconSize, 'text-muted-foreground')} />
+          <Loader2 className={cn(iconSize, 'animate-spin text-muted-foreground')} />
         </div>
       ) : (
         <div className={cn(pillClassName(true), 'cursor-default hover:bg-transparent')}>
-          <Spinner className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
+          <Loader2 className={cn(iconSize, 'shrink-0 animate-spin text-muted-foreground')} />
           <span className="truncate text-muted-foreground">
             <Trans>Loading…</Trans>
           </span>
@@ -481,7 +481,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
                   onClick={handleRetry}
                 >
                   {isReconnecting ? (
-                    <Spinner className="mr-1 size-3" />
+                    <Loader2 className="mr-1 size-3 animate-spin" />
                   ) : (
                     <RefreshCw className="mr-1 size-3" />
                   )}

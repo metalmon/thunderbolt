@@ -34,7 +34,7 @@ describe('Button', () => {
     expect(button).toBeDisabled()
     expect(button).toHaveAttribute('aria-busy', 'true')
     expect(button).toHaveClass('disabled:[background-image:var(--gradient-brand)]')
-    expect(button.querySelector('.volt-spinner')).toBeInTheDocument()
+    expect(button.querySelector('.animate-spin')).toBeInTheDocument()
   })
 
   it('keeps ordinary disabled primary buttons neutral', () => {
