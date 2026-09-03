@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SiGithub } from '@icons-pack/react-simple-icons'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { EyeOff, Mail } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { EyeOff, Loader2, Mail } from 'lucide-react'
 import { useRef, type FormEvent, type RefObject } from 'react'
 
 type SignInEmailStepProps = {
@@ -128,7 +127,7 @@ export const SignInEmailStep = ({
         >
           {isLoading ? (
             <>
-              <Spinner className="mr-2 h-4 w-4" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               <Trans>Sending…</Trans>
             </>
           ) : variant === 'modal' ? (
