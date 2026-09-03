@@ -965,7 +965,7 @@ describe('ChatMessages', () => {
       ]
       const { container } = setup('submitted', messages)
 
-      const spinner = container.querySelector('.volt-spinner')
+      const spinner = container.querySelector('.animate-spin')
       expect(spinner).not.toBeNull()
     })
 
@@ -974,7 +974,7 @@ describe('ChatMessages', () => {
         createTestMessage({ role: 'user', parts: [{ type: 'text', text: 'Hello' }] }),
       ]
       const { container } = setup('ready', messages)
-      expect(container.querySelector('.volt-spinner')).toBeNull()
+      expect(container.querySelector('.animate-spin')).toBeNull()
     })
 
     it('does not render the indicator when an assistant message already exists', () => {
@@ -983,7 +983,7 @@ describe('ChatMessages', () => {
         createTestMessage({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'reply' }] }),
       ]
       const { container } = setup('submitted', messages)
-      expect(container.querySelector('.volt-spinner')).toBeNull()
+      expect(container.querySelector('.animate-spin')).toBeNull()
     })
   })
 })
