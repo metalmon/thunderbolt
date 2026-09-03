@@ -16,8 +16,7 @@ import { RecoveryKeyEntryStep } from './recovery-key-entry-step'
 import { GradientCircleCheck } from '@/components/ui/gradient-circle-check'
 import { IconCircle } from '@/components/onboarding/icon-circle'
 import { showRevokedDeviceModalEvent } from '@/hooks/use-credential-events'
-import { ArrowLeft, Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { ArrowLeft, Loader2, Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { useRef } from 'react'
 
 type SyncSetupModalProps = {
@@ -229,7 +228,7 @@ const IntroStep = ({ onContinue, isLoading }: { onContinue: () => void; isLoadin
       <Button className="w-full" onClick={onContinue} disabled={isLoading}>
         {isLoading ? (
           <>
-            <Spinner className="mr-2 h-4 w-4" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             <Trans>Setting up…</Trans>
           </>
         ) : (
@@ -255,7 +254,7 @@ const DetectingStep = ({ isLoading, error, onRetry }: DetectingStepProps) => (
     <div className="text-center space-y-4">
       {isLoading && (
         <>
-          <Spinner className="mx-auto h-8 w-8 text-muted-foreground" />
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
           <h2 className="text-2xl font-bold">
             <Trans>Setting up encryption…</Trans>
           </h2>
@@ -319,7 +318,7 @@ const FirstDeviceSetupStep = ({ onContinue, isLoading, error }: FirstDeviceSetup
       <Button className="w-full" onClick={onContinue} disabled={isLoading}>
         {isLoading ? (
           <>
-            <Spinner className="mr-2 h-4 w-4" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             <Trans>Generating keys…</Trans>
           </>
         ) : (
