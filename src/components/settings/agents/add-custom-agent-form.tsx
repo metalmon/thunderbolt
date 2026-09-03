@@ -4,8 +4,7 @@
 
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useReducer } from 'react'
-import { Check, X } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { Check, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
 import { useAutofocusOnMount } from '@/hooks/use-autofocus-on-mount'
@@ -239,7 +238,7 @@ export const AddCustomAgentForm = ({
           >
             {state.isTestingConnection ? (
               <>
-                <Spinner className="mr-2 h-4 w-4" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 <Trans>Testing agent…</Trans>
               </>
             ) : (

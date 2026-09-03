@@ -4,8 +4,7 @@
 
 import type { ReasoningUIPart } from 'ai'
 import { Trans } from '@lingui/react/macro'
-import { Check } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { Check, Loader2 } from 'lucide-react'
 import { Expandable } from '../ui/expandable'
 
 type ReasoningPartProps = {
@@ -25,7 +24,7 @@ export const ReasoningPart = ({ part }: ReasoningPartProps) => {
       className="shadow-none"
       icon={
         state === 'streaming' ? (
-          <Spinner className="h-4 w-4 text-muted-foreground" data-testid="reasoning-loading" />
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" data-testid="reasoning-loading" />
         ) : (
           <Check className="h-4 w-4 text-muted-foreground" data-testid="reasoning-completed" />
         )
