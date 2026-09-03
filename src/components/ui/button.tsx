@@ -4,7 +4,7 @@
 
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { Spinner } from '@/components/ui/spinner'
+import { Loader2 } from 'lucide-react'
 import { type MouseEvent, useCallback, type ComponentProps } from 'react'
 
 import { useHaptics } from '@/hooks/use-haptics'
@@ -147,7 +147,7 @@ const Button = ({
         children
       ) : (
         <>
-          {isLoading && <Spinner className="" />}
+          {isLoading && <Loader2 className="animate-spin" />}
           {isLoading && loadingLabel ? loadingLabel : children}
         </>
       )}

@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AlertCircle } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 
@@ -130,7 +129,7 @@ export const MagicLinkVerify = () => {
           <>
             <DialogHeader>
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500">
-                <Spinner className="h-6 w-6 text-white" />
+                <Loader2 className="h-6 w-6 animate-spin text-white" />
               </div>
               <DialogTitle className="text-center text-xl">
                 <Trans>Signing you in…</Trans>

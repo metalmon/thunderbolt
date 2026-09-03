@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Spinner } from '@/components/ui/spinner'
+import { Loader2 } from 'lucide-react'
 
 type ApproveDeviceDialogProps = {
   open: boolean
@@ -40,7 +40,7 @@ export const ApproveDeviceDialog = ({ open, onOpenChange, onConfirm, isPending }
         <AlertDialogAction onClick={onConfirm} disabled={isPending}>
           {isPending ? (
             <>
-              <Spinner className="size-4 mr-1" />
+              <Loader2 className="size-4 mr-1 animate-spin" />
               <Trans>Approving…</Trans>
             </>
           ) : (
