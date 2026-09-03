@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Spinner } from '@/components/ui/spinner'
+import { Loader2 } from 'lucide-react'
 import { Expandable } from '../ui/expandable'
 
 type SyntheticLoadingPartProps = {
@@ -27,7 +27,7 @@ export const SyntheticLoadingPart = ({ message = '', isStreaming }: SyntheticLoa
     <Expandable
       title={titleNode}
       defaultOpen={false}
-      icon={<Spinner className="h-4 w-4 text-muted-foreground" />}
+      icon={<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       className="shadow-none pointer-events-none mt-6" // Prevent clicking while loading
     >
       {null}
