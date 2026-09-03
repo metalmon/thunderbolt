@@ -6,8 +6,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import { useOAuthConnect } from '@/hooks/use-oauth-connect'
 import { type OAuthProvider } from '@/lib/auth'
-import { Check, X } from 'lucide-react'
-import { Spinner } from '@/components/ui/spinner'
+import { Check, Loader2, X } from 'lucide-react'
 import { useState } from 'react'
 
 type ConnectProviderButtonProps = {
@@ -111,7 +110,7 @@ export const ConnectProviderButton = ({
         )
       ) : isConnecting ? (
         <>
-          <Spinner className="w-4 h-4 mr-2" />
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           {connectingLabel}
         </>
       ) : (
