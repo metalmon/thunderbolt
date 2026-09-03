@@ -8,7 +8,7 @@ import { getFormatters } from '@/i18n/format'
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Cloud, CloudAlert, CloudOff } from 'lucide-react'
+import { Cloud, CloudAlert, CloudOff, Loader2 } from 'lucide-react'
 import { type ReactElement, type ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 
@@ -32,7 +32,6 @@ import type { DatabaseInterface } from '@/db/database-interface'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { isE2eeReady } from '@/hooks/use-e2ee-ready'
 import { SidebarFooter, SyncStateIcon, syncStatusText } from './sidebar-footer'
-import { Spinner } from '@/components/ui/spinner'
 
 beforeAll(async () => {
   await setupTestDatabase()
@@ -368,8 +367,8 @@ describe('SyncStateIcon', () => {
 
   it('renders a spinner while connecting', () => {
     const svg = renderSvg(<SyncStateIcon isLoggedIn={true} syncEnabled={true} connectionStatus="connecting" />)
-    expect(pathData(svg)).toEqual(referencePaths(<Spinner />))
-    expect(svg.classList.contains('volt-spinner')).toBe(true)
+    expect(pathData(svg)).toEqual(referencePaths(<Loader2 />))
+    expect(svg.classList.contains('animate-spin')).toBe(true)
   })
 
   it('renders the warning CloudAlert when sync is on but not connected', () => {

@@ -12,6 +12,7 @@ import {
   CloudOff,
   Download,
   HardDrive,
+  Loader2,
   LogOut,
   MessageCirclePlus,
   RefreshCw,
@@ -48,7 +49,6 @@ import { reconnectSync } from '@/db/powersync/sync-state'
 import { getDownloadUrl } from '@/lib/download-links'
 import { isWebDesktopPlatform, isTauri } from '@/lib/platform'
 import { cn } from '@/lib/utils'
-import { Spinner } from '@/components/ui/spinner'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
@@ -124,7 +124,7 @@ export const SyncStateIcon = ({
     return <CloudOff className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
   }
   if (connectionStatus === 'connecting') {
-    return <Spinner className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
+    return <Loader2 className={cn(iconSize, 'shrink-0 animate-spin text-muted-foreground')} />
   }
   if (connectionStatus !== 'connected') {
     return <CloudAlert className={cn(iconSize, 'shrink-0 text-warning')} />
@@ -313,7 +313,11 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
               disabled={isReconnecting}
               onClick={handleRetry}
             >
-              {isReconnecting ? <Spinner className="mr-1 size-3" /> : <RefreshCw className="mr-1 size-3" />}
+              {isReconnecting ? (
+                <Loader2 className="mr-1 size-3 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-1 size-3" />
+              )}
               <Trans>Retry</Trans>
             </Button>
           )}
@@ -407,11 +411,11 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
             isMobile ? 'size-[var(--touch-height-lg)] bg-sidebar-accent' : 'size-[var(--touch-height-default)]',
           )}
         >
-          <Spinner className={cn(iconSize, 'text-muted-foreground')} />
+          <Loader2 className={cn(iconSize, 'animate-spin text-muted-foreground')} />
         </div>
       ) : (
         <div className={cn(pillClassName(true), 'cursor-default hover:bg-transparent')}>
-          <Spinner className={cn(iconSize, 'shrink-0 text-muted-foreground')} />
+          <Loader2 className={cn(iconSize, 'shrink-0 animate-spin text-muted-foreground')} />
           <span className="truncate text-muted-foreground">
             <Trans>Loading…</Trans>
           </span>
