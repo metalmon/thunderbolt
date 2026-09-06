@@ -11,7 +11,7 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "\"{filename}\" is too large (max {maxMegabytes}MB)."
@@ -27,7 +27,8 @@ msgstr "«{filename}» — неподдерживаемый тип файла."
 msgid "# MCP server"
 msgid_plural "# MCP servers"
 msgstr[0] "# MCP-сервер"
-msgstr[1] "# MCP-серверов"
+msgstr[1] "# MCP-сервера"
+msgstr[2] "# MCP-серверов"
 
 #. placeholder {0}: tools.length
 #. js-lingui:icu=%7B0%2C+plural%2C+one+%7B%23+tool%7D+other+%7B%23+tools%7D%7D&pluralize_on=0
@@ -35,35 +36,40 @@ msgstr[1] "# MCP-серверов"
 msgid "# tool"
 msgid_plural "# tools"
 msgstr[0] "# инструмент"
-msgstr[1] "# инструментов"
+msgstr[1] "# инструмента"
+msgstr[2] "# инструментов"
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7B%23+chat%7D+other+%7B%23+chats%7D%7D&pluralize_on=count
 #: src/projects/index.tsx
 msgid "# chat"
 msgid_plural "# chats"
 msgstr[0] "# чат"
-msgstr[1] "# чатов"
+msgstr[1] "# чата"
+msgstr[2] "# чатов"
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+delete+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+delete+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
 msgid "One skill references this. If you delete it, that skill may no longer resolve."
 msgid_plural "# skills reference this. If you delete it, they may no longer resolve."
 msgstr[0] "# навык ссылается на это. Если удалить, он может перестать разрешаться."
-msgstr[1] "# навыков ссылаются на это. Если удалить, они могут перестать разрешаться."
+msgstr[1] "# навыка ссылаются на это. Если удалить, они могут перестать разрешаться."
+msgstr[2] "# навыков ссылаются на это. Если удалить, они могут перестать разрешаться."
 
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7BOne+skill+references+this.+If+you+disable+it%2C+that+skill+may+no+longer+resolve.%7D+other+%7B%23+skills+reference+this.+If+you+disable+it%2C+they+may+no+longer+resolve.%7D%7D&pluralize_on=count
 #: src/skills/dependents-dialog.tsx
 msgid "One skill references this. If you disable it, that skill may no longer resolve."
 msgid_plural "# skills reference this. If you disable it, they may no longer resolve."
 msgstr[0] "# навык ссылается на это. Если отключить, он может перестать разрешаться."
-msgstr[1] "# навыков ссылаются на это. Если отключить, они могут перестать разрешаться."
+msgstr[1] "# навыка ссылаются на это. Если отключить, они могут перестать разрешаться."
+msgstr[2] "# навыков ссылаются на это. Если отключить, они могут перестать разрешаться."
 
 #. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
 msgid "# skill"
 msgid_plural "# skills"
 msgstr[0] "# навык"
-msgstr[1] "# навыков"
+msgstr[1] "# навыка"
+msgstr[2] "# навыков"
 
 #: src/layout/sidebar/project-drop-list.tsx
 msgid "{label} — already in this project"
@@ -74,35 +80,40 @@ msgstr "{label} — уже в этом проекте"
 msgid "This file contains # row exported by {importSourceEmail} on {importExportedAt}."
 msgid_plural "This file contains # rows exported by {importSourceEmail} on {importExportedAt}."
 msgstr[0] "Файл содержит # строку, экспортированную {importSourceEmail} {importExportedAt}."
-msgstr[1] "Файл содержит # строк, экспортированных {importSourceEmail} {importExportedAt}."
+msgstr[1] "Файл содержит # строки, экспортированные {importSourceEmail} {importExportedAt}."
+msgstr[2] "Файл содержит # строк, экспортированных {importSourceEmail} {importExportedAt}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+exported+by+%7BimportSourceEmail%7D.%7D+other+%7BThis+file+contains+%23+rows+exported+by+%7BimportSourceEmail%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row exported by {importSourceEmail}."
 msgid_plural "This file contains # rows exported by {importSourceEmail}."
 msgstr[0] "Файл содержит # строку, экспортированную {importSourceEmail}."
-msgstr[1] "Файл содержит # строк, экспортированных {importSourceEmail}."
+msgstr[1] "Файл содержит # строки, экспортированные {importSourceEmail}."
+msgstr[2] "Файл содержит # строк, экспортированных {importSourceEmail}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row+on+%7BimportExportedAt%7D.%7D+other+%7BThis+file+contains+%23+rows+on+%7BimportExportedAt%7D.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row on {importExportedAt}."
 msgid_plural "This file contains # rows on {importExportedAt}."
 msgstr[0] "Файл содержит # строку от {importExportedAt}."
-msgstr[1] "Файл содержит # строк от {importExportedAt}."
+msgstr[1] "Файл содержит # строки от {importExportedAt}."
+msgstr[2] "Файл содержит # строк от {importExportedAt}."
 
 #. js-lingui:icu=%7Brows%2C+plural%2C+one+%7BThis+file+contains+%23+row.%7D+other+%7BThis+file+contains+%23+rows.%7D%7D&pluralize_on=rows
 #: src/settings/preferences.tsx
 msgid "This file contains # row."
 msgid_plural "This file contains # rows."
 msgstr[0] "Файл содержит # строку."
-msgstr[1] "Файл содержит # строк."
+msgstr[1] "Файл содержит # строки."
+msgstr[2] "Файл содержит # строк."
 
 #. js-lingui:icu=%7BstepCount%2C+plural%2C+one+%7BCompleted+%23+step+in+%7Bduration%7D%7D+other+%7BCompleted+%23+steps+in+%7Bduration%7D%7D%7D&pluralize_on=stepCount
 #: src/components/chat/reasoning-group-title.tsx
 msgid "Completed # step in {duration}"
 msgid_plural "Completed # steps in {duration}"
 msgstr[0] "Выполнен # шаг за {duration}"
-msgstr[1] "Выполнено # шагов за {duration}"
+msgstr[1] "Выполнено # шага за {duration}"
+msgstr[2] "Выполнено # шагов за {duration}"
 
 #: src/components/chat/artifact-message-part.tsx
 msgid "{title} — shown in side panel"
@@ -113,7 +124,8 @@ msgstr "{title} — показано в боковой панели"
 msgid "Imported # row. The app may take a moment to reflect new chats."
 msgid_plural "Imported # rows. The app may take a moment to reflect new chats."
 msgstr[0] "Импортирована # строка. Приложению может понадобиться время, чтобы показать новые чаты."
-msgstr[1] "Импортировано # строк. Приложению может понадобиться время, чтобы показать новые чаты."
+msgstr[1] "Импортировано # строки. Приложению может понадобиться время, чтобы показать новые чаты."
+msgstr[2] "Импортировано # строк. Приложению может понадобиться время, чтобы показать новые чаты."
 
 #: src/lib/tool-metadata.ts
 msgid "{verbPhrase}…"
@@ -410,7 +422,7 @@ msgstr "Артефакты"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Ask"
-msgstr "Вопрос"
+msgstr "Спросить"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Ask me anything…"
