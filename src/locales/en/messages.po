@@ -697,6 +697,7 @@ msgid "Clear Local Database?"
 msgstr "Clear Local Database?"
 
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "Clear saved API key"
 
@@ -999,8 +1000,8 @@ msgid "Could not read the import file."
 msgstr "Could not read the import file."
 
 #: src/fork/documents/docx-preview.tsx
-msgid "Could not render {fileName}. Use the download button to open it."
-msgstr "Could not render {fileName}. Use the download button to open it."
+#~ msgid "Could not render {fileName}. Use the download button to open it."
+#~ msgstr "Could not render {fileName}. Use the download button to open it."
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
@@ -1029,6 +1030,10 @@ msgstr "Couldn't check for updates: {error}"
 #: src/settings/app-version-section.tsx
 msgid "Couldn't check for updates."
 msgstr "Couldn't check for updates."
+
+#: src/voice/ui/use-voice-session.ts
+msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
+msgstr "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
 
 #: src/settings/app-version-section.tsx
 #~ msgid "Couldn't download the update"
@@ -2080,6 +2085,10 @@ msgstr "Keep your data in sync across all your devices. Everything is encrypted 
 msgid "Keep your data synced across devices."
 msgstr "Keep your data synced across devices."
 
+#: src/settings/voice.tsx
+msgid "Key is valid — Gemini Live is reachable."
+msgstr "Key is valid — Gemini Live is reachable."
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2668,12 +2677,12 @@ msgid "Pairing identity"
 msgstr "Pairing identity"
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper"
-msgstr "Paper"
+#~ msgid "Paper"
+#~ msgstr "Paper"
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper theme"
-msgstr "Paper theme"
+#~ msgid "Paper theme"
+#~ msgstr "Paper theme"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"

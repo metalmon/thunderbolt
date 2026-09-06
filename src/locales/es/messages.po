@@ -709,6 +709,7 @@ msgid "Clear Local Database?"
 msgstr "¿Borrar la base de datos local?"
 
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "Borrar la clave de API guardada"
 
@@ -1011,8 +1012,8 @@ msgid "Could not read the import file."
 msgstr "No se pudo leer el archivo de importación."
 
 #: src/fork/documents/docx-preview.tsx
-msgid "Could not render {fileName}. Use the download button to open it."
-msgstr ""
+#~ msgid "Could not render {fileName}. Use the download button to open it."
+#~ msgstr ""
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
@@ -1041,6 +1042,10 @@ msgstr "No se pudo buscar actualizaciones: {error}"
 #: src/settings/app-version-section.tsx
 msgid "Couldn't check for updates."
 msgstr "No se pudo buscar actualizaciones."
+
+#: src/voice/ui/use-voice-session.ts
+msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
+msgstr ""
 
 #: src/settings/app-version-section.tsx
 #~ msgid "Couldn't download the update"
@@ -2092,6 +2097,10 @@ msgstr "Mantén tus datos sincronizados en todos tus dispositivos. Todo está ci
 msgid "Keep your data synced across devices."
 msgstr "Mantén tus datos sincronizados entre dispositivos."
 
+#: src/settings/voice.tsx
+msgid "Key is valid — Gemini Live is reachable."
+msgstr ""
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2680,12 +2689,12 @@ msgid "Pairing identity"
 msgstr "Identidad de emparejamiento"
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper"
-msgstr ""
+#~ msgid "Paper"
+#~ msgstr ""
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper theme"
-msgstr ""
+#~ msgid "Paper theme"
+#~ msgstr ""
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
