@@ -529,6 +529,16 @@ export const createGeminiLiveEngine = (
       // forever on initial connect, and a reconnect would strand the session
       // with no terminal event.
       const connection = await resolveConnection()
+      // The user may have called close() during the mint/resolve await above
+      // (the direct path's ephemeral-token mint is a real network call —
+      // hundreds of ms — so this window is real, not theoretical). close()
+      // already closed the *previous* `ws` and finalized; without this
+      // recheck we'd open a brand-new socket nobody asked for, which then
+      // wires onopen → sends setup and stays live — a zombie Google Gemini
+      // WS burning the user's BYOK quota and emitting events after 'closed'.
+      if (userClosed || closed) {
+        return
+      }
       socket = wsFactory(connection.url, connection.protocols)
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
