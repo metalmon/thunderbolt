@@ -25,9 +25,10 @@ export const ContextUsageIndicator = ({ usedTokens = 0, maxTokens, className }: 
 
   const strokeColor = 'rgb(107 114 128)' // gray-500 - consistent darker gray
 
-  // SVG circle parameters
-  const size = 24
-  const strokeWidth = 3
+  // SVG circle parameters — kept compact and low-key so the ring reads as a
+  // subtle affordance in the composer rather than a bright focal point.
+  const size = 16
+  const strokeWidth = 2
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const strokeDasharray = circumference
@@ -48,7 +49,7 @@ export const ContextUsageIndicator = ({ usedTokens = 0, maxTokens, className }: 
                   cy={size / 2}
                   r={radius}
                   fill="none"
-                  stroke="rgb(229 231 235)"
+                  stroke="rgba(107, 114, 128, 0.25)"
                   strokeWidth={strokeWidth}
                 />
                 {/* Progress circle */}
