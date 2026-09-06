@@ -15,6 +15,9 @@ export { getActiveLocale, getBrowserLanguages } from './active-locale'
 // Each translated catalog loads through import() so it ships as its own async
 // chunk — statically bundling every catalog would grow the entry chunk with
 // bytes only one locale ever uses. `en` is the exception: see the activation below.
+// A loader per `appLocale` (the type is the full upstream set + ru). Only en/ru/en-XA
+// are ever activated — negotiation is restricted to `negotiableLocales` — but the
+// other upstream catalogs stay wired so the record stays total over `AppLocale`.
 const catalogLoaders: Record<AppLocale, () => Promise<{ messages: Messages }>> = {
   en: async () => ({ messages: sourceMessages }),
   de: () => import('@/locales/de/messages.po'),
