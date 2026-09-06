@@ -13,11 +13,14 @@ import { isPrivateAutoRunBlocked } from '@/chats/private-thread'
 import { useDatabase } from '@/contexts'
 import { builtInAgent } from '@/defaults/agents'
 import { getSettings } from '@/dal'
+import { isDirectVoiceKeyMissing } from '@/fork/voice/direct-voice-gate'
+import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import type { ThunderboltUIMessage } from '@/types'
 import type { ReplyChat } from '@/voice/chat-reply'
 import type { ContextMessage, VoiceLang } from '@/voice/gemini/prompts'
 import type { SessionState, VoiceSession } from '@/voice/session'
-import { setVoiceModeActive } from '@/voice/voice-mode'
+import { isVoiceCoPilotEnabled, setVoiceModeActive } from '@/voice/voice-mode'
+import { useLingui } from '@lingui/react/macro'
 import type { Chat } from '@ai-sdk/react'
 import { i18n, type MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
@@ -128,6 +131,7 @@ type VoiceUiState = {
 const initial: VoiceUiState = { active: false, state: 'idle', error: null }
 
 export const useVoiceSession = () => {
+  const { t } = useLingui()
   const session = useCurrentChatSession()
   const db = useDatabase()
   const [ui, patch] = useReducer((s: VoiceUiState, p: Partial<VoiceUiState>): VoiceUiState => ({ ...s, ...p }), initial)
@@ -191,6 +195,22 @@ export const useVoiceSession = () => {
         import('@/stores/local-settings-store'),
         getSettings(db, { experimental_feature_voice: false }),
       ])
+
+      // Direct path (co-pilot on, proxy off) mints its ephemeral token from the
+      // user's own BYOK key — with none, the connection is doomed. Block here
+      // with an actionable message instead of letting the engine throw deep
+      // inside connect().
+      if (
+        isDirectVoiceKeyMissing({
+          coPilotEnabled: isVoiceCoPilotEnabled(experimentalFeatureVoice),
+          proxyEnabled: computeEffectiveProxyEnabled(),
+          geminiApiKey: getLocalSetting('voiceProvider').geminiApiKey,
+        })
+      ) {
+        patch({ active: false, error: t`Add your Gemini API key in Settings → Voice to use voice on this device.` })
+        setVoiceModeActive(false)
+        return
+      }
 
       // Per-language functional base + the user's persona + recent chat
       // history (Task 11) — assembled most-stable-first so a prefix-caching
