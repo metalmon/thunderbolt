@@ -18,7 +18,6 @@ import { isSsoMode } from '@/lib/auth-mode'
 import { createAuthenticatedClient } from '@/lib/http'
 import { beginInitRun, getInitTimingPayload, recordInitStep } from '@/lib/init-timing'
 import { pickModelsDefaults } from '@/lib/pick-defaults'
-import { pickSkillsDefaults } from '@/lib/pick-skills-defaults'
 import { getDatabasePath, getDatabaseType, getPlatform, isIndexedDbAvailable } from '@/lib/platform'
 import { initPosthog, trackError, trackEvent } from '@/lib/posthog'
 import { withTimeout } from '@/lib/timeout'
@@ -335,12 +334,9 @@ const executeInitializationSteps = async (httpClient?: HttpClient): Promise<Hand
 
   // Step 4: Reconcile defaults (uses `modelsDefaults` picked above step 2c
   // so both the returning-boot probe and reconcile see the same OTA payload).
-  // Skills seed in the user's UI language on a fresh account, then stay locked
-  // to that language for the account's lifetime (see `pickSkillsDefaults`).
-  const skillsDefaults = await pickSkillsDefaults(db)
   try {
     await time('step4_reconcile_defaults', () =>
-      reconcileDefaults(db, { models: modelsDefaults, skills: skillsDefaults, initialSyncCompleted }),
+      reconcileDefaults(db, { models: modelsDefaults, initialSyncCompleted }),
     )
   } catch (error) {
     console.error('Failed to reconcile default settings:', error)
