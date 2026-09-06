@@ -996,8 +996,8 @@ msgid "Could not read the import file."
 msgstr "Could not read the import file."
 
 #: src/fork/documents/docx-preview.tsx
-#~ msgid "Could not render {fileName}. Use the download button to open it."
-#~ msgstr "Could not render {fileName}. Use the download button to open it."
+msgid "Could not render {fileName}. Use the download button to open it."
+msgstr "Could not render {fileName}. Use the download button to open it."
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
@@ -2652,12 +2652,12 @@ msgid "Pairing identity"
 msgstr "Pairing identity"
 
 #: src/components/theme-toggle-group.tsx
-#~ msgid "Paper"
-#~ msgstr "Paper"
+msgid "Paper"
+msgstr "Paper"
 
 #: src/components/theme-toggle-group.tsx
-#~ msgid "Paper theme"
-#~ msgstr "Paper theme"
+msgid "Paper theme"
+msgstr "Paper theme"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
