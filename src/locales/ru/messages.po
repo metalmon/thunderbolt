@@ -705,7 +705,6 @@ msgid "Clear Local Database?"
 msgstr "Очистить локальную базу?"
 
 #: src/settings/models/edit-model-form.tsx
-#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "Очистить сохранённый API-ключ"
 
@@ -2085,6 +2084,10 @@ msgstr "Держите данные синхронизированными ме�
 msgid "Key is valid — Gemini Live is reachable."
 msgstr "Ключ действителен — Gemini Live доступен."
 
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr "Ключ сохранён"
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2898,6 +2901,10 @@ msgstr "Убрать из проекта"
 msgid "Remove icon"
 msgstr "Убрать значок"
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr "Удалить ключ"
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr "Убрать цитату"
@@ -3048,6 +3055,7 @@ msgstr "Выполните это на машине с мостом, затем 
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr "Сохранить"
