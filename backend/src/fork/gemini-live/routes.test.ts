@@ -6,7 +6,14 @@ import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { mockAuth } from '@/test-utils/mock-auth'
 import { encodeWsBearer } from '@shared/ws-bearer'
 import { encodeWsGeminiKey } from '@shared/ws-gemini-key'
-import { createGeminiLiveRoutes, upstreamUrlFor, maxFrameBytes, maxPending, resolveGeminiConnectionKey } from './routes'
+import {
+  createGeminiLiveRoutes,
+  upstreamUrlFor,
+  maxFrameBytes,
+  maxPending,
+  resolveGeminiConnectionKey,
+  type CreateGeminiLiveRoutesOptions,
+} from './routes'
 
 /** Offer the carrier + a bearer subprotocol, exactly as the real client does
  *  (see `createProxyWebSocket` / `gemini-live-engine.ts`). `mockAuth` accepts
@@ -62,9 +69,18 @@ describe('upstreamUrlFor', () => {
     const u = upstreamUrlFor('gemini-2.5-flash-native-audio-preview', 'KEY123')
     expect(u).toContain('v1alpha.GenerativeService.BidiGenerateContent')
   })
-  it('honors GEMINI_WS_OVERRIDE and skips the real endpoint computation entirely', () => {
+  it('honors GEMINI_WS_OVERRIDE and skips the real endpoint computation entirely, appending the resolved key', () => {
     process.env.GEMINI_WS_OVERRIDE = 'ws://127.0.0.1:9999/mock-upstream'
-    expect(upstreamUrlFor('gemini-2.5-flash-native-audio-preview', 'KEY123')).toBe('ws://127.0.0.1:9999/mock-upstream')
+    expect(upstreamUrlFor('gemini-2.5-flash-native-audio-preview', 'KEY123')).toBe(
+      'ws://127.0.0.1:9999/mock-upstream?key=KEY123',
+    )
+  })
+
+  it('appends the key with `&` when the override URL already carries a query string', () => {
+    process.env.GEMINI_WS_OVERRIDE = 'ws://127.0.0.1:9999/mock-upstream?foo=bar'
+    expect(upstreamUrlFor('gemini-2.5-flash-native-audio-preview', 'KEY123')).toBe(
+      'ws://127.0.0.1:9999/mock-upstream?foo=bar&key=KEY123',
+    )
   })
   it('computes the real endpoint when GEMINI_WS_OVERRIDE is absent', () => {
     delete process.env.GEMINI_WS_OVERRIDE
@@ -106,10 +122,16 @@ const startMockUpstream = (
   } = {},
   openDelayMs = 0,
 ) => {
+  // Records the URL of the most recent upgrade request — this is how a test
+  // observes which `key=` query param the relay's `open()` actually resolved
+  // and dialed with, since `GEMINI_WS_OVERRIDE` points the relay at this
+  // in-process server rather than the real Google endpoint.
+  let lastRequestUrl: string | null = null
   const server = Bun.serve({
     port: 0,
     hostname: '127.0.0.1',
     async fetch(req, srv) {
+      lastRequestUrl = req.url
       if (openDelayMs > 0) {
         await new Promise((resolve) => setTimeout(resolve, openDelayMs))
       }
@@ -126,6 +148,9 @@ const startMockUpstream = (
   })
   return {
     url: `ws://127.0.0.1:${server.port}`,
+    get lastRequestUrl() {
+      return lastRequestUrl
+    },
     stop: async () => {
       server.stop(true)
     },
@@ -199,6 +224,7 @@ const waitFor = async (predicate: () => boolean, options: WaitForOptions = {}): 
 
 describe('Gemini Live relay — real WS upgrade against a mock upstream', () => {
   const originalOverride = process.env.GEMINI_WS_OVERRIDE
+  const originalApiKey = process.env.GEMINI_API_KEY
   let apps: RunningApp[] = []
   let upstreams: Array<{ stop: () => Promise<void> }> = []
 
@@ -216,13 +242,28 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     } else {
       process.env.GEMINI_WS_OVERRIDE = originalOverride
     }
+    if (originalApiKey === undefined) {
+      delete process.env.GEMINI_API_KEY
+    } else {
+      process.env.GEMINI_API_KEY = originalApiKey
+    }
   })
 
   /** Point `upstreamUrlFor` at the mock upstream and boot the relay app on an
-   *  ephemeral port. Returns a client-ready relay URL. */
-  const bootRelay = async (mockUrl: string): Promise<string> => {
+   *  ephemeral port. Returns a client-ready relay URL. `routeOptions` merges
+   *  over the `apiKey: 'test-key'` default — pass `{ apiKey: undefined }` to
+   *  fall through to `process.env.GEMINI_API_KEY` instead, for tests that
+   *  need to exercise the env-fallback path specifically. */
+  const bootRelay = async (
+    mockUrl: string,
+    routeOptions: Partial<CreateGeminiLiveRoutesOptions> = {},
+  ): Promise<string> => {
     process.env.GEMINI_WS_OVERRIDE = mockUrl
-    const app = createGeminiLiveRoutes({ auth: mockAuth, apiKey: 'test-key' }) as unknown as RunningApp
+    const app = createGeminiLiveRoutes({
+      auth: mockAuth,
+      apiKey: 'test-key',
+      ...routeOptions,
+    }) as unknown as RunningApp
     const port = await startApp(app)
     apps.push(app)
     return `ws://127.0.0.1:${port}/gemini-live/`
@@ -401,5 +442,38 @@ describe('Gemini Live relay — real WS upgrade against a mock upstream', () => 
     const { code, reason } = await closed
     expect(code).toBe(4400)
     expect(reason).toBe('upstream done')
+  })
+
+  // These two drive a real WS handshake through `open()` end-to-end and read
+  // the `key=` query param the mock upstream actually received, rather than
+  // calling `resolveGeminiConnectionKey` directly — proving the full
+  // resolve→dial wiring, not just the pure helper in isolation.
+  it('e2e: open() selects the per-connection client key over the env fallback key', async () => {
+    process.env.GEMINI_API_KEY = 'env-key'
+    const upstream = startMockUpstream()
+    upstreams.push(upstream)
+    const relayUrl = await bootRelay(upstream.url, { apiKey: undefined })
+
+    const client = new WebSocket(relayUrl, [...bearerProtocols('test-token'), encodeWsGeminiKey('client-key')])
+    await waitForOpen(client)
+    await waitFor(() => upstream.lastRequestUrl !== null, { label: 'mock upstream to receive the upgrade request' })
+
+    expect(upstream.lastRequestUrl).toContain('key=client-key')
+    expect(upstream.lastRequestUrl).not.toContain('key=env-key')
+    client.close()
+  })
+
+  it('e2e: open() falls back to the env key when the client offers no gemini-key subprotocol', async () => {
+    process.env.GEMINI_API_KEY = 'env-key'
+    const upstream = startMockUpstream()
+    upstreams.push(upstream)
+    const relayUrl = await bootRelay(upstream.url, { apiKey: undefined })
+
+    const client = new WebSocket(relayUrl, bearerProtocols('test-token'))
+    await waitForOpen(client)
+    await waitFor(() => upstream.lastRequestUrl !== null, { label: 'mock upstream to receive the upgrade request' })
+
+    expect(upstream.lastRequestUrl).toContain('key=env-key')
+    client.close()
   })
 })

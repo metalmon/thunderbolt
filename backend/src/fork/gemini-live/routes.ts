@@ -42,13 +42,17 @@ const authorizeVoiceWsBearer = async (auth: Auth, subprotocolHeader: string | nu
   return (session?.user as User | undefined) ?? null
 }
 
-/** Test-only escape hatch: when set, `upstreamUrlFor` returns this URL
- *  verbatim instead of computing the real Google endpoint, so tests can point
- *  the relay at a local mock WebSocket server. Never set in production. */
+/** Test-only escape hatch: when set, `upstreamUrlFor` points at this URL
+ *  instead of computing the real Google endpoint, so tests can point the
+ *  relay at a local mock WebSocket server. The resolved key is still appended
+ *  as a `key=` query param (rather than dropped) so a mock upstream can
+ *  observe which key `open()` actually selected — otherwise an override test
+ *  can never distinguish the per-connection client key from the server
+ *  fallback. Never set in production. */
 export const upstreamUrlFor = (model: string, apiKey: string): string => {
   const override = process.env.GEMINI_WS_OVERRIDE
   if (override) {
-    return override
+    return `${override}${override.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`
   }
   return geminiLiveWsUrl(model, `key=${encodeURIComponent(apiKey)}`)
 }
