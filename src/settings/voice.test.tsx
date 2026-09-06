@@ -96,4 +96,32 @@ describe('VoiceSettingsPage — Gemini Live model/voice/personality (Task 10)', 
 
     expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('AIza-my-key')
   })
+
+  it('masks a saved key (empty value + •••• placeholder) and offers to clear it (Task 6a+)', () => {
+    setGeminiLiveProvider({ geminiApiKey: 'AIza-saved-secret' })
+    render(<VoiceSettingsPage />)
+
+    const field = screen.getByLabelText('Gemini API key')
+    // The stored key is never rendered into the field value; the •••• placeholder signals one exists.
+    expect(field).toHaveValue('')
+    expect(field).toHaveAttribute('placeholder', '••••••••••••••••')
+    expect(screen.getByText('Clear saved API key')).toBeInTheDocument()
+  })
+
+  it('clears the saved Gemini API key', () => {
+    setGeminiLiveProvider({ geminiApiKey: 'AIza-saved-secret' })
+    render(<VoiceSettingsPage />)
+
+    fireEvent.click(screen.getByText('Clear saved API key'))
+
+    expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('')
+  })
+
+  it('disables Test connection until a key is present, then enables it', () => {
+    render(<VoiceSettingsPage />)
+
+    expect(screen.getByRole('button', { name: 'Test connection' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Gemini API key'), { target: { value: 'AIza-k' } })
+    expect(screen.getByRole('button', { name: 'Test connection' })).toBeEnabled()
+  })
 })
