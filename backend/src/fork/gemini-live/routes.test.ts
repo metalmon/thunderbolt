@@ -5,7 +5,8 @@
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { mockAuth } from '@/test-utils/mock-auth'
 import { encodeWsBearer } from '@shared/ws-bearer'
-import { createGeminiLiveRoutes, upstreamUrlFor, maxFrameBytes, maxPending } from './routes'
+import { encodeWsGeminiKey } from '@shared/ws-gemini-key'
+import { createGeminiLiveRoutes, upstreamUrlFor, maxFrameBytes, maxPending, resolveGeminiConnectionKey } from './routes'
 
 /** Offer the carrier + a bearer subprotocol, exactly as the real client does
  *  (see `createProxyWebSocket` / `gemini-live-engine.ts`). `mockAuth` accepts
@@ -68,6 +69,25 @@ describe('upstreamUrlFor', () => {
   it('computes the real endpoint when GEMINI_WS_OVERRIDE is absent', () => {
     delete process.env.GEMINI_WS_OVERRIDE
     expect(upstreamUrlFor('gemini-live-2.5-flash-preview', 'KEY123')).toContain('generativelanguage.googleapis.com')
+  })
+})
+
+describe('resolveGeminiConnectionKey', () => {
+  it('prefers the client-carried key over the server fallback', () => {
+    const header = ['thunderbolt.v1', encodeWsGeminiKey('user-key')].join(', ')
+    expect(resolveGeminiConnectionKey(header, 'env-key')).toBe('user-key')
+  })
+
+  it('falls back to the server key when the client sends none', () => {
+    expect(resolveGeminiConnectionKey('thunderbolt.v1', 'env-key')).toBe('env-key')
+  })
+
+  it('returns undefined when neither a client key nor a fallback exists', () => {
+    expect(resolveGeminiConnectionKey('thunderbolt.v1', undefined)).toBeUndefined()
+  })
+
+  it('returns undefined for a null header with no fallback', () => {
+    expect(resolveGeminiConnectionKey(null, undefined)).toBeUndefined()
   })
 })
 

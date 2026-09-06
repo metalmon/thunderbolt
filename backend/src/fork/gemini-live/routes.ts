@@ -19,6 +19,7 @@ import { extractBearerSubprotocol, wsCloseUnauthorized } from '@/auth/ws-bearer-
 import { safeErrorHandler } from '@/middleware/error-handling'
 import type { User } from '@shared/types/auth'
 import { wsCarrierSubprotocol } from '@shared/ws-bearer'
+import { decodeWsGeminiKey } from '@shared/ws-gemini-key'
 import { Elysia, type AnyElysia } from 'elysia'
 
 /**
@@ -53,6 +54,24 @@ export const upstreamUrlFor = (model: string, apiKey: string): string => {
   const version = nativeAudioPattern.test(model) ? 'v1alpha' : 'v1beta'
   const svc = `google.ai.generativelanguage.${version}.GenerativeService.BidiGenerateContent`
   return `wss://generativelanguage.googleapis.com/ws/${svc}?key=${encodeURIComponent(apiKey)}`
+}
+
+/** Resolve the Gemini API key for one connection: the caller's own key
+ *  (BYOK, carried in the WS subprotocol) takes precedence over the server
+ *  fallback (`options.apiKey ?? GEMINI_API_KEY`). Returns undefined when
+ *  neither is present — the caller then closes the socket. */
+export const resolveGeminiConnectionKey = (
+  subprotocolHeader: string | null,
+  fallbackKey: string | undefined,
+): string | undefined => {
+  const entries = (subprotocolHeader ?? '').split(',').map((entry) => entry.trim())
+  for (const entry of entries) {
+    const decoded = decodeWsGeminiKey(entry)
+    if (decoded) {
+      return decoded
+    }
+  }
+  return fallbackKey
 }
 
 export type CreateGeminiLiveRoutesOptions = {
@@ -167,7 +186,8 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
         return
       }
 
-      if (!apiKey) {
+      const effectiveApiKey = resolveGeminiConnectionKey(subprotocolHeader, apiKey)
+      if (!effectiveApiKey) {
         state.closing = true
         ws.close(1008, 'Gemini provider not configured')
         return
@@ -179,7 +199,7 @@ export const createGeminiLiveRoutes = (options: CreateGeminiLiveRoutesOptions) =
       // fallback — kept as one of the two currently-supported model ids
       // (half-cascade) rather than a removed one.
       const model = data.query?.model || 'gemini-3.1-flash-live-preview'
-      const upstreamUrl = upstreamUrlFor(model, apiKey)
+      const upstreamUrl = upstreamUrlFor(model, effectiveApiKey)
 
       let upstream: WebSocket
       try {
