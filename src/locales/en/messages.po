@@ -697,7 +697,6 @@ msgid "Clear Local Database?"
 msgstr "Clear Local Database?"
 
 #: src/settings/models/edit-model-form.tsx
-#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "Clear saved API key"
 
@@ -2089,6 +2088,10 @@ msgstr "Keep your data synced across devices."
 msgid "Key is valid — Gemini Live is reachable."
 msgstr "Key is valid — Gemini Live is reachable."
 
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr "Key saved"
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2902,6 +2905,10 @@ msgstr "Remove from project"
 msgid "Remove icon"
 msgstr "Remove icon"
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr "Remove key"
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr "Remove quote"
@@ -3052,6 +3059,7 @@ msgstr "Run this on the machine hosting the bridge, then add it — the connecti
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr "Save"
