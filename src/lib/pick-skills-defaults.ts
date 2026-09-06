@@ -4,7 +4,7 @@
 
 import { eq } from 'drizzle-orm'
 import type { AnyDrizzleDatabase } from '@/db/database-interface'
-import { settingsTable, skillsTable } from '@/db/tables'
+import { settingsTable } from '@/db/tables'
 import { defaultSkills, defaultSkillsVersion } from '@/defaults/skills'
 import { defaultSkillsRu } from '@/defaults/skills-ru'
 import { getActiveLocale } from '@/i18n/active-locale'
@@ -17,35 +17,29 @@ type SkillsLanguage = 'en' | 'ru'
  *  so the built-in skill catalog can be seeded in the user's UI language. */
 export type SkillsDefaults = { version: number; data: readonly Skill[] }
 
-/** A Cyrillic slug means the skills were seeded in Russian (RU slugs are
- *  Cyrillic — `поиск`, `погода`, …; EN slugs are Latin — `search`, `weather`). */
-const skillsLanguageFromSlug = (slug: string): SkillsLanguage => (/[а-яё]/i.test(slug) ? 'ru' : 'en')
-
 /**
  * Pick the built-in skill defaults in the user's language.
  *
- * Once skills are seeded their language is LOCKED — detected from an existing
- * row's slug — so a later UI-language switch never re-localizes them ("first
- * seed only", the product decision). Only a fresh account (no skill rows)
- * follows the stored `language` setting, or the resolved active locale before
- * onboarding has persisted it. RU and EN share `defaultSkillsVersion`, so a
- * language switch alone never trips the reconcile version gate — only a genuine
- * content bump does, and it then re-applies in whatever language was seeded.
+ * The catalog follows the CURRENT UI language, not the language of a first seed:
+ * Volt is Russian-first, ships no cloud sync, and the reconcile hash-gate already
+ * protects user-edited skills — so an unmodified default should always render in
+ * the language the user is actually reading. (Upstream's "lock to the first seed's
+ * slug" made sense for a synced, English-first product; here it just stranded a
+ * Russian user on whatever language their account was first seeded in.)
+ *
+ * RU and EN share `defaultSkillsVersion`, so switching language alone never trips
+ * the reconcile version gate — the re-localization lands on the next genuine
+ * content bump, which then re-applies every unmodified default in the UI language.
  */
 export const pickSkillsDefaults = async (db: AnyDrizzleDatabase): Promise<SkillsDefaults> => {
-  const existing = await db.select({ name: skillsTable.name }).from(skillsTable).limit(1)
-  const language: SkillsLanguage =
-    existing.length > 0 && existing[0]?.name
-      ? skillsLanguageFromSlug(existing[0].name)
-      : await pickFreshSeedLanguage(db)
+  const language = await pickSeedLanguage(db)
   return { version: defaultSkillsVersion, data: language === 'ru' ? defaultSkillsRu : defaultSkills }
 }
 
-/** Language for a first-ever seed: the stored `language` setting if set, else the
- *  resolved active locale (so a RU-browser user gets RU skills even on the very
- *  first boot, before onboarding has written the setting). `en-XA` (the dev
- *  pseudo-locale) and every non-Russian locale fall to English. */
-const pickFreshSeedLanguage = async (db: AnyDrizzleDatabase): Promise<SkillsLanguage> => {
+/** Resolve the seed language: the stored `language` setting if set, else the
+ *  resolved active locale. `en-XA` (the dev pseudo-locale) and every non-Russian
+ *  locale fall to English. */
+const pickSeedLanguage = async (db: AnyDrizzleDatabase): Promise<SkillsLanguage> => {
   const rows = await db.select().from(settingsTable).where(eq(settingsTable.key, 'language'))
   const stored = rows[0]?.value as string | null | undefined
   if (stored) {
