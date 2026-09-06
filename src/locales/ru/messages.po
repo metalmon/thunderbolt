@@ -3262,7 +3262,7 @@ msgstr "Показано 50 из {totalCount} задач"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Sidebar"
-msgstr "Боковая панель"
+msgstr "Панель"
 
 #: src/layout/sidebar/nav-toggle.tsx
 msgid "Sidebar sections"
