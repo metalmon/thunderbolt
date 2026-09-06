@@ -47,4 +47,8 @@ describe('local-settings-store — Gemini Live voiceProvider fields (Task 10)', 
     expect(persisted.state.voiceProvider.voiceName).toBe('Puck')
     expect(persisted.state.voiceProvider.personalityPrompt).toBe('Be concise and warm.')
   })
+
+  it('voiceProvider ships an empty geminiApiKey by default', () => {
+    expect(defaultVoiceProvider.geminiApiKey).toBe('')
+  })
 })
