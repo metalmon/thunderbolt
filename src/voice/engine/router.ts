@@ -77,6 +77,10 @@ export const resolveGeminiEngineOptions = (
     // only half-cascade needs it (fixes its heavy accent — see the engine's
     // `languageCode` doc and voice-cloud's `_build_config`).
     languageCode: config.model === 'native-audio' ? undefined : languageCode,
+    // Empty string (unset) becomes undefined so the engine's relay path omits
+    // the gemini-key subprotocol and its direct path fails fast rather than
+    // minting a token from an empty key.
+    geminiApiKey: config.geminiApiKey || undefined,
   }
 }
 
