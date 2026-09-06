@@ -693,7 +693,6 @@ msgid "Clear Local Database?"
 msgstr ""
 
 #: src/settings/models/edit-model-form.tsx
-#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr ""
 
@@ -2065,6 +2064,10 @@ msgstr ""
 msgid "Key is valid — Gemini Live is reachable."
 msgstr ""
 
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr ""
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2877,6 +2880,10 @@ msgstr ""
 msgid "Remove icon"
 msgstr ""
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr ""
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr ""
@@ -3026,6 +3033,7 @@ msgstr ""
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr ""
