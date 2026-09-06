@@ -13,6 +13,8 @@ import { isPrivateAutoRunBlocked } from '@/chats/private-thread'
 import { useDatabase } from '@/contexts'
 import { builtInAgent } from '@/defaults/agents'
 import { getSettings } from '@/dal'
+import { isDirectVoiceKeyMissing } from '@/fork/voice/direct-voice-gate'
+import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { showSignInModalEvent } from '@/hooks/use-credential-events'
 import { hasServerAuthentication } from '@/lib/provider-mode'
 import { getLocalSetting } from '@/stores/local-settings-store'
@@ -23,7 +25,7 @@ import { getActiveLocale } from '@/i18n/active-locale'
 import type { SessionState } from '@/voice/session'
 import { toVoiceErrorMessage } from '@/voice/voice-error'
 import { createSessionLifecycle } from './session-lifecycle'
-import { setVoiceModeActive } from '@/voice/voice-mode'
+import { isVoiceCoPilotEnabled, setVoiceModeActive } from '@/voice/voice-mode'
 import type { Chat } from '@ai-sdk/react'
 import { i18n, type MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
@@ -157,6 +159,7 @@ export const voiceUiReducer = (state: VoiceUiState, action: VoiceUiAction): Voic
 }
 
 export const useVoiceSession = () => {
+  const { t } = useLingui()
   const session = useCurrentChatSession()
   const db = useDatabase()
   const [ui, dispatch] = useReducer(voiceUiReducer, { phase: 'closed' })
@@ -228,6 +231,28 @@ export const useVoiceSession = () => {
         getSettings(db, { experimental_feature_voice: false }),
       ])
       signal.throwIfAborted()
+
+      // Direct path (co-pilot on, proxy off) mints its ephemeral token from the
+      // user's own BYOK key — with none, the connection is doomed. Block here
+      // with an actionable message instead of letting the engine throw deep
+      // inside connect().
+      if (
+        isDirectVoiceKeyMissing({
+          coPilotEnabled: isVoiceCoPilotEnabled(experimentalFeatureVoice),
+          proxyEnabled: computeEffectiveProxyEnabled(),
+          geminiApiKey: getLocalSetting('voiceProvider').geminiApiKey,
+        })
+      ) {
+        // Reported through upstream's own terminal-failure action, the way the
+        // lifecycle reports every other start failure; `return null` aborts the
+        // start exactly as the sign-in gate below does.
+        dispatch({
+          type: 'START_FAILED',
+          error: t`Add your Gemini API key in Settings → Voice to use voice on this device.`,
+        })
+        return null
+      }
+
       const voiceLang = resolveVoiceLang()
       // Per-language functional base + the user's persona + recent chat history,
       // assembled most-stable-first so a prefix-caching backend can reuse the
