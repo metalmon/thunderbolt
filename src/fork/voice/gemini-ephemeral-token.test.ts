@@ -10,7 +10,7 @@ const fixedNow = () => 1_000_000
 describe('mintGeminiEphemeralToken', () => {
   it('posts the expected request and returns the token name', async () => {
     const fetchImpl = mock(
-      async () =>
+      async (_url: string, _init: RequestInit) =>
         new Response(JSON.stringify({ name: 'auth_tokens/abc' }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
@@ -27,7 +27,7 @@ describe('mintGeminiEphemeralToken', () => {
     expect(result).toBe('auth_tokens/abc')
     expect(fetchImpl).toHaveBeenCalledTimes(1)
 
-    const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    const [url, init] = fetchImpl.mock.calls[0]
     expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/auth_tokens')
     expect(init.method).toBe('POST')
 
