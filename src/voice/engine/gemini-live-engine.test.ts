@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { beforeEach, describe, expect, it } from 'bun:test'
+import { clearAuthToken, setAuthToken } from '@/lib/auth-token'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
-import { wsGeminiKeySubprotocolPrefix } from '@shared/ws-gemini-key'
+import { encodeWsBearer, wsBearerSubprotocolPrefix, wsCarrierSubprotocol } from '@shared/ws-bearer'
+import { encodeWsGeminiKey, wsGeminiKeySubprotocolPrefix } from '@shared/ws-gemini-key'
 import {
   base64ToFloat32,
   base64ToInt16,
@@ -123,12 +125,23 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
   })
 
-  it('relay: adds the gemini-key subprotocol when a BYOK key is configured', async () => {
-    const { engine, getSocket } = buildEngine({ geminiApiKey: 'user-key' }, { getProxyEnabled: () => true })
-    await engine.connect()
+  it('relay: adds the gemini-key subprotocol alongside the carrier + bearer entries when a BYOK key is configured (no wire-format regression)', async () => {
+    setAuthToken('test-token')
+    try {
+      const { engine, getSocket } = buildEngine({ geminiApiKey: 'user-key' }, { getProxyEnabled: () => true })
+      await engine.connect()
 
-    expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
-    expect(getSocket().protocols.some((p) => p.startsWith(wsGeminiKeySubprotocolPrefix))).toBe(true)
+      expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
+      // The carrier + bearer entries are still exactly what they were before this
+      // feature existed — the gemini-key entry is purely additive.
+      expect(getSocket().protocols).toEqual([
+        wsCarrierSubprotocol,
+        `${wsBearerSubprotocolPrefix}${encodeWsBearer('test-token')}`,
+        encodeWsGeminiKey('user-key'),
+      ])
+    } finally {
+      clearAuthToken()
+    }
   })
 
   it('relay: omits the gemini-key subprotocol when no BYOK key is configured', async () => {
@@ -204,6 +217,117 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     expect(socket!.url).toBe(
       'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?access_token=tok-456',
     )
+  })
+
+  it('direct: rejects connect() and emits an error event when no BYOK key is configured (no socket opened)', async () => {
+    let socketCreateCount = 0
+    const engine = createGeminiLiveEngine(
+      { model: 'gemini-3.1-flash-live-preview', voiceName: 'Kore', systemInstruction: 'x', tools: [submitPromptTool] },
+      {
+        wsFactory: (url, protocols) => {
+          socketCreateCount++
+          return new FakeWebSocket(url, protocols)
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        // No geminiApiKey — the direct path has nothing to mint a token from.
+      },
+    )
+
+    await expect(engine.connect()).rejects.toThrow('Gemini API key required for the direct voice connection')
+
+    expect(socketCreateCount).toBe(0)
+    const [event] = await nextEvents(engine.events(), 1)
+    expect(event).toEqual({ type: 'error', message: 'Gemini API key required for the direct voice connection' })
+  })
+
+  it('direct: rejects connect() and emits one error event when the initial ephemeral-token mint fails (no dangling socket)', async () => {
+    let socketCreateCount = 0
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-3.1-flash-live-preview',
+        voiceName: 'Kore',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        geminiApiKey: 'user-key',
+      },
+      {
+        wsFactory: (url, protocols) => {
+          socketCreateCount++
+          return new FakeWebSocket(url, protocols)
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        mintToken: async () => {
+          throw new Error('boom')
+        },
+      },
+    )
+
+    await expect(engine.connect()).rejects.toThrow('boom')
+
+    expect(socketCreateCount).toBe(0)
+    // openSocket runs its resolve/catch exactly once per call, and connect()
+    // only ever calls it once for the initial attempt — so exactly one error
+    // event is queued, structurally (not just observed here).
+    const events = await nextEvents(engine.events(), 1)
+    expect(events).toEqual([{ type: 'error', message: 'boom' }])
+  })
+
+  it('direct: retries a reconnect-time mint failure across the full budget before finalizing exactly once (does not discard the retry budget)', async () => {
+    let socket: FakeWebSocket | null = null
+    let mintCallCount = 0
+    const maxReconnectAttempts = 8 // mirrors the engine's private constant
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-3.1-flash-live-preview',
+        voiceName: 'Kore',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        geminiApiKey: 'user-key',
+      },
+      {
+        wsFactory: (url, protocols) => {
+          socket = new FakeWebSocket(url, protocols)
+          return socket
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        mintToken: async () => {
+          mintCallCount++
+          if (mintCallCount === 1) {
+            return 'tok-initial' // initial connect succeeds
+          }
+          throw new Error('transient mint failure') // every reconnect attempt fails
+        },
+      },
+    )
+
+    // Every failed reconnect attempt pushes its own error event (same as an
+    // initial-connect failure) before scheduleReconnect decides retry vs
+    // finalize, so the full sequence is `maxReconnectAttempts` error events
+    // followed by exactly one 'closed' once the budget is exhausted.
+    const pendingEvents = nextEvents(engine.events(), maxReconnectAttempts + 1)
+    await engine.connect()
+
+    // Mid-session drop (NOT a user close) — every subsequent reconnect's mint
+    // rejects, so this exercises the retry budget rather than tearing the
+    // session down on the first transient failure. `await`ing the events
+    // (rather than manually flushing microtasks N times) waits exactly as
+    // long as the internal retry chain actually takes — bounded because
+    // `maxReconnectAttempts` is finite and every mint settles immediately
+    // (no real timers involved).
+    socket!.close()
+
+    const events = await pendingEvents
+    expect(events).toEqual([
+      ...Array.from({ length: maxReconnectAttempts }, () => ({
+        type: 'error' as const,
+        message: 'transient mint failure',
+      })),
+      { type: 'closed' },
+    ])
+    expect(mintCallCount).toBe(1 + maxReconnectAttempts)
   })
 
   it('sends the setup frame first, exactly per BidiGenerateContent shape', async () => {
