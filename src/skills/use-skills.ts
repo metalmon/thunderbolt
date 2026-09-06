@@ -20,6 +20,8 @@ import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { useActiveLocale } from '@/i18n/use-active-locale'
+import { localizeDefaultSkill } from '@/fork/i18n/localize-default-skill'
 
 // `@powersync/tanstack-react-query` auto-invalidates this query whenever the
 // `skills` table fires a `tablesUpdated` event (Drizzle writes through
@@ -38,11 +40,20 @@ const skillsQueryKey = ['skills']
  */
 const useSkillsQuery = () => {
   const db = useDatabase()
+  const locale = useActiveLocale()
   const { data: skills = [], isLoading } = useQuery({
     queryKey: skillsQueryKey,
     query: toCompilableQuery(getAllSkills(db)),
   })
-  return { skills: skills as Skill[], isLoading }
+  // Localize built-in skills' label/description for display only; the stored rows and
+  // the model-facing instruction stay canonical English. Re-runs on a language switch,
+  // so the picker/library/chat bar re-localize instantly. Model paths read the DAL
+  // directly (getAllSkills), not this UI hook, so they are unaffected.
+  const localized = useMemo(
+    () => (skills as Skill[]).map((skill) => localizeDefaultSkill(skill, locale)),
+    [skills, locale],
+  )
+  return { skills: localized, isLoading }
 }
 
 /**
