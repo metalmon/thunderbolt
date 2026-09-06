@@ -13,9 +13,12 @@
 #     branches fork/i18n + fork/i18n-locales are RETIRED (frozen at 0.1.124,
 #     superseded by upstream Lingui); their refs are kept only for archaeology.
 #     The per-feature Lingui macro wraps live on their own feature branches.
-#   - fork/voice-gemini-live DEFERRED (commented out below): upstream shipped its
-#     own voice-mode engine/router in 0.1.129; the Gemini Live branch needs a
-#     redesign onto that router before it can rebase. Re-add once reworked.
+#   - fork/voice-gemini-live after fork/hooks — adds ONLY the Gemini Live engine
+#     (src/voice/engine/gemini-live-engine.ts) into upstream's existing voice router,
+#     plus the backend relay route + voice.tsx UI seams. Forward-ported cleanly onto
+#     0.1.129 (the feared "redesign" was a plain rebase — upstream owns the router and
+#     all other engines; the fork only slots one more in). BYOK key refactor is a
+#     separate follow-up (see memory gemini-byok-key-refactor).
 #   - fork/anon-agent-manage after voice — a self-contained, removable seam that
 #     relaxes custom-agent management for anonymous (local-only) accounts; lifts
 #     out cleanly once stable/synced accounts land;
@@ -43,7 +46,7 @@ $ForkBranches = @(
     "fork/rebrand",
     "fork/lingui-ru",
     "fork/hooks",
-    # "fork/voice-gemini-live",  # DEFERRED — needs redesign onto upstream's 0.1.129 voice-mode router
+    "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
@@ -61,7 +64,7 @@ $ForkMainRangeBranches = @(
     "fork/rebrand",
     "fork/lingui-ru",
     "fork/hooks",
-    # "fork/voice-gemini-live",  # DEFERRED (see $ForkBranches)
+    "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
