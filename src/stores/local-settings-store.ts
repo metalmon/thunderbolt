@@ -29,6 +29,9 @@ export const voiceProviderSchema = z.object({
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
   baseUrl: z.string(),
   apiKey: z.string(),
+  /** BYOK Gemini Live key; device-local, never synced. Empty ⇒ fall back to
+   *  the server key if the operator set one. */
+  geminiApiKey: z.string(),
   sttModel: z.string(),
   ttsModel: z.string(),
   ttsVoice: z.string(),
@@ -47,6 +50,7 @@ export const defaultVoiceProvider: VoiceProviderConfig = {
   kind: 'thunderbolt',
   baseUrl: '',
   apiKey: '',
+  geminiApiKey: '',
   sttModel: 'whisper-large-v3-turbo',
   ttsModel: 'qwen3-tts',
   ttsVoice: 'aiden',
