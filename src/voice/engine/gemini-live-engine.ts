@@ -493,29 +493,61 @@ export const createGeminiLiveEngine = (
     return { url: directGoogleWsUrl(opts.model, accessToken), protocols: [] }
   }
 
+  /**
+   * Mid-session transport drop (`onclose`) or a reconnect-time resolver/mint
+   * failure both funnel through here, so the retry budget is counted exactly
+   * once per attempt regardless of which one failed — incrementing it in two
+   * places (the old `onclose` body, plus a separate reconnect-failure path)
+   * would double-count a single attempt. Never emits `'closed'` until the
+   * user closed intentionally or the budget is exhausted — the session
+   * continues transparently across a drop, including a transient ephemeral-
+   * token mint failure on the direct path.
+   */
+  const scheduleReconnect = () => {
+    if (userClosed || closed) {
+      finalize()
+      return
+    }
+    if (everOpened && reconnectAttempts < maxReconnectAttempts) {
+      reconnectAttempts++
+      void openSocket() // reconnect: no onReady/onFail
+      return
+    }
+    finalize()
+  }
+
   /** Open (or re-open) the upstream socket. `onReady`/`onFail` fire only for the
    *  initial connect; later drops reconnect transparently via `onclose`. */
   const openSocket = async (onReady?: () => void, onFail?: (error: Error) => void): Promise<void> => {
-    let connection: GeminiConnection
+    let socket: WebSocketLike
     try {
-      connection = await resolveConnection()
+      // Both the connection resolver (relay URL/subprotocols, or the direct
+      // path's ephemeral-token mint) AND the socket construction itself sit
+      // inside this try — `new WebSocket()` can throw synchronously (a
+      // malformed URL, a security exception), and letting that escape here
+      // would reject `openSocket`'s promise uncaught: `connect()` would hang
+      // forever on initial connect, and a reconnect would strand the session
+      // with no terminal event.
+      const connection = await resolveConnection()
+      socket = wsFactory(connection.url, connection.protocols)
     } catch (error) {
-      // Resolver failure (missing key, mint rejected) is treated exactly like
-      // a transport failure: surfaced to the initial caller via `onFail`, or —
-      // if it happened on a reconnect after the session was already live —
-      // finalized like exhausting the reconnect budget, since there is no
-      // socket to retry against.
       const err = error instanceof Error ? error : new Error(String(error))
       pushEvent({ type: 'error', message: err.message })
-      if (!everOpened) {
-        onFail?.(err)
+      if (onFail) {
+        // INITIAL connect failure: `connect()` rejects via `onFail`. Do NOT
+        // finalize — the original engine never emitted 'closed' on an initial
+        // failure (see the `onerror`/`!everOpened` path below), only on a
+        // drop after the session was live.
+        onFail(err)
       } else {
-        finalize()
+        // RECONNECT-time resolver/factory failure (e.g. a transient ephemeral-
+        // token mint error): respect the retry budget instead of tearing the
+        // session down on a single blip.
+        scheduleReconnect()
       }
       return
     }
 
-    const socket = wsFactory(connection.url, connection.protocols)
     ws = socket
 
     socket.onopen = () => {
@@ -544,12 +576,7 @@ export const createGeminiLiveEngine = (
       }
       // Mid-session drop: reconnect with the resumption handle (context intact).
       // Never emit 'closed' — the session continues transparently.
-      if (everOpened && reconnectAttempts < maxReconnectAttempts) {
-        reconnectAttempts++
-        void openSocket()
-        return
-      }
-      finalize()
+      scheduleReconnect()
     }
   }
 
