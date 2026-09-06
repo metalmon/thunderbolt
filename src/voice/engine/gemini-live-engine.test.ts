@@ -4,11 +4,14 @@
 
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
+import { wsGeminiKeySubprotocolPrefix } from '@shared/ws-gemini-key'
 import {
   base64ToFloat32,
   base64ToInt16,
   createGeminiLiveEngine,
   pcm16ToBase64,
+  type CreateGeminiLiveEngineDeps,
+  type CreateGeminiLiveEngineOptions,
   type ToolDeclaration,
   type WebSocketFactory,
   type WebSocketLike,
@@ -26,7 +29,10 @@ class FakeWebSocket implements WebSocketLike {
   onerror: ((event: unknown) => void) | null = null
   onclose: (() => void) | null = null
 
-  constructor(public url: string) {
+  constructor(
+    public url: string,
+    public protocols: string[] = [],
+  ) {
     queueMicrotask(() => {
       this.readyState = 1
       this.onopen?.()
@@ -63,11 +69,17 @@ const submitPromptTool: ToolDeclaration = {
   parameters: { type: 'OBJECT', properties: { prompt: { type: 'STRING' } }, required: ['prompt'] },
 }
 
-/** Build a fresh engine + fake socket pair, wired via an injected factory. */
-const buildEngine = () => {
+/** Build a fresh engine + fake socket pair, wired via an injected factory.
+ *  Defaults to relay mode (`getProxyEnabled: () => true`) — the wire-protocol
+ *  tests below exercise the relay path and don't care about the routing
+ *  decision itself (see the dedicated relay/direct tests further down). */
+const buildEngine = (
+  optsOverrides: Partial<CreateGeminiLiveEngineOptions> = {},
+  depsOverrides: Partial<CreateGeminiLiveEngineDeps> = {},
+) => {
   let socket: FakeWebSocket | null = null
-  const factory: WebSocketFactory = (url) => {
-    socket = new FakeWebSocket(url)
+  const factory: WebSocketFactory = (url, protocols) => {
+    socket = new FakeWebSocket(url, protocols)
     return socket
   }
   const engine = createGeminiLiveEngine(
@@ -76,10 +88,15 @@ const buildEngine = () => {
       voiceName: 'Kore',
       systemInstruction: 'You are a helpful voice co-pilot.',
       tools: [submitPromptTool],
+      ...optsOverrides,
     },
-    factory,
-    // happydom doesn't run setTimeout — flush on a microtask instead.
-    (flush) => queueMicrotask(flush),
+    {
+      wsFactory: factory,
+      // happydom doesn't run setTimeout — flush on a microtask instead.
+      scheduleFlush: (flush) => queueMicrotask(flush),
+      getProxyEnabled: () => true,
+      ...depsOverrides,
+    },
   )
   return { engine, getSocket: () => socket as unknown as FakeWebSocket }
 }
@@ -104,6 +121,89 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     const { engine, getSocket } = buildEngine()
     await engine.connect()
     expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
+  })
+
+  it('relay: adds the gemini-key subprotocol when a BYOK key is configured', async () => {
+    const { engine, getSocket } = buildEngine({ geminiApiKey: 'user-key' }, { getProxyEnabled: () => true })
+    await engine.connect()
+
+    expect(getSocket().url).toBe('ws://localhost:8000/v1/gemini-live?model=gemini-3.1-flash-live-preview')
+    expect(getSocket().protocols.some((p) => p.startsWith(wsGeminiKeySubprotocolPrefix))).toBe(true)
+  })
+
+  it('relay: omits the gemini-key subprotocol when no BYOK key is configured', async () => {
+    const { engine, getSocket } = buildEngine({}, { getProxyEnabled: () => true })
+    await engine.connect()
+
+    expect(getSocket().protocols.some((p) => p.startsWith(wsGeminiKeySubprotocolPrefix))).toBe(false)
+  })
+
+  it('direct: awaits the ephemeral-token mint before opening the Google WS URL when the proxy is off', async () => {
+    const callOrder: string[] = []
+    let socket: FakeWebSocket | null = null
+    const mintToken = async (apiKey: string, model: string): Promise<string> => {
+      expect(apiKey).toBe('user-key')
+      expect(model).toBe('gemini-3.1-flash-live-preview')
+      callOrder.push('mint-start')
+      await Promise.resolve()
+      callOrder.push('mint-end')
+      return 'tok-123'
+    }
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-3.1-flash-live-preview',
+        voiceName: 'Kore',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        geminiApiKey: 'user-key',
+      },
+      {
+        wsFactory: (url, protocols) => {
+          callOrder.push('socket-created')
+          socket = new FakeWebSocket(url, protocols)
+          return socket
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        mintToken,
+      },
+    )
+
+    await engine.connect()
+
+    expect(callOrder).toEqual(['mint-start', 'mint-end', 'socket-created'])
+    expect(socket!.url).toBe(
+      'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?access_token=tok-123',
+    )
+    expect(socket!.protocols).toEqual([])
+  })
+
+  it('direct: selects the v1alpha endpoint for native-audio models (parity with the relay)', async () => {
+    let socket: FakeWebSocket | null = null
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        voiceName: 'Puck',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        geminiApiKey: 'user-key',
+      },
+      {
+        wsFactory: (url, protocols) => {
+          socket = new FakeWebSocket(url, protocols)
+          return socket
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        mintToken: async () => 'tok-456',
+      },
+    )
+
+    await engine.connect()
+
+    expect(socket!.url).toBe(
+      'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?access_token=tok-456',
+    )
   })
 
   it('sends the setup frame first, exactly per BidiGenerateContent shape', async () => {
@@ -148,9 +248,12 @@ describe('createGeminiLiveEngine — wire protocol', () => {
         tools: [submitPromptTool],
         languageCode: 'ru-RU',
       },
-      (url) => {
-        socket = new FakeWebSocket(url)
-        return socket
+      {
+        wsFactory: (url, protocols) => {
+          socket = new FakeWebSocket(url, protocols)
+          return socket
+        },
+        getProxyEnabled: () => true,
       },
     )
     await engine.connect()
@@ -232,9 +335,12 @@ describe('createGeminiLiveEngine — wire protocol', () => {
         systemInstruction: 'x',
         tools: [submitPromptTool],
       },
-      (url) => {
-        socket = new FakeWebSocket(url)
-        return socket
+      {
+        wsFactory: (url, protocols) => {
+          socket = new FakeWebSocket(url, protocols)
+          return socket
+        },
+        getProxyEnabled: () => true,
       },
     )
     await engine.connect()
