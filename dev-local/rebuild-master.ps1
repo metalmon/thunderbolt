@@ -92,6 +92,26 @@ foreach ($b in $Branches) {
     }
 }
 
+# bun.lock is an ASSEMBLY artifact: no single fork branch has the complete
+# package.json (deps come from several branches — e.g. docx-preview from
+# fork/docx-viewer, dayjs from another), so the cherry-picked lockfile is always
+# a little behind the assembled manifest. CI installs with --frozen-lockfile
+# (upstream workflows, not ours to relax), which then fails. Regenerate the lock
+# against the assembled package.json and fold it into the tip so master ships a
+# consistent, frozen-installable lockfile.
+Write-Host "==> regenerating bun.lock against the assembled package.json" -ForegroundColor Cyan
+$env:HUSKY = "0"
+bun install
+if ($LASTEXITCODE -ne 0) { throw "bun install failed while regenerating bun.lock" }
+git add bun.lock
+git diff --cached --quiet HEAD -- bun.lock
+if ($LASTEXITCODE -ne 0) {
+    git commit -q -m "chore(assembly): regenerate bun.lock for the assembled master"
+    Write-Host "    committed regenerated bun.lock" -ForegroundColor Yellow
+} else {
+    Write-Host "    bun.lock already in sync" -ForegroundColor Yellow
+}
+
 Write-Host "==> master rebuilt" -ForegroundColor Green
 git --no-pager log --oneline -n ($Branches.Count + 5)
 
