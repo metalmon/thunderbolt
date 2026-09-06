@@ -11,7 +11,6 @@ import { createClient } from '@/lib/http'
 
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { assembleBuiltInModelInput, createPrompt } from '@/ai/prompt'
-import { createTurnTelemetry } from '@/ai/turn-telemetry'
 import { defaultSkillResearch, defaultSkillWeather } from '@/defaults/skills'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/lib/auth-token'
 import { fetch as baseFetch } from '@/lib/fetch'
