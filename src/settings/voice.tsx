@@ -156,7 +156,10 @@ export const VoiceSettingsPage = () => {
             </Select>
             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
               {isGeminiLive ? (
-                <Trans>Real-time voice conversation via Google Gemini Live. API key is managed server-side.</Trans>
+                <Trans>
+                  Real-time voice conversation via Google Gemini Live. Add your own API key below — or leave it empty to
+                  use the workspace key if the operator configured one.
+                </Trans>
               ) : isCustom ? (
                 <Trans>
                   Point at any server exposing /v1/audio/transcriptions and /v1/audio/speech. Its CORS must allow this
@@ -252,6 +255,15 @@ export const VoiceSettingsPage = () => {
 
           {isGeminiLive && (
             <div className="flex flex-col gap-4">
+              <Field
+                id="voice-gemini-api-key"
+                label={t`Gemini API key`}
+                type="password"
+                hint={t`Used only on this device. Leave empty to use the workspace key if the operator configured one.`}
+                value={config.geminiApiKey}
+                onChange={(geminiApiKey) => update({ geminiApiKey })}
+              />
+
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="voice-gemini-model">{t`Model`}</Label>
                 <Select
@@ -286,11 +298,13 @@ export const VoiceSettingsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {geminiVoices[config.model].map((v) => (
-                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Gemini Live voice character. API key is managed server-side.`}</p>
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Gemini Live voice character.`}</p>
               </div>
 
               <div className="flex flex-col gap-1.5">
