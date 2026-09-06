@@ -5,14 +5,17 @@
 # Apply order matters:
 #   - fork/additive first — new fork-owned files (src/fork/**, zeroclaw-integration/**),
 #     never conflicts;
-#   - fork/rebrand before i18n — rebrand strings are i18n's raw material;
-#   - fork/i18n before fork/i18n-locales (locales' content modifies the locales/**
-#     skeleton that fork/i18n's i18next-init commit creates);
-#   - fork/i18n before fork/hooks (hooks' UI seams merge with i18n t() wraps on the
-#     shared components; rerere replays the merge);
-#   - fork/voice-gemini-live after fork/hooks (its invasive seams — backend route
-#     mount, ai/fetch voice-skill filter, voice.tsx co-pilot UI, local-settings
-#     fields — layer on top of the hook + i18n edits to the same files);
+#   - fork/rebrand before fork/lingui-ru — rebrand strings feed the catalogs;
+#   - fork/lingui-ru (was fork/i18n + fork/i18n-locales) — the fork's i18n now
+#     rides upstream's own Lingui (as of 0.1.129). All this branch adds is the
+#     Russian catalog + trimming the shipped set to en/ru/en-XA (drops upstream's
+#     de/es/fr/ja/pt-BR) + the src/i18n locale-registry edits. The old i18next
+#     branches fork/i18n + fork/i18n-locales are RETIRED (frozen at 0.1.124,
+#     superseded by upstream Lingui); their refs are kept only for archaeology.
+#     The per-feature Lingui macro wraps live on their own feature branches.
+#   - fork/voice-gemini-live DEFERRED (commented out below): upstream shipped its
+#     own voice-mode engine/router in 0.1.129; the Gemini Live branch needs a
+#     redesign onto that router before it can rebase. Re-add once reworked.
 #   - fork/anon-agent-manage after voice — a self-contained, removable seam that
 #     relaxes custom-agent management for anonymous (local-only) accounts; lifts
 #     out cleanly once stable/synced accounts land;
@@ -38,10 +41,9 @@
 $ForkBranches = @(
     "fork/additive",
     "fork/rebrand",
-    "fork/i18n",
-    "fork/i18n-locales",
+    "fork/lingui-ru",
     "fork/hooks",
-    "fork/voice-gemini-live",
+    # "fork/voice-gemini-live",  # DEFERRED — needs redesign onto upstream's 0.1.129 voice-mode router
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
@@ -52,14 +54,14 @@ $ForkBranches = @(
 )
 
 # Branches whose unique commits sit directly on main (cherry-pick range main..$b).
-# fork/i18n-locales is the sole exception: it stacks on fork/i18n
-# (range fork/i18n..fork/i18n-locales — see Get-CherryPickRange in rebuild-master.ps1).
+# Every active branch is now a main-range branch — the old stacked exception
+# (fork/i18n-locales on fork/i18n) retired with the i18next branches.
 $ForkMainRangeBranches = @(
     "fork/additive",
     "fork/rebrand",
-    "fork/i18n",
+    "fork/lingui-ru",
     "fork/hooks",
-    "fork/voice-gemini-live",
+    # "fork/voice-gemini-live",  # DEFERRED (see $ForkBranches)
     "fork/anon-agent-manage",
     "fork/sandbox-host",
     "fork/spinner",
