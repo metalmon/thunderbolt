@@ -3476,7 +3476,7 @@ msgstr "Синхронизировано {relative}"
 #: src/components/theme-toggle-group.tsx
 #: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
-msgstr "Системные"
+msgstr "Системная"
 
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
