@@ -137,24 +137,23 @@ jobs:
           echo "Collected:"
           ls -la out
 
-      - name: Collect bundle (Windows — zip the installer)
+      - name: Collect bundle (Windows)
         if: runner.os == 'Windows'
         shell: bash
         # Browser download protection (SmartScreen / Chrome Safe Browsing) flags an
-        # unsigned bare .exe/.msi, but not a .zip — so we ship the NSIS installer
-        # inside a zip. (The auto-updater is unaffected: it pulls from the
-        # CrabNebula CDN, not these GitHub Release assets.)
+        # unsigned bare .exe, but not a .zip — so the installer must reach the user
+        # inside a zip. We DON'T zip it here: actions/upload-artifact already wraps
+        # `out/**` in a single zip for workflow_dispatch downloads, so an extra zip
+        # here would nest a zip-in-a-zip. The tagged-release path zips the bare .exe
+        # itself (see the release job's Flatten step). The auto-updater is unaffected:
+        # it pulls from the CrabNebula CDN, not these assets.
         run: |
           mkdir -p out
           base="src-tauri/target/${{ matrix.target }}/release/bundle"
           version=$(jq -r .version package.json)
           setup=$(find "$base" -name '*-setup.exe' | head -1)
           if [ -z "$setup" ]; then echo "❌ NSIS setup.exe not found under $base"; exit 1; fi
-          # Copy to a flat name and zip from inside out/ so the archive holds just
-          # the installer at its root — not the nested src-tauri/target/... path
-          # that `7z a <fullpath>` would otherwise preserve.
           cp "$setup" "out/Volt_${version}_x64-setup.exe"
-          ( cd out && 7z a -tzip "Volt_${version}_x64-setup.zip" "Volt_${version}_x64-setup.exe" >/dev/null && rm "Volt_${version}_x64-setup.exe" )
           echo "Collected:"
           ls -la out
 
@@ -284,6 +283,14 @@ jobs:
         run: |
           mkdir -p release
           find artifacts -type f -exec cp {} release/ \;
+          # Zip the unsigned Windows installer so browser download protection
+          # (SmartScreen) doesn't flag a bare .exe release asset. The collect step
+          # leaves it bare on purpose (workflow_dispatch artifacts get their single
+          # zip from upload-artifact); tagged-release assets get it here.
+          for exe in release/*-setup.exe; do
+            [ -e "$exe" ] || continue
+            zip -j "${exe%.exe}.zip" "$exe" >/dev/null && rm "$exe"
+          done
           echo "Release assets:"
           ls -la release
 
