@@ -705,6 +705,7 @@ msgid "Clear Local Database?"
 msgstr "Очистить локальную базу?"
 
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "Очистить сохранённый API-ключ"
 
@@ -1007,8 +1008,8 @@ msgid "Could not read the import file."
 msgstr "Не удалось прочитать файл импорта."
 
 #: src/fork/documents/docx-preview.tsx
-msgid "Could not render {fileName}. Use the download button to open it."
-msgstr "Не удалось отобразить {fileName}. Используйте кнопку загрузки, чтобы открыть."
+#~ msgid "Could not render {fileName}. Use the download button to open it."
+#~ msgstr "Не удалось отобразить {fileName}. Используйте кнопку загрузки, чтобы открыть."
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
@@ -1033,6 +1034,10 @@ msgstr "Не удалось проверить обновления: {error}"
 #: src/settings/app-version-section.tsx
 msgid "Couldn't check for updates."
 msgstr "Не удалось проверить обновления."
+
+#: src/voice/ui/use-voice-session.ts
+msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
+msgstr "Не удалось подключиться к Gemini Live. Проверьте ключ Gemini API в Настройках → Голос."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't download the update: {error}"
@@ -2076,6 +2081,10 @@ msgstr "Держите данные синхронизированными на 
 msgid "Keep your data synced across devices."
 msgstr "Держите данные синхронизированными между устройствами."
 
+#: src/settings/voice.tsx
+msgid "Key is valid — Gemini Live is reachable."
+msgstr "Ключ действителен — Gemini Live доступен."
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2664,12 +2673,12 @@ msgid "Pairing identity"
 msgstr "Идентификатор сопряжения"
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper"
-msgstr "Бумага"
+#~ msgid "Paper"
+#~ msgstr "Бумага"
 
 #: src/components/theme-toggle-group.tsx
-msgid "Paper theme"
-msgstr "Тема «Бумага»"
+#~ msgid "Paper theme"
+#~ msgstr "Тема «Бумага»"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
