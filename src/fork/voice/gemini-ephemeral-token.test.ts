@@ -53,12 +53,31 @@ describe('mintGeminiEphemeralToken', () => {
     expect(body.liveConnectConstraints.config.sessionResumption).toEqual({})
   })
 
-  it('throws GeminiEphemeralTokenError on a non-2xx response', async () => {
+  it('throws GeminiEphemeralTokenError on a non-2xx response, with the status in the message', async () => {
     const fetchImpl = mock(
       async () =>
         new Response('forbidden', {
           status: 403,
           statusText: 'Forbidden',
+        }),
+    )
+
+    const call = mintGeminiEphemeralToken({
+      apiKey: 'test-api-key',
+      model: 'gemini-2.0-flash-live',
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      now: fixedNow,
+    })
+
+    await expect(call).rejects.toThrow(GeminiEphemeralTokenError)
+    await expect(call).rejects.toThrow(/403/)
+  })
+
+  it('throws GeminiEphemeralTokenError when a 2xx response body is not valid JSON', async () => {
+    const fetchImpl = mock(
+      async () =>
+        new Response('not json', {
+          status: 200,
         }),
     )
 
