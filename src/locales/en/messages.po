@@ -2630,6 +2630,14 @@ msgstr "Pair {deviceName}"
 msgid "Pairing identity"
 msgstr "Pairing identity"
 
+#: src/components/theme-toggle-group.tsx
+msgid "Paper"
+msgstr "Paper"
+
+#: src/components/theme-toggle-group.tsx
+msgid "Paper theme"
+msgstr "Paper theme"
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
 msgstr "Partly cloudy"
