@@ -21,6 +21,7 @@ import { defaultSettings, defaultSettingsVersion, hashSetting, shipsWithoutValue
 import { defaultSkills, defaultSkillsVersion, hashSkill, isWidgetSkillId } from '../defaults/skills'
 import { defaultTasks, defaultTasksVersion, hashTask } from '../defaults/tasks'
 import type { ModelsDefaults } from './pick-defaults'
+import type { SkillsDefaults } from './pick-skills-defaults'
 import { restampWidgetSkillDefaultHashes } from './data-migrations/restamp-widget-skill-default-hashes'
 import { normalizeModelDefault, upgradeModelDefaults } from './data-migrations/upgrade-model-defaults'
 import { nowIso } from './utils'
@@ -30,6 +31,7 @@ const bundledModelsDefaults: ModelsDefaults = {
   data: defaultModels,
   imageSupport: defaultModelImageSupport,
 }
+const bundledSkillsDefaults: SkillsDefaults = { version: defaultSkillsVersion, data: defaultSkills }
 
 /**
  * Settings keys holding the highest defaults version ever applied to this
@@ -480,6 +482,9 @@ export type ReconcileDefaultsOverrides = {
   /** Models defaults source (server OTA payload or bundled). Falls back to
    *  the shipped `defaultModels` + `defaultModelsVersion` when omitted. */
   models?: ModelsDefaults
+  /** Skills defaults source (locale-picked by the caller — see pickSkillsDefaults).
+   *  Falls back to the shipped `defaultSkills` + `defaultSkillsVersion` when omitted. */
+  skills?: SkillsDefaults
   /** Did PowerSync's initial-sync gate finish this boot? When false (timed out
    *  or failed) we can't trust that a missing local stored version means "never
    *  applied" — cloud may hold both the version marker and newer rows we
@@ -489,6 +494,7 @@ export type ReconcileDefaultsOverrides = {
 
 export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: ReconcileDefaultsOverrides) => {
   const pickedModelsSource = overrides?.models ?? bundledModelsDefaults
+  const skillsSource = overrides?.skills ?? bundledSkillsDefaults
   const modelsSource = {
     ...pickedModelsSource,
     data: pickedModelsSource.data.map(normalizeModelDefault),
@@ -690,10 +696,10 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     await restampWidgetSkillDefaultHashes.run(tx)
     await runGatedPass(
       skillsTable,
-      defaultSkills,
+      skillsSource.data,
       hashSkill,
       versionMarkerKeys.skills,
-      defaultSkillsVersion,
+      skillsSource.version,
       hasAnySkillRow,
       { frozenFields: (skill) => (isWidgetSkillId(skill.id) ? ['enabled', 'pinnedOrder'] : []) },
     )
