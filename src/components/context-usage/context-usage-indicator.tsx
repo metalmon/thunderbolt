@@ -52,8 +52,10 @@ export const ContextUsageIndicator = ({
   const strokeColor = 'var(--color-muted-foreground)'
 
   // SVG circle parameters
-  const size = 20
-  const strokeWidth = 2.5
+  // Fork: kept compact and low-key so the ring reads as a subtle affordance in the
+  // composer rather than a bright focal point.
+  const size = 16
+  const strokeWidth = 2
   const radius = 7
   const circumference = 2 * Math.PI * radius
   const strokeDasharray = circumference
