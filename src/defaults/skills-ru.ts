@@ -437,7 +437,9 @@ export const defaultSkillRuConnectIntegration: Skill = {
   description:
     'Используй этот навык, когда пользователь просит доступ к почте или календарю, но необходимые инструменты Google или Microsoft недоступны.',
   instruction: connectIntegrationWidgetInstructionRu,
-  enabled: 1,
+  // Mirror the EN twin: fork/hide-integrations ships connect-integration disabled
+  // until the backend has OAuth creds. Keep RU structurally identical (skills-ru.test).
+  enabled: 0,
   pinnedOrder: null,
   deletedAt: null,
   defaultHash: null,
