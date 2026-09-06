@@ -18,6 +18,7 @@ import type { Auth } from '@/auth/elysia-plugin'
 import { extractBearerSubprotocol, wsCloseUnauthorized } from '@/auth/ws-bearer-auth'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import type { User } from '@shared/types/auth'
+import { geminiLiveWsUrl } from '@shared/gemini-live-endpoint'
 import { wsCarrierSubprotocol } from '@shared/ws-bearer'
 import { decodeWsGeminiKey } from '@shared/ws-gemini-key'
 import { Elysia, type AnyElysia } from 'elysia'
@@ -41,8 +42,6 @@ const authorizeVoiceWsBearer = async (auth: Auth, subprotocolHeader: string | nu
   return (session?.user as User | undefined) ?? null
 }
 
-const nativeAudioPattern = /native-audio/
-
 /** Test-only escape hatch: when set, `upstreamUrlFor` returns this URL
  *  verbatim instead of computing the real Google endpoint, so tests can point
  *  the relay at a local mock WebSocket server. Never set in production. */
@@ -51,9 +50,7 @@ export const upstreamUrlFor = (model: string, apiKey: string): string => {
   if (override) {
     return override
   }
-  const version = nativeAudioPattern.test(model) ? 'v1alpha' : 'v1beta'
-  const svc = `google.ai.generativelanguage.${version}.GenerativeService.BidiGenerateContent`
-  return `wss://generativelanguage.googleapis.com/ws/${svc}?key=${encodeURIComponent(apiKey)}`
+  return geminiLiveWsUrl(model, `key=${encodeURIComponent(apiKey)}`)
 }
 
 /** Resolve the Gemini API key for one connection: the caller's own key
