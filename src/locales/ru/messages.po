@@ -195,7 +195,7 @@ msgstr "Действия"
 
 #: src/settings/devices.tsx
 msgid "Active"
-msgstr ""
+msgstr "Активно"
 
 #: src/projects/emoji-catalog.ts
 msgid "Activity"
@@ -706,7 +706,7 @@ msgstr "Очистка базы данных…"
 
 #: src/settings/devices.tsx
 msgid "CLI"
-msgstr ""
+msgstr "CLI"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Clipboard unavailable. Please select the phrase above and copy it manually."
@@ -2616,11 +2616,11 @@ msgstr "Идентификатор сопряжения"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Paper"
-msgstr ""
+msgstr "Бумага"
 
 #: src/components/theme-toggle-group.tsx
 msgid "Paper theme"
-msgstr ""
+msgstr "Тема «Бумага»"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
@@ -2953,7 +2953,7 @@ msgstr "Отозвать {deviceName}"
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Revoke this CLI?"
-msgstr ""
+msgstr "Отозвать этот CLI?"
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Revoke this device?"
@@ -3272,11 +3272,11 @@ msgstr "Войти"
 
 #: src/components/device-approval.tsx
 msgid "Sign in to a Thunderbolt account to approve this CLI request."
-msgstr ""
+msgstr "Войдите в аккаунт Volt, чтобы одобрить этот запрос CLI."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to continue"
-msgstr ""
+msgstr "Войдите, чтобы продолжить"
 
 #: src/settings/preferences.tsx
 msgid "Sign in to enable cloud proxy."
@@ -3571,7 +3571,7 @@ msgstr "Провайдер ИИ отвечал слишком долго. Поп
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
-msgstr ""
+msgstr "CLI выйдет из аккаунта, и для доступа к вашему аккаунту Volt потребуется войти снова."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The device will be signed out and its local data will be cleared on next sync. This device will need to sign in again to use sync."
