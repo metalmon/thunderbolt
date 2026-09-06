@@ -15,12 +15,13 @@
 
 /**
  * Locales the app ships catalogs for. `en` is the source locale; `en-XA` is the
- * CI pseudo-locale. Volt is a Russian-first product, so upstream's broader locale
- * set (de/fr/es/pt-BR/ja) is trimmed to just the source plus Russian — the only
- * two catalogs we actually maintain — keeping extraction, bundle chunks, and the
- * brand override surface minimal.
+ * CI pseudo-locale. Volt keeps upstream's full catalog set here in the TYPE (so
+ * upstream code, tests and eval scenarios that name any locale keep compiling and
+ * the catalogs stay available), but only OFFERS en/ru to users — see the restricted
+ * {@link negotiableLocales} below. `ru` is the fork's one added catalog; the others
+ * ride upstream unchanged and are never activated at runtime.
  */
-export const appLocales = ['en', 'ru', 'en-XA'] as const
+export const appLocales = ['en', 'de', 'fr', 'es', 'pt-BR', 'ja', 'ru', 'en-XA'] as const
 
 export type AppLocale = (typeof appLocales)[number]
 
@@ -37,12 +38,17 @@ export const defaultLocale: AppLocale = 'ru'
 export const pseudoLocale: AppLocale = 'en-XA'
 
 /**
- * Locales eligible for language negotiation — every shipped locale except the
- * CI pseudo-locale. This is the set both ends trust: the frontend negotiates
- * `navigator.languages` against it (`src/i18n/resolve-locale.ts`) and the
- * backend validates the `X-App-Language` header against it.
+ * Locales actually OFFERED to users for negotiation and in the language picker.
+ * Deliberately narrower than `appLocales`: Volt is a Russian-first product that
+ * maintains only the `en` and `ru` catalogs, so this is the set both ends trust —
+ * the frontend negotiates `navigator.languages` against it
+ * (`src/i18n/resolve-locale.ts`) and the backend validates `X-App-Language` against
+ * it. The other catalogs stay shipped (for `appLocales`/type compatibility) but are
+ * never activated because nothing negotiates to them. Pinned as an explicit literal,
+ * not derived from `appLocales`, precisely so widening the type never silently
+ * re-offers de/fr/es/pt-BR/ja.
  */
-export const negotiableLocales: readonly AppLocale[] = appLocales.filter((locale) => locale !== pseudoLocale)
+export const negotiableLocales: readonly AppLocale[] = ['en', 'ru']
 
 /**
  * The shipped locale a client's `X-App-Language` header names, or `null`.
