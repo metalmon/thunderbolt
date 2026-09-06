@@ -120,26 +120,35 @@ export const VoiceSettingsPage = () => {
     setUi((s) => ({ ...s, conn: { status: result.ok ? 'ok' : 'error', detail: result.detail } }))
   }
 
-  // Gemini BYOK key: mirror the Models tab's masked/clearable secret UX — the
-  // saved key is never rendered; an empty field with a •••• placeholder signals
-  // one is stored, and it can be cleared. `geminiKeyDraft` holds an in-progress
-  // replacement (null = show the masked saved key). The test validates the key
-  // by minting an ephemeral token — the same call the direct voice path makes,
-  // so it uses the default (native/global) fetch, not the proxy context (which
-  // isn't mounted above the settings routes).
-  const [geminiKeyDraft, setGeminiKeyDraft] = useState<string | null>(null)
+  // Gemini BYOK key: write-only secret field matching the ACP agent token UX
+  // (agent-token-field.tsx) for one consistent secret style across the app — the
+  // saved key is never rendered; a "Key saved" placeholder signals one is stored,
+  // an explicit Save commits a new one, Remove clears it. `geminiKeyDraft` is the
+  // in-progress entry. The test validates the effective key (the draft, or the
+  // saved one) by minting an ephemeral token — the same call the direct voice
+  // path makes, so it uses the default (native/global) fetch, not the proxy
+  // context (which isn't mounted above the settings routes).
+  const [geminiKeyDraft, setGeminiKeyDraft] = useState('')
   const geminiKeySaved = config.geminiApiKey.trim().length > 0
-  const effectiveGeminiKey = geminiKeyDraft ?? config.geminiApiKey
-  const canTestGemini = isGeminiLive && effectiveGeminiKey.trim().length > 0
+  const trimmedGeminiKey = geminiKeyDraft.trim()
+  const effectiveGeminiKey = trimmedGeminiKey || config.geminiApiKey
+  const canTestGemini = isGeminiLive && effectiveGeminiKey.length > 0
 
   const changeGeminiKey = (value: string) => {
     setGeminiKeyDraft(value)
-    update({ geminiApiKey: value })
     setUi((s) => ({ ...s, conn: { status: 'idle' } }))
   }
-  const clearGeminiKey = () => {
-    setGeminiKeyDraft(null)
+  const saveGeminiKey = () => {
+    if (trimmedGeminiKey === '') {
+      return
+    }
+    update({ geminiApiKey: trimmedGeminiKey })
+    setGeminiKeyDraft('')
+    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+  }
+  const removeGeminiKey = () => {
     update({ geminiApiKey: '' })
+    setGeminiKeyDraft('')
     setUi((s) => ({ ...s, conn: { status: 'idle' } }))
   }
   const runGeminiTest = async () => {
@@ -297,28 +306,35 @@ export const VoiceSettingsPage = () => {
                   id="voice-gemini-api-key"
                   label={t`Gemini API key`}
                   type="password"
-                  placeholder={geminiKeySaved && geminiKeyDraft === null ? '••••••••••••••••' : 'AIza…'}
+                  placeholder={geminiKeySaved ? t`Key saved` : 'AIza…'}
                   hint={t`Used only on this device. Leave empty to use the workspace key if the operator configured one.`}
-                  value={geminiKeyDraft ?? ''}
+                  value={geminiKeyDraft}
                   onChange={changeGeminiKey}
                 />
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={runGeminiTest}
-                    disabled={!canTestGemini || ui.conn.status === 'testing'}
-                  >
-                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
-                    <Trans>Test connection</Trans>
-                  </Button>
-                  {geminiKeySaved && geminiKeyDraft === null && (
-                    <Button type="button" variant="ghost" onClick={clearGeminiKey}>
-                      <Trans>Clear saved API key</Trans>
+                {(trimmedGeminiKey !== '' || geminiKeySaved) && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={runGeminiTest}
+                      disabled={!canTestGemini || ui.conn.status === 'testing'}
+                    >
+                      {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
+                      <Trans>Test connection</Trans>
                     </Button>
-                  )}
-                </div>
+                    {trimmedGeminiKey !== '' && (
+                      <Button type="button" onClick={saveGeminiKey}>
+                        <Trans>Save</Trans>
+                      </Button>
+                    )}
+                    {geminiKeySaved && (
+                      <Button type="button" variant="ghost" onClick={removeGeminiKey}>
+                        <Trans>Remove key</Trans>
+                      </Button>
+                    )}
+                  </div>
+                )}
 
                 {ui.conn.status === 'ok' && (
                   <p className="flex items-center gap-1.5 text-[length:var(--font-size-sm)] text-primary">
