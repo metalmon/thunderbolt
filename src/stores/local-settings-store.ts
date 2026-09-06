@@ -23,6 +23,9 @@ export type VoiceProviderConfig = {
   /** Base URL including the version prefix, e.g. http://localhost:8000/v1. */
   baseUrl: string
   apiKey: string
+  /** BYOK Gemini Live key; device-local, never synced. Empty ⇒ fall back to
+   *  the server key if the operator set one. */
+  geminiApiKey: string
   sttModel: string
   ttsModel: string
   ttsVoice: string
@@ -39,6 +42,7 @@ export const defaultVoiceProvider: VoiceProviderConfig = {
   kind: 'thunderbolt',
   baseUrl: '',
   apiKey: '',
+  geminiApiKey: '',
   sttModel: 'whisper-large-v3-turbo',
   ttsModel: 'qwen3-tts',
   ttsVoice: 'aiden',
