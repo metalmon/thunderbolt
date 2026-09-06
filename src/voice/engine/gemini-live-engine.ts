@@ -33,8 +33,11 @@
  */
 
 import { getAuthToken } from '@/lib/auth-token'
+import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { type GeminiLiveModel, getLocalSetting } from '@/stores/local-settings-store'
+import { mintGeminiEphemeralToken } from '@/fork/voice/gemini-ephemeral-token'
 import { encodeWsBearer, wsBearerSubprotocolPrefix, wsCarrierSubprotocol } from '@shared/ws-bearer'
+import { encodeWsGeminiKey } from '@shared/ws-gemini-key'
 import type { RealtimeEngine, RealtimeEvent } from './realtime-types'
 
 const geminiLivePath = '/v1/gemini-live'
@@ -112,6 +115,12 @@ export type CreateGeminiLiveEngineOptions = {
    *  told the target language; native-audio picks the language itself and
    *  rejects the field, so `router.ts` leaves this undefined for it. */
   languageCode?: string
+  /** BYOK Gemini API key. On the relay path it rides along as a `gemini-key`
+   *  WS subprotocol entry so the backend uses it for this connection instead
+   *  of its own server-side key; on the direct path (proxy off) it's
+   *  required and is exchanged for a short-lived ephemeral token via
+   *  `mintGeminiEphemeralToken` on every (re)connect. */
+  geminiApiKey?: string
 }
 
 /** Subset of the native `WebSocket` interface the engine depends on. Lets
@@ -127,25 +136,12 @@ export type WebSocketLike = {
   onclose: (() => void) | null
 }
 
-export type WebSocketFactory = (url: string) => WebSocketLike
+/** Opens the transport-level socket for a resolved `{ url, protocols }`
+ *  connection (see `GeminiConnection` / `resolveConnection`) — it no longer
+ *  computes protocols itself, since those now differ by relay vs direct. */
+export type WebSocketFactory = (url: string, protocols: string[]) => WebSocketLike
 
-/**
- * Open the real backend relay socket with handshake-time bearer auth. Browsers
- * (and the Tauri webview) can't set an `Authorization` header on
- * `new WebSocket()`, and the app authenticates with a bearer token, not a
- * cookie — so the relay's `/v1/gemini-live` route (which authorizes in its WS
- * `open()` via `authorizeWsBearer`) would reject a bare socket. We carry the
- * same signed bearer the REST channel uses as a `thunderbolt.bearer.<token>`
- * subprotocol entry alongside the `thunderbolt.v1` carrier the server echoes
- * back — identical to `createProxyWebSocket` / the haystack ACP transport
- * (see `@shared/ws-bearer`). The auth entry is never echoed, so it never lands
- * on `WebSocket.protocol` or in proxy logs.
- */
-const defaultWebSocketFactory: WebSocketFactory = (url) => {
-  const token = getAuthToken()
-  const protocols = token
-    ? [wsCarrierSubprotocol, `${wsBearerSubprotocolPrefix}${encodeWsBearer(token)}`]
-    : [wsCarrierSubprotocol]
+const defaultWebSocketFactory: WebSocketFactory = (url, protocols) => {
   const socket = new WebSocket(url, protocols)
   // Gemini streams every server frame (setupComplete and serverContent audio)
   // as a BINARY WebSocket frame. The default `binaryType` is 'blob', which
@@ -207,6 +203,20 @@ const getWsUrl = (cloudUrl: string, model: string): string => {
   return `${base}${geminiLivePath}?model=${encodeURIComponent(model)}`
 }
 
+/** Build the direct Google Live API WebSocket URL for a minted ephemeral
+ *  token (desktop, proxy off). Mirrors the relay's endpoint-version selection
+ *  (`upstreamUrlFor` in the backend relay) rather than pinning one version:
+ *  native-audio models require v1alpha, everything else uses v1beta. */
+const directGoogleWsUrl = (model: string, accessToken: string): string => {
+  const version = /native-audio/.test(model) ? 'v1alpha' : 'v1beta'
+  const service = `google.ai.generativelanguage.${version}.GenerativeService.BidiGenerateContent`
+  return `wss://generativelanguage.googleapis.com/ws/${service}?access_token=${encodeURIComponent(accessToken)}`
+}
+
+/** The resolved transport target for a (re)connect: the socket URL plus any
+ *  WS subprotocol entries carrying auth/BYOK-key material. */
+export type GeminiConnection = { url: string; protocols: string[] }
+
 /** Shape of a decoded server frame. Every field is optional — a given frame
  *  carries exactly one of `setupComplete` / `serverContent` / `toolCall`. */
 type ServerMessage = {
@@ -223,19 +233,42 @@ type ServerMessage = {
   toolCall?: { functionCalls?: Array<{ id: string; name: string; args: Record<string, unknown> }> }
 }
 
+/** Injectable dependencies for `createGeminiLiveEngine`. All optional — every
+ *  field defaults to its production behavior; tests override individual
+ *  seams without needing to fake the rest. */
+export type CreateGeminiLiveEngineDeps = {
+  /** Opens the transport socket. Defaults to the real `WebSocket` constructor. */
+  wsFactory?: WebSocketFactory
+  /** Schedules the coalescing flush. Defaults to a macrotask so frames stalled
+   *  behind a busy main thread coalesce into one send; a test seam (the happydom
+   *  test env doesn't run `setTimeout`, so tests inject `queueMicrotask`). */
+  scheduleFlush?: (flush: () => void) => void
+  /** Whether to relay through the backend (`true`) or connect directly to
+   *  Google with a minted ephemeral token (`false`). Defaults to
+   *  `computeEffectiveProxyEnabled()`. Inject to force relay/direct in tests. */
+  getProxyEnabled?: () => boolean
+  /** Mints a short-lived access token for the direct path. Defaults to
+   *  `mintGeminiEphemeralToken`. Inject a fake in tests to avoid a real
+   *  network call. */
+  mintToken?: (apiKey: string, model: string) => Promise<string>
+}
+
 /**
- * Create a Gemini Live realtime engine. `wsFactory` is a test seam — it
- * defaults to the real `WebSocket` constructor and only needs overriding in
- * tests.
+ * Create a Gemini Live realtime engine. `deps` are test seams — every field
+ * defaults to its production behavior and only needs overriding in tests.
  */
 export const createGeminiLiveEngine = (
   opts: CreateGeminiLiveEngineOptions,
-  wsFactory: WebSocketFactory = defaultWebSocketFactory,
+  deps: CreateGeminiLiveEngineDeps = {},
+): RealtimeEngine => {
+  const wsFactory = deps.wsFactory ?? defaultWebSocketFactory
   // Schedules the coalescing flush. Defaults to a macrotask so frames stalled
   // behind a busy main thread coalesce into one send; a test seam (the happydom
   // test env doesn't run `setTimeout`, so tests inject `queueMicrotask`).
-  scheduleFlush: (flush: () => void) => void = (flush) => void setTimeout(flush, 0),
-): RealtimeEngine => {
+  const scheduleFlush = deps.scheduleFlush ?? ((flush: () => void) => void setTimeout(flush, 0))
+  const getProxyEnabled = deps.getProxyEnabled ?? (() => computeEffectiveProxyEnabled())
+  const mintToken = deps.mintToken ?? ((apiKey: string, model: string) => mintGeminiEphemeralToken({ apiKey, model }))
+
   let ws: WebSocketLike | null = null
   let closed = false
 
@@ -419,11 +452,70 @@ export const createGeminiLiveEngine = (
       },
     })
 
+  /**
+   * Resolve the connection target for this (re)connect. Relay mode carries
+   * the same handshake-time bearer auth the REST channel uses — browsers
+   * (and the Tauri webview) can't set an `Authorization` header on
+   * `new WebSocket()`, so the relay's `/v1/gemini-live` route (which
+   * authorizes in its WS `open()` via `authorizeWsBearer`) would reject a
+   * bare socket. We carry the signed bearer as a `thunderbolt.bearer.<token>`
+   * subprotocol entry alongside the `thunderbolt.v1` carrier the server
+   * echoes back — identical to `createProxyWebSocket` / the ACP transport
+   * (see `@shared/ws-bearer`); a configured BYOK key rides along as an
+   * additional `thunderbolt.gemini-key.<key>` entry (`@shared/ws-gemini-key`)
+   * so the relay uses it for this connection instead of its own server key.
+   * None of these are echoed back, so they never land on `WebSocket.protocol`
+   * or in proxy logs.
+   *
+   * Direct mode (desktop, proxy toggle off) skips the relay entirely: it
+   * mints a short-lived ephemeral token from the BYOK key and connects
+   * straight to Google, with no subprotocols (Google's Live API takes the
+   * token as an `access_token` query param, not a WS handshake header).
+   * Re-run on every reconnect since ephemeral tokens expire.
+   */
+  const resolveConnection = async (): Promise<GeminiConnection> => {
+    if (getProxyEnabled()) {
+      const cloudUrl = getLocalSetting('cloudUrl')
+      const token = getAuthToken()
+      const protocols = token
+        ? [wsCarrierSubprotocol, `${wsBearerSubprotocolPrefix}${encodeWsBearer(token)}`]
+        : [wsCarrierSubprotocol]
+      if (opts.geminiApiKey) {
+        protocols.push(encodeWsGeminiKey(opts.geminiApiKey))
+      }
+      return { url: getWsUrl(cloudUrl, opts.model), protocols }
+    }
+
+    if (!opts.geminiApiKey) {
+      throw new Error('Gemini API key required for the direct voice connection')
+    }
+    const accessToken = await mintToken(opts.geminiApiKey, opts.model)
+    return { url: directGoogleWsUrl(opts.model, accessToken), protocols: [] }
+  }
+
   /** Open (or re-open) the upstream socket. `onReady`/`onFail` fire only for the
    *  initial connect; later drops reconnect transparently via `onclose`. */
-  const openSocket = (onReady?: () => void, onFail?: (error: Error) => void): void => {
-    const cloudUrl = getLocalSetting('cloudUrl')
-    const socket = wsFactory(getWsUrl(cloudUrl, opts.model))
+  const openSocket = async (onReady?: () => void, onFail?: (error: Error) => void): Promise<void> => {
+    let connection: GeminiConnection
+    try {
+      connection = await resolveConnection()
+    } catch (error) {
+      // Resolver failure (missing key, mint rejected) is treated exactly like
+      // a transport failure: surfaced to the initial caller via `onFail`, or —
+      // if it happened on a reconnect after the session was already live —
+      // finalized like exhausting the reconnect budget, since there is no
+      // socket to retry against.
+      const err = error instanceof Error ? error : new Error(String(error))
+      pushEvent({ type: 'error', message: err.message })
+      if (!everOpened) {
+        onFail?.(err)
+      } else {
+        finalize()
+      }
+      return
+    }
+
+    const socket = wsFactory(connection.url, connection.protocols)
     ws = socket
 
     socket.onopen = () => {
@@ -454,7 +546,7 @@ export const createGeminiLiveEngine = (
       // Never emit 'closed' — the session continues transparently.
       if (everOpened && reconnectAttempts < maxReconnectAttempts) {
         reconnectAttempts++
-        openSocket()
+        void openSocket()
         return
       }
       finalize()
@@ -490,7 +582,7 @@ export const createGeminiLiveEngine = (
   return {
     id: 'gemini-live',
 
-    connect: () => new Promise<void>((resolve, reject) => openSocket(resolve, reject)),
+    connect: () => new Promise<void>((resolve, reject) => void openSocket(resolve, reject)),
 
     sendAudio: (frame) => {
       // Buffer + coalesce (see `flushAudioBuffer`); flush on the next macrotask so
