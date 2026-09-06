@@ -330,6 +330,75 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     expect(mintCallCount).toBe(1 + maxReconnectAttempts)
   })
 
+  it('direct: does not open a zombie socket when close() races a reconnect mint still in flight', async () => {
+    let socketCreateCount = 0
+    const sockets: FakeWebSocket[] = []
+    let mintCallCount = 0
+    let resolveReconnectMint: ((token: string) => void) | null = null
+
+    const engine = createGeminiLiveEngine(
+      {
+        model: 'gemini-3.1-flash-live-preview',
+        voiceName: 'Kore',
+        systemInstruction: 'x',
+        tools: [submitPromptTool],
+        geminiApiKey: 'user-key',
+      },
+      {
+        wsFactory: (url, protocols) => {
+          socketCreateCount++
+          const socket = new FakeWebSocket(url, protocols)
+          sockets.push(socket)
+          return socket
+        },
+        scheduleFlush: (flush) => queueMicrotask(flush),
+        getProxyEnabled: () => false,
+        mintToken: async () => {
+          mintCallCount++
+          if (mintCallCount === 1) {
+            return 'tok-initial' // initial connect resolves immediately
+          }
+          // The reconnect's mint: a real network call on the direct path can take
+          // hundreds of ms. Leave it deliberately pending so the test controls
+          // exactly when it resolves relative to close().
+          return new Promise<string>((resolve) => {
+            resolveReconnectMint = resolve
+          })
+        },
+      },
+    )
+
+    const pendingClosed = nextEvents(engine.events(), 1)
+    await engine.connect()
+    expect(socketCreateCount).toBe(1)
+
+    // Mid-session drop (NOT a user close) starts the reconnect, which calls
+    // mintToken again. That call synchronously reaches its pending Promise
+    // before `close()` on a FakeWebSocket returns (no awaits needed to observe
+    // this — see the sibling retry-budget test for the same synchronous chain).
+    sockets[0].close()
+    expect(mintCallCount).toBe(2)
+    expect(resolveReconnectMint).not.toBeNull()
+
+    // The user stops voice WHILE the reconnect's mint is still in flight — the
+    // race this test exists to cover.
+    engine.close()
+
+    // Now the in-flight mint finally resolves. Without the fix, `openSocket`
+    // would proceed to open a brand-new socket here — a zombie connection to
+    // Google that nobody asked for, burning the user's BYOK quota and emitting
+    // events past 'closed'.
+    resolveReconnectMint!('tok-late')
+    for (let i = 0; i < 6; i++) {
+      await Promise.resolve() // drain the resumed resolveConnection/openSocket chain
+    }
+
+    expect(socketCreateCount).toBe(1) // no zombie socket was created
+    expect(sockets).toHaveLength(1)
+    expect(sockets[0].sent).toEqual([sockets[0].sent[0]]) // only the original setup frame — nothing sent after
+    expect(await pendingClosed).toEqual([{ type: 'closed' }]) // finalize stays idempotent despite the racy double onclose
+  })
+
   it('sends the setup frame first, exactly per BidiGenerateContent shape', async () => {
     const { engine, getSocket } = buildEngine()
     await engine.connect()
