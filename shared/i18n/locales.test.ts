@@ -17,21 +17,21 @@ describe('negotiableLocales', () => {
   // the filter mirrors a wrong predicate on both sides and can never fail, and
   // shipping a locale should require a deliberate edit here.
   test('is the shipped set without the pseudo-locale', () => {
-    expect(negotiableLocales).toEqual(['en', 'de', 'fr', 'es', 'pt-BR', 'ja'])
+    expect(negotiableLocales).toEqual(['en', 'ru'])
   })
 })
 
 describe('matchExactLocale', () => {
   test('returns the shipped tag for an exact match', () => {
-    expect(matchExactLocale('pt-BR')).toBe('pt-BR')
-    expect(matchExactLocale('ja')).toBe('ja')
+    expect(matchExactLocale('en')).toBe('en')
+    expect(matchExactLocale('ru')).toBe('ru')
   })
 
   // Returning the set's own tag rather than the caller's string is what keeps a
   // crafted header out of the outbound request; the casing swap here shows it.
   test('normalizes casing and surrounding whitespace', () => {
-    expect(matchExactLocale('PT-br')).toBe('pt-BR')
-    expect(matchExactLocale(' pt-BR ')).toBe('pt-BR')
+    expect(matchExactLocale('RU')).toBe('ru')
+    expect(matchExactLocale(' ru ')).toBe('ru')
   })
 
   test('rejects the pseudo-locale, which only a dev build can send', () => {
@@ -59,14 +59,8 @@ describe('matchExactLocale', () => {
 
 describe('englishLanguageName', () => {
   test('names a language in English rather than in itself', () => {
-    expect(englishLanguageName('de')).toBe('German')
-    expect(englishLanguageName('ja')).toBe('Japanese')
+    expect(englishLanguageName('ru')).toBe('Russian')
     expect(englishLanguageName('en')).toBe('English')
-  })
-
-  test('names a regional locale without dropping the language', () => {
-    // "Brazilian Portuguese" or "Portuguese (Brazil)" depending on the ICU build.
-    expect(englishLanguageName('pt-BR')).toContain('Portuguese')
   })
 
   test('names the pseudo-locale as plain English', () => {
