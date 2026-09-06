@@ -36,6 +36,7 @@ import { getAuthToken } from '@/lib/auth-token'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { type GeminiLiveModel, getLocalSetting } from '@/stores/local-settings-store'
 import { mintGeminiEphemeralToken } from '@/fork/voice/gemini-ephemeral-token'
+import { geminiLiveWsUrl } from '@shared/gemini-live-endpoint'
 import { encodeWsBearer, wsBearerSubprotocolPrefix, wsCarrierSubprotocol } from '@shared/ws-bearer'
 import { encodeWsGeminiKey } from '@shared/ws-gemini-key'
 import type { RealtimeEngine, RealtimeEvent } from './realtime-types'
@@ -201,16 +202,6 @@ export const base64ToFloat32 = (b64: string): Float32Array => {
 const getWsUrl = (cloudUrl: string, model: string): string => {
   const base = cloudUrl.replace(/^http/, 'ws').replace(/\/v1\/?$/, '')
   return `${base}${geminiLivePath}?model=${encodeURIComponent(model)}`
-}
-
-/** Build the direct Google Live API WebSocket URL for a minted ephemeral
- *  token (desktop, proxy off). Mirrors the relay's endpoint-version selection
- *  (`upstreamUrlFor` in the backend relay) rather than pinning one version:
- *  native-audio models require v1alpha, everything else uses v1beta. */
-const directGoogleWsUrl = (model: string, accessToken: string): string => {
-  const version = /native-audio/.test(model) ? 'v1alpha' : 'v1beta'
-  const service = `google.ai.generativelanguage.${version}.GenerativeService.BidiGenerateContent`
-  return `wss://generativelanguage.googleapis.com/ws/${service}?access_token=${encodeURIComponent(accessToken)}`
 }
 
 /** The resolved transport target for a (re)connect: the socket URL plus any
@@ -490,7 +481,10 @@ export const createGeminiLiveEngine = (
       throw new Error('Gemini API key required for the direct voice connection')
     }
     const accessToken = await mintToken(opts.geminiApiKey, opts.model)
-    return { url: directGoogleWsUrl(opts.model, accessToken), protocols: [] }
+    // Direct Google Live API URL for the minted ephemeral token. Shares
+    // endpoint-version selection with the backend relay (`upstreamUrlFor`)
+    // via `geminiLiveWsUrl` so the two paths can never drift.
+    return { url: geminiLiveWsUrl(opts.model, `access_token=${encodeURIComponent(accessToken)}`), protocols: [] }
   }
 
   /**
