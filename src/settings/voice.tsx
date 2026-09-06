@@ -18,8 +18,10 @@ import { SectionCard } from '@/components/ui/section-card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { geminiVoices } from '@/voice/engine/gemini-live-engine'
+import { geminiModelIds } from '@/voice/engine/router'
 import { type DiscoveredModels, fetchOpenAiModels, testOpenAiConnection } from '@/voice/engine/openai-compatible-engine'
 import { type GeminiLiveModel, type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
+import { mintGeminiEphemeralToken } from '@/fork/voice/gemini-ephemeral-token'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
@@ -116,6 +118,41 @@ export const VoiceSettingsPage = () => {
     setUi((s) => ({ ...s, conn: { status: 'testing' } }))
     const result = await testOpenAiConnection(config)
     setUi((s) => ({ ...s, conn: { status: result.ok ? 'ok' : 'error', detail: result.detail } }))
+  }
+
+  // Gemini BYOK key: mirror the Models tab's masked/clearable secret UX — the
+  // saved key is never rendered; an empty field with a •••• placeholder signals
+  // one is stored, and it can be cleared. `geminiKeyDraft` holds an in-progress
+  // replacement (null = show the masked saved key). The test validates the key
+  // by minting an ephemeral token — the same call the direct voice path makes,
+  // so it uses the default (native/global) fetch, not the proxy context (which
+  // isn't mounted above the settings routes).
+  const [geminiKeyDraft, setGeminiKeyDraft] = useState<string | null>(null)
+  const geminiKeySaved = config.geminiApiKey.trim().length > 0
+  const effectiveGeminiKey = geminiKeyDraft ?? config.geminiApiKey
+  const canTestGemini = isGeminiLive && effectiveGeminiKey.trim().length > 0
+
+  const changeGeminiKey = (value: string) => {
+    setGeminiKeyDraft(value)
+    update({ geminiApiKey: value })
+    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+  }
+  const clearGeminiKey = () => {
+    setGeminiKeyDraft(null)
+    update({ geminiApiKey: '' })
+    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+  }
+  const runGeminiTest = async () => {
+    setUi((s) => ({ ...s, conn: { status: 'testing' } }))
+    try {
+      await mintGeminiEphemeralToken({
+        apiKey: effectiveGeminiKey,
+        model: geminiModelIds[config.model],
+      })
+      setUi((s) => ({ ...s, conn: { status: 'ok', detail: t`Key is valid — Gemini Live is reachable.` } }))
+    } catch (error) {
+      setUi((s) => ({ ...s, conn: { status: 'error', detail: error instanceof Error ? error.message : String(error) } }))
+    }
   }
 
   const loadModels = async () => {
@@ -255,14 +292,47 @@ export const VoiceSettingsPage = () => {
 
           {isGeminiLive && (
             <div className="flex flex-col gap-4">
-              <Field
-                id="voice-gemini-api-key"
-                label={t`Gemini API key`}
-                type="password"
-                hint={t`Used only on this device. Leave empty to use the workspace key if the operator configured one.`}
-                value={config.geminiApiKey}
-                onChange={(geminiApiKey) => update({ geminiApiKey })}
-              />
+              <div className="flex flex-col gap-2">
+                <Field
+                  id="voice-gemini-api-key"
+                  label={t`Gemini API key`}
+                  type="password"
+                  placeholder={geminiKeySaved && geminiKeyDraft === null ? '••••••••••••••••' : 'AIza…'}
+                  hint={t`Used only on this device. Leave empty to use the workspace key if the operator configured one.`}
+                  value={geminiKeyDraft ?? ''}
+                  onChange={changeGeminiKey}
+                />
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={runGeminiTest}
+                    disabled={!canTestGemini || ui.conn.status === 'testing'}
+                  >
+                    {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
+                    <Trans>Test connection</Trans>
+                  </Button>
+                  {geminiKeySaved && geminiKeyDraft === null && (
+                    <Button type="button" variant="ghost" onClick={clearGeminiKey}>
+                      <Trans>Clear saved API key</Trans>
+                    </Button>
+                  )}
+                </div>
+
+                {ui.conn.status === 'ok' && (
+                  <p className="flex items-center gap-1.5 text-[length:var(--font-size-sm)] text-primary">
+                    <CheckCircle2 className="size-4 shrink-0" />
+                    {ui.conn.detail}
+                  </p>
+                )}
+                {ui.conn.status === 'error' && (
+                  <p className="flex items-start gap-1.5 text-[length:var(--font-size-sm)] text-destructive">
+                    <XCircle className="mt-0.5 size-4 shrink-0" />
+                    <span className="min-w-0 break-words">{ui.conn.detail}</span>
+                  </p>
+                )}
+              </div>
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="voice-gemini-model">{t`Model`}</Label>

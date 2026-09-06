@@ -152,7 +152,11 @@ export const useVoiceSession = () => {
           geminiApiKey: getLocalSetting('voiceProvider').geminiApiKey,
         })
       ) {
-        patch({ active: false, error: t`Add your Gemini API key in Settings → Voice to use voice on this device.` })
+        // Keep `active: true` so the voice composer stays mounted and actually
+        // shows this message — it only renders while `voice.active` (see
+        // chat-prompt-input). The user reads it and closes the composer, which
+        // resets `active`. Module-level voice mode stays off (no real session).
+        patch({ active: true, error: t`Add your Gemini API key in Settings → Voice to use voice on this device.` })
         setVoiceModeActive(false)
         return
       }
@@ -184,8 +188,14 @@ export const useVoiceSession = () => {
           lang: voiceLang,
           onState: (state) => patch({ state }),
           onError: (error) => {
+            // The realtime engine surfaces errors only on an initial connect
+            // failure (see `gemini-live-engine`'s `!everOpened` guard) — a
+            // mid-session drop reconnects silently. So this is the "can't reach
+            // Gemini" case: with no server fallback key, the actionable fix is a
+            // personal key. Mic-permission failures never reach here (they throw
+            // in `voice.start()` → the catch below).
             console.error('[voice]', error)
-            patch({ error: String(error) })
+            patch({ error: t`Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice.` })
           },
           onLevel: (level) => {
             levelRef.current = level
@@ -218,8 +228,16 @@ export const useVoiceSession = () => {
       await sessionRef.current?.stop()
       sessionRef.current = null
       setVoiceModeActive(false)
+      // A Gemini realtime connect failure rejects here as `Error('WebSocket
+      // connection failed')`; give it the actionable key message. Mic
+      // failures (DOMException) fall through to `toVoiceErrorMessage`.
       const { toVoiceErrorMessage } = await import('@/voice/voice-error')
-      patch({ error: toVoiceErrorMessage(error) })
+      const isConnectFailure = error instanceof Error && /websocket/i.test(error.message)
+      patch({
+        error: isConnectFailure
+          ? t`Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice.`
+          : toVoiceErrorMessage(error),
+      })
     }
   }
 
