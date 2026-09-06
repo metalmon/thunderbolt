@@ -85,4 +85,15 @@ describe('VoiceSettingsPage — Gemini Live model/voice/personality (Task 10)', 
 
     expect(useLocalSettingsStore.getState().voiceProvider.personalityPrompt).toBe('Be concise and warm.')
   })
+
+  it('renders a Gemini API key field and persists typed value to the store (Task 6a)', () => {
+    render(<VoiceSettingsPage />)
+
+    const field = screen.getByLabelText('Gemini API key')
+    expect(field).toBeInTheDocument()
+
+    fireEvent.change(field, { target: { value: 'AIza-my-key' } })
+
+    expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('AIza-my-key')
+  })
 })
