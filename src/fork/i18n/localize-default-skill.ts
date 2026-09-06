@@ -19,7 +19,7 @@ import type { AppLocale } from '@shared/i18n/locales'
  * User-created skills and any id we don't ship a translation for pass through
  * unchanged.
  */
-const ruById: ReadonlyMap<string, { label: string; description: string }> = new Map(
+const ruById: ReadonlyMap<string, Pick<Skill, 'label' | 'description'>> = new Map(
   defaultSkillsRu.map((skill) => [skill.id, { label: skill.label, description: skill.description }]),
 )
 
