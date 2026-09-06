@@ -22,6 +22,9 @@ type ReasoningGroupProps = {
   reasoningTime: Record<string, number>
   reasoningStartTimes?: Record<string, number>
   mcpTools?: UIMessageMetadata['mcpTools']
+  /** Fork: when true, suppress the live streaming preview below the accordion
+   *  (collapsed-by-default preference). Resolved by AssistantMessage. */
+  collapseReasoning?: boolean
 }
 
 export const ReasoningGroup = ({
@@ -32,6 +35,7 @@ export const ReasoningGroup = ({
   reasoningTime,
   reasoningStartTimes,
   mcpTools,
+  collapseReasoning,
 }: ReasoningGroupProps) => {
   const { openObjectSidebar } = useObjectView()
 
@@ -106,7 +110,7 @@ export const ReasoningGroup = ({
           <div ref={scrollTargetRef} />
         </div>
       </Expandable>
-      {!hasTextPart && (
+      {!hasTextPart && !collapseReasoning && (
         <ReasoningDisplay
           key={reasoningInstanceKey}
           text={currentReasoningPart?.content.text}
