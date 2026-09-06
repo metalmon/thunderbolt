@@ -685,7 +685,6 @@ msgid "Clear Local Database?"
 msgstr "ローカルデータベースを消去しますか？"
 
 #: src/settings/models/edit-model-form.tsx
-#: src/settings/voice.tsx
 msgid "Clear saved API key"
 msgstr "保存された API キーを消去"
 
@@ -2077,6 +2076,10 @@ msgstr "デバイス間でデータを同期しましょう。"
 msgid "Key is valid — Gemini Live is reachable."
 msgstr ""
 
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr ""
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
@@ -2890,6 +2893,10 @@ msgstr "プロジェクトから削除"
 msgid "Remove icon"
 msgstr "アイコンを削除"
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr ""
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr "引用を削除"
@@ -3040,6 +3047,7 @@ msgstr "ブリッジをホストしているマシンでこれを実行してか
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr "保存"
