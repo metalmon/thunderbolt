@@ -86,41 +86,46 @@ describe('VoiceSettingsPage — Gemini Live model/voice/personality (Task 10)', 
     expect(useLocalSettingsStore.getState().voiceProvider.personalityPrompt).toBe('Be concise and warm.')
   })
 
-  it('renders a Gemini API key field and persists typed value to the store (Task 6a)', () => {
+  it('commits a typed Gemini API key to the store only on Save (write-only, like agents)', () => {
     render(<VoiceSettingsPage />)
 
     const field = screen.getByLabelText('Gemini API key')
-    expect(field).toBeInTheDocument()
-
     fireEvent.change(field, { target: { value: 'AIza-my-key' } })
+    // Write-only: typing does not commit; the store updates on explicit Save.
+    expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('AIza-my-key')
+    // After save the draft clears, so the field is empty again with the saved indicator.
+    expect(field).toHaveValue('')
   })
 
-  it('masks a saved key (empty value + •••• placeholder) and offers to clear it (Task 6a+)', () => {
+  it('masks a saved key (write-only, "Key saved" placeholder) and offers to remove it', () => {
     setGeminiLiveProvider({ geminiApiKey: 'AIza-saved-secret' })
     render(<VoiceSettingsPage />)
 
     const field = screen.getByLabelText('Gemini API key')
-    // The stored key is never rendered into the field value; the •••• placeholder signals one exists.
+    // The stored key is never rendered into the field; the placeholder signals one exists.
     expect(field).toHaveValue('')
-    expect(field).toHaveAttribute('placeholder', '••••••••••••••••')
-    expect(screen.getByText('Clear saved API key')).toBeInTheDocument()
+    expect(field).toHaveAttribute('placeholder', 'Key saved')
+    expect(screen.getByRole('button', { name: 'Remove key' })).toBeInTheDocument()
   })
 
-  it('clears the saved Gemini API key', () => {
+  it('removes the saved Gemini API key', () => {
     setGeminiLiveProvider({ geminiApiKey: 'AIza-saved-secret' })
     render(<VoiceSettingsPage />)
 
-    fireEvent.click(screen.getByText('Clear saved API key'))
+    fireEvent.click(screen.getByRole('button', { name: 'Remove key' }))
 
     expect(useLocalSettingsStore.getState().voiceProvider.geminiApiKey).toBe('')
   })
 
-  it('disables Test connection until a key is present, then enables it', () => {
+  it('shows an enabled Test connection button once a key is typed (hidden when empty)', () => {
     render(<VoiceSettingsPage />)
 
-    expect(screen.getByRole('button', { name: 'Test connection' })).toBeDisabled()
+    // No key + empty draft → the action row (Test/Save/Remove) isn't rendered.
+    expect(screen.queryByRole('button', { name: 'Test connection' })).toBeNull()
     fireEvent.change(screen.getByLabelText('Gemini API key'), { target: { value: 'AIza-k' } })
     expect(screen.getByRole('button', { name: 'Test connection' })).toBeEnabled()
   })
