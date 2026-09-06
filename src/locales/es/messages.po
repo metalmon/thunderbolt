@@ -272,6 +272,10 @@ msgstr "Añade tu primer servidor"
 msgid "Add Your First Task"
 msgstr "Añade tu primera tarea"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Add your Gemini API key in Settings → Voice to use voice on this device."
+msgstr ""
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/models/add-model-form.tsx
@@ -1778,12 +1782,20 @@ msgid "Food & drink"
 msgstr "Comida y bebida"
 
 #: src/settings/voice.tsx
+msgid "Gemini API key"
+msgstr ""
+
+#: src/settings/voice.tsx
 msgid "Gemini Live (realtime)"
 msgstr ""
 
 #: src/settings/voice.tsx
-msgid "Gemini Live voice character. API key is managed server-side."
+msgid "Gemini Live voice character."
 msgstr ""
+
+#: src/settings/voice.tsx
+#~ msgid "Gemini Live voice character. API key is managed server-side."
+#~ msgstr ""
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Generating keys…"
@@ -2809,8 +2821,12 @@ msgid "Ready to submit"
 msgstr "Listo para enviar"
 
 #: src/settings/voice.tsx
-msgid "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
+msgid "Real-time voice conversation via Google Gemini Live. Add your own API key below — or leave it empty to use the workspace key if the operator configured one."
 msgstr ""
+
+#: src/settings/voice.tsx
+#~ msgid "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
+#~ msgstr ""
 
 #: src/content-view/context.tsx
 msgid "Reasoning"
@@ -4028,6 +4044,10 @@ msgstr "Usa el aviso de conexión en la pantalla para continuar."
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
 msgstr "Usa Thunderbolt desde la línea de comandos."
+
+#: src/settings/voice.tsx
+msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "User Experience"

@@ -272,6 +272,10 @@ msgstr "Добавьте первый сервер"
 msgid "Add Your First Task"
 msgstr "Добавить первую задачу"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Add your Gemini API key in Settings → Voice to use voice on this device."
+msgstr "Добавьте ключ Gemini API в Настройках → Голос, чтобы пользоваться голосом на этом устройстве."
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/models/add-model-form.tsx
@@ -1762,12 +1766,20 @@ msgid "Food & drink"
 msgstr "Еда и напитки"
 
 #: src/settings/voice.tsx
+msgid "Gemini API key"
+msgstr "Ключ Gemini API"
+
+#: src/settings/voice.tsx
 msgid "Gemini Live (realtime)"
 msgstr "Gemini Live (реальное время)"
 
 #: src/settings/voice.tsx
-msgid "Gemini Live voice character. API key is managed server-side."
-msgstr "Голосовой персонаж Gemini Live. API-ключ управляется на сервере."
+msgid "Gemini Live voice character."
+msgstr "Голосовой персонаж Gemini Live."
+
+#: src/settings/voice.tsx
+#~ msgid "Gemini Live voice character. API key is managed server-side."
+#~ msgstr "Голосовой персонаж Gemini Live. API-ключ управляется на сервере."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Generating keys…"
@@ -2793,8 +2805,12 @@ msgid "Ready to submit"
 msgstr "Можно отправить"
 
 #: src/settings/voice.tsx
-msgid "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
-msgstr "Голосовой диалог в реальном времени через Google Gemini Live. API-ключ управляется на сервере."
+msgid "Real-time voice conversation via Google Gemini Live. Add your own API key below — or leave it empty to use the workspace key if the operator configured one."
+msgstr "Голосовой диалог в реальном времени через Google Gemini Live. Добавьте свой API-ключ ниже — или оставьте пустым, чтобы использовать рабочий ключ, если администратор его настроил."
+
+#: src/settings/voice.tsx
+#~ msgid "Real-time voice conversation via Google Gemini Live. API key is managed server-side."
+#~ msgstr "Голосовой диалог в реальном времени через Google Gemini Live. API-ключ управляется на сервере."
 
 #: src/content-view/context.tsx
 msgid "Reasoning"
@@ -3992,6 +4008,10 @@ msgstr "Используйте запрос подключения на экра
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
 msgstr "Используйте Volt из командной строки."
+
+#: src/settings/voice.tsx
+msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
+msgstr "Используется только на этом устройстве. Оставьте пустым, чтобы использовать рабочий ключ, если администратор его настроил."
 
 #: src/settings/preferences.tsx
 msgid "User Experience"
