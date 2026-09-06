@@ -53,7 +53,14 @@ export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenP
     )
   }
 
-  const data = (await response.json()) as { name?: unknown }
+  const bodyText = await response.text()
+
+  let data: { name?: unknown }
+  try {
+    data = JSON.parse(bodyText) as { name?: unknown }
+  } catch {
+    throw new GeminiEphemeralTokenError(`Gemini ephemeral token: malformed JSON response (${response.status})`)
+  }
 
   if (typeof data.name !== 'string') {
     throw new GeminiEphemeralTokenError('Gemini ephemeral token response is missing a valid "name" field')
