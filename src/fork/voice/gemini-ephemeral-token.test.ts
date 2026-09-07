@@ -56,9 +56,21 @@ describe('mintGeminiEphemeralToken', () => {
     expect(body.uses).toBe(1)
     expect(body.expireTime).toBe(new Date(fixedNow() + 30 * 60 * 1000).toISOString())
     expect(body.newSessionExpireTime).toBe(new Date(fixedNow() + 60 * 1000).toISOString())
-    expect(body.liveConnectConstraints.model).toBe('gemini-2.0-flash-live')
+    expect(body.liveConnectConstraints.model).toBe('models/gemini-2.0-flash-live')
     expect(body.liveConnectConstraints.config.responseModalities).toEqual(['AUDIO'])
     expect(body.liveConnectConstraints.config.sessionResumption).toEqual({})
+  })
+
+  it('mints on the API version matching the model (native-audio → v1alpha, else v1beta)', async () => {
+    const run = async (model: string) => {
+      const fetchImpl = mock(async (_url: string, _init: RequestInit) =>
+        new Response(JSON.stringify({ name: 'auth_tokens/x' }), { status: 200 }),
+      )
+      await mintGeminiEphemeralToken({ apiKey: 'k', model, fetchImpl: fetchImpl as unknown as typeof fetch, now: fixedNow })
+      return fetchImpl.mock.calls[0][0]
+    }
+    expect(await run('gemini-2.5-flash-native-audio-preview-12-2025')).toContain('/v1alpha/auth_tokens')
+    expect(await run('gemini-3.1-flash-live-preview')).toContain('/v1beta/auth_tokens')
   })
 
   it('throws GeminiEphemeralTokenError on a non-2xx response, with the status in the message', async () => {
