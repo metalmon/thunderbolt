@@ -19,6 +19,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Assembly must NOT run git hooks. Each cherry-pick commit would otherwise fire
+# the husky pre-commit (lint-staged -> prettier/eslint) on the picked files —
+# CPU-heavy, slow, and on a loaded machine it can stall the whole rebuild
+# (observed hanging git cherry-pick --continue). HUSKY=0 alone proved unreliable,
+# so disable hooks for EVERY git subprocess this script spawns via GIT_CONFIG_*
+# env (transient — scoped to this process, not a persistent repo/global config).
+$env:HUSKY = "0"
+$env:GIT_CONFIG_COUNT = "1"
+$env:GIT_CONFIG_KEY_0 = "core.hooksPath"
+$env:GIT_CONFIG_VALUE_0 = "/dev/null"
+
 # Canonical branch list + apply order live in one place; dot-source it.
 . "$PSScriptRoot/fork-branches.ps1"
 $Branches = $ForkBranches
