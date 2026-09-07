@@ -1,5 +1,11 @@
-[build]
-rustc-wrapper = "../scripts/rustc-wrapper.sh"
+# NOTE (fork/dev): upstream (#1256) set `[build] rustc-wrapper =
+# "../scripts/rustc-wrapper.sh"` here. That POSIX shim only runs sccache-or-
+# passthrough, but native Windows `cargo` cannot exec a `.sh` and fail-fasts at
+# the rustc-version probe with `os error 193` — breaking every local Windows
+# build. sccache is never used in this fork anyway (CI sets `RUSTC_WRAPPER=''` /
+# `SCCACHE_DISABLE=1` everywhere), so the wrapper is a pure no-op that only
+# causes harm. Dropped, so `bun run tauri build` works on Windows with no
+# `RUSTC_WRAPPER=` override. Re-add Windows-safely if sccache is ever adopted.
 
 # Enable hardware-specific optimizations for better quantization performance
 [target.x86_64-apple-darwin]
