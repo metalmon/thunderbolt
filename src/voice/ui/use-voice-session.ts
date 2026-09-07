@@ -43,14 +43,19 @@ const privateChatHeldMessage = (agentName: string, builtInAgentName: string | nu
     ? msg`This private chat won't run on ${agentName}. Switch to ${builtInAgentName} to run it.`
     : msg`This private chat won't run on ${agentName}.`
 
+/** The overlay's line for any error that is not a held private chat. Fork: upstream
+ *  renders the thrown error, which for the pipeline engine is a raw English string
+ *  straight from the backend; the cause is already on the console next to it. */
+const voiceServiceErrorMessage = msg`Voice service error. Try again, or switch the provider in Settings → Voice.`
+
 /**
  * The line the voice overlay shows for a session error. A held private chat gets
  * the composer notice's translated copy, resolved now because the overlay stores
- * a string; any other error is shown as thrown.
+ * a string; anything else gets the generic localized line.
  */
 export const toVoiceOverlayError = (error: unknown): string => {
   if (!(error instanceof PrivateChatHeldError)) {
-    return String(error)
+    return i18n._(voiceServiceErrorMessage)
   }
   const builtInAgentName = selectBuiltInAgentEnabled(useConfigStore.getState().config) ? builtInAgent.name : null
   return i18n._(privateChatHeldMessage(error.agentName, builtInAgentName))
@@ -264,6 +269,10 @@ export const useVoiceSession = () => {
           reply: createChatReply(toReplyChat(session.chatInstance, session.id)),
           onState: (state) => patch({ state }),
           onError: (error) => {
+            // The raw STT/TTS/provider error (e.g. "STT failed: 503 Tinfoil
+            // provider not configured") is a backend/config detail — log it for
+            // debugging, but show the user one clean, localized, actionable line
+            // rather than an English server string.
             console.error('[voice]', error)
             patch({ error: toVoiceOverlayError(error) })
           },
