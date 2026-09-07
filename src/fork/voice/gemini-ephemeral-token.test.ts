@@ -47,18 +47,13 @@ describe('mintGeminiEphemeralToken', () => {
       uses: number
       expireTime: string
       newSessionExpireTime: string
-      liveConnectConstraints: {
-        model: string
-        config: { responseModalities: string[]; sessionResumption: Record<string, never> }
-      }
     }
 
     expect(body.uses).toBe(1)
     expect(body.expireTime).toBe(new Date(fixedNow() + 30 * 60 * 1000).toISOString())
     expect(body.newSessionExpireTime).toBe(new Date(fixedNow() + 60 * 1000).toISOString())
-    expect(body.liveConnectConstraints.model).toBe('models/gemini-2.0-flash-live')
-    expect(body.liveConnectConstraints.config.responseModalities).toEqual(['AUDIO'])
-    expect(body.liveConnectConstraints.config.sessionResumption).toEqual({})
+    // No liveConnectConstraints: the deployed auth_tokens REST rejects it (see the mint).
+    expect('liveConnectConstraints' in body).toBe(false)
   })
 
   it('mints on the API version matching the model (native-audio → v1alpha, else v1beta)', async () => {
