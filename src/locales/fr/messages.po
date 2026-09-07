@@ -851,6 +851,10 @@ msgstr "Connecté"
 msgid "Connected — synthesis succeeded."
 msgstr "Connecté — la synthèse a réussi."
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr "Connecté à {connectedProviderName} Agenda"
@@ -3531,6 +3535,10 @@ msgstr "Synchronisé {relative}"
 msgid "System"
 msgstr "Système"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr ""
+
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
 msgstr "Agents système"
@@ -4324,6 +4332,10 @@ msgstr "Vous avez atteint votre limite d'utilisation de l'IA pour la fenêtre de
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
 msgstr "Votre compte a été supprimé et les données locales ont été effacées."
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr ""
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"

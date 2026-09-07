@@ -827,6 +827,10 @@ msgstr "接続済み"
 msgid "Connected — synthesis succeeded."
 msgstr "接続しました — 音声合成に成功しました。"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr "{connectedProviderName} カレンダーに接続済み"
@@ -3507,6 +3511,10 @@ msgstr "{relative}に同期"
 msgid "System"
 msgstr "システム"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr ""
+
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
 msgstr "システムエージェント"
@@ -4300,6 +4308,10 @@ msgstr "現在の 7 日間枠の AI 利用上限に達しました。しばら�
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
 msgstr "アカウントを削除し、ローカルデータを消去しました。"
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr ""
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
