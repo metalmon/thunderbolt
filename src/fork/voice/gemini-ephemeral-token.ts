@@ -25,6 +25,17 @@ export type MintGeminiEphemeralTokenParams = {
 export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenParams): Promise<string> => {
   const { apiKey, model, fetchImpl = fetch, now = Date.now } = params
 
+  // A key with a non-printable-ASCII char (a stray Cyrillic letter, a smart
+  // quote, a non-breaking space pasted from a doc) makes `fetch` throw a raw
+  // "String contains non ISO-8859-1 code point" when it builds the
+  // `x-goog-api-key` header. Reject it up front with a clear, typed error so
+  // the caller shows an actionable message instead of a cryptic browser one.
+  if (!/^[\x21-\x7e]+$/.test(apiKey)) {
+    throw new GeminiEphemeralTokenError(
+      'The Gemini API key contains invalid characters — paste it exactly as shown in Google AI Studio.',
+    )
+  }
+
   const nowMs = now()
   const expireTime = new Date(nowMs + TOKEN_EXPIRE_MS).toISOString()
   const newSessionExpireTime = new Date(nowMs + NEW_SESSION_EXPIRE_MS).toISOString()
