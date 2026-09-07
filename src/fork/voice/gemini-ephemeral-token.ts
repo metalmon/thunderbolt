@@ -2,7 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const GEMINI_AUTH_TOKENS_URL = 'https://generativelanguage.googleapis.com/v1beta/auth_tokens'
+import { geminiLiveApiVersion } from '@shared/gemini-live-endpoint'
+
+/** Mint the token on the SAME API version as the Live model it gates —
+ *  native-audio → v1alpha, half-cascade → v1beta (mirrors the WS endpoint, see
+ *  `geminiLiveWsUrl`). `liveConnectConstraints` lives in the v1alpha schema, so
+ *  minting a native-audio (v1alpha) model against v1beta/auth_tokens fails with
+ *  "Unknown name liveConnectConstraints … Cannot find field". */
+const authTokensUrl = (model: string): string =>
+  `https://generativelanguage.googleapis.com/${geminiLiveApiVersion(model)}/auth_tokens`
 
 const TOKEN_EXPIRE_MS = 30 * 60 * 1000
 const NEW_SESSION_EXPIRE_MS = 60 * 1000
@@ -40,7 +48,7 @@ export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenP
   const expireTime = new Date(nowMs + TOKEN_EXPIRE_MS).toISOString()
   const newSessionExpireTime = new Date(nowMs + NEW_SESSION_EXPIRE_MS).toISOString()
 
-  const response = await fetchImpl(GEMINI_AUTH_TOKENS_URL, {
+  const response = await fetchImpl(authTokensUrl(model), {
     method: 'POST',
     headers: {
       'x-goog-api-key': apiKey,
@@ -51,7 +59,9 @@ export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenP
       expireTime,
       newSessionExpireTime,
       liveConnectConstraints: {
-        model,
+        // Fully-qualified resource name, per the docs ("models/…") — matches the
+        // engine's setup-frame `model` field.
+        model: `models/${model}`,
         config: { responseModalities: ['AUDIO'], sessionResumption: {} },
       },
     }),
