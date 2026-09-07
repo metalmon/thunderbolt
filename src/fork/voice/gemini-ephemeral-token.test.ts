@@ -8,6 +8,14 @@ import { GeminiEphemeralTokenError, mintGeminiEphemeralToken } from './gemini-ep
 const fixedNow = () => 1_000_000
 
 describe('mintGeminiEphemeralToken', () => {
+  it('rejects a key with non-ASCII characters before touching fetch', async () => {
+    const fetchImpl = mock(async () => new Response('{}', { status: 200 }))
+    await expect(
+      mintGeminiEphemeralToken({ apiKey: 'AIzaКириллица', model: 'm', fetchImpl: fetchImpl as unknown as typeof fetch }),
+    ).rejects.toThrow(GeminiEphemeralTokenError)
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
   it('posts the expected request and returns the token name', async () => {
     const fetchImpl = mock(
       async (_url: string, _init: RequestInit) =>
