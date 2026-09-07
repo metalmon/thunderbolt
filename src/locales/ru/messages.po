@@ -4112,6 +4112,10 @@ msgstr "Голосовой движок"
 msgid "Voice mode: {status}"
 msgstr "Голосовой режим: {status}"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Voice service error. Try again, or switch the provider in Settings → Voice."
+msgstr "Ошибка голосового сервиса. Попробуйте ещё раз или смените провайдера в Настройках → Голос."
+
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "Waiting for approval"
