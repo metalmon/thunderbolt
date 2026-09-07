@@ -1146,7 +1146,7 @@ msgstr "Свой — совместимый с OpenAI сервер"
 
 #: src/settings/preferences.tsx
 msgid "Custom voice provider"
-msgstr "Свой провайдер голоса"
+msgstr "Голос"
 
 #: src/settings/models/model-detail.tsx
 msgid "Customized model"
