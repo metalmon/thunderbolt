@@ -843,6 +843,10 @@ msgstr ""
 msgid "Connected — synthesis succeeded."
 msgstr ""
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr ""
@@ -3563,6 +3567,10 @@ msgstr ""
 msgid "System"
 msgstr ""
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr ""
+
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
 msgstr ""
@@ -4423,6 +4431,10 @@ msgstr ""
 
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
+msgstr ""
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
 msgstr ""
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
