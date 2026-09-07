@@ -54,16 +54,19 @@ export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenP
       'x-goog-api-key': apiKey,
       'Content-Type': 'application/json',
     },
+    // NOTE: no `liveConnectConstraints`. The deployed `auth_tokens` REST endpoint
+    // rejects it on BOTH v1beta and v1alpha ("Unknown name liveConnectConstraints
+    // … Cannot find field") — the docs are ahead of the rollout (or the SDK maps
+    // it to a different wire shape). The documented BASIC body below is
+    // version-independent and works. The resulting token is unconstrained, which
+    // is fine here: the desktop client mints a single-use (`uses: 1`), short-lived
+    // token from the user's OWN key for its OWN immediate session — there's no
+    // untrusted party the constraint would protect against. Add it back (likely
+    // via the @google/genai SDK) if the REST endpoint gains the field.
     body: JSON.stringify({
       uses: 1,
       expireTime,
       newSessionExpireTime,
-      liveConnectConstraints: {
-        // Fully-qualified resource name, per the docs ("models/…") — matches the
-        // engine's setup-frame `model` field.
-        model: `models/${model}`,
-        config: { responseModalities: ['AUDIO'], sessionResumption: {} },
-      },
     }),
   })
 
