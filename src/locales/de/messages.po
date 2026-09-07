@@ -839,6 +839,10 @@ msgstr "Verbunden"
 msgid "Connected — synthesis succeeded."
 msgstr "Verbunden – Synthese erfolgreich."
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr "Mit {connectedProviderName} Kalender verbunden"
@@ -3523,6 +3527,10 @@ msgstr "Synchronisiert {relative}"
 msgid "System"
 msgstr "System"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr ""
+
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
 msgstr "Systemagenten"
@@ -4316,6 +4324,10 @@ msgstr "Sie haben Ihr KI-Nutzungslimit für das aktuelle 7-Tage-Fenster erreicht
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
 msgstr "Ihr Konto wurde gelöscht und die lokalen Daten wurden entfernt."
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr ""
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
