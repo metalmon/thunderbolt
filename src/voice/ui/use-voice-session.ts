@@ -208,8 +208,12 @@ export const useVoiceSession = () => {
           reply: createChatReply(toReplyChat(session.chatInstance)),
           onState: (state) => patch({ state }),
           onError: (error) => {
+            // The raw STT/TTS/provider error (e.g. "STT failed: 503 Tinfoil
+            // provider not configured") is a backend/config detail — log it for
+            // debugging, but show the user one clean, localized, actionable line
+            // rather than an English server string.
             console.error('[voice]', error)
-            patch({ error: String(error) })
+            patch({ error: t`Voice service error. Try again, or switch the provider in Settings → Voice.` })
           },
           onLevel: (level) => {
             levelRef.current = level
