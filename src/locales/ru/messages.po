@@ -847,6 +847,10 @@ msgstr "Подключён"
 msgid "Connected — synthesis succeeded."
 msgstr "Подключено — синтез успешен."
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr "Подключённый агент · {endpoint}"
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr "Подключено к календарю {connectedProviderName}"
@@ -3515,6 +3519,10 @@ msgstr "Синхронизировано {relative}"
 msgid "System"
 msgstr "Системная"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr "Системный агент · всегда доступен"
+
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
 msgstr "Системные агенты"
@@ -4292,6 +4300,10 @@ msgstr "Вы достигли лимита использования ИИ в т
 #: src/components/account-deleted.tsx
 msgid "Your account has been deleted and local data has been cleared."
 msgstr "Ваш аккаунт удалён, локальные данные очищены."
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr "Ваш агент · встроен в приложение"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
