@@ -29,7 +29,7 @@ class FakeWebSocket implements WebSocketLike {
   onopen: (() => void) | null = null
   onmessage: ((event: { data: string | ArrayBuffer }) => void) | null = null
   onerror: ((event: unknown) => void) | null = null
-  onclose: (() => void) | null = null
+  onclose: ((event: { code: number; reason: string }) => void) | null = null
 
   constructor(
     public url: string,
@@ -47,7 +47,14 @@ class FakeWebSocket implements WebSocketLike {
 
   close() {
     this.readyState = 3
-    this.onclose?.()
+    this.onclose?.({ code: 1000, reason: '' })
+  }
+
+  /** Simulate a server-initiated close with a specific code — e.g. the relay's
+   *  1008 "Gemini provider not configured" or 4001 "unauthorized". */
+  emitClose(code: number, reason = '') {
+    this.readyState = 3
+    this.onclose?.({ code, reason })
   }
 
   get sent(): Array<Record<string, unknown>> {
@@ -328,6 +335,23 @@ describe('createGeminiLiveEngine — wire protocol', () => {
       { type: 'closed' },
     ])
     expect(mintCallCount).toBe(1 + maxReconnectAttempts)
+  })
+
+  it('relay: a terminal 1008 close (no server key) surfaces an error and does NOT reconnect', async () => {
+    const { engine, getSocket } = buildEngine()
+    const pendingEvents = nextEvents(engine.events(), 2)
+    await engine.connect() // relay accepts the upgrade → onopen fires (everOpened = true)
+
+    // The relay accepts the WS upgrade and THEN closes 1008 in its open()
+    // handler when no server key is configured. A transient-drop reconnect
+    // would loop silently; instead this must surface an error and finalize.
+    getSocket()!.emitClose(1008, 'Gemini provider not configured')
+
+    const events = await pendingEvents
+    expect(events).toEqual([
+      { type: 'error', message: 'Gemini provider not configured' },
+      { type: 'closed' },
+    ])
   })
 
   it('direct: does not open a zombie socket when close() races a reconnect mint still in flight', async () => {

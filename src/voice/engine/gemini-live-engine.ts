@@ -134,8 +134,18 @@ export type WebSocketLike = {
   onopen: (() => void) | null
   onmessage: ((event: { data: string | ArrayBuffer }) => void) | null
   onerror: ((event: unknown) => void) | null
-  onclose: (() => void) | null
+  onclose: ((event: { code: number; reason: string }) => void) | null
 }
+
+/** WS close codes we treat as TERMINAL (a config/auth rejection, not a
+ *  transient drop): 1008 = policy violation — the relay had no server key
+ *  (`Gemini provider not configured`) or Google rejected the key; 4001 =
+ *  unauthorized — bad bearer (backend `wsCloseUnauthorized`). The relay accepts
+ *  the WS upgrade and THEN closes with one of these in its `open()` handler, so
+ *  `onopen` has already fired (`everOpened === true`); without this the engine
+ *  would silently reconnect 8× and end mute with no error. On a terminal code we
+ *  surface an error instead so the UI can tell the user to add/fix their key. */
+const wsCloseTerminalCodes = new Set([1008, 4001])
 
 /** Opens the transport-level socket for a resolved `{ url, protocols }`
  *  connection (see `GeminiConnection` / `resolveConnection`) — it no longer
@@ -573,8 +583,17 @@ export const createGeminiLiveEngine = (
       }
     }
 
-    socket.onclose = () => {
+    socket.onclose = (event) => {
       if (userClosed || closed) {
+        finalize()
+        return
+      }
+      // Terminal config/auth close (see `wsCloseTerminalCodes`): the relay/Google
+      // rejected us — reconnecting would loop silently since `onopen` already
+      // fired. Surface the failure and stop; the UI maps it to an actionable
+      // "add your Gemini API key" message (see `use-voice-session`).
+      if (wsCloseTerminalCodes.has(event.code)) {
+        pushEvent({ type: 'error', message: event.reason || 'Voice service rejected the connection' })
         finalize()
         return
       }
