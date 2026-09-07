@@ -4136,6 +4136,10 @@ msgstr "Voice engine"
 msgid "Voice mode: {status}"
 msgstr "Voice mode: {status}"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Voice service error. Try again, or switch the provider in Settings → Voice."
+msgstr "Voice service error. Try again, or switch the provider in Settings → Voice."
+
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "Waiting for approval"
