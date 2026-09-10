@@ -17,13 +17,23 @@ const uiPart = (toolCallId: string, uri: string) => ({
 
 describe('computeLatestByUri', () => {
   it('keeps the last part per uri across messages, in order', () => {
-    const map = computeLatestByUri([msg([uiPart('a', 'ui://pnl/x')]), msg([uiPart('b', 'ui://pnl/x')])])
-    expect(map.get('ui://pnl/x')).toEqual({ artifactId: uiResourceArtifactId('ui://pnl/x'), latestToolCallId: 'b' })
+    const map = computeLatestByUri([msg([uiPart('a', 'ui://pnl/x')]), msg([uiPart('b', 'ui://pnl/x')])], 't1')
+    expect(map.get('ui://pnl/x')).toEqual({
+      artifactId: uiResourceArtifactId('t1', 'ui://pnl/x'),
+      latestToolCallId: 'b',
+    })
+  })
+
+  it('salts artifactId by threadId: same uri in two threads yields different ids', () => {
+    const messages = [msg([uiPart('a', 'ui://pnl/x')])]
+    const mapA = computeLatestByUri(messages, 'thread-a')
+    const mapB = computeLatestByUri(messages, 'thread-b')
+    expect(mapA.get('ui://pnl/x')?.artifactId).not.toBe(mapB.get('ui://pnl/x')?.artifactId)
   })
 })
 
 describe('deriveChipState', () => {
-  const artifactId = uiResourceArtifactId('ui://pnl/x')
+  const artifactId = uiResourceArtifactId('t1', 'ui://pnl/x')
   const entry = (over: Partial<Parameters<typeof deriveChipState>[0]['entry'] & object> = {}) => ({
     artifactId,
     latestToolCallId: 'b',
