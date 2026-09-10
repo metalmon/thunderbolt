@@ -57,8 +57,15 @@ export const isUiResourceOutput = (output: unknown): output is UiResourceOutput 
   return typeof r.uri === 'string' && typeof r.mimeType === 'string' && typeof r.html === 'string'
 }
 
-/** Stable artifact identity = the shared uri hash (mirrors deliver_file). Stateless. */
-export const uiResourceArtifactId = (uri: string): string => deliveredLocalFileId(uri)
+/**
+ * Stable artifact identity, keyed on `(threadId, uri)` — never the uri alone. The uri
+ * is session-agnostic (a tool can pin the same `ui://` uri across threads), and the
+ * side panel is window-global, so two chat threads emitting the same uri would collide
+ * on a single shared id and one thread's panel would silently overwrite the other's.
+ * Salting with the owning thread id keeps the two identities distinct. Stateless.
+ */
+export const uiResourceArtifactId = (threadId: string, uri: string): string =>
+  deliveredLocalFileId(`${threadId} ${uri}`)
 
 const prettifyUriSegment = (uri: string): string => {
   const segment = uri.replace(/\/+$/, '').split('/').pop() ?? ''
