@@ -22,6 +22,7 @@ import { useTurnOffModelTools } from './use-turn-off-model-tools'
 import { isBuiltInAgent } from '@/defaults/agents'
 import { QuoteReplyButton } from './quote-reply-button'
 import { selectDebugTranscriptsEnabled, useConfigStore } from '@/api/config-store'
+import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
 import type { ThunderboltUIMessage } from '@/types'
 import { useShowCompactionSummary } from '@/content-view/context'
 import { CompactionNotice } from '../context-usage'
@@ -178,65 +179,67 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   const canTurnOffTools = builtInModel !== undefined && builtInModel.id === lastUserMessage?.metadata?.modelId
 
   return (
-    <div>
-      {visibleMessages.map((message) => {
-        const isLast = message.id === lastMessage?.id
-        const checkpoint = message.metadata?.contextCompaction
-        const hideAssistant = (hasError || pendingEmptyTurnRecovery) && !message.parts?.length
+    <CanvasRegistryProvider messages={messages}>
+      <div>
+        {visibleMessages.map((message) => {
+          const isLast = message.id === lastMessage?.id
+          const checkpoint = message.metadata?.contextCompaction
+          const hideAssistant = (hasError || pendingEmptyTurnRecovery) && !message.parts?.length
 
-        return (
-          <Fragment key={message.id}>
-            {message.role === 'assistant' && !hideAssistant && (
-              <PrivateSourcesContext value={privateSourceMessageIds.has(message.id)}>
-                <AssistantMessage
+          return (
+            <Fragment key={message.id}>
+              {message.role === 'assistant' && !hideAssistant && (
+                <PrivateSourcesContext value={privateSourceMessageIds.has(message.id)}>
+                  <AssistantMessage
+                    message={message}
+                    sources={threadSources.get(message.id)}
+                    isStreaming={isStreaming && isLast}
+                    isLastMessage={isLast && shouldUseViewportPositioning(visibleMessages.length)}
+                    isLastAssistantMessage={message.id === lastAssistantMessage?.id}
+                    lastAssistantAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
+                    activity={isLast && compactionInLastMessage ? <CompactionNotice status="compacting" /> : undefined}
+                  />
+                </PrivateSourcesContext>
+              )}
+              {message.role === 'user' && (
+                <UserMessage
                   message={message}
-                  sources={threadSources.get(message.id)}
-                  isStreaming={isStreaming && isLast}
-                  isLastMessage={isLast && shouldUseViewportPositioning(visibleMessages.length)}
-                  isLastAssistantMessage={message.id === lastAssistantMessage?.id}
-                  lastAssistantAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
-                  activity={isLast && compactionInLastMessage ? <CompactionNotice status="compacting" /> : undefined}
+                  lastMessageAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
+                  onResendAttachment={message.id === lastUserMessageId ? resendAttachment : undefined}
                 />
-              </PrivateSourcesContext>
-            )}
-            {message.role === 'user' && (
-              <UserMessage
-                message={message}
-                lastMessageAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
-                onResendAttachment={message.id === lastUserMessageId ? resendAttachment : undefined}
-              />
-            )}
-            {checkpoint?.version === 1 && (
-              <CompactionNotice status="compacted" onViewSummary={() => showCompactionSummary(checkpoint)} />
-            )}
-          </Fragment>
-        )
-      })}
+              )}
+              {checkpoint?.version === 1 && (
+                <CompactionNotice status="compacted" onViewSummary={() => showCompactionSummary(checkpoint)} />
+              )}
+            </Fragment>
+          )
+        })}
 
-      {compacting && !compactionInLastMessage && <CompactionNotice status="compacting" />}
+        {compacting && !compactionInLastMessage && <CompactionNotice status="compacting" />}
 
-      {/* Keep a loading indicator up while remediation re-delivers + retries, so
-          the suppressed error doesn't leave a blank gap. */}
-      {!compacting && (showSubmittedLoading || suppressError || pendingEmptyTurnRecovery) && (
-        <SyntheticLoadingPart isStreaming />
-      )}
+        {/* Keep a loading indicator up while remediation re-delivers + retries, so
+                the suppressed error doesn't leave a blank gap. */}
+        {!compacting && (showSubmittedLoading || suppressError || pendingEmptyTurnRecovery) && (
+          <SyntheticLoadingPart isStreaming />
+        )}
 
-      {/* Show error message if there's an error and remediation isn't taking over */}
-      {hasError && !suppressError && (
-        <ErrorMessage
-          retryCount={retryCount}
-          retriesExhausted={retriesExhausted}
-          error={chatError}
-          onRetry={() => regenerate()}
-          deliveryExhausted={deliveryExhausted}
-          onTurnOffTools={canTurnOffTools ? () => turnOffTools(sessionId) : undefined}
-          isTurningOffTools={isTurningOffTools}
-        />
-      )}
+        {/* Show error message if there's an error and remediation isn't taking over */}
+        {hasError && !suppressError && (
+          <ErrorMessage
+            retryCount={retryCount}
+            retriesExhausted={retriesExhausted}
+            error={chatError}
+            onRetry={() => regenerate()}
+            deliveryExhausted={deliveryExhausted}
+            onTurnOffTools={canTurnOffTools ? () => turnOffTools(sessionId) : undefined}
+            isTurningOffTools={isTurningOffTools}
+          />
+        )}
 
-      {/* Floating "Reply" button over any text selection within a response. */}
-      <QuoteReplyButton />
-    </div>
+        {/* Floating "Reply" button over any text selection within a response. */}
+        <QuoteReplyButton />
+      </div>
+    </CanvasRegistryProvider>
   )
 })
 

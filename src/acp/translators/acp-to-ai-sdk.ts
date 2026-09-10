@@ -43,6 +43,7 @@ import {
   enrichToolOutputWithDeliveredFiles,
   materializeOutboundResourceBlobs,
 } from '@/fork/zeroclaw/outbound-resource-blob'
+import { extractUiResource } from '@/fork/zeroclaw/ui-resource'
 import type { AiSdkChunk } from '../types'
 import { acpCompactionKey, type AcpCompaction, type AcpContextUsage } from '../compaction'
 import { v7 as uuidv7 } from 'uuid'
@@ -314,6 +315,13 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
       return
     }
     const output = state.rawOutput ?? state.content ?? {}
+    // Fork seam: a ZeroClaw `ui://` UI-resource (inline HTML) becomes an artifact;
+    // otherwise a standard resource+blob (deliver_file) becomes a file card, with
+    // rawOutput kept as the text summary.
+    const uiResource = extractUiResource(state.content)
+    const forkOutput = uiResource
+      ? { uiResource, text: typeof state.rawOutput === 'string' ? state.rawOutput : '' }
+      : enrichToolOutputWithDeliveredFiles(output, materializeOutboundResourceBlobs(state.content, state.title))
     emit(
       state.status === 'failed'
         ? {
@@ -321,16 +329,7 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
             toolCallId: update.toolCallId,
             errorText: typeof output === 'string' ? output : JSON.stringify(output),
           }
-        : {
-            type: 'tool-output-available',
-            toolCallId: update.toolCallId,
-            // Fork seam: prefer a standard ACP resource+blob in `content` (ZeroClaw's
-            // deliver_file) over a Haystack remote fileId; rawOutput stays the summary.
-            output: enrichToolOutputWithDeliveredFiles(
-              output,
-              materializeOutboundResourceBlobs(state.content, state.title),
-            ),
-          },
+        : { type: 'tool-output-available', toolCallId: update.toolCallId, output: forkOutput },
     )
     const startedAt = toolStartTimes.get(update.toolCallId)
     if (startedAt !== undefined) {
