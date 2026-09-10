@@ -52,9 +52,21 @@ describe('isUiResourceOutput', () => {
 })
 
 describe('uiResourceArtifactId', () => {
-  it('delegates to deliveredLocalFileId', () => {
+  it('delegates to deliveredLocalFileId, salted by threadId', () => {
     const uri = 'ui://pnl/dashboard'
-    expect(uiResourceArtifactId(uri)).toBe(deliveredLocalFileId(uri))
+    const threadId = 't1'
+    expect(uiResourceArtifactId(threadId, uri)).toBe(deliveredLocalFileId(`${threadId} ${uri}`))
+  })
+
+  it('the same uri in two different threads gets different artifact ids', () => {
+    const uri = 'ui://pnl/dashboard'
+    expect(uiResourceArtifactId('thread-a', uri)).not.toBe(uiResourceArtifactId('thread-b', uri))
+  })
+
+  it('the same (threadId, uri) pair is stable across calls', () => {
+    const uri = 'ui://pnl/dashboard'
+    const threadId = 'thread-a'
+    expect(uiResourceArtifactId(threadId, uri)).toBe(uiResourceArtifactId(threadId, uri))
   })
 })
 
