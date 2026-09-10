@@ -10,7 +10,7 @@ import { Trans } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import { useContentView } from '@/content-view/context'
 import type { ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
-import { deriveArtifactTitle, uiResourceArtifactId } from './ui-resource'
+import { deriveArtifactTitle } from './ui-resource'
 import { uiResourceOfPart } from './ui-resource-part'
 import { deriveChipState, useCanvasRegistry } from './canvas-registry'
 
@@ -26,9 +26,10 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
 
   const uri = ref?.uri ?? ''
   const html = ref?.html ?? ''
-  const artifactId = uiResourceArtifactId(uri)
   const title = ref ? deriveArtifactTitle(html, uri) : ''
   const entry = getEntry(uri)
+  // The registry is the single source of truth for artifact identity (salted by threadId).
+  const artifactId = entry?.artifactId ?? ''
   const openArtifactId = state.type === 'artifact' ? state.data.artifactId : null
   const isLatest = entry?.latestToolCallId === part.toolCallId
   const chipState = deriveChipState({ entry, toolCallId: part.toolCallId, openArtifactId })
@@ -40,7 +41,7 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
 
   // First-emit auto-open (only into a free slot; once per uri) + update-in-place while open.
   useEffect(() => {
-    if (!ref || !isLatest) {
+    if (!ref || !entry || !isLatest) {
       return
     }
     if (state.type === 'artifact' && state.data.artifactId === artifactId && state.data.html !== html) {
@@ -56,7 +57,7 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref, isLatest, html, artifactId, uri, state.type, state.type === 'artifact' ? state.data.artifactId : null])
 
-  if (!ref) {
+  if (!ref || !entry) {
     return null
   }
 
