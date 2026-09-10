@@ -31,7 +31,7 @@ type ChatMessagesProps = {
 // intended throttle cadence. It takes no props that change (`useChat` defaults
 // to the real hook), so the shallow prop compare holds across parent renders.
 export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesProps) => {
-  const { chatInstance, retryCount, retriesExhausted, stopping } = useCurrentChatSession()
+  const { id, chatInstance, retryCount, retriesExhausted, stopping } = useCurrentChatSession()
 
   const {
     error: chatError,
@@ -108,7 +108,7 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   )
 
   return (
-    <CanvasRegistryProvider messages={messages}>
+    <CanvasRegistryProvider messages={messages} threadId={id}>
       <div>
         {messages.map((message) => {
           // Skip OAuth retry messages (they're hidden, only used to trigger regeneration)
