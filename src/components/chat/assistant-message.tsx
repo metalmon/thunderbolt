@@ -24,6 +24,8 @@ import {
   toolPartHasDeliveredFiles,
 } from '@/fork/zeroclaw/outbound-resource-blob'
 import { useCollapseReasoning } from '@/fork/reasoning/use-collapse-reasoning'
+import { isUiResourcePart } from '@/fork/zeroclaw/ui-resource-part'
+import { UiResourceChip } from '@/fork/zeroclaw/ui-resource-chip'
 import { ArtifactMessagePart } from './artifact-message-part'
 import { CopyMessageButton } from './copy-message-button'
 import { ReasoningGroup } from './reasoning-group'
@@ -129,8 +131,12 @@ export const mountMessageParts = (
         )
         break
       case 'tool': {
-        // groupMessageParts lifts render_html and ACP delivered-file parts.
+        // groupMessageParts lifts render_html, ui:// canvas, and ACP delivered-file parts.
         const toolPart = part as ToolOrDynamicToolUIPart
+        if (isUiResourcePart(toolPart as unknown)) {
+          partElements.push(<UiResourceChip key={toolPart.toolCallId} part={toolPart} />)
+          break
+        }
         if (!toolPartHasDeliveredFiles(toolPart)) {
           partElements.push(<ArtifactMessagePart part={toolPart} />)
           break
