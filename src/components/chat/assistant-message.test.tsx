@@ -5,10 +5,13 @@
 import type { GroupedUIPart, ReasoningGroupUIPart } from '@/lib/assistant-message'
 import type { ThunderboltUIMessage } from '@/types'
 import type { ReasoningUIPart, TextUIPart, ToolUIPart } from 'ai'
-import { describe, expect, it } from 'bun:test'
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { act, cleanup, render, screen } from '@testing-library/react'
 import { getClock } from '@/testing-library'
 import { ContentViewProvider } from '@/content-view/context'
+import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
+import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
+import { createTestProvider } from '@/test-utils/test-provider'
 import { AssistantMessage, mountMessageParts } from './assistant-message'
 
 const createReasoningPart = (text: string): ReasoningUIPart =>
@@ -362,4 +365,35 @@ it('renders an ACP compaction row between the surrounding assistant text', () =>
   )
   expect(container.textContent).toContain('Before compactionCompactedAfter compaction')
   cleanup()
+})
+
+describe('ui:// canvas dispatch', () => {
+  beforeAll(setupTestDatabase)
+  afterAll(teardownTestDatabase)
+
+  it('renders a ui:// canvas part as a chip, not an inline artifact card', () => {
+    const parts = [
+      {
+        type: 'tool-canvas',
+        toolCallId: 'tc-1',
+        state: 'output-available',
+        output: { uiResource: { uri: 'ui://pnl/x', mimeType: 'text/html', html: '<title>Board</title>' } },
+      },
+    ]
+    const message = { id: 'm', role: 'assistant', parts } as never
+    const Provider = createTestProvider()
+    render(
+      <Provider>
+        <ContentViewProvider>
+          <CanvasRegistryProvider messages={[message]}>
+            <AssistantMessage message={message} isStreaming={false} />
+          </CanvasRegistryProvider>
+        </ContentViewProvider>
+      </Provider>,
+    )
+    // The chip shows the derived title (whatever its current open/ready/updated
+    // wording); no sandboxed inline artifact iframe is mounted for it.
+    expect(screen.getByText(/Board/)).toBeTruthy()
+    expect(screen.queryByTitle('Board')).toBeNull() // SandboxedHtmlFrame passes title as iframe title; absent inline
+  })
 })
