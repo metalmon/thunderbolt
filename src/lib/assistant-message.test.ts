@@ -188,6 +188,18 @@ describe('assistant-message utilities', () => {
 
       expect(groupMessageParts([first, second])).toEqual([first, second])
     })
+
+    it('lifts a ui:// canvas part to the top level (not into a tool group)', () => {
+      const uiPart = {
+        type: 'tool-canvas',
+        toolCallId: 'tc-1',
+        state: 'output-available',
+        output: { uiResource: { uri: 'ui://pnl/x', mimeType: 'text/html', html: '<h1/>' } },
+      }
+      const grouped = groupMessageParts([uiPart as never])
+      expect(grouped).toHaveLength(1)
+      expect(grouped[0]).toBe(uiPart as never)
+    })
   })
 
   describe('filterMessageParts', () => {
