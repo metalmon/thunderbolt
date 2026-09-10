@@ -385,7 +385,7 @@ describe('ui:// canvas dispatch', () => {
     render(
       <Provider>
         <ContentViewProvider>
-          <CanvasRegistryProvider messages={[message]}>
+          <CanvasRegistryProvider messages={[message]} threadId="t1">
             <AssistantMessage message={message} isStreaming={false} />
           </CanvasRegistryProvider>
         </ContentViewProvider>

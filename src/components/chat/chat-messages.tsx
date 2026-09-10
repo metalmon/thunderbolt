@@ -179,7 +179,7 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   const canTurnOffTools = builtInModel !== undefined && builtInModel.id === lastUserMessage?.metadata?.modelId
 
   return (
-    <CanvasRegistryProvider messages={messages}>
+    <CanvasRegistryProvider messages={messages} threadId={sessionId}>
       <div>
         {visibleMessages.map((message) => {
           const isLast = message.id === lastMessage?.id
