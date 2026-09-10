@@ -41,7 +41,7 @@ const ContentViewProbe = () => {
 
 const Harness = ({ parts }: { parts: unknown[] }) => (
   <ContentViewProvider>
-    <CanvasRegistryProvider messages={[{ id: 'm', role: 'assistant', parts } as never]}>
+    <CanvasRegistryProvider messages={[{ id: 'm', role: 'assistant', parts } as never]} threadId="t1">
       {parts.map((p, i) => (
         <UiResourceChip key={i} part={p as never} />
       ))}

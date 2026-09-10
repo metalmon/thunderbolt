@@ -22,7 +22,7 @@ export type CanvasEntry = {
 type LatestRef = { artifactId: string; latestToolCallId: string }
 
 /** Scan messages in order; the LAST `ui://` part per uri is the live anchor (§5 rehydrate). */
-export const computeLatestByUri = (messages: ThunderboltUIMessage[]): Map<string, LatestRef> => {
+export const computeLatestByUri = (messages: ThunderboltUIMessage[], threadId: string): Map<string, LatestRef> => {
   const map = new Map<string, LatestRef>()
   for (const message of messages) {
     for (const part of message.parts) {
@@ -33,7 +33,7 @@ export const computeLatestByUri = (messages: ThunderboltUIMessage[]): Map<string
       if (!ref) {
         continue
       }
-      map.set(ref.uri, { artifactId: uiResourceArtifactId(ref.uri), latestToolCallId: part.toolCallId })
+      map.set(ref.uri, { artifactId: uiResourceArtifactId(threadId, ref.uri), latestToolCallId: part.toolCallId })
     }
   }
   return map
@@ -73,13 +73,15 @@ const CanvasRegistryContext = createContext<RegistryValue | undefined>(undefined
 
 export const CanvasRegistryProvider = ({
   messages,
+  threadId,
   children,
 }: {
   messages: ThunderboltUIMessage[]
+  threadId: string
   children: ReactNode
 }) => {
   const { state } = useContentView()
-  const latestByUri = useMemo(() => computeLatestByUri(messages), [messages])
+  const latestByUri = useMemo(() => computeLatestByUri(messages, threadId), [messages, threadId])
   // uri → toolCallId that was latest at close time; presence means dismissed.
   const [dismissedByUri, setDismissedByUri] = useState<Map<string, string>>(() => new Map())
   const autoOpened = useRef<Set<string>>(new Set())
