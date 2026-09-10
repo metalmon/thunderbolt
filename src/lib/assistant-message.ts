@@ -5,6 +5,7 @@
 import { isRenderHtmlPart, renderHtmlOutput } from '@/artifacts/render-html-tool'
 // Fork-owned ZeroClaw delivered-file lift — see src/fork/zeroclaw/FORK.md
 import { toolPartHasDeliveredFiles } from '@/fork/zeroclaw/outbound-resource-blob'
+import { isUiResourcePart } from '@/fork/zeroclaw/ui-resource-part'
 import {
   type DynamicToolUIPart,
   isToolOrDynamicToolUIPart,
@@ -107,6 +108,16 @@ export const groupMessageParts = (parts: GroupableUIPart[]): GroupedUIPart[] => 
       // preview streams into place (even before any HTML has arrived), then it becomes the
       // verified result. Only a finished call that FAILED verification — or errored — stays in
       // the group as an ordinary tool call.
+      // `part` is already narrowed to `ToolOrDynamicToolUIPart` here, and `isUiResourcePart`'s
+      // predicate asserts that same type — calling it on `part` directly (even via an aliased
+      // const, per TS's CFA-on-aliased-conditions) would narrow the false branch to `never`. The
+      // `as unknown` cast breaks the aliasing so `part`'s type is unaffected either way.
+      if (isUiResourcePart(part as unknown)) {
+        flushGroup()
+        grouped.push(part)
+        return
+      }
+
       if (isRenderHtmlPart(part) && artifactRendersStandalone(part)) {
         flushGroup()
         grouped.push(part)

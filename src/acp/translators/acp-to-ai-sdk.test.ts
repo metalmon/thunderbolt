@@ -15,6 +15,7 @@ import { act } from '@testing-library/react'
 import type { SessionNotification } from '@agentclientprotocol/sdk'
 import { describe, expect, it } from 'bun:test'
 import { getClock } from '@/testing-library'
+import { isUiResourceOutput } from '@/fork/zeroclaw/ui-resource'
 import { createTranslator, createTranslatorStream } from './acp-to-ai-sdk'
 import type { AiSdkChunk } from '../types'
 
@@ -123,6 +124,32 @@ describe('createTranslator — mapping', () => {
     )
     const output = chunks.find((c) => c.type === 'tool-output-available')
     expect(output).toMatchObject({ type: 'tool-output-available', toolCallId: 'tc1', output: { result: 'ok' } })
+  })
+
+  it('emits a uiResource output for a completed ui:// tool_call_update', () => {
+    const chunks: AiSdkChunk[] = []
+    const t = createTranslator((c) => chunks.push(c))
+    t.handle({
+      update: {
+        sessionUpdate: 'tool_call_update',
+        toolCallId: 'tc-1',
+        title: 'canvas',
+        status: 'completed',
+        content: [
+          { type: 'content', content: { type: 'text', text: 'rendered' } },
+          {
+            type: 'content',
+            content: {
+              type: 'resource',
+              resource: { uri: 'ui://pnl/dashboard', mimeType: 'text/html', text: '<h1>PnL</h1>' },
+            },
+          },
+        ],
+      },
+    } as never)
+    const out = chunks.find((c) => c.type === 'tool-output-available')
+    expect(out).toBeDefined()
+    expect(isUiResourceOutput((out as { output: unknown }).output)).toBe(true)
   })
 
   it('tool_call_update (failed) emits tool-output-error', () => {
