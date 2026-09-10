@@ -46,7 +46,7 @@ type ChatMessagesProps = {
 // intended throttle cadence. It takes no props that change (`useChat` defaults
 // to the real hook), so the shallow prop compare holds across parent renders.
 export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesProps) => {
-  const { chatInstance, chatThread, retryCount, retriesExhausted, stopping } = useCurrentChatSession()
+  const { id, chatInstance, chatThread, retryCount, retriesExhausted, stopping } = useCurrentChatSession()
   const debugTranscriptsEnabled = useConfigStore((state) => selectDebugTranscriptsEnabled(state.config))
 
   const {
@@ -142,7 +142,7 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   )
 
   return (
-    <CanvasRegistryProvider messages={messages}>
+    <CanvasRegistryProvider messages={messages} threadId={id}>
       <div>
         {visibleMessages.map((message) => {
           if (message.role === 'assistant') {
