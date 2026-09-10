@@ -41,6 +41,7 @@ import {
   enrichToolOutputWithDeliveredFiles,
   materializeOutboundResourceBlobs,
 } from '@/fork/zeroclaw/outbound-resource-blob'
+import { extractUiResource } from '@/fork/zeroclaw/ui-resource'
 import type { AiSdkChunk } from '../types'
 
 const sseDataPrefix = 'data: '
@@ -337,15 +338,17 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
             errorText: typeof update.rawOutput === 'string' ? update.rawOutput : JSON.stringify(update.rawOutput ?? {}),
           })
         } else {
-          // completed — prefer standard ACP resource+blob in `content` (ZeroClaw
-          // deliver_file) over Haystack remote fileId; keep rawOutput as text summary.
-          const delivered = materializeOutboundResourceBlobs(update.content, update.title)
-          const output = enrichToolOutputWithDeliveredFiles(update.rawOutput ?? update.content ?? {}, delivered)
-          emit({
-            type: 'tool-output-available',
-            toolCallId: update.toolCallId,
-            output,
-          })
+          // completed — a ZeroClaw `ui://` UI-resource (inline HTML) becomes an artifact;
+          // otherwise standard resource+blob (deliver_file) → file card, keeping rawOutput text.
+          const uiResource = extractUiResource(update.content)
+          if (uiResource) {
+            const text = typeof update.rawOutput === 'string' ? update.rawOutput : ''
+            emit({ type: 'tool-output-available', toolCallId: update.toolCallId, output: { uiResource, text } })
+          } else {
+            const delivered = materializeOutboundResourceBlobs(update.content, update.title)
+            const output = enrichToolOutputWithDeliveredFiles(update.rawOutput ?? update.content ?? {}, delivered)
+            emit({ type: 'tool-output-available', toolCallId: update.toolCallId, output })
+          }
         }
         const startedAt = toolStartTimes.get(update.toolCallId)
         if (startedAt !== undefined) {

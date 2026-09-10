@@ -18,6 +18,7 @@ import { useHaptics } from '@/hooks/use-haptics'
 import { useAttachmentRemediation } from './use-attachment-remediation'
 import { QuoteReplyButton } from './quote-reply-button'
 import { selectDebugTranscriptsEnabled, useConfigStore } from '@/api/config-store'
+import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
 import type { ThunderboltUIMessage } from '@/types'
 
 const ShareDebugTranscriptAction = lazy(async () => {
@@ -141,67 +142,69 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   )
 
   return (
-    <div>
-      {visibleMessages.map((message) => {
-        if (message.role === 'assistant') {
-          // Hide empty assistant messages during errors — these are broken responses
-          // that regenerate() will remove. Messages with parts are valid responses.
-          if ((hasError || pendingEmptyTurnRecovery) && !message.parts?.length) {
-            return null
+    <CanvasRegistryProvider messages={messages}>
+      <div>
+        {visibleMessages.map((message) => {
+          if (message.role === 'assistant') {
+            // Hide empty assistant messages during errors — these are broken responses
+            // that regenerate() will remove. Messages with parts are valid responses.
+            if ((hasError || pendingEmptyTurnRecovery) && !message.parts?.length) {
+              return null
+            }
+
+            // Memoize last message check to avoid recalculating on every iteration
+            const isLast = message.id === lastMessage?.id
+            // Only apply viewport positioning from second message onwards
+            const shouldApplyViewport = isLast && shouldUseViewportPositioning(visibleMessages.length)
+
+            return (
+              <AssistantMessage
+                key={message.id}
+                message={message}
+                isStreaming={isStreaming && isLast}
+                isLastMessage={shouldApplyViewport}
+                isLastAssistantMessage={message.id === lastAssistantMessage?.id}
+                lastAssistantAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
+              />
+            )
+          }
+          if (message.role === 'user') {
+            return (
+              <UserMessage
+                key={message.id}
+                message={message}
+                lastMessageAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
+                onResendAttachment={
+                  message.id === lastUserMessageId
+                    ? (localFileId, target) => resendAttachment(message.id, localFileId, target)
+                    : undefined
+                }
+              />
+            )
           }
 
-          // Memoize last message check to avoid recalculating on every iteration
-          const isLast = message.id === lastMessage?.id
-          // Only apply viewport positioning from second message onwards
-          const shouldApplyViewport = isLast && shouldUseViewportPositioning(visibleMessages.length)
+          return null
+        })}
 
-          return (
-            <AssistantMessage
-              key={message.id}
-              message={message}
-              isStreaming={isStreaming && isLast}
-              isLastMessage={shouldApplyViewport}
-              isLastAssistantMessage={message.id === lastAssistantMessage?.id}
-              lastAssistantAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
-            />
-          )
-        }
-        if (message.role === 'user') {
-          return (
-            <UserMessage
-              key={message.id}
-              message={message}
-              lastMessageAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
-              onResendAttachment={
-                message.id === lastUserMessageId
-                  ? (localFileId, target) => resendAttachment(message.id, localFileId, target)
-                  : undefined
-              }
-            />
-          )
-        }
+        {/* Keep a loading indicator up while remediation re-delivers + retries, so
+            the suppressed error doesn't leave a blank gap. */}
+        {(showSubmittedLoading || suppressError || pendingEmptyTurnRecovery) && <SyntheticLoadingPart isStreaming />}
 
-        return null
-      })}
+        {/* Show error message if there's an error and remediation isn't taking over */}
+        {hasError && !suppressError && (
+          <ErrorMessage
+            retryCount={retryCount}
+            retriesExhausted={retriesExhausted}
+            error={chatError}
+            onRetry={() => regenerate()}
+            deliveryExhausted={deliveryExhausted}
+          />
+        )}
 
-      {/* Keep a loading indicator up while remediation re-delivers + retries, so
-          the suppressed error doesn't leave a blank gap. */}
-      {(showSubmittedLoading || suppressError || pendingEmptyTurnRecovery) && <SyntheticLoadingPart isStreaming />}
-
-      {/* Show error message if there's an error and remediation isn't taking over */}
-      {hasError && !suppressError && (
-        <ErrorMessage
-          retryCount={retryCount}
-          retriesExhausted={retriesExhausted}
-          error={chatError}
-          onRetry={() => regenerate()}
-          deliveryExhausted={deliveryExhausted}
-        />
-      )}
-
-      {/* Floating "Reply" button over any text selection within a response. */}
-      <QuoteReplyButton />
-    </div>
+        {/* Floating "Reply" button over any text selection within a response. */}
+        <QuoteReplyButton />
+      </div>
+    </CanvasRegistryProvider>
   )
 })
 
