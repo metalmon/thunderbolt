@@ -10,6 +10,7 @@ import {
   wrapArtifactPreviewHtml,
 } from '@/artifacts/harness'
 import { registerSandboxContent, type SandboxHandle } from '@/artifacts/sandbox-host'
+import { buildThemeStyleTag, resolveArtifactColorScheme, snapshotThemeTokens } from '@/artifacts/theme-tokens'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -18,6 +19,28 @@ const defaultAutoHeightPx = 400
 const minAutoHeightPx = 60
 // Ceiling so a page (which knows its own nonce) can't report a huge height and blow out the transcript.
 const maxAutoHeightPx = 20_000
+
+/** The resolved theme classes `ThemeProvider` ever puts on `document.documentElement`. */
+type ResolvedThemeClass = 'light' | 'dark' | 'paper'
+
+/**
+ * Read the theme actually applied to `document.documentElement` (spec §6).
+ * Reading the applied CLASS — rather than the raw `theme` setting from
+ * `useTheme()` — sidesteps a real ordering hazard: the class is flipped by
+ * `ThemeProvider`'s own effect, which for the SAME commit as a `theme` change
+ * can run after this component's, so a render-time read keyed on the raw
+ * setting would see the class one render behind. It also folds `'system'`
+ * resolution and OS-level scheme changes (which never touch the raw `theme`
+ * value) into one signal for free.
+ */
+const readResolvedThemeClass = (): ResolvedThemeClass => {
+  const root = document.documentElement
+  return root.classList.contains('dark') ? 'dark' : root.classList.contains('paper') ? 'paper' : 'light'
+}
+
+/** Build the `<style>` tag to inject into the artifact for a given resolved theme class. */
+const computeThemeStyle = (resolvedTheme: ResolvedThemeClass): string =>
+  buildThemeStyleTag(snapshotThemeTokens(), resolveArtifactColorScheme(resolvedTheme))
 
 export type SandboxedHtmlFrameProps = {
   /** Complete, self-contained HTML document to render. */
@@ -67,11 +90,36 @@ export const SandboxedHtmlFrame = ({
   // useMemo) so it's a real stability guarantee — React may drop a useMemo cache and recompute,
   // which would regenerate the nonce, silently reload the iframe, and re-key the message listener.
   const [nonce] = useState(() => crypto.randomUUID())
+
+  // Theme tokens (spec §6): snapshot what's applied now for the initial render, then
+  // re-snapshot whenever the resolved theme CLASS changes. There is no live in-frame
+  // recolor — the frame is cross-origin/immutable — so a theme change re-wraps the HTML
+  // below, which the registration effect (keyed on `wrappedHtml`) turns into a reload.
+  // That resets in-iframe JS/interaction state; acceptable for dashboards whose state is
+  // re-derivable from the (offline, static-per-render) HTML.
+  const lastThemeClassRef = useRef<ResolvedThemeClass>(readResolvedThemeClass())
+  const [themeStyle, setThemeStyle] = useState(() => computeThemeStyle(lastThemeClassRef.current))
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const nextThemeClass = readResolvedThemeClass()
+      // `documentElement`'s class attribute also carries unrelated concerns (scroll-lock,
+      // RTL, ...) — only react when the resolved light/dark/paper class actually changed,
+      // or every open artifact would reload on any of those.
+      if (nextThemeClass === lastThemeClassRef.current) {
+        return
+      }
+      lastThemeClassRef.current = nextThemeClass
+      setThemeStyle(computeThemeStyle(nextThemeClass))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+
   // Scripts on: wrap with the harness. Scripts off (streaming preview): still inject the
   // offline CSP so the preview can't beacon out via a subresource before verification.
   const wrappedHtml = useMemo(
-    () => (allowScripts ? wrapArtifactHtml(html, nonce) : wrapArtifactPreviewHtml(html)),
-    [html, nonce, allowScripts],
+    () => (allowScripts ? wrapArtifactHtml(html, nonce, themeStyle) : wrapArtifactPreviewHtml(html, themeStyle)),
+    [html, nonce, allowScripts, themeStyle],
   )
 
   // Keep the latest callbacks in refs so the message subscription is set up once
