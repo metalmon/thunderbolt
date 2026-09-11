@@ -71,18 +71,18 @@ describe('WaitlistLanguagePicker', () => {
     const trigger = screen.getByRole('combobox', { name: 'Language' })
     fireEvent.pointerDown(trigger, { button: 0, pointerId: 1 })
     fireEvent.click(trigger)
-    const option = screen.getByRole('option', { name: 'Deutsch' })
+    const option = screen.getByRole('option', { name: 'Русский' })
     fireEvent.pointerUp(option, { button: 0, pointerId: 1 })
     fireEvent.click(option)
 
     // Published before the async write settles — the header must never trail.
-    expect(getActiveLocale()).toBe('de')
-    expect(localStorage.getItem('thunderbolt_locale')).toBe('de')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem('thunderbolt_locale')).toBe('ru')
 
     await act(async () => {
       await getClock().runAllAsync()
     })
     const [record] = await getSettingsRecords(getDb(), ['language'])
-    expect(record?.value).toBe('de')
+    expect(record?.value).toBe('ru')
   })
 })

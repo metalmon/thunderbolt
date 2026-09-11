@@ -187,19 +187,19 @@ describe('useAppLanguage', () => {
    */
   it('follows a cross-device language change arriving after mount', async () => {
     stubBrowserLanguages(['en-US'])
-    await updateSettings(getDb(), { language: 'de' })
-    setActiveLocale('de')
+    await updateSettings(getDb(), { language: 'en' })
+    setActiveLocale('en')
 
     const { settingsChanged } = renderWithLiveSettings()
     await flush()
-    expect(getActiveLocale()).toBe('de')
+    expect(getActiveLocale()).toBe('en')
 
-    await updateSettings(getDb(), { language: 'ja' })
+    await updateSettings(getDb(), { language: 'ru' })
     settingsChanged()
     await flush()
 
-    expect(getActiveLocale()).toBe('ja')
-    expect(localStorage.getItem(storageKey)).toBe('ja')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
   })
 
   /**
@@ -208,20 +208,20 @@ describe('useAppLanguage', () => {
    * its negotiation is non-English, re-seeds the row with it.
    */
   it('renegotiates and re-seeds when a reset arrives from another device', async () => {
-    stubBrowserLanguages(['de'])
-    await updateSettings(getDb(), { language: 'ja' })
-    setActiveLocale('ja')
+    stubBrowserLanguages(['ru'])
+    await updateSettings(getDb(), { language: 'en' })
+    setActiveLocale('en')
 
     const { settingsChanged } = renderWithLiveSettings()
     await flush()
-    expect(getActiveLocale()).toBe('ja')
+    expect(getActiveLocale()).toBe('en')
 
     await resetSettingToDefault(getDb(), 'language', languageDefault)
     settingsChanged()
     await flush()
 
-    expect(getActiveLocale()).toBe('de')
-    expect(localStorage.getItem(storageKey)).toBe('de')
-    expect(await storedLanguage()).toBe('de')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem(storageKey)).toBe('ru')
+    expect(await storedLanguage()).toBe('ru')
   })
 })
