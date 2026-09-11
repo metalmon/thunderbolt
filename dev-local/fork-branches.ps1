@@ -32,6 +32,11 @@
 #     tweaks (drop backdrop-blur on moving surfaces, transform-slide the sidebar,
 #     remove the detail-panel glow) across many UI primitives; apply after the
 #     content branches so its class-string diffs stay conflict-free.
+#   - fork/chat-scroll after fork/perf — one-line UX fix in upstream
+#     assistant-message.tsx: hold the last-message viewport reserve after the
+#     answer settles (ChatGPT/Claude pattern) so a short reply doesn't yank the
+#     pinned question back up. Applies after fork/hooks, which also edits that
+#     file (a different line — the ui:// chip dispatch), so no conflict.
 #   - fork/hide-integrations near the end — TEMPORARY, removable: hides Google/
 #     Microsoft integrations + disables the connect-integration skill until the
 #     backend has OAuth creds. Delete this line (and the branch) once configured.
@@ -51,6 +56,7 @@ $ForkBranches = @(
     "fork/sandbox-host",
     "fork/spinner",
     "fork/perf",
+    "fork/chat-scroll",
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/dev"
@@ -69,6 +75,7 @@ $ForkMainRangeBranches = @(
     "fork/sandbox-host",
     "fork/spinner",
     "fork/perf",
+    "fork/chat-scroll",
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/dev"
