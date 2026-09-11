@@ -16,7 +16,7 @@ const serverPayload = (version: number) => ({
   version,
   // Template off a BUNDLED default so the payload overlaps bundle ids (the
   // non-overlap guard would otherwise force the bundle to win).
-  data: [{ ...defaultModelNemotron3Super, name: `Server v${version}` }],
+  data: [{ ...defaultModelOpenRouterFree, name: `Server v${version}` }],
 })
 
 describe('pickModelsDefaults', () => {
@@ -113,7 +113,7 @@ describe('pickModelsDefaults', () => {
     const partialOverlap = {
       version: defaultModelsVersion + 1,
       data: [
-        defaultModelNemotron3Super, // in bundle
+        defaultModelOpenRouterFree, // in bundle
         { ...defaultModelOpus55, id: 'new-id', name: 'Server-only New Model' },
       ],
     }
