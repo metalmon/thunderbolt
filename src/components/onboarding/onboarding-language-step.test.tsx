@@ -58,17 +58,17 @@ describe('OnboardingLanguageStep', () => {
     const trigger = screen.getByRole('combobox', { name: 'Language' })
     fireEvent.pointerDown(trigger, { button: 0, pointerId: 1 })
     fireEvent.click(trigger)
-    const option = screen.getByRole('option', { name: '日本語' })
+    const option = screen.getByRole('option', { name: 'Русский' })
     fireEvent.pointerUp(option, { button: 0, pointerId: 1 })
     fireEvent.click(option)
 
-    expect(getActiveLocale()).toBe('ja')
-    expect(localStorage.getItem('thunderbolt_locale')).toBe('ja')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem('thunderbolt_locale')).toBe('ru')
 
     await act(async () => {
       await getClock().runAllAsync()
     })
     const [record] = await getSettingsRecords(getDb(), ['language'])
-    expect(record?.value).toBe('ja')
+    expect(record?.value).toBe('ru')
   })
 })
