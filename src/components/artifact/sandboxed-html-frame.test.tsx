@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import '@/testing-library'
+import * as realThemeTokens from '@/artifacts/theme-tokens'
 import { act, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock } from 'bun:test'
 
@@ -20,10 +21,32 @@ mock.module('@/artifacts/sandbox-host', () => ({
   },
 }))
 
+// Spy on the one DOM-touching seam the theme-injection observer calls, so the "only
+// react when the resolved theme class actually changed" guard is verifiable directly —
+// asserting on `registerSandboxContent` call counts alone can't distinguish "guard
+// skipped the recompute" from "recompute ran but produced the identical string", since
+// an unrelated class mutation (e.g. adding a scroll-lock class) leaves the resolved
+// light/dark/paper class, and therefore the recomputed style, unchanged either way.
+//
+// Capture the real implementation into a plain variable BEFORE calling `mock.module`:
+// `realThemeTokens.snapshotThemeTokens` is a live ES-module binding, so referencing it
+// *inside* the mock factory (instead of copying it out first) would resolve to the
+// mock's own replacement at call time and recurse into itself infinitely.
+const realSnapshotThemeTokens = realThemeTokens.snapshotThemeTokens
+let snapshotThemeTokensCallCount = 0
+mock.module('@/artifacts/theme-tokens', () => ({
+  ...realThemeTokens,
+  snapshotThemeTokens: () => {
+    snapshotThemeTokensCallCount += 1
+    return realSnapshotThemeTokens()
+  },
+}))
+
 import { SandboxedHtmlFrame } from './sandboxed-html-frame'
 
 afterEach(() => {
   lastRegistered = null
+  snapshotThemeTokensCallCount = 0
 })
 
 describe('SandboxedHtmlFrame', () => {
@@ -55,5 +78,41 @@ describe('SandboxedHtmlFrame', () => {
     expect(lastRegistered?.html).toContain('<p>partial</p>')
     expect(lastRegistered?.html).toContain('Content-Security-Policy') // preview is still offline
     expect(lastRegistered?.html).not.toContain('postMessage') // but no harness — scripts are off
+  })
+
+  describe('theme re-wrap on toggle (spec §6)', () => {
+    afterEach(() => {
+      document.documentElement.classList.remove('light', 'dark', 'paper')
+    })
+
+    it('re-registers with a matching color-scheme when the resolved theme class changes', async () => {
+      document.documentElement.classList.add('light')
+      render(<SandboxedHtmlFrame html="<p>x</p>" title="t" />)
+      await settle()
+      expect(lastRegistered?.html).toContain('color-scheme: light;')
+
+      document.documentElement.classList.remove('light')
+      document.documentElement.classList.add('dark')
+      // MutationObserver callbacks land as a microtask; flush it the same way `settle`
+      // flushes the mocked host promise.
+      await settle()
+
+      expect(lastRegistered?.html).toContain('color-scheme: dark;')
+    })
+
+    it('does not re-snapshot when an unrelated documentElement class changes (scroll-lock, RTL, ...)', async () => {
+      document.documentElement.classList.add('light')
+      render(<SandboxedHtmlFrame html="<p>x</p>" title="t" />)
+      await settle()
+      const snapshotsAfterMount = snapshotThemeTokensCallCount
+      expect(snapshotsAfterMount).toBeGreaterThan(0) // sanity: mounting does snapshot once
+
+      document.documentElement.classList.add('scroll-locked')
+      await settle()
+
+      // The MutationObserver still fires (the attribute did mutate), but the resolved
+      // light/dark/paper class is unchanged, so the guard must bail before re-snapshotting.
+      expect(snapshotThemeTokensCallCount).toBe(snapshotsAfterMount)
+    })
   })
 })
