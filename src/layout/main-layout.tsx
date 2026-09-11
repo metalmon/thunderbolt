@@ -10,9 +10,9 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { ResponsiveModalContentComposable } from '@/components/ui/responsive-modal'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { ArtifactSidebarContent } from '@/content-view/artifact-sidebar-content'
-import { defaultOpenWidth, minimumWidthThreshold } from '@/content-view/constants'
 import { useContentView } from '@/content-view/context'
 import { ObjectSidebarContent } from '@/content-view/object-sidebar-content'
+import { openTargetWidth } from '@/content-view/panel-width'
 import { SidebarWebview } from '@/content-view/sidebar-webview'
 import { Sideview } from '@/content-view/sideview'
 import { useIsMobile, useIsNativeMobile } from '@/hooks/use-mobile'
@@ -30,8 +30,9 @@ export default function Page() {
   const { state, close, previewHidden } = useContentView()
   const { isMobile } = useIsMobile()
   const isNativeMobile = useIsNativeMobile()
-  const { contentViewWidth } = useSettings({
+  const { contentViewWidth, artifactViewWidth } = useSettings({
     content_view_width: Number,
+    artifact_view_width: Number,
   })
   const isOpen = state.type !== null
   const isDesktopPanelOpen = isOpen && !isMobile
@@ -42,56 +43,81 @@ export default function Page() {
   // defaultSize and had to be dragged back open. Seeding false makes a
   // remount-with-open run the open path and size the panel to the saved width.
   const prevIsDesktopPanelOpen = useRef(false)
+  const prevStateType = useRef(state.type)
   const lastSavedWidth = useRef<number | null>(null)
 
   useEffect(() => {
-    // Only animate on state changes, not on mount
-    if (prevIsDesktopPanelOpen.current !== isDesktopPanelOpen && panelRef.current) {
-      if (isDesktopPanelOpen) {
-        const savedWidth = contentViewWidth.value
-        const hasSavedWidthAboveThreshold = savedWidth && savedWidth >= minimumWidthThreshold
-        const targetWidth = hasSavedWidthAboveThreshold ? savedWidth : defaultOpenWidth
+    if (!panelRef.current) {
+      prevIsDesktopPanelOpen.current = isDesktopPanelOpen
+      prevStateType.current = state.type
+      return
+    }
 
-        // Opening: animate from 0 to target width
-        requestAnimationFrame(() => {
-          if (panelRef.current) {
-            animate(0, targetWidth, {
-              duration: 0.3,
-              ease: [0.32, 0.72, 0, 1],
-              onUpdate: (latest) => {
-                panelRef.current?.resize(`${latest}%`)
-              },
-            })
-          }
-        })
-      } else {
-        // Closing: save current size before animating to 0.
-        const currentSize = panelRef.current.getSize().asPercentage
-        if (currentSize > 0) {
-          lastSavedWidth.current = currentSize
+    const openStateChanged = prevIsDesktopPanelOpen.current !== isDesktopPanelOpen
+    // A chip-clicked artifact replacing an open document (or vice versa) must
+    // re-animate to the new type's target width, not just on open/close.
+    const typeChangedWhileOpen = isDesktopPanelOpen && !openStateChanged && prevStateType.current !== state.type
+
+    if (isDesktopPanelOpen && (openStateChanged || typeChangedWhileOpen)) {
+      const targetWidth = openTargetWidth(state.type, artifactViewWidth.value, contentViewWidth.value)
+      // Opening from closed animates from 0; re-targeting while already open
+      // animates from the panel's current width so it doesn't flash shut.
+      const startWidth = openStateChanged ? 0 : panelRef.current.getSize().asPercentage
+
+      requestAnimationFrame(() => {
+        if (panelRef.current) {
+          animate(startWidth, targetWidth, {
+            duration: 0.3,
+            ease: [0.32, 0.72, 0, 1],
+            onUpdate: (latest) => {
+              panelRef.current?.resize(`${latest}%`)
+            },
+          })
+        }
+      })
+    } else if (!isDesktopPanelOpen && openStateChanged) {
+      // Closing: save current size (under the closing view's own key) before animating to 0.
+      const currentSize = panelRef.current.getSize().asPercentage
+      if (currentSize > 0) {
+        lastSavedWidth.current = currentSize
+        // Persist under the CLOSING view's own key. Read the ref, NOT `state.type`:
+        // by the time this close branch runs, `close()` has already set `state.type`
+        // to null, so `prevStateType.current` (the type before this transition) is the
+        // only reliable signal of which key to write. Do not "simplify" this to `state.type`.
+        if (prevStateType.current === 'artifact') {
+          artifactViewWidth.setValue(currentSize)
+        } else {
           contentViewWidth.setValue(currentSize)
         }
-
-        animate(currentSize, 0, {
-          duration: 0.3,
-          ease: [0.32, 0.72, 0, 1],
-          onUpdate: (latest) => {
-            panelRef.current?.resize(`${latest}%`)
-          },
-        })
       }
-    }
-    prevIsDesktopPanelOpen.current = isDesktopPanelOpen
-  }, [isDesktopPanelOpen, contentViewWidth])
 
-  // Persist width changes as user resizes (but not on mobile)
+      animate(currentSize, 0, {
+        duration: 0.3,
+        ease: [0.32, 0.72, 0, 1],
+        onUpdate: (latest) => {
+          panelRef.current?.resize(`${latest}%`)
+        },
+      })
+    }
+
+    prevIsDesktopPanelOpen.current = isDesktopPanelOpen
+    prevStateType.current = state.type
+  }, [isDesktopPanelOpen, contentViewWidth, artifactViewWidth, state.type])
+
+  // Persist width changes as user resizes (but not on mobile), under the
+  // currently-open view type's own key so mini-app and document-preview
+  // proportions don't clobber each other.
   const handleResize = ({ asPercentage }: { asPercentage: number }) => {
     const shouldPersistWidthChange = isOpen && asPercentage > 0 && !isMobile
     if (shouldPersistWidthChange) {
       const hasSignificantWidthChange = !lastSavedWidth.current || Math.abs(asPercentage - lastSavedWidth.current) > 1
       if (hasSignificantWidthChange) {
         lastSavedWidth.current = asPercentage
-        contentViewWidth.setValue(asPercentage)
+        if (state.type === 'artifact') {
+          artifactViewWidth.setValue(asPercentage)
+        } else {
+          contentViewWidth.setValue(asPercentage)
+        }
       }
     }
   }
