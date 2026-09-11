@@ -151,19 +151,39 @@ const injectIntoHead = (html: string, injected: string): string => {
  * hidden verification and visible rendering, so what we verify is exactly what
  * we show.
  *
+ * `themeStyle` (spec §6) is an optional pre-built `<style>` tag (see
+ * `theme-tokens.ts`'s `buildThemeStyleTag`) carrying the host app's resolved theme
+ * tokens. It is spliced in right after the CSP meta and before the harness
+ * script, so its `!important` `:root` declarations land before any agent
+ * `<style>`/`<link>` and win the cascade. Defaults to `''` (no-op) so existing
+ * callers are unaffected.
+ *
  * SECURITY INVARIANT: a visible render only happens after verification passes,
  * and both use this exact wrapping — so if the injection ever lands somewhere
  * inert (e.g. a page that hides `<head>` inside a comment), verification simply
  * never fires `artifact-ready` and the artifact is rejected rather than shown
  * without its CSP. Do not add a render path that skips verification.
+ *
+ * `themeStyle` is a deliberate, verification-neutral exception to "both use this
+ * exact wrapping": `runIframeVerification` calls this with the 2-arg form (no
+ * theme). That's safe because the injected tag is CSS-only — `:root{ --token: …
+ * !important }` custom-property overrides plus `color-scheme` — with no script
+ * and no DOM-structure change, so its presence or absence cannot affect whether
+ * the harness's head-scan finds `<head>`, whether the harness script still runs
+ * first, or whether `artifact-ready`/`artifact-error` fire. Verification and
+ * render can therefore differ on this one parameter without reopening the gap
+ * this invariant guards against.
  */
-export const wrapArtifactHtml = (html: string, nonce: string): string =>
-  injectIntoHead(html, `${cspMetaTag()}${harnessScript(nonce)}`)
+export const wrapArtifactHtml = (html: string, nonce: string, themeStyle = ''): string =>
+  injectIntoHead(html, `${cspMetaTag()}${themeStyle}${harnessScript(nonce)}`)
 
 /**
  * Wrap the (partial) HTML for the scripts-off streaming preview: inject ONLY the
  * offline CSP `<meta>` (no harness — the preview iframe runs no scripts), so the
  * live preview is bound by the same no-network policy and a streaming artifact
  * cannot beacon out via a subresource (`<img>`, CSS `url()`) before it's verified.
+ * `themeStyle` is the same optional theme `<style>` tag as `wrapArtifactHtml`,
+ * defaulting to `''`.
  */
-export const wrapArtifactPreviewHtml = (html: string): string => injectIntoHead(html, cspMetaTag())
+export const wrapArtifactPreviewHtml = (html: string, themeStyle = ''): string =>
+  injectIntoHead(html, `${cspMetaTag()}${themeStyle}`)
