@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
-import { defaultArtifactOpenWidth, defaultOpenWidth, minimumWidthThreshold } from './constants'
+import { artifactMaxWidthPx, defaultArtifactOpenWidth, defaultOpenWidth, minimumWidthThreshold } from './constants'
 import { openTargetWidth } from './panel-width'
 
 describe('openTargetWidth', () => {
@@ -45,5 +45,21 @@ describe('openTargetWidth', () => {
   test('saved width exactly at the minimum threshold is honored, not treated as below it', () => {
     expect(openTargetWidth('artifact', minimumWidthThreshold, null)).toBe(minimumWidthThreshold)
     expect(openTargetWidth('sideview', null, minimumWidthThreshold)).toBe(minimumWidthThreshold)
+  })
+
+  test('artifact on a wide viewport is capped to the max pixel width', () => {
+    // 66% default width on a 2400px viewport would be 1584px; capped to 1080px => 45%.
+    expect(openTargetWidth('artifact', null, null, 2400)).toBe((artifactMaxWidthPx / 2400) * 100)
+    expect(openTargetWidth('artifact', null, null, 2400)).toBe(45)
+  })
+
+  test('artifact on a narrow viewport is not capped when the percentage stays under the pixel cap', () => {
+    // 66% of 1400px is 924px, under the 1080px cap, so it stays at 66%.
+    expect(openTargetWidth('artifact', null, null, 1400)).toBe(defaultArtifactOpenWidth)
+  })
+
+  test('non-artifact view types ignore viewportWidth entirely', () => {
+    expect(openTargetWidth('sideview', null, null, 100)).toBe(defaultOpenWidth)
+    expect(openTargetWidth('preview', null, 90, 100)).toBe(90)
   })
 })

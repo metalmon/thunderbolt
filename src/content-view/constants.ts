@@ -27,3 +27,11 @@ export const defaultOpenWidth = 50
  * full mini-app, not a document preview — see spec §UX "Panel proportions".
  */
 export const defaultArtifactOpenWidth = 66
+
+/**
+ * Absolute pixel cap on the artifact panel's open width. On a wide/maximized
+ * window, `defaultArtifactOpenWidth`'s 66% can resolve to an absurdly wide
+ * panel; this caps it so the artifact never exceeds ~1080px regardless of
+ * viewport width.
+ */
+export const artifactMaxWidthPx = 1080
