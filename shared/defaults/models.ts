@@ -122,8 +122,6 @@ export const defaultModelGlm53Flash: SharedModel = {
   userId: null,
 }
 
-export const defaultModelId = defaultModelGlm53Flash.id
-
 export const defaultModelGlm53: SharedModel = {
   id: '019e7580-2b0e-719c-a43f-d2b56e7f31b4',
   name: 'GLM 5.3',
@@ -184,6 +182,11 @@ export const defaultModelNemotron3Super: SharedModel = {
   description: 'Free via OpenRouter — NVIDIA Nemotron 3 Super (120B)',
   userId: null,
 }
+
+// Fork demo/free default: a free-tier shipped model (present in `defaultModels`),
+// not upstream's confidential Tinfoil Flash. Anonymous demo users get a working
+// default served through the backend OpenRouter key without bringing their own.
+export const defaultModelId = defaultModelNemotron3Super.id
 
 export const defaultModelNemotron3Ultra: SharedModel = {
   id: 'd30990db-4d18-4713-8b08-ca8cabd206bb',
