@@ -54,8 +54,8 @@ export const deriveEvalModelMatrix = (
 // than the shipped defaults, so swapping the picker catalog never breaks the eval matrix.
 const evalReferenceModels: ReadonlyArray<SharedModel> = [
   defaultModelOpus5,
-  defaultModelDeepseekV4Flash,
-  defaultModelGlm52,
+  defaultModelGlm53Flash,
+  defaultModelGlm53,
 ]
 
 export const evalModels = deriveEvalModelMatrix(evalReferenceModels, evalModelSlugs)
