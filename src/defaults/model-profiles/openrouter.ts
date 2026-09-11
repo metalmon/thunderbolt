@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { ModelProfile } from '@/types'
-import {
-  defaultModelNemotron3Super,
-  defaultModelNemotron3Ultra,
-  defaultModelNemotronNano9b,
-} from '@shared/defaults/models'
+import { defaultModelOpenRouterFree } from '@shared/defaults/models'
 
 const baseProfile = (modelId: string): ModelProfile => ({
   modelId,
@@ -35,6 +31,4 @@ const baseProfile = (modelId: string): ModelProfile => ({
   userId: null,
 })
 
-export const defaultModelProfileNemotron3Super = baseProfile(defaultModelNemotron3Super.id)
-export const defaultModelProfileNemotron3Ultra = baseProfile(defaultModelNemotron3Ultra.id)
-export const defaultModelProfileNemotronNano9b = baseProfile(defaultModelNemotronNano9b.id)
+export const defaultModelProfileOpenRouterFree = baseProfile(defaultModelOpenRouterFree.id)
