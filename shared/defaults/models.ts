@@ -160,84 +160,41 @@ export const defaultModelGlm53: SharedModel = {
  * The backend continues accepting both slugs for legacy clients.
  */
 /**
- * Fork (metalmon) free-tier catalog. These replace the upstream defaults in the
- * picker: they are served through the backend's server-side OpenRouter key
- * (backend/src/fork/openrouter/routes.ts) so anonymous demo users chat without
- * bringing their own key. All `provider:'openrouter', isSystem:1` under fresh
- * ids — the reconciler freezes `provider`, so a new provider ships a new id.
- * The upstream consts above stay exported (referenced by automations/eval) but
- * are dropped from `defaultModels`, so reconcile soft-deletes their rows.
+ * Fork (metalmon) free-tier catalog. A single "OpenRouter Free" entry replaces
+ * the upstream defaults in the picker: it is served through the backend's
+ * server-side OpenRouter key (backend/src/fork/openrouter/routes.ts) so anonymous
+ * demo users chat without bringing their own key. `provider:'openrouter',
+ * isSystem:1`; the backend proxy forwards the slug verbatim and `openrouter/free`
+ * is OpenRouter's meta-router across the free tier. The upstream consts above stay
+ * exported (referenced by automations/eval) but are absent from `defaultModels`,
+ * so reconcile soft-deletes their rows.
  */
-export const defaultModelNemotron3Super: SharedModel = {
+export const defaultModelOpenRouterFree: SharedModel = {
   id: '38e10634-2fbc-4323-b86d-3a5a6c0ca824',
-  name: 'Nemotron 3 Super',
+  name: 'OpenRouter Free',
   provider: 'openrouter',
-  model: 'nvidia/nemotron-3-super-120b-a12b:free',
+  model: 'openrouter/free',
   isSystem: 1,
   enabled: 1,
   isConfidential: 0,
-  contextWindow: 262144,
+  contextWindow: 131072,
   toolUsage: 1,
   startWithReasoning: 0,
   supportsParallelToolCalls: 0,
   deletedAt: null,
   url: null,
   defaultHash: null,
-  vendor: 'nvidia',
-  description: 'Free via OpenRouter — NVIDIA Nemotron 3 Super (120B)',
+  vendor: 'openrouter',
+  description: 'Free models via OpenRouter (auto-routed across the free tier)',
   userId: null,
 }
 
-// Fork demo/free default: a free-tier shipped model (present in `defaultModels`),
+// Fork demo/free default: the single shipped free model (present in `defaultModels`),
 // not upstream's confidential Tinfoil Flash. Anonymous demo users get a working
 // default served through the backend OpenRouter key without bringing their own.
-export const defaultModelId = defaultModelNemotron3Super.id
+export const defaultModelId = defaultModelOpenRouterFree.id
 
-export const defaultModelNemotron3Ultra: SharedModel = {
-  id: 'd30990db-4d18-4713-8b08-ca8cabd206bb',
-  name: 'Nemotron 3 Ultra',
-  provider: 'openrouter',
-  model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
-  isSystem: 1,
-  enabled: 1,
-  isConfidential: 0,
-  contextWindow: 1000000,
-  toolUsage: 1,
-  startWithReasoning: 0,
-  supportsParallelToolCalls: 0,
-  deletedAt: null,
-  url: null,
-  defaultHash: null,
-  vendor: 'nvidia',
-  description: 'Free via OpenRouter — NVIDIA Nemotron 3 Ultra (550B, 1M ctx)',
-  userId: null,
-}
-
-export const defaultModelNemotronNano9b: SharedModel = {
-  id: 'b4db7251-0475-45bb-8dfa-05dbbaa961ca',
-  name: 'Nemotron Nano 9B',
-  provider: 'openrouter',
-  model: 'nvidia/nemotron-nano-9b-v2:free',
-  isSystem: 1,
-  enabled: 1,
-  isConfidential: 0,
-  contextWindow: 128000,
-  toolUsage: 1,
-  startWithReasoning: 0,
-  supportsParallelToolCalls: 0,
-  deletedAt: null,
-  url: null,
-  defaultHash: null,
-  vendor: 'nvidia',
-  description: 'Free via OpenRouter — NVIDIA Nemotron Nano (9B)',
-  userId: null,
-}
-
-export const defaultModels: ReadonlyArray<SharedModel> = [
-  defaultModelNemotron3Super,
-  defaultModelNemotron3Ultra,
-  defaultModelNemotronNano9b,
-] as const
+export const defaultModels: ReadonlyArray<SharedModel> = [defaultModelOpenRouterFree] as const
 
 /**
  * Monotonic version of the shipped defaults. Bump every time `defaultModels`
@@ -249,4 +206,4 @@ export const defaultModels: ReadonlyArray<SharedModel> = [
  * The paired snapshot test in `models.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultModelsVersion = 7
+export const defaultModelsVersion = 8
