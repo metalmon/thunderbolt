@@ -345,11 +345,14 @@ describe('ChatMessages', () => {
       expect(lastAssistantMessage?.style.minHeight).toBe('72dvh')
     })
 
-    it('returns settled responses to their natural height', () => {
+    it('keeps the reserve on the settled last response so the pinned question stays put', () => {
+      // The reserve is held for as long as this is the last message (streaming
+      // AND settled), so a short answer does not collapse and yank the pinned
+      // question back up. The space is reclaimed on the next turn.
       const { container } = setupMultiTurnThread('ready')
 
       const lastAssistantMessage = container.querySelector<HTMLElement>('[data-message-id="assistant-2"]')
-      expect(lastAssistantMessage?.style.minHeight).toBe('')
+      expect(lastAssistantMessage?.style.minHeight).toBe('72dvh')
     })
 
     it('should pass isStreaming to last assistant message when streaming', () => {
