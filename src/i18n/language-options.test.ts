@@ -21,11 +21,11 @@ describe('languageOptions', () => {
   it('labels each language by its capitalized endonym', () => {
     const labels = Object.fromEntries(languageOptions.map((option) => [option.value, option.label]))
 
+    // The fork offers only en/ru (negotiableLocales; Volt is Russian-first).
+    // The other appLocales stay typed but are not settable, so they never
+    // reach the picker — assert only what the fork actually offers.
     expect(labels.en).toBe('English')
-    expect(labels.de).toBe('Deutsch')
-    expect(labels.fr).toBe('Français')
-    expect(labels.es).toBe('Español')
-    expect(labels.ja).toBe('日本語')
+    expect(labels.ru).toBe('Русский')
   })
 
   /**
@@ -43,7 +43,7 @@ describe('languageOptions', () => {
 
 describe('languageLabel', () => {
   it('returns the endonym for a shipped locale', () => {
-    expect(languageLabel('de')).toBe('Deutsch')
+    expect(languageLabel('ru')).toBe('Русский')
   })
 
   it('falls back to the tag itself for an unshipped locale', () => {
