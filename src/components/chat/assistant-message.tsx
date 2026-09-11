@@ -30,9 +30,12 @@ type AssistantMessageProps = {
   isLastAssistantMessage?: boolean
 }
 
-// While an answer streams, reserve enough room to keep the preceding user
-// message pinned near the top. Settled answers return to their natural height
-// so short threads do not retain artificial overflow.
+// Reserve enough room to keep the preceding user question pinned near the top
+// once viewport positioning is active. The reserve is held for as long as this
+// is the last message — streaming AND settled — so a short answer does not
+// collapse and yank the pinned question back up (the ChatGPT/Claude pattern).
+// The empty space below a short answer is intentional; it is reclaimed on the
+// next turn, when this message stops being the last one.
 const lastMessageMinHeight = '72dvh'
 
 // Stable empty default so a message without reasoning timings keeps a constant
@@ -193,7 +196,7 @@ export const AssistantMessage = memo(
         data-message-id={message.id}
         data-quotable-message-id={message.id}
         className={showCopyOnHover ? 'group' : undefined}
-        style={isLastMessage && isStreaming && !hasArtifact ? { minHeight: lastMessageMinHeight } : undefined}
+        style={isLastMessage && !hasArtifact ? { minHeight: lastMessageMinHeight } : undefined}
       >
         {partElements.map((partElement, index) => (
           // Skip the animation on the *second* (index === 1) partElement so that it replaces the loading part *in-place* without an animation
