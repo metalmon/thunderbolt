@@ -60,7 +60,12 @@ export default function Page() {
     const typeChangedWhileOpen = isDesktopPanelOpen && !openStateChanged && prevStateType.current !== state.type
 
     if (isDesktopPanelOpen && (openStateChanged || typeChangedWhileOpen)) {
-      const targetWidth = openTargetWidth(state.type, artifactViewWidth.value, contentViewWidth.value)
+      const targetWidth = openTargetWidth(
+        state.type,
+        artifactViewWidth.value,
+        contentViewWidth.value,
+        window.innerWidth,
+      )
       // Opening from closed animates from 0; re-targeting while already open
       // animates from the panel's current width so it doesn't flash shut.
       const startWidth = openStateChanged ? 0 : panelRef.current.getSize().asPercentage
@@ -81,10 +86,6 @@ export default function Page() {
       const currentSize = panelRef.current.getSize().asPercentage
       if (currentSize > 0) {
         lastSavedWidth.current = currentSize
-        // Persist under the CLOSING view's own key. Read the ref, NOT `state.type`:
-        // by the time this close branch runs, `close()` has already set `state.type`
-        // to null, so `prevStateType.current` (the type before this transition) is the
-        // only reliable signal of which key to write. Do not "simplify" this to `state.type`.
         if (prevStateType.current === 'artifact') {
           artifactViewWidth.setValue(currentSize)
         } else {
