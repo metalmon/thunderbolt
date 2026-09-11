@@ -13,6 +13,9 @@ import { modelProfilesTable, modelsTable, promptsTable, settingsTable, skillsTab
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
 import { defaultModelProfiles, hashModelProfile } from '../defaults/model-profiles'
 import {
+  defaultModelGlm53,
+  defaultModelGlm53Flash,
+  defaultModelOpus5,
   defaultModels,
   defaultModelsVersion,
   hashModel,
@@ -174,33 +177,38 @@ describe('seedModels', () => {
 
   test('handles mixed scenarios correctly', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    // The shipped catalog is a single free model, so drive the multi-model
+    // reconcile logic with a local 3-model fixture built from the exported
+    // reference consts (reconcileDefaultsForTable takes the defaults array as a
+    // parameter — it need not be the shipped one).
+    const fixture = [defaultModelOpus5, defaultModelGlm53Flash, defaultModelGlm53]
+    await reconcileDefaultsForTable(db, modelsTable, fixture, hashModel)
 
     // Scenario 1: User modifies model 0
-    await db.update(modelsTable).set({ name: 'User Modified' }).where(eq(modelsTable.id, defaultModels[0].id))
+    await db.update(modelsTable).set({ name: 'User Modified' }).where(eq(modelsTable.id, fixture[0].id))
 
     // Scenario 2: Model 1 stays unmodified
     // Scenario 3: Model 2 is user-deleted via the DAL — this scrubs the row's
     // nullable columns (including defaultHash) via `clearNullableColumns`,
     // which is what distinguishes a user delete from a cleanup soft-delete
     // and prevents the resurrect branch from undoing it.
-    await deleteModel(db, defaultModels[2].id)
+    await deleteModel(db, fixture[2].id)
 
     // Seed again
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixture, hashModel)
 
     const models = await db.select().from(modelsTable)
 
     // Model 0 should keep user modification
-    const model0 = models.find((m) => m.id === defaultModels[0].id)
+    const model0 = models.find((m) => m.id === fixture[0].id)
     expect(model0?.name).toBe('User Modified')
 
     // Model 1 should be updated to latest default
-    const model1 = models.find((m) => m.id === defaultModels[1].id)
-    expect(model1?.name).toBe(defaultModels[1].name)
+    const model1 = models.find((m) => m.id === fixture[1].id)
+    expect(model1?.name).toBe(fixture[1].name)
 
     // Model 2 should stay deleted - user deletions are respected
-    const model2 = models.find((m) => m.id === defaultModels[2]?.id)
+    const model2 = models.find((m) => m.id === fixture[2].id)
     expect(model2?.deletedAt).not.toBeNull()
   })
 
