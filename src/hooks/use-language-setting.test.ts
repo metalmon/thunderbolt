@@ -102,16 +102,16 @@ describe('useLanguageSetting', () => {
 
     let pending: Promise<void> | undefined
     act(() => {
-      pending = result.current.setLanguage('pt-BR')
+      pending = result.current.setLanguage('ru')
     })
 
-    expect(getActiveLocale()).toBe('pt-BR')
-    expect(localStorage.getItem('thunderbolt_locale')).toBe('pt-BR')
+    expect(getActiveLocale()).toBe('ru')
+    expect(localStorage.getItem('thunderbolt_locale')).toBe('ru')
 
     await act(async () => {
       await pending
     })
-    expect(await storedValue('language')).toBe('pt-BR')
+    expect(await storedValue('language')).toBe('ru')
   })
 
   it('publishes the negotiated locale before the reset settles', async () => {
