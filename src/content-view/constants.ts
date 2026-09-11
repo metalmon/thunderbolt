@@ -20,3 +20,10 @@ export const minimumWidthThreshold = 10
 
 /** Default width of the content view as percentage when opening */
 export const defaultOpenWidth = 50
+
+/**
+ * Default width of the content view as percentage when opening a `ui://`
+ * artifact (mini-app). Wider than `defaultOpenWidth` because an artifact is a
+ * full mini-app, not a document preview — see spec §UX "Panel proportions".
+ */
+export const defaultArtifactOpenWidth = 66

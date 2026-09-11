@@ -195,6 +195,20 @@ export const defaultSettingContentViewWidth: Setting = {
   userId: null,
 }
 
+/**
+ * Open width (percentage) of the content-view panel when it opens on a
+ * `ui://` artifact (mini-app), persisted separately from
+ * `content_view_width` so mini-app and document-preview proportions don't
+ * clobber each other (spec §UX "Panel proportions").
+ */
+export const defaultSettingArtifactViewWidth: Setting = {
+  key: 'artifact_view_width',
+  value: '66',
+  updatedAt: null,
+  defaultHash: null,
+  userId: null,
+}
+
 export const defaultSettingUserHasCompletedOnboarding: Setting = {
   key: 'user_has_completed_onboarding',
   value: 'false',
@@ -250,6 +264,7 @@ export const defaultSettings: ReadonlyArray<Setting> = [
   defaultSettingIntegrationsProIsEnabled,
   defaultSettingUserHasCompletedOnboarding,
   defaultSettingContentViewWidth,
+  defaultSettingArtifactViewWidth,
   defaultSettingIntegrationsDoNotAskAgain,
   defaultSettingLanguage,
 ] as const
@@ -265,4 +280,4 @@ export const defaultSettings: ReadonlyArray<Setting> = [
  * The paired snapshot test in `settings.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSettingsVersion = 6
+export const defaultSettingsVersion = 7
