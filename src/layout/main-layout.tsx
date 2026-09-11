@@ -12,6 +12,7 @@ import { SidebarInset } from '@/components/ui/sidebar'
 import { ActiveContentView } from '@/content-view/active-content-view'
 import { CanvasActionChannelProvider } from '@/fork/zeroclaw/canvas-action-channel'
 import { useContentView } from '@/content-view/context'
+import { openTargetWidth } from '@/content-view/panel-width'
 import { useIsMobile, useIsNativeMobile } from '@/hooks/use-mobile'
 import { edgeSpacing } from '@/lib/constants'
 import { isTauri, isTauriDesktop } from '@/lib/platform'
@@ -34,8 +35,9 @@ export default function Page() {
   const { state, close } = useContentView()
   const { isMobile } = useIsMobile()
   const isNativeMobile = useIsNativeMobile()
-  const { contentViewWidth } = useSettings({
+  const { contentViewWidth, artifactViewWidth } = useSettings({
     content_view_width: Number,
+    artifact_view_width: Number,
   })
   const showsSharedHeader = sharedHeaderHasControls({ pathname, isMobile, isDesktopApp: isTauriDesktop() })
   const isOpen = state.type !== null
@@ -46,7 +48,11 @@ export default function Page() {
     isOpen: isDesktopPanelOpen,
     panelRef,
     savedWidth: contentViewWidth.value,
-    saveWidth: contentViewWidth.setValue,
+    // Fork: a resize is persisted against the view type it was made on, so an artifact
+    // and a document keep their own widths.
+    saveWidth: state.type === 'artifact' ? artifactViewWidth.setValue : contentViewWidth.setValue,
+    viewType: state.type,
+    artifactWidth: artifactViewWidth.value,
   })
 
   return (
