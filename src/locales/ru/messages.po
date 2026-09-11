@@ -2778,7 +2778,7 @@ msgstr "Параметры"
 
 #: src/settings/preferences.tsx
 msgid "Preferred Name"
-msgstr "Как к вам обращаться"
+msgstr "Предпочитаемое имя"
 
 #: src/content-view/sidebar-webview.tsx
 msgid "Preview"
