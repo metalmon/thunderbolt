@@ -1133,8 +1133,8 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
     await db
       .update(modelsTable)
-      .set({ description: 'Confidential chat via Tinfoil' })
-      .where(eq(modelsTable.id, defaultModelGlm53.id))
+      .set({ description: 'Stale server-owned description' })
+      .where(eq(modelsTable.id, seeded.id))
     await db
       .update(settingsTable)
       .set({ value: String(defaultModelsVersion - 1) })
@@ -1145,10 +1145,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       profiles: fixtureProfiles,
     })
 
-    const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelGlm53.id)).get()
-    expect(upgraded?.description).toBe('Confidential chat via Thunderbolt')
-    expect(upgraded?.provider).toBe('tinfoil')
-    expect(upgraded?.isConfidential).toBe(1)
+    const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, seeded.id)).get()
+    expect(upgraded?.description).toBe(seeded.description)
+    expect(upgraded?.provider).toBe(seeded.provider)
+    expect(upgraded?.isConfidential).toBe(seeded.isConfidential)
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
 
@@ -1304,7 +1304,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Seed at the current bundle so every row has a matching defaultHash.
     // This models the state of a pre-THU-677 device on its first boot after
-    // upgrading to this build: the four new markers (models/tasks/skills/
+    // upgrading to this build: the four new markers (modes/tasks/skills/
     // settings) don't exist yet, but the rows themselves were already
     // seeded by earlier reconcile runs and their hashes match the bundle.
     await reconcileDefaults(db, {
@@ -1862,7 +1862,7 @@ describe('widget skill reconciliation', () => {
 
 /**
  * THU-677 extends the THU-637 version-gate pattern from models to every
- * other reconciled table (tasks, skills, settings). The scenarios
+ * other reconciled table (modes, tasks, skills, settings). The scenarios
  * per table mirror the models coverage above but at reduced depth — the
  * shared `reconcileDefaultsForTable` and `computeCanOverwrite` behaviour
  * is already exercised by the models suite. Here we prove each table
@@ -2186,7 +2186,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
 
   test('per-table marker writes do not poison the settings hasAnyRow probe on fresh install', async () => {
     // Regression guard for the intra-transaction ordering hazard: the models/
-    // tasks/skills passes each land a marker row in `settingsTable` via
+    // modes/tasks/skills passes each land a marker row in `settingsTable` via
     // `advanceVersionMarker`. If `hasAnySettingsRow` were read inline before
     // the settings block instead of at the top of the transaction, those
     // earlier marker writes would flip the probe to `true` on a fresh install
