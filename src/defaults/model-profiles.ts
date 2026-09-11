@@ -5,9 +5,7 @@
 export {
   defaultModelProfileGlm53Flash,
   defaultModelProfileGlm53,
-  defaultModelProfileNemotron3Super,
-  defaultModelProfileNemotron3Ultra,
-  defaultModelProfileNemotronNano9b,
+  defaultModelProfileOpenRouterFree,
   defaultModelProfileOpus5,
   defaultModelProfiles,
   hashModelProfile,

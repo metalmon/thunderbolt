@@ -6,9 +6,7 @@ import { isPiModelCandidate } from '@/acp/built-in-adapter'
 import {
   defaultModelGlm53Flash,
   defaultModelGlm53,
-  defaultModelNemotron3Super,
-  defaultModelNemotron3Ultra,
-  defaultModelNemotronNano9b,
+  defaultModelOpenRouterFree,
   defaultModelOpus5,
   type SharedModel,
 } from '@shared/defaults/models'
@@ -24,11 +22,9 @@ export const evalModelSlugs: Readonly<Record<string, string>> = {
   [defaultModelOpus5.id]: 'opus',
   [defaultModelGlm53Flash.id]: 'flash',
   [defaultModelGlm53.id]: 'glm',
-  // Fork free-tier shipped defaults — slugged so the "every shipped default has a
+  // Fork free-tier shipped default — slugged so the "every shipped default has a
   // stable slug" guardrail holds; the eval matrix still benchmarks the references above.
-  [defaultModelNemotron3Super.id]: 'nemotron-super',
-  [defaultModelNemotron3Ultra.id]: 'nemotron-ultra',
-  [defaultModelNemotronNano9b.id]: 'nemotron-nano',
+  [defaultModelOpenRouterFree.id]: 'openrouter-free',
 }
 
 /** Build the eval matrix from shipped defaults, requiring a stable CLI slug for every model. */
