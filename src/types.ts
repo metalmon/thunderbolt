@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { LanguageModelV2Usage } from '@ai-sdk/provider'
+import type { CanvasActionMeta } from './fork/zeroclaw/canvas-action-message'
 import type { SourceMetadata } from './types/source'
 import type { UIMessage, UITools } from 'ai'
 import type { DrizzleQuery } from '@powersync/drizzle-driver'
@@ -230,6 +231,10 @@ export type UIMessageMetadata = {
    * model doesn't answer it again.
    */
   stoppedByUser?: boolean
+  /** Canvas Action Channel marker — set when this message originated from a `ui://` canvas control. See `src/fork/zeroclaw/canvas-action-message.ts`. */
+  canvasAction?: CanvasActionMeta
+  /** Agent that emitted this message, when known — used to attribute canvas-origin turns. */
+  emittingAgentId?: string
 }
 
 /**
