@@ -48,6 +48,8 @@ import type {
 import { ClientSideConnection as ClientSideConnectionImpl } from '@agentclientprotocol/sdk'
 import type { Agent, AgentAdapter, AgentAdapterContext, AgentCapabilities, EnsureSessionContext } from '@/types/acp'
 import type { ThunderboltUIMessage } from '@/types'
+import { buildCanvasWireMeta, getCanvasAction } from '@/fork/zeroclaw/canvas-action-message'
+import { buildCanvasCapabilityMeta, supportsCanvasCapability } from '@/fork/zeroclaw/canvas-negotiation'
 import {
   buildFallbackSkillDisclosure,
   buildWireSkillsMeta,
@@ -109,6 +111,7 @@ export const adaptCapabilities = (response: InitializeResponse): AgentCapabiliti
   return {
     loadSession: caps?.loadSession ?? false,
     skills: supportsWireSkills(caps?._meta),
+    canvas: supportsCanvasCapability(caps?._meta),
     // `sessionCapabilities.resume` is an empty `SessionResumeCapabilities`
     // object (`{}`) when supported, `null`/absent otherwise — so presence, not
     // truthiness, is the signal.
@@ -548,7 +551,7 @@ export const connectAcpAdapter = async (
         connection.newSession({
           cwd: sessionCwd,
           mcpServers: [],
-          ...(skillsMeta ? { _meta: skillsMeta } : {}),
+          _meta: { ...(skillsMeta ?? {}), ...buildCanvasCapabilityMeta() },
         }),
       )
       // Defer persistence + transcript seeding to the first real send.
@@ -586,7 +589,7 @@ export const connectAcpAdapter = async (
             sessionId: stored,
             cwd: sessionCwd,
             mcpServers: [],
-            ...(skillsMeta ? { _meta: skillsMeta } : {}),
+            _meta: { ...(skillsMeta ?? {}), ...buildCanvasCapabilityMeta() },
           }),
         ))
       ) {
@@ -600,7 +603,7 @@ export const connectAcpAdapter = async (
             sessionId: stored,
             cwd: sessionCwd,
             mcpServers: [],
-            ...(skillsMeta ? { _meta: skillsMeta } : {}),
+            _meta: { ...(skillsMeta ?? {}), ...buildCanvasCapabilityMeta() },
           }),
         ))
       ) {
@@ -728,9 +731,14 @@ export const connectAcpAdapter = async (
     // synchronous return value so the AI SDK can attach immediately.
     void (async () => {
       try {
+        // Fork: if this turn is a canvas action, attach its MCP-Apps `_meta` so ZeroClaw
+        // dispatches the tool/prompt (Wire B). The action rides the last user message's
+        // metadata (picked the same way buildPromptBlocks selects the turn's user message).
+        const canvasAction = getCanvasAction([...parseRequestMessages(init)].reverse().find((m) => m.role === 'user') ?? {})
         const response = await connection.prompt({
           sessionId,
           prompt,
+          ...(canvasAction ? { _meta: buildCanvasWireMeta(canvasAction) } : {}),
         })
         // The Haystack adapter mirrors citation metadata on the terminal
         // `agent_message_chunk` AND on the `PromptResponse._meta`. Ingesting
