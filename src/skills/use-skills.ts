@@ -97,11 +97,19 @@ export const usePinnedSkills = () => {
   const queryClient = useQueryClient()
   const invalidate = () => queryClient.invalidateQueries({ queryKey: skillsQueryKey })
 
+  const locale = useActiveLocale()
   const { data: pinned = [] } = useQuery({
     queryKey: [...skillsQueryKey, 'pinned'],
     query: toCompilableQuery(getPinnedSkills(db)),
   })
-  const pinnedSkills = pinned as Skill[]
+  // Localize built-in pins for display, exactly as `useSkillsQuery` does — `id` is
+  // preserved, so `pinnedSet` / `togglePin` (which key on `id`) are unaffected. Without
+  // this the composer's pinned pills render the stored English `label` while Settings
+  // (via `useSkillsQuery`) shows the localized name.
+  const pinnedSkills = useMemo(
+    () => (pinned as Skill[]).map((skill) => localizeDefaultSkill(skill, locale)),
+    [pinned, locale],
+  )
 
   const pinnedSet = useMemo(() => new Set(pinnedSkills.map((s) => s.id)), [pinnedSkills])
 
