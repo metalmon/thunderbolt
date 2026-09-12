@@ -4,6 +4,7 @@
 
 import type { LanguageModelV2Usage } from '@ai-sdk/provider'
 import type { TrayIcon } from '@tauri-apps/api/tray'
+import type { CanvasActionMeta } from './fork/zeroclaw/canvas-action-message'
 import type { SourceMetadata } from './types/source'
 import type { Window } from '@tauri-apps/api/window'
 import type { UIMessage, UITools } from 'ai'
@@ -189,6 +190,10 @@ export type UIMessageMetadata = {
    * name + generic icon + no server badge).
    */
   mcpTools?: Record<string, { name: string; url: string; toolName: string }>
+  /** Canvas Action Channel marker — set when this message originated from a `ui://` canvas control. See `src/fork/zeroclaw/canvas-action-message.ts`. */
+  canvasAction?: CanvasActionMeta
+  /** Agent that emitted this message, when known — used to attribute canvas-origin turns. */
+  emittingAgentId?: string
 }
 
 /**
