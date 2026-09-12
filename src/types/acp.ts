@@ -28,6 +28,9 @@ export type AgentCapabilities = {
   /** Agent accepts enabled skill definitions through Thunderbolt's namespaced
    *  ACP session metadata extension. */
   skills: boolean
+  /** Agent advertises MCP-UI `ui://` resource support (Canvas Action Channel)
+   *  through the `io.modelcontextprotocol/ui` ACP session metadata namespace. */
+  canvas: boolean
   /** Agent advertises `sessionCapabilities.resume` (`session/resume`): it can
    *  restore a prior session's private execution state from its own store
    *  WITHOUT replaying the transcript (unlike `loadSession`). Lets the app hand
