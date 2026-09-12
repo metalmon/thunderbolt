@@ -12,6 +12,8 @@ import { PageSearch } from '@/components/ui/page-search'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDatabase } from '@/contexts'
 import { createTask, deleteTask, getIncompleteTasks, getIncompleteTasksCount, updateTask } from '@/dal'
+import { localizeDefaultTask } from '@/fork/i18n/localize-default-task'
+import { useActiveLocale } from '@/i18n/use-active-locale'
 import { verticalAxisModifiers } from '@/lib/dnd'
 import { trackEvent } from '@/lib/posthog'
 import { cn } from '@/lib/utils'
@@ -420,7 +422,7 @@ const useTasksPageState = () => {
 
   // Fetch tasks via PowerSync for reactive/live updates
   const {
-    data: tasks = [],
+    data: rawTasks = [],
     isLoading,
     isPlaceholderData,
   } = useQuery({
@@ -428,6 +430,11 @@ const useTasksPageState = () => {
     query: toCompilableQuery(getIncompleteTasks(db, searchQuery)),
     placeholderData: (previousData) => previousData,
   })
+
+  // Localize built-in demo tasks' `item` for display only; the stored rows stay
+  // canonical English. Re-runs on a language switch, so the list re-localizes instantly.
+  const locale = useActiveLocale()
+  const tasks = useMemo(() => (rawTasks as Task[]).map((task) => localizeDefaultTask(task, locale)), [rawTasks, locale])
 
   if (optimisticTask && tasks.some((task) => task.id === optimisticTask.id)) {
     dispatch({ type: 'ADD_RECONCILED', id: optimisticTask.id })
