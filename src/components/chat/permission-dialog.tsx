@@ -70,6 +70,23 @@ const optionVariant = (kind: PermissionOption['kind']): 'default' | 'destructive
   }
 }
 
+/** Localized label for each ACP permission option kind. The agent sends its own
+ *  `option.name` (English); we render our own copy keyed on the standardized
+ *  `kind` instead. `PermissionOptionKind` is a closed 4-value enum, so this
+ *  switch is exhaustive — no fallback to the agent's text is needed. */
+const optionLabel = (kind: PermissionOption['kind']): MessageDescriptor => {
+  switch (kind) {
+    case 'allow_once':
+      return msg`Allow once`
+    case 'allow_always':
+      return msg`Always allow`
+    case 'reject_once':
+      return msg`Reject`
+    case 'reject_always':
+      return msg`Always reject`
+  }
+}
+
 /** Formats ACP raw tool input as complete plain text for informed approval. */
 const formatToolInput = (input: unknown): string | undefined =>
   typeof input === 'string' ? input : JSON.stringify(input, null, 2)
@@ -152,7 +169,7 @@ export const PermissionDialog = ({
             disabled={responded}
             onClick={() => handleSelect(option)}
           >
-            {option.name}
+            {i18n._(optionLabel(option.kind))}
           </Button>
         ))}
       </div>
