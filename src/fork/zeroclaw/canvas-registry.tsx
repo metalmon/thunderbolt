@@ -7,6 +7,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useContentView } from '@/content-view/context'
 import type { ThunderboltUIMessage } from '@/types'
+import { readEmittingAgentId } from './canvas-emitting-agent'
 import { uiResourceArtifactId } from './ui-resource'
 import { isUiResourcePart, uiResourceOfPart } from './ui-resource-part'
 
@@ -17,9 +18,11 @@ export type CanvasEntry = {
   latestToolCallId: string
   dismissed: boolean
   dismissedAtToolCallId: string | null
+  /** `Agent.id` that emitted the latest part for this uri, or `null` for a legacy (pre-stamp) message. */
+  emittingAgentId: string | null
 }
 
-type LatestRef = { artifactId: string; latestToolCallId: string }
+type LatestRef = { artifactId: string; latestToolCallId: string; emittingAgentId: string | null }
 
 /** Scan messages in order; the LAST `ui://` part per uri is the live anchor (§5 rehydrate). */
 export const computeLatestByUri = (messages: ThunderboltUIMessage[], threadId: string): Map<string, LatestRef> => {
@@ -33,7 +36,11 @@ export const computeLatestByUri = (messages: ThunderboltUIMessage[], threadId: s
       if (!ref) {
         continue
       }
-      map.set(ref.uri, { artifactId: uiResourceArtifactId(threadId, ref.uri), latestToolCallId: part.toolCallId })
+      map.set(ref.uri, {
+        artifactId: uiResourceArtifactId(threadId, ref.uri),
+        latestToolCallId: part.toolCallId,
+        emittingAgentId: readEmittingAgentId(message),
+      })
     }
   }
   return map
