@@ -42,6 +42,7 @@ import type { RequestPermissionRequest, RequestPermissionResponse } from '@agent
 import { DefaultChatTransport, type ChatInit } from 'ai'
 import { v7 as uuidv7 } from 'uuid'
 import { deriveToolKey, findAllowOption, useChatStore } from './chat-store'
+import { applyEmittingAgentStamp } from '@/fork/zeroclaw/canvas-emitting-agent'
 
 export const maxRetries = 3
 const baseRetryDelayMs = 2000
@@ -803,8 +804,13 @@ export const createChatInstance = (
           throw new Error('No session found')
         }
 
+        // Fork: stamp the emitting agent onto the completed assistant message so a
+        // `ui://` canvas action can be gated to the agent that produced it after a
+        // mid-thread agent switch. Stamps the live `instance.messages` copy AND the
+        // persisted one; never overwrites an existing (historical) stamp.
+        const stampedMessage = applyEmittingAgentStamp(instance, instance.messages, message, session.selectedAgent.id)
         finishedTurn.telemetry?.startPhase('final_save')
-        await saveMessages({ id, messages: [message] })
+        await saveMessages({ id, messages: [stampedMessage] })
         finishedTurn.telemetry?.endPhase('final_save')
 
         trackEvent('chat_receive_reply', {
