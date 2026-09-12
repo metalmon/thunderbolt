@@ -10,6 +10,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { ResponsiveModalContentComposable } from '@/components/ui/responsive-modal'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { ArtifactSidebarContent } from '@/content-view/artifact-sidebar-content'
+import { CanvasActionChannelProvider } from '@/fork/zeroclaw/canvas-action-channel'
 import { useContentView } from '@/content-view/context'
 import { ObjectSidebarContent } from '@/content-view/object-sidebar-content'
 import { openTargetWidth } from '@/content-view/panel-width'
@@ -132,8 +133,13 @@ export default function Page() {
     </>
   )
 
+  // Fork: mount the canvas action-channel provider around the WHOLE return — `contentView`
+  // (with ArtifactSidebarContent) renders in BOTH the desktop ResizablePanelGroup and the
+  // mobile <Dialog> below, so wrapping only the group would leave mobile artifact opens
+  // outside the provider (useCanvasActionChannel throws with no provider).
   return (
-    <SidebarInset className="h-full flex flex-col">
+    <CanvasActionChannelProvider>
+      <SidebarInset className="h-full flex flex-col">
       <ResizablePanelGroup orientation="horizontal">
         {/* 360px is the content floor the create-item container query in
             index.css derives its 840px breakpoint from (480px
@@ -222,6 +228,7 @@ export default function Page() {
           </ResponsiveModalContentComposable>
         </Dialog>
       )}
-    </SidebarInset>
+      </SidebarInset>
+    </CanvasActionChannelProvider>
   )
 }
