@@ -29,8 +29,10 @@ export type AgentCapabilities = {
    *  ACP session metadata extension. */
   skills: boolean
   /** Agent advertises MCP-UI `ui://` resource support (Canvas Action Channel)
-   *  through the `io.modelcontextprotocol/ui` ACP session metadata namespace. */
-  canvas: boolean
+   *  through the `io.modelcontextprotocol/ui` ACP session metadata namespace.
+   *  Optional so upstream capability fixtures (which predate this field) stay valid;
+   *  the ACP adapter always populates it via `supportsCanvasCapability`. */
+  canvas?: boolean
   /** Agent advertises `sessionCapabilities.resume` (`session/resume`): it can
    *  restore a prior session's private execution state from its own store
    *  WITHOUT replaying the transcript (unlike `loadSession`). Lets the app hand
