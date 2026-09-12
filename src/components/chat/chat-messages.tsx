@@ -23,6 +23,9 @@ import { isBuiltInAgent } from '@/defaults/agents'
 import { QuoteReplyButton } from './quote-reply-button'
 import { selectDebugTranscriptsEnabled, useConfigStore } from '@/api/config-store'
 import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
+import { isHiddenCanvasAssistantTurn } from '@/fork/zeroclaw/canvas-action-message'
+import { DevUiCanvasInject, uiCanvasMockEnabled } from '@/fork/zeroclaw/dev-ui-canvas-inject'
+import { DevCanvasActionMock } from '@/fork/zeroclaw/dev-canvas-mock'
 import type { ThunderboltUIMessage } from '@/types'
 import { useShowCompactionSummary } from '@/content-view/context'
 import { CompactionNotice } from '../context-usage'
@@ -181,10 +184,18 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   return (
     <CanvasRegistryProvider messages={messages} threadId={sessionId}>
       <div>
+        {/* Fork DEV-ONLY (opt-in via `zcmock` flag): canvas inject buttons + the
+            action-channel mock resolver. Prod no-op (flag off). */}
+        {uiCanvasMockEnabled() && <DevUiCanvasInject setMessages={setMessages} />}
+        {uiCanvasMockEnabled() && <DevCanvasActionMock messages={messages} setMessages={setMessages} />}
         {visibleMessages.map((message) => {
           const isLast = message.id === lastMessage?.id
           const checkpoint = message.metadata?.contextCompaction
-          const hideAssistant = (hasError || pendingEmptyTurnRecovery) && !message.parts?.length
+          // Fork: a tool-only canvas action produces a SILENT assistant turn (only
+          // canvas:-prefixed tool parts, no text) — suppress it from the transcript
+          // (spec §9 "no new chat bubble"). Rendering-only; the message stays in data.
+          const hideAssistant =
+            ((hasError || pendingEmptyTurnRecovery) && !message.parts?.length) || isHiddenCanvasAssistantTurn(message)
 
           return (
             <Fragment key={message.id}>
