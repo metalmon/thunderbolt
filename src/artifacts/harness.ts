@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { buildCanvasBridgeScript } from '@/fork/zeroclaw/canvas-bridge-script'
+
 /**
  * Message the in-iframe harness posts to the parent window. The `artifactNonce`
  * correlates the message with the render that produced it, so a page cannot
@@ -175,7 +177,7 @@ const injectIntoHead = (html: string, injected: string): string => {
  * this invariant guards against.
  */
 export const wrapArtifactHtml = (html: string, nonce: string, themeStyle = ''): string =>
-  injectIntoHead(html, `${cspMetaTag()}${themeStyle}${harnessScript(nonce)}`)
+  injectIntoHead(html, `${cspMetaTag()}${themeStyle}${harnessScript(nonce)}${buildCanvasBridgeScript(nonce)}`)
 
 /**
  * Wrap the (partial) HTML for the scripts-off streaming preview: inject ONLY the
