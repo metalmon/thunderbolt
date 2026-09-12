@@ -7,7 +7,8 @@ import { describe, expect, it } from 'bun:test'
 import { computeLatestByUri, deriveChipState, isGenuineClose } from './canvas-registry'
 import { uiResourceArtifactId } from './ui-resource'
 
-const msg = (parts: unknown[]) => ({ id: 'm', role: 'assistant', parts }) as never
+const msg = (parts: unknown[], metadata?: Record<string, unknown>) =>
+  ({ id: 'm', role: 'assistant', parts, metadata }) as never
 const uiPart = (toolCallId: string, uri: string) => ({
   type: 'tool-canvas',
   toolCallId,
@@ -21,6 +22,7 @@ describe('computeLatestByUri', () => {
     expect(map.get('ui://pnl/x')).toEqual({
       artifactId: uiResourceArtifactId('t1', 'ui://pnl/x'),
       latestToolCallId: 'b',
+      emittingAgentId: null,
     })
   })
 
@@ -29,6 +31,16 @@ describe('computeLatestByUri', () => {
     const mapA = computeLatestByUri(messages, 'thread-a')
     const mapB = computeLatestByUri(messages, 'thread-b')
     expect(mapA.get('ui://pnl/x')?.artifactId).not.toBe(mapB.get('ui://pnl/x')?.artifactId)
+  })
+
+  it('surfaces emittingAgentId from the owning message metadata', () => {
+    const map = computeLatestByUri([msg([uiPart('a', 'ui://pnl/x')], { emittingAgentId: 'agent-1' })], 't1')
+    expect(map.get('ui://pnl/x')?.emittingAgentId).toBe('agent-1')
+  })
+
+  it('defaults emittingAgentId to null for a legacy (pre-stamp) message', () => {
+    const map = computeLatestByUri([msg([uiPart('a', 'ui://pnl/x')])], 't1')
+    expect(map.get('ui://pnl/x')?.emittingAgentId).toBeNull()
   })
 })
 
@@ -39,6 +51,7 @@ describe('deriveChipState', () => {
     latestToolCallId: 'b',
     dismissed: false,
     dismissedAtToolCallId: null,
+    emittingAgentId: null,
     ...over,
   })
   it('superseded when not the latest part', () => {
