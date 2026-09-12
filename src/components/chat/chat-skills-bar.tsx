@@ -169,7 +169,11 @@ export const ChatSkillsBar = ({
   // Pinnable = enabled and not already pinned. The popover only ever lists
   // pin candidates, never a dual "pin / unpin" surface — unpin lives on the
   // chip's own dropdown.
-  const pinnable = library.filter((s) => !isWidgetSkillId(s.id) && isEnabled(s.id) && !pinnedSet.has(s.id))
+  // Widget skills (weather, map, …) are pin-manageable like any other: pinning is a
+  // display-only preference and never touches the model-facing widget contract, so they
+  // can be unpinned from the chip and re-pinned here. Only content-editing stays locked
+  // (see `onEdit` below).
+  const pinnable = library.filter((s) => isEnabled(s.id) && !pinnedSet.has(s.id))
   const query = addQuery.trim()
   const pinnableFiltered = pinnable.filter((s) => skillMatchesQuery(s, query))
   const pinCapReached = pinnedSet.size >= maxPinnedSkills
@@ -326,7 +330,7 @@ export const ChatSkillsBar = ({
                     dispatch({ type: 'REORDER_OPENED' })
                   }
             }
-            onUnpin={isWidgetSkillId(skill.id) ? undefined : () => handleTogglePin(skill, 'unpin')}
+            onUnpin={() => handleTogglePin(skill, 'unpin')}
           />
         ))}
         {addControl}
