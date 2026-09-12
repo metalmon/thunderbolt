@@ -5,6 +5,8 @@
 import { ArtifactActions } from '@/components/artifact/artifact-actions'
 import { ArtifactErrorStrip } from '@/components/artifact/artifact-error-strip'
 import { SandboxedHtmlFrame } from '@/components/artifact/sandboxed-html-frame'
+import { useCanvasActionChannel } from '@/fork/zeroclaw/canvas-action-channel'
+import { CanvasReadOnlyBanner } from '@/fork/zeroclaw/canvas-read-only-banner'
 import { useRef, useState } from 'react'
 import { type ArtifactViewData } from './context'
 import { ContentViewHeader } from './header'
@@ -21,6 +23,7 @@ type ArtifactSidebarContentProps = {
  * Post-load runtime errors surface as a strip here too, matching the inline card.
  */
 export const ArtifactSidebarContent = ({ data, onClose }: ArtifactSidebarContentProps) => {
+  const { handleBridgeMessage, nonceRef, isReadOnly, emittingAgentName } = useCanvasActionChannel()
   const [runtimeError, setRuntimeError] = useState<string | null>(null)
   // Clear a stale error only at a reload boundary (a new document). Clearing on `ready` instead
   // would wipe an error the harness reports during initial load — it fires before `ready`, so the
@@ -41,9 +44,16 @@ export const ArtifactSidebarContent = ({ data, onClose }: ArtifactSidebarContent
         className="md:bg-card"
         actions={<ArtifactActions html={data.html} title={data.title} />}
       />
+      {isReadOnly && <CanvasReadOnlyBanner emittingAgentName={emittingAgentName} />}
       {runtimeError && <ArtifactErrorStrip message={runtimeError} />}
       <div className="min-h-0 flex-1 bg-white">
-        <SandboxedHtmlFrame html={data.html} title={data.title} onError={setRuntimeError} />
+        <SandboxedHtmlFrame
+          html={data.html}
+          title={data.title}
+          onError={setRuntimeError}
+          onBridgeMessage={handleBridgeMessage}
+          nonceRef={nonceRef}
+        />
       </div>
     </div>
   )
