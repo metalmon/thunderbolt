@@ -17,6 +17,9 @@ import { useHaptics } from '@/hooks/use-haptics'
 import { useAttachmentRemediation } from './use-attachment-remediation'
 import { QuoteReplyButton } from './quote-reply-button'
 import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
+import { isHiddenCanvasAssistantTurn } from '@/fork/zeroclaw/canvas-action-message'
+import { DevUiCanvasInject, uiCanvasMockEnabled } from '@/fork/zeroclaw/dev-ui-canvas-inject'
+import { DevCanvasActionMock } from '@/fork/zeroclaw/dev-canvas-mock'
 
 type ChatMessagesProps = {
   useChat?: typeof useChat_default
@@ -110,6 +113,10 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   return (
     <CanvasRegistryProvider messages={messages} threadId={id}>
       <div>
+        {/* Fork DEV-ONLY (opt-in via `zcmock` flag): canvas inject buttons + the
+            action-channel mock resolver. Prod no-op (flag off). */}
+        {uiCanvasMockEnabled() && <DevUiCanvasInject setMessages={setMessages} />}
+        {uiCanvasMockEnabled() && <DevCanvasActionMock messages={messages} setMessages={setMessages} />}
         {messages.map((message) => {
           // Skip OAuth retry messages (they're hidden, only used to trigger regeneration)
           if (message.metadata?.oauthRetry === true) {
@@ -120,6 +127,13 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
             // Hide empty assistant messages during errors — these are broken responses
             // that regenerate() will remove. Messages with parts are valid responses.
             if ((hasError || pendingEmptyTurnRecovery) && !message.parts?.length) {
+              return null
+            }
+
+            // Fork: a tool-only canvas action produces a SILENT assistant turn (only
+            // canvas:-prefixed tool parts, no text) — suppress it from the transcript
+            // (spec §9 "no new chat bubble"). Rendering-only; the message stays in data.
+            if (isHiddenCanvasAssistantTurn(message)) {
               return null
             }
 
