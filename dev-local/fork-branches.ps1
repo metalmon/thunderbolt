@@ -59,6 +59,7 @@ $ForkBranches = @(
     "fork/chat-scroll",
     "fork/hide-integrations",
     "fork/docx-viewer",
+    "fork/perm-title-interim",
     "fork/dev"
 )
 
@@ -78,5 +79,6 @@ $ForkMainRangeBranches = @(
     "fork/chat-scroll",
     "fork/hide-integrations",
     "fork/docx-viewer",
+    "fork/perm-title-interim",
     "fork/dev"
 )
