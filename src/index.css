@@ -56,9 +56,11 @@
      fallback deterministic on platforms where system-ui lacks CJK coverage
      (notably Linux for the Tauri desktop build) — macOS/Windows resolve via
      system-ui first and never reach them. */
+  /* Cyrillic resolves to the fork's bundled 'Plantin Cyr MT' (src/fork/typography)
+     instead of generic system-ui, so Russian display headings keep a real typeface. */
   --font-heading:
-    'Mozilla Headline Variable', ui-sans-serif, system-ui, 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP',
-    'Noto Sans JP', sans-serif;
+    'Mozilla Headline Variable', 'Plantin Cyr MT', ui-sans-serif, system-ui, 'Hiragino Sans', 'Yu Gothic',
+    'Noto Sans CJK JP', 'Noto Sans JP', sans-serif;
 
   /* No pure white/black anywhere — remap Tailwind's white/black utilities
      (bg-white, text-white, bg-black/40 overlays, etc.) to the theme's off-white
