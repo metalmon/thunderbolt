@@ -11,6 +11,8 @@ import {
 } from '@/artifacts/harness'
 import { registerSandboxContent, type SandboxHandle } from '@/artifacts/sandbox-host'
 import { buildThemeStyleTag, resolveArtifactColorScheme, snapshotThemeTokens } from '@/artifacts/theme-tokens'
+import { parseCanvasBridgeMessage } from '@/fork/zeroclaw/canvas-bridge-host'
+import type { JsonRpcNotification, JsonRpcRequest } from '@/fork/zeroclaw/canvas-bridge-protocol'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -64,6 +66,25 @@ export type SandboxedHtmlFrameProps = {
   onReady?: () => void
   /** Fired if the page reports a runtime error (including after load, during use). */
   onError?: (error: string) => void
+  /**
+   * Fork hook (Canvas Action Channel): fired for each validated Wire A JSON-RPC
+   * request/notification the in-iframe canvas bridge script posts to the host.
+   * `frame.post` sends a message back into this same iframe — e.g. a JSON-RPC
+   * response or a `ui/notifications/*` push — WITHOUT touching `wrappedHtml`,
+   * so the frame stays mounted and does not reload (Model B). The routing/
+   * business logic lives in the fork controller that supplies this callback;
+   * this component only plumbs messages through.
+   */
+  onBridgeMessage?: (
+    msg: JsonRpcRequest | JsonRpcNotification,
+    frame: { nonce: string; post: (m: unknown) => void },
+  ) => void
+  /**
+   * Fork hook: called once with this mounted frame's per-render nonce, so a
+   * controller outside this component can correlate later `onBridgeMessage`
+   * calls (and any `post`s it issues) with the right iframe instance.
+   */
+  nonceRef?: (nonce: string) => void
 }
 
 /**
@@ -84,12 +105,22 @@ export const SandboxedHtmlFrame = ({
   autoHeight = false,
   onReady,
   onError,
+  onBridgeMessage,
+  nonceRef,
 }: SandboxedHtmlFrameProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   // One nonce per mounted frame; correlates the harness's messages with this iframe. useState (not
   // useMemo) so it's a real stability guarantee — React may drop a useMemo cache and recompute,
   // which would regenerate the nonce, silently reload the iframe, and re-key the message listener.
   const [nonce] = useState(() => crypto.randomUUID())
+  // Publish the nonce once per mount so a fork controller outside this component can
+  // correlate it with later `onBridgeMessage` calls. `nonce` is stable for the life of
+  // the mount (see above), so this fires exactly once — a legitimate one-time effect,
+  // not a derived value computable during render (the controller lives outside this tree).
+  useEffect(() => {
+    nonceRef?.(nonce)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- publish once per mount; nonce is stable for the mount's lifetime
+  }, [])
 
   // Theme tokens (spec §6): snapshot what's applied now for the initial render, then
   // re-snapshot whenever the resolved theme CLASS changes. There is no live in-frame
@@ -128,6 +159,8 @@ export const SandboxedHtmlFrame = ({
   onReadyRef.current = onReady
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
+  const onBridgeMessageRef = useRef(onBridgeMessage)
+  onBridgeMessageRef.current = onBridgeMessage
 
   // Register the wrapped HTML with the sandbox host; the resulting URL is what the
   // iframe loads. Re-register when the document changes; revoke on change/unmount.
@@ -172,6 +205,20 @@ export const SandboxedHtmlFrame = ({
         const next = Math.min(maxAutoHeightPx, Math.max(minAutoHeightPx, Math.round(data.height)))
         // Ignore sub-pixel jitter so a self-measuring page can't oscillate.
         setContentHeight((prev) => (prev !== null && Math.abs(prev - next) <= 1 ? prev : next))
+      }
+      // Fork hook (Canvas Action Channel, Wire A): a sibling parse for the canvas bridge
+      // script's JSON-RPC messages, gated the same way as the harness branch above (same
+      // iframe, same nonce). `frame.post` below writes into the SAME iframe document via
+      // postMessage — it never touches `wrappedHtml`/`src`, so the frame is never
+      // re-registered or reloaded for a data update (Model B: mounted-frame updates only).
+      if (onBridgeMessageRef.current) {
+        const bridge = parseCanvasBridgeMessage(event, iframeRef.current?.contentWindow ?? null, nonce)
+        if (bridge) {
+          onBridgeMessageRef.current(bridge, {
+            nonce,
+            post: (m) => iframeRef.current?.contentWindow?.postMessage(m, '*'),
+          })
+        }
       }
     }
     window.addEventListener('message', handleMessage)
