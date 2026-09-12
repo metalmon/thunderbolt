@@ -9,6 +9,11 @@ import { usePendingQuotesStore } from '@/chats/pending-quotes-store'
 import { useParams } from 'react-router'
 import { useArtifactContextStore } from '@/artifacts/artifact-context-store'
 import { useEffect, useRef, useState } from 'react'
+import { ArtifactErrorStrip } from '@/components/artifact/artifact-error-strip'
+import { SandboxedHtmlFrame } from '@/components/artifact/sandboxed-html-frame'
+import { useCanvasActionChannel } from '@/fork/zeroclaw/canvas-action-channel'
+import { CanvasReadOnlyBanner } from '@/fork/zeroclaw/canvas-read-only-banner'
+import { useRef, useState } from 'react'
 import { type ArtifactViewData } from './context'
 import { ContentViewHeader } from './header'
 
@@ -24,6 +29,7 @@ type ArtifactSidebarContentProps = {
  * Post-load runtime errors surface as a strip here too, matching the inline card.
  */
 export const ArtifactSidebarContent = ({ data, onClose }: ArtifactSidebarContentProps) => {
+  const { handleBridgeMessage, nonceRef, isReadOnly, emittingAgentName } = useCanvasActionChannel()
   const [runtimeError, setRuntimeError] = useState<string | null>(null)
   /*
    * The thread a highlighted passage belongs to.
@@ -107,6 +113,15 @@ export const ArtifactSidebarContent = ({ data, onClose }: ArtifactSidebarContent
           onError={setRuntimeError}
           onAsk={askAbout}
           onContextChange={setArtifactContext}
+      {isReadOnly && <CanvasReadOnlyBanner emittingAgentName={emittingAgentName} />}
+      {runtimeError && <ArtifactErrorStrip message={runtimeError} />}
+      <div className="min-h-0 flex-1 bg-white">
+        <SandboxedHtmlFrame
+          html={data.html}
+          title={data.title}
+          onError={setRuntimeError}
+          onBridgeMessage={handleBridgeMessage}
+          nonceRef={nonceRef}
         />
       </div>
     </div>
