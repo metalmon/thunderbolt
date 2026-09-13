@@ -25,6 +25,10 @@ export const CANVAS_JSONRPC_ERRORS = {
   RATE_LIMITED: { code: -32005, message: 'rate limited' },
   /** A `tools/call` request is missing its required `name` param. */
   INVALID_PARAMS: { code: -32602, message: 'invalid params: name is required' },
+  /** A chat turn is already in flight on this session: accepting another canvas action now would
+   *  start a re-entrant `makeRequest` on the one active `Chat`, clobbering its single in-flight
+   *  response slot (crash). The app should retry once the current turn settles. */
+  BUSY: { code: -32002, message: 'host busy: a turn is already in progress' },
 } as const
 
 /** The outcome of {@link classifyCanvasRequest}: either proceed, or reject with a named error. */
