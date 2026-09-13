@@ -244,6 +244,11 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       return
     }
 
+    // A turn is mid-flight on the active Chat. `ui/initialize` (below) only posts a synchronous
+    // reply and is always safe; the two send paths (`tools/call`, `ui/prompt`) must not start a
+    // second `makeRequest` on top of it — see the BUSY rejection in each branch.
+    const isTurnActive = status === 'submitted' || status === 'streaming'
+
     if (msg.method === CANVAS_BRIDGE_METHODS.UI_INITIALIZE) {
       if (!isJsonRpcRequest(msg)) {
         return
@@ -261,6 +266,15 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
 
     if (msg.method === CANVAS_BRIDGE_METHODS.TOOLS_CALL) {
       if (!isJsonRpcRequest(msg)) {
+        return
+      }
+      // Serialize sends: proxying a canvas action calls `sendMessage`, which starts a `makeRequest`
+      // on the one active `Chat`. Doing that while a turn is still streaming re-enters `makeRequest`
+      // and clobbers its single `activeResponse` slot (`Cannot read properties of undefined (reading
+      // 'state')`). An app that retries a hung `tools/call` mid-turn hits exactly this. Reject with a
+      // retryable BUSY instead — checked before the rate limiter so a busy reject costs no budget.
+      if (isTurnActive) {
+        frame.post(buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.BUSY.code, CANVAS_JSONRPC_ERRORS.BUSY.message))
         return
       }
       // Gate order matters here: no-canvas and read-only are checked BEFORE the rate limiter is
@@ -303,6 +317,15 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
     if (msg.method === CANVAS_BRIDGE_METHODS.UI_PROMPT) {
       const prompt = readPromptParam(msg.params)
       if (activeCanvasRef === null || !prompt) {
+        return
+      }
+      // Same serialization guard as `tools/call`: `ui/prompt` also calls `sendMessage`, so starting
+      // it mid-turn would re-enter `makeRequest`. It's a fire-and-forget notification (no id to
+      // reply to), so a busy host drops it silently — the app owns retry timing.
+      if (isTurnActive) {
+        if (isJsonRpcRequest(msg)) {
+          frame.post(buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.BUSY.code, CANVAS_JSONRPC_ERRORS.BUSY.message))
+        }
         return
       }
       // `ui/prompt` is fire-and-forget: it has no rate limit to gate lazily, so unlike `tools/call`
