@@ -12,6 +12,7 @@ import {
   buildToolInputNotification,
   buildToolResultNotification,
   parseCanvasBridgeMessage,
+  stampCanvasNonce,
 } from './canvas-bridge-host'
 
 describe('parseCanvasBridgeMessage', () => {
@@ -39,6 +40,34 @@ describe('parseCanvasBridgeMessage', () => {
 
   it('returns null when data is missing', () => {
     expect(parseCanvasBridgeMessage({ source: win, data: undefined } as MessageEvent, win, nonce)).toBeNull()
+  })
+})
+
+describe('stampCanvasNonce', () => {
+  const nonce = 'nonce-1'
+
+  it('stamps artifactNonce onto an object message', () => {
+    const result = buildJsonRpcResult(1, { ok: true })
+    expect(stampCanvasNonce(result, nonce)).toEqual({ ...result, artifactNonce: nonce })
+  })
+
+  it('makes a host response satisfy the in-iframe listener nonce gate', () => {
+    // The in-iframe bridge listener (canvas-bridge-script.ts) drops any message
+    // whose `data.artifactNonce !== NONCE`. Regression for the handshake-hang
+    // bug: a JSON-RPC RESPONSE (id+result, no `method`) carries no nonce of its
+    // own, so `post` must stamp it — otherwise `initialize()` never resolves.
+    const stamped = stampCanvasNonce(buildJsonRpcResult(1, { ok: true }), nonce) as { artifactNonce?: string }
+    expect(stamped.artifactNonce).toBe(nonce)
+  })
+
+  it('leaves an unstamped response failing that gate (proves the stamp is required)', () => {
+    const unstamped = buildJsonRpcResult(1, { ok: true }) as { artifactNonce?: string }
+    expect(unstamped.artifactNonce).toBeUndefined()
+  })
+
+  it('passes non-object payloads through untouched', () => {
+    expect(stampCanvasNonce('ping', nonce)).toBe('ping')
+    expect(stampCanvasNonce(null, nonce)).toBeNull()
   })
 })
 
