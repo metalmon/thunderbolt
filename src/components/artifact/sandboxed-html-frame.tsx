@@ -11,7 +11,7 @@ import {
 } from '@/artifacts/harness'
 import { registerSandboxContent, type SandboxHandle } from '@/artifacts/sandbox-host'
 import { buildThemeStyleTag, resolveArtifactColorScheme, snapshotThemeTokens } from '@/artifacts/theme-tokens'
-import { parseCanvasBridgeMessage } from '@/fork/zeroclaw/canvas-bridge-host'
+import { parseCanvasBridgeMessage, stampCanvasNonce } from '@/fork/zeroclaw/canvas-bridge-host'
 import type { JsonRpcNotification, JsonRpcRequest } from '@/fork/zeroclaw/canvas-bridge-protocol'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -216,7 +216,11 @@ export const SandboxedHtmlFrame = ({
         if (bridge) {
           onBridgeMessageRef.current(bridge, {
             nonce,
-            post: (m) => iframeRef.current?.contentWindow?.postMessage(m, '*'),
+            // Stamp the frame nonce on every host→iframe message: the in-iframe
+            // bridge listener drops anything whose `artifactNonce` doesn't match
+            // (symmetric with `parseCanvasBridgeMessage`'s inbound gate), so an
+            // unstamped response would hang the handshake.
+            post: (m) => iframeRef.current?.contentWindow?.postMessage(stampCanvasNonce(m, nonce), '*'),
           })
         }
       }
