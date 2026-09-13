@@ -307,6 +307,14 @@ msgid "All skills are pinned"
 msgstr "All skills are pinned"
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr "Allow once"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr "Always allow"
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr "Always allow all actions of this kind"
 
@@ -333,6 +341,10 @@ msgstr "Always allow everything from this agent"
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
 msgstr "Always ask"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
+msgstr "Always reject"
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
@@ -387,6 +399,11 @@ msgstr "Applied to every chat in this project."
 #: src/settings/devices.tsx
 msgid "Approve"
 msgstr "Approve"
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
+msgstr "Approve {0}?"
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -1787,6 +1804,10 @@ msgstr "Font for reading chat messages."
 msgid "Food & drink"
 msgstr "Food & drink"
 
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr "From the canvas"
+
 #: src/settings/voice.tsx
 msgid "Gemini API key"
 msgstr "Gemini API key"
@@ -2826,6 +2847,14 @@ msgstr "Reachable {relative}"
 msgid "Read your emails and compose drafts."
 msgstr "Read your emails and compose drafts."
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr "Read-only snapshot — switch back to the original agent to interact"
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr "Read-only snapshot from {emittingAgentName} — switch back to interact"
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr "Read, compose, and organize your emails."
@@ -2873,6 +2902,10 @@ msgstr "Recovery phrase"
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Registering this device and detecting your account status."
 msgstr "Registering this device and detecting your account status."
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
+msgstr "Reject"
 
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx

@@ -319,6 +319,14 @@ msgid "All skills are pinned"
 msgstr "Toutes les compétences sont épinglées"
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr "Toujours autoriser toutes les actions de ce type"
 
@@ -345,6 +353,10 @@ msgstr "Toujours tout autoriser depuis cet agent"
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
 msgstr "Toujours demander"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
+msgstr ""
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
@@ -399,6 +411,11 @@ msgstr "Appliqué à toutes les conversations de ce projet."
 #: src/settings/devices.tsx
 msgid "Approve"
 msgstr "Approuver"
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -1799,6 +1816,10 @@ msgstr ""
 msgid "Food & drink"
 msgstr "Nourriture et boissons"
 
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Gemini API key"
 msgstr ""
@@ -2838,6 +2859,14 @@ msgstr "Joignable {relative}"
 msgid "Read your emails and compose drafts."
 msgstr "Lire vos e-mails et rédiger des brouillons."
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr ""
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr "Lire, rédiger et organiser vos e-mails."
@@ -2885,6 +2914,10 @@ msgstr "Phrase de récupération"
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Registering this device and detecting your account status."
 msgstr "Enregistrement de cet appareil et détection de l'état de votre compte."
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
+msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx

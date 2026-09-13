@@ -307,6 +307,14 @@ msgid "All skills are pinned"
 msgstr ""
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr ""
 
@@ -332,6 +340,10 @@ msgstr ""
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
 msgstr ""
 
 #: src/lib/tool-metadata.ts
@@ -386,6 +398,11 @@ msgstr ""
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "Approve"
+msgstr ""
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
 msgstr ""
 
 #: src/settings/devices.tsx
@@ -1787,6 +1804,10 @@ msgstr ""
 msgid "Food & drink"
 msgstr ""
 
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Gemini API key"
 msgstr ""
@@ -2826,6 +2847,14 @@ msgstr ""
 msgid "Read your emails and compose drafts."
 msgstr ""
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr ""
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr ""
@@ -2872,6 +2901,10 @@ msgstr ""
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Registering this device and detecting your account status."
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
 msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx

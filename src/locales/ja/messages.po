@@ -295,6 +295,14 @@ msgid "All skills are pinned"
 msgstr "すべてのスキルがピン留めされています"
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr "この種類の操作を常に許可"
 
@@ -321,6 +329,10 @@ msgstr "このエージェントからのすべてを常に許可"
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
 msgstr "常に確認する"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
+msgstr ""
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
@@ -375,6 +387,11 @@ msgstr "このプロジェクトのすべてのチャットに適用されます
 #: src/settings/devices.tsx
 msgid "Approve"
 msgstr "承認"
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -1775,6 +1792,10 @@ msgstr ""
 msgid "Food & drink"
 msgstr "食べ物と飲み物"
 
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Gemini API key"
 msgstr ""
@@ -2814,6 +2835,14 @@ msgstr "{relative}に到達"
 msgid "Read your emails and compose drafts."
 msgstr "メールを読み、下書きを作成します。"
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr ""
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr "メールの読み取り、作成、整理を行います。"
@@ -2861,6 +2890,10 @@ msgstr "リカバリーフレーズ"
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Registering this device and detecting your account status."
 msgstr "このデバイスを登録し、アカウントの状態を確認しています。"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
+msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx
