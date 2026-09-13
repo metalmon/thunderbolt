@@ -32,6 +32,22 @@ export const parseCanvasBridgeMessage = (
 }
 
 /**
+ * Stamp the frame's per-render nonce onto a host→iframe message so the
+ * in-iframe bridge listener accepts it. The exact inverse of
+ * {@link parseCanvasBridgeMessage}'s inbound gate: the script drops any
+ * message whose `artifactNonce` doesn't match (`canvas-bridge-script.ts`),
+ * so every response and notification the host posts back must carry it —
+ * mirroring how the script stamps its own outbound messages. Non-object
+ * payloads pass through untouched (the builders always return objects, but
+ * `post` accepts `unknown`). A pure function; the frame's `post` sends the
+ * result.
+ */
+export const stampCanvasNonce = (message: unknown, nonce: string): unknown =>
+  message && typeof message === 'object'
+    ? { ...(message as Record<string, unknown>), artifactNonce: nonce }
+    : message
+
+/**
  * Build a successful JSON-RPC response to a `tools/call` (or other)
  * request. A pure builder — it returns the message object rather than
  * posting it; the frame's own `post` function sends it.
