@@ -4,9 +4,9 @@
 
 /* Fork-owned (metalmon). New file — do not upstream. */
 
-import { writeFile, mkdir, BaseDirectory } from '@tauri-apps/plugin-fs'
+import { invoke } from '@tauri-apps/api/core'
+import { save } from '@tauri-apps/plugin-dialog'
 import { openPath } from '@tauri-apps/plugin-opener'
-import { appLocalDataDir, join } from '@tauri-apps/api/path'
 import { getAttachment } from '@/lib/file-blob-storage'
 import { isTauriDesktop } from '@/lib/platform'
 import { saveBlobUrl } from './save-file'
@@ -31,24 +31,22 @@ export const downloadStoredFile = async (localFileId: string, filename: string):
   try {
     await saveBlobUrl(url, filename)
   } finally {
-    // saveBlobUrl has finished reading the blob (it awaits the write / fires the
-    // anchor click synchronously), so the object URL is safe to revoke now.
     URL.revokeObjectURL(url)
   }
 }
-
-/** Strip path separators so a filename can't escape the target directory. */
-const safeName = (filename: string): string => filename.replace(/[/\\]/g, '_').replace(/^\.+/, '') || 'file'
 
 /** Whether {@link downloadAndOpenNatively} can run on this platform (Tauri desktop only). */
 export const canOpenNatively = (): boolean => isTauriDesktop()
 
 /**
- * Write a stored local file into the app's data dir and open it with the OS
- * default application (Tauri desktop only — the sandboxed web build cannot hand a
- * file to a native app). The copy persists under `opened-files/` so the launched
- * app keeps a valid handle. No-op (returns false) when unavailable or the file
- * isn't in blob storage.
+ * Save a stored local file to a location the user picks in the native "Save As"
+ * dialog, then open it with the OS default application (Tauri desktop only — the
+ * sandboxed web build can neither choose an arbitrary path nor hand a file to a
+ * native app). The bytes are written by the `save_bytes_to_path` Rust command
+ * rather than the scoped `fs` plugin, so the destination isn't capability-limited.
+ *
+ * @returns `true` once opened; `false` when unavailable, the user cancelled the
+ *   dialog, or the file isn't in blob storage.
  */
 export const downloadAndOpenNatively = async (localFileId: string, filename: string): Promise<boolean> => {
   if (!isTauriDesktop()) {
@@ -58,10 +56,12 @@ export const downloadAndOpenNatively = async (localFileId: string, filename: str
   if (!blob) {
     return false
   }
-  const dir = 'opened-files'
-  const relPath = `${dir}/${safeName(filename)}`
-  await mkdir(dir, { baseDir: BaseDirectory.AppLocalData, recursive: true })
-  await writeFile(relPath, new Uint8Array(await blob.arrayBuffer()), { baseDir: BaseDirectory.AppLocalData })
-  await openPath(await join(await appLocalDataDir(), relPath))
+  const path = await save({ defaultPath: filename })
+  if (!path) {
+    return false // user cancelled the dialog
+  }
+  const contents = Array.from(new Uint8Array(await blob.arrayBuffer()))
+  await invoke('save_bytes_to_path', { path, contents })
+  await openPath(path)
   return true
 }
