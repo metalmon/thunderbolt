@@ -359,4 +359,98 @@ describe('useChatAutomation', () => {
 
     expect(mockChatInstance.regenerate).not.toHaveBeenCalled()
   })
+
+  it('routes the auto-regenerate through the session send queue when one is wired', async () => {
+    const messages: ThunderboltUIMessage[] = [
+      {
+        id: 'msg-1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Hello' }],
+      },
+    ]
+    const mockChatInstance = createMockChatInstance(messages, 'ready')
+    const mockUseChat = createMockUseChat(mockChatInstance)
+
+    hydrateStore({
+      chatInstance: mockChatInstance,
+      chatThread: null,
+      id: 'thread-1',
+      mcpClients: [],
+      models: [],
+      selectedModel: null,
+      triggerData: null,
+    })
+
+    // Fork (session turn serialization, final-review fix): a fake send queue
+    // that isn't busy — `send` runs `start` synchronously, mirroring the real
+    // queue's immediate-send path, so the underlying `regenerate()` still
+    // fires but is now attributed to the queue (which is what makes
+    // `turnInFlight` reflect this turn in production).
+    const send = mock((op: { start: () => Promise<unknown> | void; queueable: boolean }) => ({
+      status: 'sent' as const,
+      sent: Promise.resolve(op.start()),
+    }))
+    const sendQueue = {
+      isBusy: mock(() => false),
+      send,
+      onTurnSettled: mock(() => {}),
+      subscribe: mock(() => () => {}),
+      dispose: mock(() => {}),
+    }
+    useChatStore.getState().updateSession('thread-1', { sendQueue })
+
+    renderHook(() => useChatAutomation({ useChat: mockUseChat }), {
+      wrapper: createQueryTestWrapper(),
+    })
+
+    await act(async () => {
+      await getClock().runAllAsync()
+    })
+
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ queueable: false }))
+    expect(mockChatInstance.regenerate).toHaveBeenCalled()
+  })
+
+  it('does not regenerate when the session send queue reports a turn already in flight', async () => {
+    const messages: ThunderboltUIMessage[] = [
+      {
+        id: 'msg-1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Hello' }],
+      },
+    ]
+    const mockChatInstance = createMockChatInstance(messages, 'ready')
+    const mockUseChat = createMockUseChat(mockChatInstance)
+
+    hydrateStore({
+      chatInstance: mockChatInstance,
+      chatThread: null,
+      id: 'thread-1',
+      mcpClients: [],
+      models: [],
+      selectedModel: null,
+      triggerData: null,
+    })
+
+    const send = mock(() => ({ status: 'sent' as const }))
+    const sendQueue = {
+      isBusy: mock(() => true),
+      send,
+      onTurnSettled: mock(() => {}),
+      subscribe: mock(() => () => {}),
+      dispose: mock(() => {}),
+    }
+    useChatStore.getState().updateSession('thread-1', { sendQueue })
+
+    renderHook(() => useChatAutomation({ useChat: mockUseChat }), {
+      wrapper: createQueryTestWrapper(),
+    })
+
+    await act(async () => {
+      await getClock().runAllAsync()
+    })
+
+    expect(send).not.toHaveBeenCalled()
+    expect(mockChatInstance.regenerate).not.toHaveBeenCalled()
+  })
 })
