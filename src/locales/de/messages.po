@@ -1487,6 +1487,7 @@ msgstr "Fertig"
 
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/update-notification.tsx
+#: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/delivered-file-card.tsx
 msgid "Download"
 msgstr "Herunterladen"
@@ -1498,6 +1499,10 @@ msgstr ""
 
 #: src/widgets/document-result/pdf-sidebar-viewer.tsx
 msgid "Download {fileName}"
+msgstr ""
+
+#: src/fork/documents/file-chip.tsx
+msgid "Download and open"
 msgstr ""
 
 #: src/search/commands/use-commands.ts
@@ -2344,6 +2349,10 @@ msgstr "Geändertes Modell"
 msgid "More"
 msgstr "Mehr"
 
+#: src/fork/documents/file-chip.tsx
+msgid "More actions for {filename}"
+msgstr ""
+
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"
 msgstr "Datei verschieben"
@@ -2612,6 +2621,7 @@ msgstr "OneDrive-Zugriff"
 msgid "Only available in private chats."
 msgstr "Nur in privaten Chats verfügbar."
 
+#: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
 msgstr ""
@@ -3012,10 +3022,12 @@ msgid "Request expired"
 msgstr "Anfrage abgelaufen"
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as images"
 msgstr "Als Bilder erneut senden"
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as text"
 msgstr "Als Text erneut senden"
 
@@ -3299,10 +3311,12 @@ msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
 msgstr ""
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as images"
 msgstr "Als Bilder gesendet"
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as text"
 msgstr "Als Text gesendet"
 
