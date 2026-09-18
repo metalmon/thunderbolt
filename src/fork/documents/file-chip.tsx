@@ -4,7 +4,17 @@
 
 /* Fork-owned (metalmon). New file — do not upstream. */
 
-import { ChevronDown, Download, ExternalLink, File, FileSpreadsheet, FileText, PanelRight } from 'lucide-react'
+import {
+  ChevronDown,
+  Download,
+  ExternalLink,
+  File,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  PanelRight,
+  Presentation,
+} from 'lucide-react'
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
@@ -35,7 +45,7 @@ type FileChipProps = {
   mimeType: string
   /** Open the file in the side panel (the default action). */
   onOpen?: () => void
-  /** Non-native delivery mode applied by remediation — shown as a small badge. */
+  /** Non-native delivery mode applied by remediation — shown as a small note. */
   deliverAs?: 'text' | 'images'
   /** Alternative delivery modes this file can be resent as. */
   resendTargets?: readonly ('text' | 'images')[]
@@ -43,80 +53,66 @@ type FileChipProps = {
   onResend?: (target: 'text' | 'images') => void
 }
 
-/** Short type badge from the extension, falling back to the mime type. */
-const typeBadge = (filename: string, mimeType: string): string => {
-  const ext = filename.includes('.') ? filename.split('.').pop()?.toUpperCase() : undefined
-  if (ext && ext.length > 0 && ext.length <= 4) {
-    return ext
+/**
+ * Document-type icon + accent colour by mime / extension — a light Claude-Desktop
+ * touch: the chip stays neutral like the canvas chip, only the type icon is tinted
+ * (Word blue, Excel green, PowerPoint orange, PDF red, image teal).
+ */
+const iconFor = (filename: string, mimeType: string): { Icon: ComponentType<{ className?: string }>; color: string } => {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
+  if (mimeType.startsWith('image/')) {
+    return { Icon: FileImage, color: 'text-teal-600 dark:text-teal-400' }
   }
-  return mimeType === 'application/pdf' ? 'PDF' : 'FILE'
-}
-
-/** Document-type lucide icon by mime / extension. */
-const iconFor = (filename: string, mimeType: string): ComponentType<{ className?: string }> => {
-  const ext = filename.split('.').pop()?.toLowerCase()
-  if (mimeType.includes('spreadsheet') || ext === 'csv' || ext === 'xlsx' || ext === 'xls') {
-    return FileSpreadsheet
+  if (mimeType.includes('spreadsheet') || ['csv', 'xlsx', 'xls'].includes(ext)) {
+    return { Icon: FileSpreadsheet, color: 'text-green-700 dark:text-green-500' }
   }
-  if (
-    mimeType === 'application/pdf' ||
-    mimeType.startsWith('text/') ||
-    mimeType.includes('word') ||
-    ['pdf', 'doc', 'docx', 'md', 'markdown', 'txt', 'rtf'].includes(ext ?? '')
-  ) {
-    return FileText
+  if (mimeType.includes('presentation') || ['ppt', 'pptx'].includes(ext)) {
+    return { Icon: Presentation, color: 'text-orange-600 dark:text-orange-400' }
   }
-  return File
+  if (mimeType === 'application/pdf' || ext === 'pdf') {
+    return { Icon: FileText, color: 'text-red-600 dark:text-red-400' }
+  }
+  if (mimeType.includes('word') || ['doc', 'docx', 'rtf'].includes(ext)) {
+    return { Icon: FileText, color: 'text-blue-700 dark:text-blue-400' }
+  }
+  if (mimeType.startsWith('text/') || ['md', 'markdown', 'txt'].includes(ext)) {
+    return { Icon: FileText, color: 'text-muted-foreground' }
+  }
+  return { Icon: File, color: 'text-muted-foreground' }
 }
 
 /**
- * Claude-Desktop-style compact document card: a type icon + filename with a split
- * "Open" button — primary click opens the file in the side panel, the caret opens a
- * menu (Open · Download · Download and open natively). Replaces the large,
- * unreadable first-page thumbnail for documents (images keep their thumbnail).
+ * Compact document card, styled to match the canvas `UiResourceChip` (same dashed
+ * card, sizing and type scale): a type icon + filename + an "Open" button with a
+ * caret menu (Open · Download · Download and open natively). Replaces the large,
+ * unreadable first-page thumbnail for documents; images keep their thumbnail.
  */
+/** Run a file action, surfacing (not swallowing) any failure. */
+const run = (action: Promise<unknown>): void => {
+  void action.catch((error) => console.error('File action failed', error))
+}
+
 export const FileChip = ({ localFileId, filename, mimeType, onOpen, deliverAs, resendTargets, onResend }: FileChipProps) => {
   const { t, i18n } = useLingui()
-  const Icon = iconFor(filename, mimeType)
+  const { Icon, color } = iconFor(filename, mimeType)
 
   return (
-    <div className="my-1 flex max-w-full flex-col items-start gap-1">
-      <div className="flex min-w-0 max-w-full items-center gap-2 rounded-xl border border-border bg-card/50 py-1.5 pl-3 pr-1.5">
-        <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-        <span className="shrink-0 rounded bg-muted px-1 py-px text-[length:var(--font-size-xs)] font-semibold text-muted-foreground">
-          {typeBadge(filename, mimeType)}
-        </span>
-        <span className="min-w-0 flex-1 truncate text-[length:var(--font-size-sm)]" title={filename}>
+    <div className="my-2 flex w-full flex-col items-stretch gap-1">
+      <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
+        <Icon className={`size-4 shrink-0 ${color}`} aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground" title={filename}>
           {filename}
         </span>
         {deliverAs ? (
-          <span className="shrink-0 rounded bg-muted px-1 py-px text-[length:var(--font-size-xs)] text-muted-foreground">
-            {i18n._(deliverAsLabel[deliverAs])}
-          </span>
+          <span className="shrink-0 text-xs text-muted-foreground/70">{i18n._(deliverAsLabel[deliverAs])}</span>
         ) : null}
-
-        {/* Split button: primary Open (side panel) + a caret for the rest. */}
-        <div className="ml-1 flex shrink-0 items-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 rounded-r-none px-2"
-            onClick={onOpen}
-            disabled={!onOpen}
-          >
-            <PanelRight className="size-3.5" aria-hidden />
+        <div className="flex shrink-0 items-center">
+          <Button variant="ghost" size="sm" className="h-7" onClick={onOpen} disabled={!onOpen}>
             {t`Open`}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 rounded-l-none border-l border-border px-1"
-                aria-label={t`More actions for ${filename}`}
-              >
+              <Button variant="ghost" size="sm" className="h-7 px-1" aria-label={t`More actions for ${filename}`}>
                 <ChevronDown className="size-3.5" aria-hidden />
               </Button>
             </DropdownMenuTrigger>
@@ -127,12 +123,12 @@ export const FileChip = ({ localFileId, filename, mimeType, onOpen, deliverAs, r
                   {t`Open`}
                 </DropdownMenuItem>
               ) : null}
-              <DropdownMenuItem onClick={() => void downloadStoredFile(localFileId, filename)}>
+              <DropdownMenuItem onClick={() => run(downloadStoredFile(localFileId, filename))}>
                 <Download className="size-4" aria-hidden />
                 {t`Download`}
               </DropdownMenuItem>
               {canOpenNatively() ? (
-                <DropdownMenuItem onClick={() => void downloadAndOpenNatively(localFileId, filename)}>
+                <DropdownMenuItem onClick={() => run(downloadAndOpenNatively(localFileId, filename))}>
                   <ExternalLink className="size-4" aria-hidden />
                   {t`Download and open`}
                 </DropdownMenuItem>
@@ -149,7 +145,7 @@ export const FileChip = ({ localFileId, filename, mimeType, onOpen, deliverAs, r
               key={target}
               type="button"
               onClick={() => onResend(target)}
-              className="cursor-pointer rounded-md px-1.5 py-0.5 text-[length:var(--font-size-xs)] text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="cursor-pointer rounded-md px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {i18n._(resendAsLabel[target])}
             </button>
