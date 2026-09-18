@@ -13,7 +13,15 @@ import { SQLiteRemoteSession } from 'drizzle-orm/sqlite-proxy'
 import { modelProfilesTable, modelsTable, promptsTable, settingsTable, skillsTable, tasksTable } from '../db/tables'
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
 import { defaultModelProfiles, hashModelProfile } from '../defaults/model-profiles'
-import { defaultModels, defaultModelsVersion, hashModel, type SharedModel } from '@shared/defaults/models'
+import {
+  defaultModelDeepSeekV41Flash,
+  defaultModelGlm53,
+  defaultModelOpus55,
+  defaultModels,
+  defaultModelsVersion,
+  hashModel,
+  type SharedModel,
+} from '@shared/defaults/models'
 import { defaultSettings, defaultSettingsVersion, hashSetting } from '../defaults/settings'
 import {
   defaultSkillWeather,
@@ -236,7 +244,7 @@ describe('seedModels', () => {
     // reconcile logic with a local 3-model fixture built from the exported
     // reference consts (reconcileDefaultsForTable takes the defaults array as a
     // parameter — it need not be the shipped one).
-    const fixture = [defaultModelOpus5, defaultModelGlm53Flash, defaultModelGlm53]
+    const fixture = [defaultModelOpus55, defaultModelDeepSeekV41Flash, defaultModelGlm53]
     await reconcileDefaultsForTable(db, modelsTable, fixture, hashModel)
 
     // Scenario 1: User modifies model 0
