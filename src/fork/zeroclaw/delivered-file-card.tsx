@@ -5,6 +5,7 @@
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
 import { FileCard } from '@/components/chat/file-card'
+import { FileChip } from '@/fork/documents/file-chip'
 import { Button } from '@/components/ui/button'
 import { useSideview } from '@/content-view/context'
 import { getAttachment } from '@/lib/file-blob-storage'
@@ -83,27 +84,39 @@ const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
     <div className="my-2 flex flex-col gap-2">
       {showLabel ? <p className="text-sm text-muted-foreground">{t`Delivered`}</p> : null}
       <div className="flex flex-wrap gap-3">
-        {files.map((ref) => (
-          <div key={ref.localFileId} className="flex flex-col items-start gap-1">
-            <FileCard
+        {files.map((ref) =>
+          // Images keep their viewable thumbnail; documents get the compact chip
+          // whose first-page thumbnail was unreadable anyway.
+          ref.mimeType.startsWith('image/') ? (
+            <div key={ref.localFileId} className="flex flex-col items-start gap-1">
+              <FileCard
+                localFileId={ref.localFileId}
+                filename={ref.filename}
+                mimeType={ref.mimeType}
+                onOpen={() => open(ref)}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 px-2"
+                onClick={() => void downloadRef(ref)}
+                aria-label={t`Download ${ref.filename}`}
+              >
+                <Download className="size-3.5" aria-hidden />
+                {t`Download`}
+              </Button>
+            </div>
+          ) : (
+            <FileChip
+              key={ref.localFileId}
               localFileId={ref.localFileId}
               filename={ref.filename}
               mimeType={ref.mimeType}
               onOpen={() => open(ref)}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1 px-2"
-              onClick={() => void downloadRef(ref)}
-              aria-label={t`Download ${ref.filename}`}
-            >
-              <Download className="size-3.5" aria-hidden />
-              {t`Download`}
-            </Button>
-          </div>
-        ))}
+          ),
+        )}
       </div>
     </div>
   )
