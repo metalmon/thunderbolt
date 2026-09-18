@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Fork: reading-font @font-face (data: URIs) + theme-matched scrollbar for the
+// sandboxed artifact iframe. See src/fork/typography/canvas-font.ts.
+import { buildCanvasThemeExtrasCss } from '@/fork/typography/canvas-font'
+
 /**
  * CSS custom properties defined on `:root` in `src/index.css` that an artifact is
  * expected to theme-match against. Agent-authored HTML reads these (with
@@ -45,6 +49,11 @@ export const themeTokenNames = [
   '--radius-lg',
   '--radius-xl',
   '--font-heading',
+  // Fork: the chat reading font (Plantin Cyr MT stack) + its resolved size, so an
+  // artifact matches chat prose. The real face is embedded via `buildCanvasThemeExtrasCss`
+  // below — the sandboxed iframe can't load the app's @font-face otherwise.
+  '--font-chat',
+  '--font-chat-size',
   '--font-size-body',
   '--font-size-sm',
   '--font-size-xs',
@@ -83,7 +92,10 @@ export const buildThemeStyleTag = (tokenValues: Record<string, string>, colorSch
     .map((value, index) => (value ? `${themeTokenNames[index]}: ${value} !important;` : null))
     .filter((declaration): declaration is string => declaration !== null)
 
-  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; }</style>`
+  // Fork: after the :root token block, embed the reading-font @font-face (the
+  // sandboxed iframe can't load the app's fonts) + a theme-matched scrollbar. Both
+  // are CSS-only, keeping this tag verification-neutral (see harness.ts).
+  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; } ${buildCanvasThemeExtrasCss()}</style>`
 }
 
 /**
