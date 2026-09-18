@@ -25,10 +25,19 @@ describe('buildThemeStyleTag', () => {
   it('always emits color-scheme, even with no resolved tokens', () => {
     const empty = buildThemeStyleTag({}, 'dark')
     expect(empty).toContain('color-scheme: dark;')
-    expect(empty).toBe('<style>:root {  color-scheme: dark; }</style>')
+    // The :root token block is unchanged; the fork appends the reading-font
+    // @font-face + themed scrollbar after it (see canvas-font.ts).
+    expect(empty).toContain('<style>:root {  color-scheme: dark; }')
 
     const light = buildThemeStyleTag({}, 'light')
     expect(light).toContain('color-scheme: light;')
+  })
+
+  it('embeds the reading-font @font-face and themed scrollbar after the :root block (fork)', () => {
+    const tag = buildThemeStyleTag({}, 'light')
+    expect(tag).toContain("@font-face{font-family:'Plantin Cyr MT'")
+    expect(tag).toContain('url(data:font/woff2;base64,')
+    expect(tag).toContain('::-webkit-scrollbar-thumb')
   })
 
   it('wraps the declarations in a single <style>:root{} block', () => {
