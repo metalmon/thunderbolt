@@ -30,6 +30,17 @@ pub async fn toggle_dock_icon(app_handle: tauri::AppHandle, show: bool) -> Resul
     Ok(())
 }
 
+// === Fork: save a delivered/attached file to a user-chosen path ==============================
+
+/// Write bytes to an absolute path the user picked via the native save dialog, so a
+/// delivered/attached document can be saved anywhere and then opened with the OS
+/// default app (see src/fork/documents/file-actions.ts). Uses `std::fs` directly
+/// rather than the scoped `fs` plugin so the destination is not capability-limited.
+#[command]
+pub async fn save_bytes_to_path(path: String, contents: Vec<u8>) -> Result<(), String> {
+    std::fs::write(&path, &contents).map_err(|e| e.to_string())
+}
+
 // === Interface Style (iOS keyboard/system UI theme) ==========================================
 
 /// Set the native user interface style on iOS to control keyboard and system UI appearance.

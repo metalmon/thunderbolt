@@ -7,6 +7,7 @@
     "core:default",
     "core:app:allow-default-window-icon",
     "opener:default",
+    "dialog:allow-save",
     "os:default",
     "deep-link:default",
     "updater:default",
