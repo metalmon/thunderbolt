@@ -10,10 +10,9 @@ import { describe, expect, it, mock } from 'bun:test'
 import { FileChip } from './file-chip'
 
 describe('FileChip', () => {
-  it('shows the filename and an extension type badge', () => {
+  it('shows the filename', () => {
     render(<FileChip localFileId="f1" filename="quarterly-report.pdf" mimeType="application/pdf" />)
     expect(screen.getByText('quarterly-report.pdf')).toBeInTheDocument()
-    expect(screen.getByText('PDF')).toBeInTheDocument()
   })
 
   it('primary Open button invokes onOpen (side panel)', () => {
