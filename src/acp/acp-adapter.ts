@@ -66,7 +66,6 @@ import { openTransport } from './transports'
 import type { AcpTransport } from './types'
 import { createTranslatorStream, toAcpCommands, type AcpCommand, type Translator } from './translators/acp-to-ai-sdk'
 import type { WebSocketFactory } from './transports/websocket'
-import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 
 import { configSelectOptions, sessionConfigKey, useSessionConfigStore } from './session-config-store'
 import { useAcpSessionStore, type AcpSessionState } from './session-state-store'
@@ -320,7 +319,6 @@ const composeAcpPrompt = (
     // First: it's the most stable block, so an agent that caches a prefix keeps
     // it, and it frames everything after it.
     projectSection,
-    ZEROCLAW_DELIVER_CITE_NOTE,
     sessionSkillDisclosure,
     sessionSkillDisclosure === undefined && skillInstructions && skillInstructions.length > 0
       ? skillInstructions.join('\n\n')
