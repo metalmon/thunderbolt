@@ -39,6 +39,9 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
+        // Fork: native "Save As" dialog for the document-chip "Download and open"
+        // action (see src/fork/documents/file-actions.ts).
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_haptics::init())
@@ -56,6 +59,7 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::set_interface_style,
             commands::start_oauth_server,
             commands::install_thunderbolt_cli,
+            commands::save_bytes_to_path,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
         ]);
