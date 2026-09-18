@@ -6,6 +6,7 @@ import { prewarmSystemModel } from '@/ai/prewarm-system-model'
 import { updateSettings } from '@/dal'
 import { updateChatThread } from '@/dal/chat-threads'
 import { getDb } from '@/db/database'
+import type { SendResult, SessionSendQueue } from '@/fork/chat/session-send-queue'
 import { type NamedMCPClient, type ReconnectClient } from '@/lib/mcp-provider'
 import { trackEvent } from '@/lib/posthog'
 import type { Agent } from '@/types/acp'
@@ -14,6 +15,13 @@ import { create } from 'zustand'
 import type { Chat } from '@ai-sdk/react'
 import type { PermissionOption, RequestPermissionRequest, RequestPermissionResponse } from '@agentclientprotocol/sdk'
 import { useShallow } from 'zustand/react/shallow'
+
+/** Same derivation as `chat-instance.ts`'s private `ChatMessageInput` — the
+ *  argument shape the AI SDK's `Chat.sendMessage` accepts for this app's
+ *  message type. Re-derived here (rather than imported) because that alias
+ *  isn't exported and this is the one other module that needs it: the type
+ *  of the payload `ChatSession.enqueue` forwards into the send queue. */
+export type ChatSendMessageInput = Parameters<Chat<ThunderboltUIMessage>['sendMessage']>[0]
 
 /** Outstanding ACP permission request awaiting user response. The promise
  *  resolver lives here so the dialog UI can complete it via a store action;
@@ -67,6 +75,32 @@ export type ChatSession = {
    */
   projectId: string | null
   triggerData: AutomationRun | null
+  /**
+   * Fork (session turn serialization, Tasks 1-5): serializes ACP prompt
+   * turns for this session so at most one is ever in flight. Populated by
+   * `chat-instance` (Task 3) at hydration; undefined pre-hydration and in
+   * tests that don't wire it — those sessions behave as if never busy.
+   */
+  sendQueue?: SessionSendQueue
+  /**
+   * Fork: reactive mirror of `sendQueue.isBusy()`, kept in sync via
+   * `sendQueue.subscribe` (wired in Task 3). Optional — like `sendQueue` and
+   * `enqueue` — because pre-existing session literals across the codebase
+   * (tests, `use-hydrate-chat-store.ts`) are not required to supply it in
+   * this task; `createSession` defaults it to `false` for sessions that
+   * don't. Treat a missing value as `false` (not busy) at read sites.
+   */
+  turnInFlight?: boolean
+  /**
+   * Fork: the single entry point the composer (human, `queueable: false`)
+   * and the canvas action channel (`queueable: true`, Task 4/5) call to
+   * submit a turn through `sendQueue`. Populated alongside `sendQueue` in
+   * Task 3; undefined until then.
+   */
+  enqueue?: (
+    message: ChatSendMessageInput,
+    opts: { queueable: boolean; stillValid?: () => boolean; onStart?: () => void },
+  ) => SendResult
 }
 
 type ChatStoreState = {
@@ -141,7 +175,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       throw new Error('Session already exists')
     }
 
-    nextSessions.set(session.id, session)
+    nextSessions.set(session.id, { ...session, turnInFlight: session.turnInFlight ?? false })
 
     set({ sessions: nextSessions })
   },

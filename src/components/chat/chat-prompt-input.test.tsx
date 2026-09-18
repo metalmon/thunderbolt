@@ -18,6 +18,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock 
 import { createElement, createRef, type ReactNode } from 'react'
 import { BrowserRouter } from 'react-router'
 import { useChatStore } from '@/chats/chat-store'
+import { usePendingQuotesStore } from '@/chats/pending-quotes-store'
 import { CreateItemProvider } from '@/components/create-item/context'
 import { getClock } from '@/testing-library'
 import { ChatPromptInput, type ChatPromptInputRef } from './chat-prompt-input'
@@ -615,6 +616,173 @@ describe('ChatPromptInput', () => {
       await flushAttachments()
 
       expect(screen.getByText(/isn't a supported file type/)).toBeInTheDocument()
+    })
+  })
+
+  describe('turn serialization (Task 4)', () => {
+    it('blocks submit while turnInFlight is true', async () => {
+      const { mockUseChat, mockChatInstance } = setupStore()
+      useChatStore.getState().updateSession('thread-1', { turnInFlight: true })
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      const sendButton = screen.getByLabelText('Send message')
+      expect(sendButton).toBeDisabled()
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      expect(mockChatInstance.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('routes a free send through session.enqueue with queueable:false, not raw sendMessage', async () => {
+      const { mockUseChat, mockChatInstance } = setupStore()
+      const enqueue = mock(() => ({ status: 'sent' as const }))
+      useChatStore.getState().updateSession('thread-1', { enqueue, turnInFlight: false })
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      expect(enqueue).toHaveBeenCalledTimes(1)
+      const [message, opts] = enqueue.mock.calls[0] as unknown as [{ parts: unknown[] }, { queueable: boolean }]
+      expect(opts).toEqual({ queueable: false })
+      expect(message.parts).toEqual([{ type: 'text', text: 'hello' }])
+      expect(mockChatInstance.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('falls back to raw sendMessage when the session has no enqueue yet', async () => {
+      const { mockUseChat, mockChatInstance } = setupStore()
+      // hydrateStore doesn't set `enqueue` — mirrors a session not yet wired
+      // to a send queue (e.g. a brand-new chat before its instance exists).
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      expect(mockChatInstance.sendMessage).toHaveBeenCalledTimes(1)
+    })
+
+    it('restores quotes when enqueue immediately reports rejected (busy race / queue full)', async () => {
+      const { mockUseChat } = setupStore()
+      usePendingQuotesStore.getState().clearQuotes('thread-1')
+      usePendingQuotesStore.getState().addQuote('thread-1', { text: 'quoted passage' })
+
+      const enqueue = mock(() => ({ status: 'rejected' as const }))
+      useChatStore.getState().updateSession('thread-1', { enqueue, turnInFlight: false })
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      expect(enqueue).toHaveBeenCalledTimes(1)
+      const restoredQuotes = usePendingQuotesStore.getState().quotesByThread['thread-1']
+      expect(restoredQuotes).toHaveLength(1)
+      expect(restoredQuotes?.[0]?.data.text).toBe('quoted passage')
+    })
+
+    it('restores quotes when an accepted send later rejects', async () => {
+      const { mockUseChat } = setupStore()
+      usePendingQuotesStore.getState().clearQuotes('thread-1')
+      usePendingQuotesStore.getState().addQuote('thread-1', { text: 'quoted passage' })
+
+      let rejectSend: (err: unknown) => void = () => {}
+      const sendPromise = new Promise((_resolve, reject) => {
+        rejectSend = reject
+      })
+      const enqueue = mock(() => ({ status: 'sent' as const, sent: sendPromise }))
+      useChatStore.getState().updateSession('thread-1', { enqueue, turnInFlight: false })
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      // Cleared optimistically the moment the send was accepted.
+      expect(usePendingQuotesStore.getState().quotesByThread['thread-1'] ?? []).toHaveLength(0)
+
+      await act(async () => {
+        rejectSend(new Error('boom'))
+        await sendPromise.catch(() => {})
+      })
+
+      const restoredQuotes = usePendingQuotesStore.getState().quotesByThread['thread-1']
+      expect(restoredQuotes).toHaveLength(1)
+      expect(restoredQuotes?.[0]?.data.text).toBe('quoted passage')
+    })
+
+    it('blocks submit when isStreaming is true even though turnInFlight is false (un-routed turn, e.g. automation regenerate)', async () => {
+      // Regression: `turnInFlight` only reflects turns that went through the
+      // session send queue. A turn started by use-chat-automation.tsx calling
+      // `chatInstance.regenerate()` without a wired queue reports
+      // `status === 'streaming'` while `turnInFlight` stays false — the
+      // submit gate must still block on `isStreaming` alone, or a second,
+      // concurrent ACP turn can start from the composer.
+      const mockModel = createMockModel()
+      const mockChatInstance = createMockChatInstance([], 'streaming')
+      const mockUseChat = createMockUseChat(mockChatInstance)
+
+      hydrateStore({
+        chatInstance: mockChatInstance,
+        chatThread: createMockChatThread(),
+        id: 'thread-1',
+        mcpClients: [],
+        models: [mockModel],
+        selectedModel: mockModel,
+        triggerData: null,
+      })
+      useChatStore.getState().updateSession('thread-1', { turnInFlight: false })
+
+      const { container } = render(<ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} />, {
+        wrapper: TestWrapper,
+      })
+
+      // The Send↔Stop visual toggle stays keyed on `isStreaming` (not the
+      // `isBusy` union) — the running turn must stay stoppable.
+      expect(screen.getByLabelText('Stop generating')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Send message')).not.toBeInTheDocument()
+
+      const textarea = screen.getByPlaceholderText('Ask me anything…')
+      fireEvent.change(textarea, { target: { value: 'hello' } })
+
+      await act(async () => {
+        fireEvent.submit(container.querySelector('form')!)
+      })
+
+      expect(mockChatInstance.sendMessage).not.toHaveBeenCalled()
     })
   })
 
