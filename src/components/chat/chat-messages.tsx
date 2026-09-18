@@ -23,6 +23,7 @@ import { isBuiltInAgent } from '@/defaults/agents'
 import { QuoteReplyButton } from './quote-reply-button'
 import { selectDebugTranscriptsEnabled, useConfigStore } from '@/api/config-store'
 import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
+import { planCanvasStepGroups } from '@/fork/zeroclaw/canvas-step-grouping'
 import { isHiddenCanvasAssistantTurn } from '@/fork/zeroclaw/canvas-action-message'
 import { DevUiCanvasInject, uiCanvasMockEnabled } from '@/fork/zeroclaw/dev-ui-canvas-inject'
 import { DevCanvasActionMock } from '@/fork/zeroclaw/dev-canvas-mock'
@@ -114,7 +115,12 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   // `showSubmittedLoading`: `submitted` with no assistant message yet to host the
   // loading indicator, so render it inline here. Shared with the composer's Stop
   // button via getTurnActivity so the two never disagree (THU-791).
-  const { isStreaming, showSubmittedLoading, pendingEmptyTurnRecovery, hasError } = getTurnActivity({
+  const {
+    isStreaming,
+    showSubmittedLoading: baseShowSubmittedLoading,
+    pendingEmptyTurnRecovery,
+    hasError,
+  } = getTurnActivity({
     status,
     lastMessage,
     hasChatError: chatError != null,
@@ -179,6 +185,21 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   const compactionInLastMessage = compacting && isStreaming && lastMessage?.role === 'assistant'
   // Turning tools off targets the model the failed prompt was sent with. Once the user
   // picks another model, Retry is the way forward instead.
+  // Fork: collapse consecutive tool-only canvas dispatch accordions into one
+  // (render-only — never mutates `messages` or what the ACP layer sends). See
+  // src/fork/zeroclaw/canvas-step-grouping.ts.
+  const canvasStepGroups = useMemo(() => planCanvasStepGroups(messages), [messages])
+
+  // While a canvas dispatch is active, spin its own tail accordion (in place of
+  // the check) rather than a separate bottom loader — the spinner lives on the
+  // accordion, so the transcript never shifts. undefined when the tail isn't a
+  // canvas dispatch (normal chats keep the bottom loader unchanged).
+  const canvasSpinnerHeadId = isStreaming || status === 'submitted' ? canvasStepGroups.dispatchTailHeadId : undefined
+
+  // Suppress the shared bottom submitted-loader while a canvas dispatch owns the
+  // tail spinner (its accordion shows it) — otherwise both would render at once.
+  const showSubmittedLoading = baseShowSubmittedLoading && !canvasSpinnerHeadId
+
   const canTurnOffTools = builtInModel !== undefined && builtInModel.id === lastUserMessage?.metadata?.modelId
 
   return (
@@ -194,18 +215,31 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
           // Fork: a tool-only canvas action produces a SILENT assistant turn (only
           // canvas:-prefixed tool parts, no text) — suppress it from the transcript
           // (spec §9 "no new chat bubble"). Rendering-only; the message stays in data.
+          // Fork: a run of consecutive tool-only canvas dispatches renders as one
+          // accordion — non-head members are absorbed (render nothing), the head
+          // renders the merged synthetic message instead of its own.
+          const renderMessage = canvasStepGroups.merged.get(message.id) ?? message
+          // A canvas dispatch accordion spins in place while active (spinner in
+          // place of the check) but never takes the last-turn viewport reserve.
+          const isCanvasSpinnerHead = message.id === canvasSpinnerHeadId
           const hideAssistant =
             ((hasError || pendingEmptyTurnRecovery) && !message.parts?.length) || isHiddenCanvasAssistantTurn(message)
+
+          if (canvasStepGroups.absorbed.has(message.id)) {
+            return null
+          }
 
           return (
             <Fragment key={message.id}>
               {message.role === 'assistant' && !hideAssistant && (
                 <PrivateSourcesContext value={privateSourceMessageIds.has(message.id)}>
                   <AssistantMessage
-                    message={message}
+                    message={renderMessage}
                     sources={threadSources.get(message.id)}
-                    isStreaming={isStreaming && isLast}
-                    isLastMessage={isLast && shouldUseViewportPositioning(visibleMessages.length)}
+                    isStreaming={(isStreaming && isLast) || isCanvasSpinnerHead}
+                    isLastMessage={
+                      isLast && !isCanvasSpinnerHead && shouldUseViewportPositioning(visibleMessages.length)
+                    }
                     isLastAssistantMessage={message.id === lastAssistantMessage?.id}
                     lastAssistantAction={message.id === shareActionHostId ? shareDebugTranscriptAction : undefined}
                     activity={isLast && compactionInLastMessage ? <CompactionNotice status="compacting" /> : undefined}
