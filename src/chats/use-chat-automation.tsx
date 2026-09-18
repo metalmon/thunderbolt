@@ -13,7 +13,7 @@ type UseChatAutomationProps = {
 }
 
 export const useChatAutomation = ({ useChat = useChat_default }: UseChatAutomationProps = {}) => {
-  const { chatInstance, stopping, chatThread, selectedAgent } = useCurrentChatSession()
+  const { chatInstance, stopping, chatThread, selectedAgent, sendQueue } = useCurrentChatSession()
 
   const { messages } = useChat({ chat: chatInstance, experimental_throttle: messageBookkeepingThrottleMs })
 
@@ -58,10 +58,26 @@ export const useChatAutomation = ({ useChat = useChat_default }: UseChatAutomati
         return
       }
       hasTriggeredRef.current = true
-      // Regenerate assistant response for the last user message
-      chatInstance?.regenerate().catch((err) => {
+      // Fork (session turn serialization, final-review fix): route this
+      // regenerate through the session's send queue when one is wired, so it
+      // sets `held=true` (and therefore `turnInFlight`) exactly like a human
+      // or canvas send — otherwise `turnInFlight` stays false for the whole
+      // turn while `chatInstance.regenerate()` streams, letting the composer
+      // start a second, concurrent ACP turn (the original crash this queue
+      // exists to prevent). `queueable: false` because there's nothing to
+      // buffer behind — this is the only trigger for this turn. If the queue
+      // reports busy, a turn is already in flight; don't start another. Falls
+      // back to the bare `regenerate()` when `sendQueue` isn't wired (tests,
+      // sessions predating the queue), preserving prior behavior there.
+      const regenerate = () => chatInstance?.regenerate()
+      const run = sendQueue
+        ? sendQueue.isBusy()
+          ? Promise.resolve()
+          : (sendQueue.send({ start: regenerate, queueable: false }).sent ?? Promise.resolve())
+        : regenerate()
+      run?.catch((err) => {
         console.error('Auto regenerate error', err)
       })
     }
-  }, [chatInstance, hasMessages, stopping, chatThread, selectedAgent])
+  }, [chatInstance, hasMessages, stopping, chatThread, selectedAgent, sendQueue])
 }

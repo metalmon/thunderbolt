@@ -44,7 +44,7 @@ import type { AcpTransport } from './types'
 import { connectAcpAdapter, type AcpAdapterContext } from './acp-adapter'
 import { TransportTerminationError } from './termination'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
-import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
+import { buildCanvasCapabilityMeta } from '@/fork/zeroclaw/canvas-negotiation'
 
 const remoteAgent: Agent = {
   id: 'remote-foo',
@@ -252,7 +252,7 @@ const enabledSkills: SkillDefinition[] = [
 ]
 
 /** Expected ACP prompt text with the always-on ZeroClaw deliver_file cite note. */
-const withCiteNote = (body: string): string => `${ZEROCLAW_DELIVER_CITE_NOTE}\n\n${body}`
+const expectedPromptText = (body: string): string => body
 
 describe('connectAcpAdapter — handshake failure modes', () => {
   it('rejects after handshakeTimeoutMs when initialize never resolves and tears down the transport', async () => {
@@ -389,31 +389,8 @@ describe('connectAcpAdapter — handshake failure modes', () => {
 
     const sent = calls.prompt[0]?.prompt?.[0] as { type: string; text: string }
     expect(sent.text).toBe(
-      withCiteNote('Tell a joke about cats, then give a time and place to tell it.\n\n/tell-a-joke'),
+      expectedPromptText('Tell a joke about cats, then give a time and place to tell it.\n\n/tell-a-joke'),
     )
-  })
-
-  it('prepends the ZeroClaw deliver_file citation note to every ACP prompt', async () => {
-    const { transport } = buildFakeTransport()
-    const { FakeConnection, calls, releasePrompts } = buildFakeConnection()
-
-    const adapter = await connectAcpAdapter(remoteAgent, baseCtx(), {
-      openTransport: async () => transport,
-      ClientSideConnection: FakeConnection as never,
-    })
-
-    const response = await adapter.fetch(promptInit('cite me'), threadCtx('t1'))
-    await act(async () => {
-      releasePrompts()
-      await getClock().runAllAsync()
-      await readSse(response)
-    })
-
-    const sent = sentPromptText(calls)
-    expect(sent).toContain(ZEROCLAW_DELIVER_CITE_NOTE)
-    expect(sent).toContain('Never write [N]:uri')
-    expect(sent).toContain('<widget:document-result fileId="<exact uri>"')
-    expect(sent.endsWith('cite me')).toBe(true)
   })
 
   it('sends the user text unchanged when no skill instructions resolved', async () => {
@@ -433,7 +410,7 @@ describe('connectAcpAdapter — handshake failure modes', () => {
     })
 
     const sent = calls.prompt[0]?.prompt?.[0] as { type: string; text: string }
-    expect(sent.text).toBe(withCiteNote('just a normal message'))
+    expect(sent.text).toBe(expectedPromptText('just a normal message'))
   })
 })
 
@@ -450,7 +427,7 @@ describe('connectAcpAdapter — skills capability', () => {
     expect(adapter.capabilities?.skills).toBe(true)
     await adapter.ensureSession(threadCtx('thread-new'))
 
-    expect(calls.newSession[0]?._meta).toEqual(buildWireSkillsMeta(enabledSkills))
+    expect(calls.newSession[0]?._meta).toEqual({ ...buildWireSkillsMeta(enabledSkills), ...buildCanvasCapabilityMeta() })
   })
 
   it('sends full skills on supported session/resume and session/load requests', async () => {
@@ -463,7 +440,10 @@ describe('connectAcpAdapter — skills capability', () => {
     })
     await resumeAdapter.ensureSession(threadCtx('thread-resume', { acpSessionId: 'existing-resume' }))
 
-    expect(resumeConnection.calls.resumeSession[0]?._meta).toEqual(buildWireSkillsMeta(enabledSkills))
+    expect(resumeConnection.calls.resumeSession[0]?._meta).toEqual({
+      ...buildWireSkillsMeta(enabledSkills),
+      ...buildCanvasCapabilityMeta(),
+    })
 
     const loadTransport = buildFakeTransport().transport
     const loadConnection = buildFakeConnection({ skills: true, loadSession: true })
@@ -474,7 +454,10 @@ describe('connectAcpAdapter — skills capability', () => {
     })
     await loadAdapter.ensureSession(threadCtx('thread-load', { acpSessionId: 'existing-load' }))
 
-    expect(loadConnection.calls.loadSession[0]?._meta).toEqual(buildWireSkillsMeta(enabledSkills))
+    expect(loadConnection.calls.loadSession[0]?._meta).toEqual({
+      ...buildWireSkillsMeta(enabledSkills),
+      ...buildCanvasCapabilityMeta(),
+    })
   })
 
   it('keeps catalog bodies out of capability prompts while preserving forced invocation', async () => {
@@ -496,7 +479,9 @@ describe('connectAcpAdapter — skills capability', () => {
       await readSse(response)
     })
 
-    expect(sentPromptText(calls)).toBe(withCiteNote('Gather current weather and calendar details.\n\n/daily-brief'))
+    expect(sentPromptText(calls)).toBe(
+      expectedPromptText('Gather current weather and calendar details.\n\n/daily-brief'),
+    )
     expect(sentPromptText(calls)).not.toContain('Extract decisions and action items.')
   })
 
@@ -765,7 +750,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.newSession).toHaveLength(0)
     expect(persisted).toEqual([]) // reused id, nothing fresh to persist
     // No app-side replay: the live prompt carries only the current user text.
-    expect(sentPromptText(calls)).toBe(withCiteNote('now'))
+    expect(sentPromptText(calls)).toBe(expectedPromptText('now'))
   })
 
   it('tier 1→3: resume rejects (session evicted) → newSession + persist + transcript replay', async () => {
@@ -842,7 +827,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.resumeSession).toHaveLength(1)
     expect(calls.loadSession).toHaveLength(1)
     expect(calls.newSession).toHaveLength(0)
-    expect(sentPromptText(calls)).toBe(withCiteNote('now')) // agent replays its own history
+    expect(sentPromptText(calls)).toBe(expectedPromptText('now')) // agent replays its own history
   })
 
   it('tier 2→3: loadSession rejects → newSession + transcript replay', async () => {
@@ -910,7 +895,7 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
     expect(calls.newSession).toHaveLength(1) // one fresh session, cached
     expect(persisted).toEqual(['sess-1']) // persisted exactly once
     expect(sentPromptText(calls, 0)).toContain('Conversation so far:')
-    expect(sentPromptText(calls, 1)).toBe(withCiteNote('q3')) // no re-seed on the second send
+    expect(sentPromptText(calls, 1)).toBe(expectedPromptText('q3')) // no re-seed on the second send
   })
 
   it('brand-new thread (no prior turns) never seeds a transcript on either send', async () => {
@@ -937,8 +922,8 @@ describe('connectAcpAdapter — capability-aware continuity (resume / load / new
       releasePrompts,
     )
 
-    expect(sentPromptText(calls, 0)).toBe(withCiteNote('hello'))
-    expect(sentPromptText(calls, 1)).toBe(withCiteNote('again'))
+    expect(sentPromptText(calls, 0)).toBe(expectedPromptText('hello'))
+    expect(sentPromptText(calls, 1)).toBe(expectedPromptText('again'))
   })
 
   it('defers persistence: ensureSession warms a fresh session but does NOT persist until the first real send', async () => {
