@@ -4,7 +4,7 @@
 
 import { isAgentAvailable as isAgentAvailable_default } from '@/acp/agent-availability'
 import { preloadAgentConnection } from '@/acp/adapter-cache'
-import { useCurrentChatSession } from '@/chats/chat-store'
+import { type ChatSendMessageInput, useCurrentChatSession } from '@/chats/chat-store'
 import { usePendingQuotes, usePendingQuotesStore } from '@/chats/pending-quotes-store'
 import { useCreateItem } from '@/components/create-item/context'
 import { estimateTokensForText } from '@/ai/tokenizers'
@@ -196,12 +196,14 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
       chatThread,
       connectionStatus,
       connectionError,
+      enqueue,
       id: chatThreadId,
       retryCount,
       retriesExhausted,
       stopping,
       selectedAgent,
       selectedModel,
+      turnInFlight,
     } = useCurrentChatSession()
     // Bound to a local so the catalog placeholder is named `{agentName}` — a
     // member expression inside a macro extracts as positional `{0}`.
@@ -259,7 +261,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
 
     // Show the Stop button whenever the thread is busy — the same signal
     // `ChatMessages` uses for its loading spinner, so the two stay in sync.
-    const { isActive: isBusy, isStopping } = getTurnActivity({
+    const { isActive: baseIsActive, isStopping } = getTurnActivity({
       status,
       lastMessage: messages[messages.length - 1],
       hasChatError: chatError != null,
@@ -267,6 +269,17 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
       retryCount,
       stopRequested: stopping,
     })
+    // Fork (session turn serialization): union the upstream busy signal with the
+    // session send queue's held lock. `getTurnActivity().isActive` is derived from
+    // `status` (streaming/submitted) + stop state; it does NOT see the send queue's
+    // `held` lock, which stays true across retry gaps and queue-held turns. Without
+    // ORing in `turnInFlight`, the composer could start a second, concurrent ACP
+    // turn in a window where `status` momentarily isn't streaming — the original
+    // crash this queue prevents. The union can only make the composer MORE
+    // conservative, never less, so it cannot weaken the upstream Stop logic.
+    // `turnInFlight` is optional on `ChatSession` (chat-store.ts) — a missing value
+    // is treated as not busy.
+    const isBusy = baseIsActive || (turnInFlight ?? false)
     const isConnecting = connectionStatus === 'connecting'
     const isConnectionError = connectionStatus === 'error' && connectionError != null
 
@@ -550,8 +563,24 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
     }, [])
 
     const handleSubmit = async () => {
+      // Send failed (or was rejected by the queue) — the chips are cleared
+      // optimistically once a send is attempted, but the blobs are still in
+      // IndexedDB, so restore them rather than orphaning the bytes. Shared by
+      // every failure path below: the synchronous catch (raw `sendMessage`
+      // fallback), an immediately-`'rejected'` queue result, and a later
+      // rejection of an accepted send's `result.sent` promise.
+      const restoreAttachmentsAndQuotes = () => {
+        setAttachments(attachments)
+        setQuotes(
+          chatThreadId,
+          quotes.map((quote) => quote.data),
+        )
+      }
+
       try {
-        // Prevent submitting while a turn is in flight, or with no text, attachments, or quotes.
+        // Prevent submitting while a turn is in flight (isBusy — the upstream busy
+        // signal unioned with the send-queue held lock, covering queue-held turns
+        // and retry gaps), or with no text, attachments, or quotes.
         const textToSend = normalizedInput.trim()
         if (isBusy || (!textToSend && attachments.length === 0 && quotes.length === 0)) {
           return
@@ -574,22 +603,45 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
         clearQuotes(chatThreadId)
         setAttachError(null)
 
-        await sendMessage({
+        const message: ChatSendMessageInput = {
           parts: [
             ...quoteParts,
             ...(textToSend ? [{ type: 'text' as const, text: textToSend }] : []),
             ...attachmentParts,
           ],
-        })
+        }
+
+        // Fork (session turn serialization, Task 4): route human sends through
+        // the session's serialized queue so they're recorded as in-flight
+        // before the turn starts. The composer only ever calls this while
+        // `!isBusy` (guarded above), so this always sends immediately and
+        // never queues. Falls back to the raw `sendMessage` when the session
+        // isn't wired to a queue yet (e.g. a brand-new chat before its
+        // instance exists) — see `ChatSession.enqueue` in chat-store.ts.
+        //
+        // `instance.sendMessage` is async, so every failure — the busy race
+        // AND any pre-flight guard/rejection inside it — surfaces as a
+        // rejection of `result.sent`, never a synchronous throw here. A
+        // `'rejected'` status (queue full / raced busy) restores immediately;
+        // an accepted send (`'sent'`) restores only if its promise later
+        // rejects. A `'queued'` send has no `sent` promise to observe (Task
+        // 4/5 canvas scope) — its own failure path is out of scope here.
+        if (enqueue) {
+          const result = enqueue(message, { queueable: false })
+          if (result.status === 'rejected') {
+            restoreAttachmentsAndQuotes()
+            return
+          }
+          result.sent?.catch((error) => {
+            console.error('Error submitting message:', error)
+            restoreAttachmentsAndQuotes()
+          })
+        } else {
+          await sendMessage(message)
+        }
       } catch (error) {
         console.error('Error submitting message:', error)
-        // Send failed — the chips were cleared optimistically but the blobs are
-        // still in IndexedDB, so restore them rather than orphaning the bytes.
-        setAttachments(attachments)
-        setQuotes(
-          chatThreadId,
-          quotes.map((quote) => quote.data),
-        )
+        restoreAttachmentsAndQuotes()
       }
     }
 
@@ -847,7 +899,10 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
             // Allow sending an attachment even with no typed text (matches the Enter behavior).
             canSubmit={input.trim().length > 0 || attachments.length > 0 || quotes.length > 0}
             isLoading={isBusy || isConnecting}
-            isStreaming={isBusy}
+            // Send↔Stop toggle follows the upstream active signal only — a queue-held
+            // turn (turnInFlight without an active stream) shows a DISABLED Send, not
+            // Stop; the turnInFlight union lives in `isBusy` (isLoading/submit gate).
+            isStreaming={baseIsActive}
             isStopping={isStopping}
             onStop={stop}
             // Desktop always autofocuses. The native mobile app autofocuses on a
