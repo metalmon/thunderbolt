@@ -14,7 +14,6 @@ import {
   isCanvasOriginTurn,
   isHiddenCanvasAssistantTurn,
   isHiddenCanvasTurn,
-  SYNTHETIC_TOOL_DIRECTIVE,
   type CanvasActionMeta,
 } from './canvas-action-message'
 
@@ -31,9 +30,9 @@ const promptAction: CanvasActionMeta = {
 }
 
 describe('canvas-action-message', () => {
-  it('uses the synthetic directive for a tool-only action', () => {
+  it('uses EMPTY text for a tool-only action (silent dispatch; instruction rides _meta.toolCall)', () => {
     const message = buildCanvasActionMessage(toolOnlyAction)
-    expect(message.parts).toEqual([{ type: 'text', text: SYNTHETIC_TOOL_DIRECTIVE }])
+    expect(message.parts).toEqual([{ type: 'text', text: '' }])
   })
 
   it('uses the prompt as the text when present', () => {
