@@ -16,6 +16,7 @@ import { isAttachmentPart } from '@/lib/attachments'
 import { useHaptics } from '@/hooks/use-haptics'
 import { useAttachmentRemediation } from './use-attachment-remediation'
 import { QuoteReplyButton } from './quote-reply-button'
+import { planCanvasStepGroups } from '@/fork/zeroclaw/canvas-step-grouping'
 import { CanvasRegistryProvider } from '@/fork/zeroclaw/canvas-registry'
 import { isHiddenCanvasAssistantTurn } from '@/fork/zeroclaw/canvas-action-message'
 import { DevUiCanvasInject, uiCanvasMockEnabled } from '@/fork/zeroclaw/dev-ui-canvas-inject'
@@ -57,7 +58,12 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   // `showSubmittedLoading`: `submitted` with no assistant message yet to host the
   // loading indicator, so render it inline here. Shared with the composer's Stop
   // button via getTurnActivity so the two never disagree (THU-791).
-  const { isStreaming, showSubmittedLoading, pendingEmptyTurnRecovery, hasError } = getTurnActivity({
+  const {
+    isStreaming,
+    showSubmittedLoading: baseShowSubmittedLoading,
+    pendingEmptyTurnRecovery,
+    hasError,
+  } = getTurnActivity({
     status,
     lastMessage,
     hasChatError: chatError != null,
@@ -65,6 +71,21 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
     retryCount,
     stopRequested: stopping,
   })
+
+  // Fork: collapse consecutive tool-only canvas dispatch accordions into one
+  // (render-only — never mutates `messages` or what the ACP layer sends). See
+  // src/fork/zeroclaw/canvas-step-grouping.ts.
+  const canvasStepGroups = useMemo(() => planCanvasStepGroups(messages), [messages])
+
+  // While a canvas dispatch is active, spin its own tail accordion (in place of
+  // the check) rather than a separate bottom loader — the spinner lives on the
+  // accordion, so the transcript never shifts. undefined when the tail isn't a
+  // canvas dispatch (normal chats keep the bottom loader unchanged).
+  const canvasSpinnerHeadId = isStreaming || status === 'submitted' ? canvasStepGroups.dispatchTailHeadId : undefined
+
+  // Suppress the shared bottom submitted-loader while a canvas dispatch owns the
+  // tail spinner (its accordion shows it) — otherwise both would render at once.
+  const showSubmittedLoading = baseShowSubmittedLoading && !canvasSpinnerHeadId
 
   const wasStreaming = useRef(false)
   useEffect(() => {
@@ -137,16 +158,31 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
               return null
             }
 
+            // Fork: a run of consecutive tool-only canvas dispatches renders as one
+            // accordion — non-head members are absorbed (render nothing), the head
+            // renders the merged synthetic message instead of its own.
+            if (canvasStepGroups.absorbed.has(message.id)) {
+              return null
+            }
+            const renderMessage = canvasStepGroups.merged.get(message.id) ?? message
+
             // Memoize last message check to avoid recalculating on every iteration
             const isLast = message === lastMessage
+
+            // A canvas dispatch accordion spins in place while active (spinner in
+            // place of the check) but never takes the last-turn viewport reserve
+            // (~72dvh) — that reserve is what made the accordion jump up/down on
+            // every silent dispatch.
+            const isCanvasSpinnerHead = message.id === canvasSpinnerHeadId
+
             // Only apply viewport positioning from second message onwards
-            const shouldApplyViewport = isLast && shouldUseViewportPositioning(messages.length)
+            const shouldApplyViewport = isLast && !isCanvasSpinnerHead && shouldUseViewportPositioning(messages.length)
 
             return (
               <AssistantMessage
                 key={message.id}
-                message={message}
-                isStreaming={isStreaming && isLast}
+                message={renderMessage}
+                isStreaming={(isStreaming && isLast) || isCanvasSpinnerHead}
                 isLastMessage={shouldApplyViewport}
                 isLastAssistantMessage={message === lastAssistantMessage}
               />
