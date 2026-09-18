@@ -20,9 +20,10 @@
  *
  * Two shapes exist:
  *  - Tool-only (no `prompt`): a silent turn — the user never asked anything,
- *    a canvas control just fired a tool. The message text is a synthetic,
- *    model-facing directive so `buildPromptBlocks` has non-empty text to send.
- *    Not rendered as a chat bubble (`isHiddenCanvasTurn`).
+ *    a canvas control just fired a tool. The message text is EMPTY; the actual
+ *    instruction rides `_meta.toolCall`, and the server does a gated dispatch
+ *    without running the model on the (empty) prompt. Not rendered as a chat
+ *    bubble (`isHiddenCanvasTurn`).
  *  - Prompt-bearing: the canvas control composed an actual user-visible ask.
  *    Rendered, but attributed to the canvas rather than presented as if the
  *    user typed it themselves (`isCanvasOriginTurn`).
@@ -46,14 +47,6 @@ export type CanvasActionMeta = {
   callId: string
 }
 
-/**
- * Synthetic, model-facing directive used as the message text for a tool-only
- * canvas turn (no user-visible prompt). English on purpose — model-facing text
- * stays untranslated per the i18n rules (see CLAUDE.md § Localization).
- */
-export const SYNTHETIC_TOOL_DIRECTIVE =
-  'A control in the canvas UI was activated; run the tool named in _meta["io.modelcontextprotocol/ui"].'
-
 /** A message shape sufficient to read/write `metadata.canvasAction` without depending on the full `ThunderboltUIMessage`. */
 type CanvasCarrierMessage = { metadata?: UIMessageMetadata }
 
@@ -61,14 +54,17 @@ type CanvasCarrierMessage = { metadata?: UIMessageMetadata }
  * Build the chat message that carries a canvas action to the agent.
  *
  * @param action - the canvas action to send
- * @returns a single-text-part message with `metadata.canvasAction` set; the
- *   text is the action's `prompt` when present, otherwise {@link SYNTHETIC_TOOL_DIRECTIVE}
- *   — always non-empty, so `buildPromptBlocks` never throws on empty content.
+ * @returns a single-text-part message with `metadata.canvasAction` set; the text
+ *   is the action's `prompt` when present, otherwise the EMPTY string — a
+ *   tool-only turn carries its instruction in `_meta.toolCall`, not the prompt
+ *   text, so the server can dispatch it silently (spec §3). The ACP layer's
+ *   non-empty-prompt requirement is the ZeroClaw server's own, relaxed there for
+ *   `_meta.toolCall` turns.
  */
 export const buildCanvasActionMessage = (
   action: CanvasActionMeta,
 ): { parts: { type: 'text'; text: string }[]; metadata: UIMessageMetadata } => ({
-  parts: [{ type: 'text', text: action.prompt ?? SYNTHETIC_TOOL_DIRECTIVE }],
+  parts: [{ type: 'text', text: action.prompt ?? '' }],
   metadata: { canvasAction: action },
 })
 
