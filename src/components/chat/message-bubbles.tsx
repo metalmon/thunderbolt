@@ -10,6 +10,7 @@ import type { ThunderboltUIMessage } from '@/types'
 import { buildDocumentSideviewId } from '@/types/citation'
 import type { UIMessage } from 'ai'
 import { FileCard } from './file-card'
+import { FileChip } from '@/fork/documents/file-chip'
 import { MemoizedMarkdown } from './memoized-markdown'
 
 /** Re-deliver a single attachment as text/images and re-run the turn. */
@@ -51,27 +52,31 @@ export const MessageBubbles = ({ message, onResendAttachment }: MessageBubblesPr
                     (target) => attachment.deliverAs !== target && hasTransformer(attachment.mimeType, target),
                   )
                 : []
-            return (
-              <FileCard
-                key={attachment.localFileId}
-                localFileId={attachment.localFileId}
-                filename={attachment.filename}
-                mimeType={attachment.mimeType}
-                deliverAs={attachment.deliverAs}
-                resendTargets={resendTargets}
-                onResend={
-                  onResendAttachment ? (target) => onResendAttachment(attachment.localFileId, target) : undefined
-                }
-                onOpen={
-                  showSideview
-                    ? () =>
-                        showSideview(
-                          'local-file',
-                          buildDocumentSideviewId({ fileId: attachment.localFileId, fileName: attachment.filename }),
-                        )
-                    : undefined
-                }
-              />
+            const onOpen = showSideview
+              ? () =>
+                  showSideview(
+                    'local-file',
+                    buildDocumentSideviewId({ fileId: attachment.localFileId, fileName: attachment.filename }),
+                  )
+              : undefined
+            const onResend = onResendAttachment
+              ? (target: 'text' | 'images') => onResendAttachment(attachment.localFileId, target)
+              : undefined
+            const commonProps = {
+              localFileId: attachment.localFileId,
+              filename: attachment.filename,
+              mimeType: attachment.mimeType,
+              deliverAs: attachment.deliverAs,
+              resendTargets,
+              onResend,
+              onOpen,
+            }
+            // Fork: documents render as a compact chip (their first-page thumbnail
+            // was unreadable); images keep their viewable thumbnail.
+            return attachment.mimeType.startsWith('image/') ? (
+              <FileCard key={attachment.localFileId} {...commonProps} />
+            ) : (
+              <FileChip key={attachment.localFileId} {...commonProps} />
             )
           })}
         </div>
