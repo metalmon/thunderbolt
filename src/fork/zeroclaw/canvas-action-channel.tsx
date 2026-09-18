@@ -131,6 +131,13 @@ const rejectPendingWithNonce = (
  */
 export const CanvasActionChannelProvider = ({ children }: { children: ReactNode }) => {
   const chatInstance = useChatStore((s) => s.sessions.get(s.currentSessionId ?? '')?.chatInstance)
+  // Fork (session turn serialization, Task 5): the active session's `enqueue`
+  // routes a canvas send through the per-session send queue, so it never
+  // fires concurrently with (or interleaved into) a human-composer turn. Read
+  // the same way `chatInstance` is above; undefined pre-hydration or in tests
+  // that don't wire it, in which case the `sendMessage` fallback below keeps
+  // the pre-Task-5 behavior.
+  const enqueue = useChatStore((s) => s.sessions.get(s.currentSessionId ?? '')?.enqueue)
   const threadId = useChatStore((s) => s.currentSessionId) ?? ''
   const selectedAgentId = useChatStore((s) => s.sessions.get(s.currentSessionId ?? '')?.selectedAgent.id) ?? null
   const { state } = useContentView()
@@ -244,11 +251,6 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       return
     }
 
-    // A turn is mid-flight on the active Chat. `ui/initialize` (below) only posts a synchronous
-    // reply and is always safe; the two send paths (`tools/call`, `ui/prompt`) must not start a
-    // second `makeRequest` on top of it — see the BUSY rejection in each branch.
-    const isTurnActive = status === 'submitted' || status === 'streaming'
-
     if (msg.method === CANVAS_BRIDGE_METHODS.UI_INITIALIZE) {
       if (!isJsonRpcRequest(msg)) {
         return
@@ -266,15 +268,6 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
 
     if (msg.method === CANVAS_BRIDGE_METHODS.TOOLS_CALL) {
       if (!isJsonRpcRequest(msg)) {
-        return
-      }
-      // Serialize sends: proxying a canvas action calls `sendMessage`, which starts a `makeRequest`
-      // on the one active `Chat`. Doing that while a turn is still streaming re-enters `makeRequest`
-      // and clobbers its single `activeResponse` slot (`Cannot read properties of undefined (reading
-      // 'state')`). An app that retries a hung `tools/call` mid-turn hits exactly this. Reject with a
-      // retryable BUSY instead — checked before the rate limiter so a busy reject costs no budget.
-      if (isTurnActive) {
-        frame.post(buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.BUSY.code, CANVAS_JSONRPC_ERRORS.BUSY.message))
         return
       }
       // Gate order matters here: no-canvas and read-only are checked BEFORE the rate limiter is
@@ -301,31 +294,44 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       // here — but that invariant isn't visible to the type checker through the boolean.
       const uri = activeCanvasRef!.uri
       const callId = composeCanvasCallId(frame.nonce, String(msg.id))
-      resolversRef.current.set(callId, { jsonRpcId: msg.id, post: frame.post })
-      setPending((prev) => [...prev, { callId, nonce: frame.nonce, jsonRpcId: msg.id }])
-      void sendMessage(
-        buildCanvasActionMessage({
-          toolCall: { name: params.name, arguments: params.arguments },
-          prompt: params.prompt,
-          uri,
-          callId,
-        }),
-      )
+      const message = buildCanvasActionMessage({
+        toolCall: { name: params.name, arguments: params.arguments },
+        prompt: params.prompt,
+        uri,
+        callId,
+      })
+      // Registering the resolver/pending entry must wait until the send actually dispatches
+      // (`onStart`, Task 5) — not at enqueue time. If this call is queued behind an in-flight turn,
+      // registering eagerly would let the F1 no-hang sweep reject it when the PRIOR turn settles,
+      // before this one was ever sent.
+      const registerPending = () => {
+        resolversRef.current.set(callId, { jsonRpcId: msg.id, post: frame.post })
+        setPending((prev) => [...prev, { callId, nonce: frame.nonce, jsonRpcId: msg.id }])
+      }
+      if (enqueue) {
+        const result = enqueue(message, {
+          queueable: true,
+          stillValid: () => frame.nonce === liveNonceRef.current,
+          onStart: registerPending,
+        })
+        if (result.status === 'rejected') {
+          frame.post(
+            buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.code, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.message),
+          )
+        }
+        return
+      }
+      // Safety fallback: no `enqueue` wired onto the active session (e.g. a session that hasn't
+      // finished hydrating `chat-instance.ts`'s Task 3 wiring, or a test double). Sends directly,
+      // matching pre-Task-5 behavior.
+      registerPending()
+      void sendMessage(message)
       return
     }
 
     if (msg.method === CANVAS_BRIDGE_METHODS.UI_PROMPT) {
       const prompt = readPromptParam(msg.params)
       if (activeCanvasRef === null || !prompt) {
-        return
-      }
-      // Same serialization guard as `tools/call`: `ui/prompt` also calls `sendMessage`, so starting
-      // it mid-turn would re-enter `makeRequest`. It's a fire-and-forget notification (no id to
-      // reply to), so a busy host drops it silently — the app owns retry timing.
-      if (isTurnActive) {
-        if (isJsonRpcRequest(msg)) {
-          frame.post(buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.BUSY.code, CANVAS_JSONRPC_ERRORS.BUSY.message))
-        }
         return
       }
       // `ui/prompt` is fire-and-forget: it has no rate limit to gate lazily, so unlike `tools/call`
@@ -349,9 +355,22 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       }
       const uri = activeCanvasRef.uri
       const idPart = isJsonRpcRequest(msg) ? String(msg.id) : String(Date.now())
-      void sendMessage(
-        buildCanvasActionMessage({ prompt, uri, callId: composeCanvasCallId(frame.nonce, `prompt-${idPart}`) }),
-      )
+      const message = buildCanvasActionMessage({
+        prompt,
+        uri,
+        callId: composeCanvasCallId(frame.nonce, `prompt-${idPart}`),
+      })
+      // Fire-and-forget: no resolver/pending entry to register, so no `onStart` is needed here.
+      if (enqueue) {
+        const result = enqueue(message, { queueable: true, stillValid: () => frame.nonce === liveNonceRef.current })
+        if (result.status === 'rejected' && isJsonRpcRequest(msg)) {
+          frame.post(
+            buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.code, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.message),
+          )
+        }
+        return
+      }
+      void sendMessage(message)
     }
   }
 
@@ -366,6 +385,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       activeArtifactId,
       sendMessage,
       chatInstance,
+      enqueue,
       selectedAgentId,
       isReadOnly,
       emittingAgentName,
