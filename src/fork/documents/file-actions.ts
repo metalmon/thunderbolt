@@ -6,7 +6,6 @@
 
 import { invoke } from '@tauri-apps/api/core'
 import { save } from '@tauri-apps/plugin-dialog'
-import { openPath } from '@tauri-apps/plugin-opener'
 import { getAttachment } from '@/lib/file-blob-storage'
 import { isTauriDesktop } from '@/lib/platform'
 import { saveBlobUrl } from './save-file'
@@ -42,11 +41,12 @@ export const canOpenNatively = (): boolean => isTauriDesktop()
  * Save a stored local file to a location the user picks in the native "Save As"
  * dialog, then open it with the OS default application (Tauri desktop only — the
  * sandboxed web build can neither choose an arbitrary path nor hand a file to a
- * native app). The bytes are written by the `save_bytes_to_path` Rust command
- * rather than the scoped `fs` plugin, so the destination isn't capability-limited.
+ * native app). The `save_bytes_to_path` Rust command both writes the bytes
+ * (`std::fs`, so the destination isn't fs-scope-limited) AND opens the file (the
+ * opener plugin's raw `open_path`, no JS capability in the path).
  *
- * @returns `true` once opened; `false` when unavailable, the user cancelled the
- *   dialog, or the file isn't in blob storage.
+ * @returns `true` once saved+opened; `false` when unavailable, the user cancelled
+ *   the dialog, or the file isn't in blob storage.
  */
 export const downloadAndOpenNatively = async (localFileId: string, filename: string): Promise<boolean> => {
   if (!isTauriDesktop()) {
@@ -62,6 +62,5 @@ export const downloadAndOpenNatively = async (localFileId: string, filename: str
   }
   const contents = Array.from(new Uint8Array(await blob.arrayBuffer()))
   await invoke('save_bytes_to_path', { path, contents })
-  await openPath(path)
   return true
 }
