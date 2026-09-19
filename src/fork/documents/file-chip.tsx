@@ -54,13 +54,13 @@ const run = (action: Promise<unknown>): void => {
   void action.catch((error) => console.error('File action failed', error))
 }
 
-export const FileChip = ({ localFileId, filename, mimeType, onOpen, deliverAs, resendTargets, onResend }: FileChipProps) => {
+export const FileChip = ({ localFileId, filename, onOpen, deliverAs, resendTargets, onResend }: FileChipProps) => {
   const { t, i18n } = useLingui()
 
   return (
     <div className="my-2 flex w-full flex-col items-stretch gap-1">
       <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
-        <FileTypeIcon filename={filename} mimeType={mimeType} className="w-6 shrink-0" />
+        <FileTypeIcon filename={filename} className="w-7 shrink-0" />
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground" title={filename}>
           {filename}
         </span>
