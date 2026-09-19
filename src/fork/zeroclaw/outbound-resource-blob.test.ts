@@ -11,6 +11,7 @@ import {
   enrichToolOutputWithDeliveredFiles,
   extractResourceBlobsFromToolContent,
   filenameFromUri,
+  filenameFromTitle,
   isDeliveredFilesOutput,
   materializeOutboundResourceBlobs,
   toolPartHasDeliveredFiles,
@@ -27,6 +28,34 @@ describe('filenameFromUri', () => {
 
   test('falls back when empty', () => {
     expect(filenameFromUri('')).toBe('upload.bin')
+  })
+})
+
+describe('filenameFromTitle', () => {
+  test('keeps a title that already carries an extension', () => {
+    expect(filenameFromTitle('Lease Agreement.pdf', 'application/pdf', 'attachment://deliver/abc123.pdf')).toBe(
+      'Lease Agreement.pdf',
+    )
+  })
+
+  test('appends the mime extension when the title has none', () => {
+    expect(filenameFromTitle('Quarterly Report', 'application/pdf', 'attachment://deliver/abc.pdf')).toBe(
+      'Quarterly Report.pdf',
+    )
+  })
+
+  test('falls back to the uri extension when the mime type is unknown', () => {
+    expect(filenameFromTitle('Notes', 'application/octet-stream', 'file:///tmp/9f.docx')).toBe('Notes.docx')
+  })
+
+  test('sanitizes filesystem-illegal characters', () => {
+    expect(filenameFromTitle('in/valid:name*.pdf', 'application/pdf', 'file:///x.pdf')).toBe('in_valid_name_.pdf')
+  })
+
+  test('falls back to the uri basename for empty or service titles', () => {
+    expect(filenameFromTitle('', 'application/pdf', 'attachment://deliver/abc123.pdf')).toBe('abc123.pdf')
+    expect(filenameFromTitle('deliver_file', 'application/pdf', 'attachment://deliver/abc123.pdf')).toBe('abc123.pdf')
+    expect(filenameFromTitle('canvas', 'text/html', 'ui://pnl/deadbeef.html')).toBe('deadbeef.html')
   })
 })
 
@@ -94,7 +123,8 @@ describe('materializeOutboundResourceBlobs', () => {
     expect(refs).toEqual([
       {
         localFileId: deliveredLocalFileId(uri),
-        filename: 'doc.pdf',
+        // Disk name comes from the human title (+ mime extension), not the uri basename.
+        filename: 'Quarterly Report.pdf',
         mimeType: 'application/pdf',
         size: 5,
         uri,
