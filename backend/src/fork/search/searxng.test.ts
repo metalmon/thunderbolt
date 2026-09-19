@@ -22,7 +22,11 @@ describe('forkSearxngSearch', () => {
   it('queries /search?format=json and maps results to SearchResultDto', async () => {
     process.env.SEARXNG_URL = 'http://searxng:8080'
     const fetchFn = mock(() =>
-      Promise.resolve(jsonResults([{ url: 'https://a.com/p', title: 'A', img_src: 'https://a.com/i.png' }])),
+      Promise.resolve(
+        jsonResults([
+          { url: 'https://a.com/p', title: 'A', img_src: 'https://a.com/i.png', content: 'A snippet', publishedDate: '2026-01-01' },
+        ]),
+      ),
     )
     const out = await forkSearxngSearch('cats', 10, fetchFn as unknown as typeof fetch)
     const [url] = fetchFn.mock.calls[0] as unknown as [string]
@@ -33,6 +37,8 @@ describe('forkSearxngSearch', () => {
       pageUrl: 'https://a.com/p',
       faviconUrl: expect.any(String),
       previewImageUrl: 'https://a.com/i.png',
+      snippet: 'A snippet',
+      publishedDate: '2026-01-01',
     })
   })
 
