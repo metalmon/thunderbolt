@@ -26,6 +26,8 @@ import {
   runPool,
   runScenario,
 } from './runner'
+import { createModel } from '@/dal/models'
+import { getDb } from '@/db/database'
 
 const model: Model = { ...defaultModelOpus5, apiKey: null }
 const proxyFetch: FetchFn = Object.assign(async () => new Response(), {
@@ -250,7 +252,13 @@ test('recovered errors distinguish invalid inputs, infrastructure problems and b
 })
 
 describe('runner integration with an injected offline adapter', () => {
-  beforeAll(async () => setupTestDatabase())
+  beforeAll(async () => {
+    await setupTestDatabase()
+    // Fork: the shipped catalog is free-tier only, so reconcileDefaults never
+    // seeds the eval reference model (Opus5) that `fixtureScenario()` targets.
+    // Seed it explicitly so the offline runner can resolve it from the DB.
+    await createModel(getDb(), model)
+  })
   afterAll(async () => teardownTestDatabase())
 
   test('keeps execution error and proven behavioural failure independent', async () => {
