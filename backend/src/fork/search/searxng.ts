@@ -9,7 +9,7 @@ import { deriveFaviconUrl } from '@shared/url'
 /** Base URL of the self-hosted SearXNG, or '' when unconfigured (→ Exa fallback). */
 export const getSearxngUrl = (): string => (process.env.SEARXNG_URL ?? '').replace(/\/$/, '')
 
-type SearxngResult = { url?: string; title?: string; img_src?: string }
+type SearxngResult = { url?: string; title?: string; img_src?: string; content?: string; publishedDate?: string }
 type SearxngResponse = { results?: SearxngResult[] }
 
 /**
@@ -49,6 +49,10 @@ export const forkSearxngSearch = async (
       pageUrl,
       faviconUrl: deriveFaviconUrl(pageUrl),
       previewImageUrl: ensureHttps(r.img_src ?? null),
+      // Upstream #1283 added these required fields to SearchResultDto; SearXNG
+      // supplies `content` (snippet) and `publishedDate`. Slice mirrors Exa.
+      snippet: (r.content ?? '').trim().slice(0, 1000),
+      publishedDate: r.publishedDate ?? null,
     })
   }
   return out
