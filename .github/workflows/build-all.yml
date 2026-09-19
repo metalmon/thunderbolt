@@ -181,9 +181,14 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK + NDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
-          ndk-version: 26.1.10909125
+          # `ndk-version` was removed from this action — NDK now installs via
+          # `packages` (see android-actions/setup-android README). The old v3
+          # default cmdline-tools (16.0) also broke license auto-accept
+          # ("N of 7 licenses not accepted" → sdkmanager exit 1); v4 ships the fix.
+          packages: 'platform-tools ndk;26.1.10909125'
+          accept-android-sdk-licenses: true
 
       - name: Export Android NDK environment
         run: |
