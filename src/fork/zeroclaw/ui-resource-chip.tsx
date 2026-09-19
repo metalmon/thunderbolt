@@ -5,7 +5,8 @@
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
 import { useEffect } from 'react'
-import { AppWindow, ChevronDown, Download, PanelRight } from 'lucide-react'
+import { ChevronDown, Download, PanelRight } from 'lucide-react'
+import { CanvasArtifactIcon } from './canvas-artifact-icon'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import {
@@ -84,7 +85,7 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
 
   return (
     <div className="my-2 flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
-      <AppWindow className="size-4 shrink-0 text-muted-foreground" />
+      <CanvasArtifactIcon className="w-7 shrink-0" />
       <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
         {chipState === 'open' ? (
           <Trans>{title} — shown in side panel</Trans>
