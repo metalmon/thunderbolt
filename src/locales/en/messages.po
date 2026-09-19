@@ -1477,6 +1477,7 @@ msgstr "Done"
 #: src/components/update-notification.tsx
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/delivered-file-card.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Download"
 msgstr "Download"
 
@@ -2328,6 +2329,10 @@ msgstr "More"
 #: src/fork/documents/file-chip.tsx
 msgid "More actions for {filename}"
 msgstr "More actions for {filename}"
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "More actions for {title}"
+msgstr "More actions for {title}"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"

@@ -1473,6 +1473,7 @@ msgstr "Готово"
 #: src/components/update-notification.tsx
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/delivered-file-card.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Download"
 msgstr "Скачать"
 
@@ -2324,6 +2325,10 @@ msgstr "Ещё"
 #: src/fork/documents/file-chip.tsx
 msgid "More actions for {filename}"
 msgstr "Другие действия для {filename}"
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "More actions for {title}"
+msgstr "Другие действия для {title}"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"
