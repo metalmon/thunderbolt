@@ -376,7 +376,7 @@ msgstr "Ответ"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Anything else you'd like to share?"
-msgstr ""
+msgstr "Хотите добавить что-нибудь ещё?"
 
 #: src/settings/voice.tsx
 msgid "API key"
@@ -418,8 +418,8 @@ msgstr "Разрешить"
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-msgid "Approve {0}?"
-msgstr "Разрешить {0}?"
+#~ msgid "Approve {0}?"
+#~ msgstr "Разрешить {0}?"
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -1213,7 +1213,7 @@ msgstr "Данные надёжно хранятся на вашем устро�
 
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 msgid "Debug transcript sharing is turned off on this server."
-msgstr ""
+msgstr "Отправка отладочной расшифровки отключена на этом сервере."
 
 #: src/components/modification-indicator.tsx
 msgid "Default setting"
@@ -1457,7 +1457,7 @@ msgstr "Закрыть"
 
 #: src/components/ui/notification-card.tsx
 msgid "Dismiss notification"
-msgstr ""
+msgstr "Закрыть уведомление"
 
 #: src/settings/models/add-model-form.tsx
 msgid "Display Name"
@@ -1911,7 +1911,7 @@ msgstr "Тактильный отклик"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Having a problem with this chat?"
-msgstr ""
+msgstr "Возникла проблема с этим чатом?"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Heavy freezing rain"
@@ -1960,7 +1960,7 @@ msgstr "Как Вольт к вам обращается"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "I agree to share this chat session with the Thunderbolt team."
-msgstr ""
+msgstr "Я согласен поделиться этой сессией чата с командой Volt."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "I agree to the <0>Privacy Policy</0> and <1>Terms of Service</1>."
@@ -2025,7 +2025,7 @@ msgstr "Чтобы пользоваться предварительными ф�
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "In your own words: what were you trying to do, and what did the agent do instead?"
-msgstr ""
+msgstr "Своими словами: что вы пытались сделать и что вместо этого сделал агент?"
 
 #: src/settings/voice.tsx
 msgid "Include the version prefix (e.g. /v1). Then hit “Load models” to populate the pickers below."
@@ -3286,7 +3286,7 @@ msgstr "Отправить сообщение"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Send to the Thunderbolt team"
-msgstr ""
+msgstr "Отправить команде Volt"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
@@ -3377,7 +3377,7 @@ msgstr "Настройки"
 
 #: src/components/share-debug-transcript/share-debug-transcript-button.tsx
 msgid "Share debug transcript"
-msgstr ""
+msgstr "Поделиться отладочной расшифровкой"
 
 #: src/lib/tray.tsx
 msgid "Show"
@@ -3577,7 +3577,7 @@ msgstr "Остановить генерацию"
 
 #: src/components/ui/prompt-input.tsx
 msgid "Stopping"
-msgstr ""
+msgstr "Остановка"
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "Storage is disabled"
@@ -3742,7 +3742,7 @@ msgstr "Провайдер ИИ отвечал слишком долго. Поп
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The chat will be retained by the Thunderbolt team."
-msgstr ""
+msgstr "Чат будет сохранён командой Volt."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
@@ -3770,7 +3770,7 @@ msgstr "Служба входа сейчас недоступна. Провер�
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The Thunderbolt team, for debugging. It's tied to your account — it isn't anonymous."
-msgstr ""
+msgstr "Команда Volt — для отладки. Привязано к вашей учётной записи — не анонимно."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #~ msgid "The Thunderbolt team, plus whoever operates the server you're connected to, for debugging. It's tied to your account — it isn't anonymous."
@@ -3778,7 +3778,7 @@ msgstr ""
 
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 msgid "The transcript was rejected by the server."
-msgstr ""
+msgstr "Расшифровка отклонена сервером."
 
 #: src/settings/preferences.tsx
 msgid "Theme"
@@ -3804,7 +3804,7 @@ msgstr "Так бывает в приватных окнах или когда �
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "This chat session, including the messages you sent and the responses from the agent, the data inputs and outputs of any tools used, errors, and timestamps."
-msgstr ""
+msgstr "Эта сессия чата, включая отправленные вами сообщения и ответы агента, входные и выходные данные использованных инструментов, ошибки и метки времени."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "This chat uses {agentName}, which is not available on this platform."
@@ -3900,7 +3900,7 @@ msgstr "Этот запрос на вход истёк. Создайте нов�
 
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 msgid "This transcript is too large to upload."
-msgstr ""
+msgstr "Эта расшифровка слишком велика для загрузки."
 
 #: src/components/upgrade-required.tsx
 msgid "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
@@ -3936,7 +3936,7 @@ msgstr "Аккаунт и все данные на наших серверах �
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "This will share the current chat with the Thunderbolt team so that they can debug the problem."
-msgstr ""
+msgstr "Это отправит текущий чат команде Volt, чтобы они могли разобраться с проблемой."
 
 #: src/components/approve-device-dialog.tsx
 msgid "This will share your encryption key with the device, allowing it to decrypt and sync your data."
@@ -4038,7 +4038,7 @@ msgstr "Ввод инструмента"
 
 #: src/components/share-debug-transcript/share-debug-transcript-toast.tsx
 msgid "Transcript sent — thank you."
-msgstr ""
+msgstr "Расшифровка отправлена — спасибо."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Transport"
@@ -4281,7 +4281,7 @@ msgstr "Хотите ранний доступ?"
 
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 msgid "We could not send the transcript. Please check your connection and try again."
-msgstr ""
+msgstr "Не удалось отправить расшифровку. Проверьте подключение и попробуйте снова."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "We don't keep logs of your conversations."
@@ -4351,7 +4351,7 @@ msgstr "Что сделать с локальными данными?"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "What's in it?"
-msgstr ""
+msgstr "Что в неё входит?"
 
 #: src/settings/preferences.tsx
 msgid "When enabled, requests are routed through Thunderbolt's cloud proxy."
@@ -4367,7 +4367,7 @@ msgstr "Где вы находитесь?"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Where is it kept?"
-msgstr ""
+msgstr "Где она хранится?"
 
 #: src/settings/preferences.tsx
 msgid "Where links in chats open"
@@ -4379,7 +4379,7 @@ msgstr "Какой язык вы предпочитаете?"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Who can read it?"
-msgstr ""
+msgstr "Кто может её прочитать?"
 
 #: src/components/window-controls.tsx
 msgid "Window controls"
@@ -4431,7 +4431,7 @@ msgstr "Достигнуто максимальное число устройс�
 
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 msgid "You have reached the sharing limit. Please try again later."
-msgstr ""
+msgstr "Вы достигли лимита отправки. Попробуйте позже."
 
 #: src/settings/preferences.tsx
 msgid "You must be signed in to import data."
