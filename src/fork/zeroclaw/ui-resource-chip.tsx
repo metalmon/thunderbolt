@@ -5,9 +5,16 @@
 /* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
 
 import { useEffect } from 'react'
-import { AppWindow } from 'lucide-react'
-import { Trans } from '@lingui/react/macro'
+import { AppWindow, ChevronDown, Download, PanelRight } from 'lucide-react'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { saveBlobUrl } from '@/fork/documents/save-file'
 import { useContentView } from '@/content-view/context'
 import type { ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
 import { deriveArtifactTitle } from './ui-resource'
@@ -21,6 +28,7 @@ import { deriveChipState, useCanvasRegistry } from './canvas-registry'
  */
 export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
   const ref = uiResourceOfPart(part)
+  const { t } = useLingui()
   const { state, showArtifact, close } = useContentView()
   const { getEntry, hasAutoOpened, markAutoOpened, clearDismissed } = useCanvasRegistry()
 
@@ -37,6 +45,11 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
   const open = () => {
     clearDismissed(uri)
     showArtifact({ html, title, artifactId })
+  }
+
+  const downloadHtml = () => {
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    void saveBlobUrl(url, `${title || 'artifact'}.html`).finally(() => URL.revokeObjectURL(url))
   }
 
   // First-emit auto-open (only into a free slot; once per uri) + update-in-place while open.
@@ -81,15 +94,34 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
           <span>{title}</span>
         )}
       </span>
-      {chipState === 'open' ? (
-        <Button variant="ghost" size="sm" className="h-7 shrink-0" onClick={close}>
-          <Trans>Close</Trans>
-        </Button>
-      ) : (
-        <Button variant="ghost" size="sm" className="h-7 shrink-0" onClick={open}>
-          <Trans>Open</Trans>
-        </Button>
-      )}
+      <div className="flex shrink-0 items-center">
+        {chipState === 'open' ? (
+          <Button variant="ghost" size="sm" className="h-7" onClick={close}>
+            <Trans>Close</Trans>
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm" className="h-7" onClick={open}>
+            <Trans>Open</Trans>
+          </Button>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 px-1" aria-label={t`More actions for ${title}`}>
+              <ChevronDown className="size-3.5" aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={open}>
+              <PanelRight className="size-4" aria-hidden />
+              <Trans>Open</Trans>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={downloadHtml}>
+              <Download className="size-4" aria-hidden />
+              <Trans>Download</Trans>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   )
 }
