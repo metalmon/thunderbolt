@@ -40,47 +40,52 @@ export const MessageBubbles = ({ message, onResendAttachment }: MessageBubblesPr
           ))}
         </div>
       )}
-      {attachments.length > 0 && (
-        <div className="ml-auto mt-6 flex max-w-3/4 flex-wrap justify-end gap-2">
-          {attachments.map((attachment) => {
-            // Alternative delivery modes to offer, but only on the latest turn and
-            // only once a non-native mode is in effect (i.e. remediation already
-            // converted this file) — so a clean native send shows no resend noise.
-            const resendTargets =
+      {attachments.length > 0 &&
+        (() => {
+          const images = attachments.filter((a) => a.mimeType.startsWith('image/'))
+          const documents = attachments.filter((a) => !a.mimeType.startsWith('image/'))
+          // Alternative delivery modes to offer, but only on the latest turn and only
+          // once a non-native mode is in effect (i.e. remediation already converted this
+          // file) — so a clean native send shows no resend noise.
+          const buildProps = (attachment: (typeof attachments)[number]) => ({
+            localFileId: attachment.localFileId,
+            filename: attachment.filename,
+            mimeType: attachment.mimeType,
+            deliverAs: attachment.deliverAs,
+            resendTargets:
               onResendAttachment && attachment.deliverAs
                 ? (['text', 'images'] as const).filter(
                     (target) => attachment.deliverAs !== target && hasTransformer(attachment.mimeType, target),
                   )
-                : []
-            const onOpen = showSideview
+                : [],
+            onResend: onResendAttachment
+              ? (target: 'text' | 'images') => onResendAttachment(attachment.localFileId, target)
+              : undefined,
+            onOpen: showSideview
               ? () =>
                   showSideview(
                     'local-file',
                     buildDocumentSideviewId({ fileId: attachment.localFileId, fileName: attachment.filename }),
                   )
-              : undefined
-            const onResend = onResendAttachment
-              ? (target: 'text' | 'images') => onResendAttachment(attachment.localFileId, target)
-              : undefined
-            const commonProps = {
-              localFileId: attachment.localFileId,
-              filename: attachment.filename,
-              mimeType: attachment.mimeType,
-              deliverAs: attachment.deliverAs,
-              resendTargets,
-              onResend,
-              onOpen,
-            }
-            // Fork: documents render as a compact chip (their first-page thumbnail
-            // was unreadable); images keep their viewable thumbnail.
-            return attachment.mimeType.startsWith('image/') ? (
-              <FileCard key={attachment.localFileId} {...commonProps} />
-            ) : (
-              <FileChip key={attachment.localFileId} {...commonProps} />
-            )
-          })}
-        </div>
-      )}
+              : undefined,
+          })
+          // Documents render as full-width chips (matching the canvas chip); images keep
+          // their viewable thumbnail, right-aligned.
+          return (
+            <div className="mt-6 flex flex-col gap-2">
+              {documents.map((attachment) => (
+                <FileChip key={attachment.localFileId} {...buildProps(attachment)} />
+              ))}
+              {images.length > 0 ? (
+                <div className="ml-auto flex max-w-3/4 flex-wrap justify-end gap-2">
+                  {images.map((attachment) => (
+                    <FileCard key={attachment.localFileId} {...buildProps(attachment)} />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          )
+        })()}
       {message.parts
         .filter((part) => part.type === 'text')
         .map((part, j) => (
