@@ -96,6 +96,68 @@ export const deliveredCaption = (title: string | null | undefined, basename: str
   return trimmed && trimmed !== 'deliver_file' ? trimmed : basename
 }
 
+/**
+ * Service `tool_call_update.title` values that are NOT a human filename — the
+ * literal tool name, or the canvas marker. A file whose title is one of these
+ * falls back to the uri basename for its disk name.
+ */
+const serviceTitles = new Set(['deliver_file', 'canvas'])
+
+/** Best-effort file extension (with the dot) for a mime type. */
+const mimeExtensions: Readonly<Record<string, string>> = {
+  'application/pdf': '.pdf',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+  'application/vnd.ms-excel': '.xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+  'application/vnd.ms-powerpoint': '.ppt',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+  'text/plain': '.txt',
+  'text/csv': '.csv',
+  'text/markdown': '.md',
+  'text/html': '.html',
+  'application/json': '.json',
+  'application/zip': '.zip',
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'image/svg+xml': '.svg',
+}
+
+const extensionForMime = (mimeType: string): string => mimeExtensions[mimeType.split(';')[0].trim().toLowerCase()] ?? ''
+
+/** The `.ext` of a uri's basename, or '' when it has none. */
+const extensionFromUri = (uri: string): string => {
+  const dot = filenameFromUri(uri).match(/(\.[A-Za-z0-9]{1,8})$/)
+  return dot ? dot[1] : ''
+}
+
+/**
+ * Disk filename for a delivered blob: prefer the ZeroClaw `tool_call_update.title`
+ * (a human name) over the uri basename (a content hash). Sanitizes FS-illegal
+ * characters, and appends an extension from the mime type — else the uri — when the
+ * title carries none. Empty or service titles fall back to the uri basename.
+ */
+export const filenameFromTitle = (title: string | null | undefined, mimeType: string, uri: string): string => {
+  const trimmed = title?.trim()
+  if (!trimmed || serviceTitles.has(trimmed)) {
+    return filenameFromUri(uri)
+  }
+  const sanitized = trimmed
+    .replace(/[/\\:*?"<>|]/g, '_')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!sanitized) {
+    return filenameFromUri(uri)
+  }
+  if (/\.[A-Za-z0-9]{1,8}$/.test(sanitized)) {
+    return sanitized
+  }
+  const ext = extensionForMime(mimeType) || extensionFromUri(uri)
+  return ext ? `${sanitized}${ext}` : sanitized
+}
+
 const decodeBase64 = (b64: string): Uint8Array | null => {
   try {
     const binary = atob(b64)
@@ -159,7 +221,9 @@ export const materializeOutboundResourceBlobs = (
     if (!bytes || bytes.byteLength === 0 || bytes.byteLength > maxOutboundBlobBytes) {
       continue
     }
-    const filename = filenameFromUri(item.uri)
+    // Disk name from the human `title` (uri basename is a content hash); the
+    // localFileId stays uri-derived so citation resolution is unaffected.
+    const filename = filenameFromTitle(title, item.mimeType, item.uri)
     const localFileId = deliveredLocalFileId(item.uri)
     // Copy into a fresh ArrayBuffer-backed view for BlobPart typing.
     const copy = new Uint8Array(bytes.byteLength)
