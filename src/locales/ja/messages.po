@@ -394,8 +394,8 @@ msgstr "承認"
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-msgid "Approve {0}?"
-msgstr ""
+#~ msgid "Approve {0}?"
+#~ msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
