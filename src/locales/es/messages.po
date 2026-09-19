@@ -1472,6 +1472,7 @@ msgstr "Listo"
 #: src/components/update-notification.tsx
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/delivered-file-card.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Download"
 msgstr "Descargar"
 
@@ -2318,6 +2319,10 @@ msgstr "Más"
 
 #: src/fork/documents/file-chip.tsx
 msgid "More actions for {filename}"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "More actions for {title}"
 msgstr ""
 
 #: src/components/chat/permission-dialog.tsx
