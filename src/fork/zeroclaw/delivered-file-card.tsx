@@ -80,14 +80,26 @@ const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
     [showSideview],
   )
 
+  // Documents render as full-width chips (matching the canvas chip); images keep
+  // their viewable thumbnails in a wrapping row.
+  const images = files.filter((ref) => ref.mimeType.startsWith('image/'))
+  const documents = files.filter((ref) => !ref.mimeType.startsWith('image/'))
+
   return (
     <div className="my-2 flex flex-col gap-2">
       {showLabel ? <p className="text-sm text-muted-foreground">{t`Delivered`}</p> : null}
-      <div className="flex flex-wrap gap-3">
-        {files.map((ref) =>
-          // Images keep their viewable thumbnail; documents get the compact chip
-          // whose first-page thumbnail was unreadable anyway.
-          ref.mimeType.startsWith('image/') ? (
+      {documents.map((ref) => (
+        <FileChip
+          key={ref.localFileId}
+          localFileId={ref.localFileId}
+          filename={ref.filename}
+          mimeType={ref.mimeType}
+          onOpen={() => open(ref)}
+        />
+      ))}
+      {images.length > 0 ? (
+        <div className="flex flex-wrap gap-3">
+          {images.map((ref) => (
             <div key={ref.localFileId} className="flex flex-col items-start gap-1">
               <FileCard
                 localFileId={ref.localFileId}
@@ -107,17 +119,9 @@ const DeliveredFilesList = ({ files, showLabel, showSideview }: ListProps) => {
                 {t`Download`}
               </Button>
             </div>
-          ) : (
-            <FileChip
-              key={ref.localFileId}
-              localFileId={ref.localFileId}
-              filename={ref.filename}
-              mimeType={ref.mimeType}
-              onOpen={() => open(ref)}
-            />
-          ),
-        )}
-      </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }
