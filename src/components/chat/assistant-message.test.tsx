@@ -308,6 +308,11 @@ describe('mountMessageParts', () => {
 })
 
 describe('AssistantMessage actions', () => {
+  // Fork: AssistantMessage reads the DB (collapse-reasoning), so this upstream
+  // test needs a DatabaseProvider + seeded DB the bare render did not supply.
+  beforeAll(setupTestDatabase)
+  afterAll(teardownTestDatabase)
+
   it('renders the last-assistant action beside the copy button', () => {
     const message: ThunderboltUIMessage = {
       id: 'assistant-1',
@@ -315,13 +320,16 @@ describe('AssistantMessage actions', () => {
       parts: [{ type: 'text', text: 'Response' }],
     }
 
+    const Provider = createTestProvider()
     render(
-      <AssistantMessage
-        message={message}
-        isStreaming={false}
-        isLastAssistantMessage
-        lastAssistantAction={<button type="button">Share transcript</button>}
-      />,
+      <Provider>
+        <AssistantMessage
+          message={message}
+          isStreaming={false}
+          isLastAssistantMessage
+          lastAssistantAction={<button type="button">Share transcript</button>}
+        />
+      </Provider>,
     )
 
     const copyButton = screen.getByRole('button', { name: 'Copy message' })
