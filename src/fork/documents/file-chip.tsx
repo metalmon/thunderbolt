@@ -4,22 +4,12 @@
 
 /* Fork-owned (metalmon). New file — do not upstream. */
 
-import {
-  ChevronDown,
-  Download,
-  ExternalLink,
-  File,
-  FileImage,
-  FileSpreadsheet,
-  FileText,
-  PanelRight,
-  Presentation,
-} from 'lucide-react'
+import { ChevronDown, Download, ExternalLink, PanelRight } from 'lucide-react'
 import type { MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
-import type { ComponentType } from 'react'
 import { Button } from '@/components/ui/button'
+import { FileTypeIcon } from './file-type-icon'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,34 +44,6 @@ type FileChipProps = {
 }
 
 /**
- * Document-type icon + accent colour by mime / extension — a light Claude-Desktop
- * touch: the chip stays neutral like the canvas chip, only the type icon is tinted
- * (Word blue, Excel green, PowerPoint orange, PDF red, image teal).
- */
-const iconFor = (filename: string, mimeType: string): { Icon: ComponentType<{ className?: string }>; color: string } => {
-  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
-  if (mimeType.startsWith('image/')) {
-    return { Icon: FileImage, color: 'text-teal-600 dark:text-teal-400' }
-  }
-  if (mimeType.includes('spreadsheet') || ['csv', 'xlsx', 'xls'].includes(ext)) {
-    return { Icon: FileSpreadsheet, color: 'text-green-700 dark:text-green-500' }
-  }
-  if (mimeType.includes('presentation') || ['ppt', 'pptx'].includes(ext)) {
-    return { Icon: Presentation, color: 'text-orange-600 dark:text-orange-400' }
-  }
-  if (mimeType === 'application/pdf' || ext === 'pdf') {
-    return { Icon: FileText, color: 'text-red-600 dark:text-red-400' }
-  }
-  if (mimeType.includes('word') || ['doc', 'docx', 'rtf'].includes(ext)) {
-    return { Icon: FileText, color: 'text-blue-700 dark:text-blue-400' }
-  }
-  if (mimeType.startsWith('text/') || ['md', 'markdown', 'txt'].includes(ext)) {
-    return { Icon: FileText, color: 'text-muted-foreground' }
-  }
-  return { Icon: File, color: 'text-muted-foreground' }
-}
-
-/**
  * Compact document card, styled to match the canvas `UiResourceChip` (same dashed
  * card, sizing and type scale): a type icon + filename + an "Open" button with a
  * caret menu (Open · Download · Download and open natively). Replaces the large,
@@ -94,12 +56,11 @@ const run = (action: Promise<unknown>): void => {
 
 export const FileChip = ({ localFileId, filename, mimeType, onOpen, deliverAs, resendTargets, onResend }: FileChipProps) => {
   const { t, i18n } = useLingui()
-  const { Icon, color } = iconFor(filename, mimeType)
 
   return (
     <div className="my-2 flex w-full flex-col items-stretch gap-1">
       <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/50 px-3 py-2">
-        <Icon className={`size-4 shrink-0 ${color}`} aria-hidden />
+        <FileTypeIcon filename={filename} mimeType={mimeType} className="w-6 shrink-0" />
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground" title={filename}>
           {filename}
         </span>
