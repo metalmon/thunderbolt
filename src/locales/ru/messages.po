@@ -1173,7 +1173,7 @@ msgstr "Текущая версия"
 
 #: src/settings/models/model-presentation.tsx
 msgid "Custom"
-msgstr "Другая"
+msgstr "Другой"
 
 #: src/settings/voice.tsx
 msgid "Custom — OpenAI-compatible endpoint"
