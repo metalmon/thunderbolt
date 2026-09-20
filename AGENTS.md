@@ -87,6 +87,30 @@ reintroduce the scroll bug. Don't panic-remove it on rebase.
 `transparent` (plus the other macOS chrome settings, by convention). If you add a new
 macOS-specific window property, put it in `tauri.macos.conf.json`, not the base config.
 
+## Localization override — model-facing text shown in the UI IS translated (fork)
+
+Volt is RU-first inside a closed perimeter, so the upstream rule **"Model-facing
+text stays English"** (in the *Localization (i18n)* section below) is **narrowed**
+for the fork. It governs text the *model* consumes — not that same text when it is
+*also rendered to the user*. Do not treat "it's a tool/widget description" as a
+blanket reason to leave English in the UI.
+
+- **Model-consumed text stays English** — tool/widget `description` fields *as sent
+  to the LLM*, the citation contract (`[Source N]`, `Cite with [N]`), literal tool
+  names, skill and system prompts. Translating these risks behaviour drift and is
+  still forbidden.
+- **The same string shown in the UI gets a display-only translation.** Where the app
+  renders a model-facing string verbatim (e.g. the "Available tools" list prints the
+  tool `description`), add a separate localized *display* variant and render that;
+  leave the model-facing string untouched. Pattern:
+  `src/fork/integrations/tool-display-descriptions.ts` (a `msg`-descriptor map keyed
+  on the tool name, resolved at the render site with `i18n._()`, falling back to the
+  English config description) + its one-line seam in
+  `src/settings/connections/use-integrations-controller.tsx`.
+
+Net effect: the model keeps the exact English contract; the user sees Russian. When
+in doubt, split the two rather than translating in place.
+
 ---
 
 # Upstream project instructions (thunderbird/thunderbolt)
