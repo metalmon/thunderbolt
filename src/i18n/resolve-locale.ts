@@ -2,20 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { appLocales, defaultLocale, matchExactLocale, negotiableLocales, type AppLocale } from '@shared/i18n/locales'
+import { defaultLocale, matchExactLocale, negotiableLocales, pseudoLocale, type AppLocale } from '@shared/i18n/locales'
 
 /**
- * Locales an explicit `language` setting is allowed to select.
+ * Locales the language picker offers and an explicit `language` setting may
+ * select. Volt ships only the negotiable set (`en`, `ru`) — the other upstream
+ * catalogs (de/fr/es/pt-BR/ja) are neither maintained nor offered, so the
+ * picker lists just those two. Dev builds additionally expose the pseudo-locale
+ * for translation QA.
  *
  * `language` is a **synced** setting, so a value chosen on one device reaches
- * all of them. The picker only offers the pseudo-locale in dev builds, but on
- * its own that gate is cosmetic: a developer selecting it would sync `en-XA` to
- * their own production devices, where the UI renders pseudo-text and the picker
- * shows an empty trigger because no option matches it. Refusing the value here
- * is what actually contains it — the setting then falls through to browser
- * negotiation like any other unsupported tag.
+ * all of them. Refusing an unsupported value here (not just hiding it from the
+ * picker) is what actually contains it — e.g. a dev selecting the pseudo-locale
+ * would otherwise sync `en-XA` to their production devices; the setting then
+ * falls through to browser negotiation like any other unsupported tag.
  */
-export const settableLocales: readonly AppLocale[] = import.meta.env.DEV ? appLocales : negotiableLocales
+export const settableLocales: readonly AppLocale[] = import.meta.env.DEV
+  ? [...negotiableLocales, pseudoLocale]
+  : negotiableLocales
 
 const isSettableLocale = (value: string): value is AppLocale => (settableLocales as readonly string[]).includes(value)
 
