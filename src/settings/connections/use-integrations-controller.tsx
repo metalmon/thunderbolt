@@ -19,6 +19,7 @@ import { configs as googleToolConfigs } from '@/integrations/google/tools'
 import { configs as microsoftToolConfigs } from '@/integrations/microsoft/tools'
 import { configs as proToolConfigs } from '@/integrations/thunderbolt-pro/tools'
 import { getProStatus } from '@/integrations/thunderbolt-pro/utils'
+import { forkToolDisplayDescription } from '@/fork/integrations/tool-display-descriptions'
 import type { OAuthProvider } from '@/lib/auth'
 import type { ConnectionsPageAction } from './page-state'
 import type { Integration } from './types'
@@ -33,7 +34,7 @@ const isOAuthProvider = (provider: Integration['provider']): provider is OAuthPr
 
 /** Owns integration queries, status derivation, OAuth completion, and mutations. */
 export const useIntegrationsController = ({ db, dispatch }: IntegrationsControllerOptions) => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const queryClient = useQueryClient()
   const authenticated = useServerAuthentication()
   const integrationSettings = useSettings({ integrations_pro_is_enabled: false })
@@ -89,7 +90,10 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
     const enabled = integration.isConnected && integration.isEnabled
     return toolConfigsByProvider[integration.provider].map((config) => ({
       name: config.name,
-      description: config.description,
+      // Fork: prefer a localized display description; the model-facing
+      // config.description stays English (citation contract). See
+      // src/fork/integrations/tool-display-descriptions.ts.
+      description: forkToolDisplayDescription(config.name, i18n) ?? config.description,
       enabled,
     }))
   }
