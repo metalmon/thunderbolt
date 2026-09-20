@@ -418,8 +418,8 @@ msgstr "Aprobar"
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-#~ msgid "Approve {0}?"
-#~ msgstr ""
+msgid "Approve {0}?"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -2704,6 +2704,10 @@ msgstr "Abre Thunderbolt en uno de tus dispositivos de confianza y ve a Ajustes 
 msgid "Opening…"
 msgstr "Abriendo…"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr ""
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -3253,6 +3257,10 @@ msgstr "Buscar tareas…"
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Search…"
 msgstr "Buscar…"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
+msgstr ""
 
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"

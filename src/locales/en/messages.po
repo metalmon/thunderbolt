@@ -406,8 +406,8 @@ msgstr "Approve"
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-#~ msgid "Approve {0}?"
-#~ msgstr "Approve {0}?"
+msgid "Approve {0}?"
+msgstr "Approve {0}?"
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -2692,6 +2692,10 @@ msgstr "Open Volt on one of your trusted devices and go to Settings → Devices 
 msgid "Opening…"
 msgstr "Opening…"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr "Opens a public web page and extracts its readable text, with the source."
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -3241,6 +3245,10 @@ msgstr "Search tasks…"
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Search…"
 msgstr "Search…"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
+msgstr "Searches the web and returns results with their sources."
 
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"
