@@ -5,6 +5,7 @@
 import { artifactCsp, formatHarnessError, parseHarnessMessage, wrapArtifactHtml } from './harness'
 import { registerSandboxContent, type SandboxHandle } from './sandbox-host'
 import { type StaticIssue, staticCheckHtml } from './static-check'
+import { isTauri } from '@/lib/platform'
 
 /** Outcome of verifying an agent-authored HTML artifact. `errors` is empty when `ok`. */
 export type ArtifactVerifyResult = {
@@ -48,9 +49,16 @@ export const runIframeVerification: RuntimeVerifier = async (html, opts) => {
   // harness + agent code) actually run under the app's strict CSP — a local-scheme
   // (`srcdoc`) iframe would inherit the app CSP and block them, making verification
   // time out on every artifact. If hosting itself fails, report it (don't hang).
+  // Match the display frame's platform-specific isolation (see sandboxed-html-frame.tsx):
+  // desktop keeps the iframe `sandbox` attribute (below) + a plain CSP; web omits the
+  // attribute so the service worker intercepts the navigation, and gets its opaque origin
+  // from a CSP `sandbox` directive in the served header instead. Verification always runs
+  // scripts, so `allow-scripts`. Verifying under the SAME isolation the render uses keeps
+  // "what we verify is what we show" intact.
+  const verifyCsp = isTauri() ? artifactCsp : `sandbox allow-scripts; ${artifactCsp}`
   let handle: SandboxHandle
   try {
-    handle = await registerSandboxContent({ html: wrapArtifactHtml(html, nonce), csp: artifactCsp })
+    handle = await registerSandboxContent({ html: wrapArtifactHtml(html, nonce), csp: verifyCsp })
   } catch (error) {
     return {
       ok: false,
@@ -60,7 +68,12 @@ export const runIframeVerification: RuntimeVerifier = async (html, opts) => {
 
   return new Promise<ArtifactVerifyResult>((resolve) => {
     const iframe = document.createElement('iframe')
-    iframe.setAttribute('sandbox', 'allow-scripts') // never combine with allow-same-origin
+    // Desktop: attribute-sandbox over the cross-origin `sandbox:` origin. Web: NO
+    // attribute (so the SW intercepts the request); isolation comes from the CSP
+    // `sandbox` directive in verifyCsp above. Never combine with allow-same-origin.
+    if (isTauri()) {
+      iframe.setAttribute('sandbox', 'allow-scripts')
+    }
     iframe.setAttribute('aria-hidden', 'true')
     iframe.style.cssText = 'position:fixed;left:-99999px;top:0;width:1024px;height:768px;border:0;visibility:hidden;'
 

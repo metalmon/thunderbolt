@@ -14,6 +14,7 @@ import { buildThemeStyleTag, resolveArtifactColorScheme, snapshotThemeTokens } f
 import { parseCanvasBridgeMessage, stampCanvasNonce } from '@/fork/zeroclaw/canvas-bridge-host'
 import type { JsonRpcNotification, JsonRpcRequest } from '@/fork/zeroclaw/canvas-bridge-protocol'
 import { cn } from '@/lib/utils'
+import { isTauri } from '@/lib/platform'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 /** Height used before the page reports its own, and the floor/ceiling for the reported height. */
@@ -173,7 +174,20 @@ export const SandboxedHtmlFrame = ({
     // artifact's height until a fresh `artifact-height` arrives (dead space / clipping).
     setContentHeight(null)
     setSrc(null)
-    registerSandboxContent({ html: wrappedHtml, csp: artifactCsp })
+    // Isolation source differs by platform. Desktop serves from the cross-origin
+    // `sandbox:` scheme and keeps the iframe `sandbox` attribute (below), so the
+    // served CSP needs no `sandbox` directive. On web the iframe carries NO
+    // `sandbox` attribute (so the service worker actually intercepts the
+    // navigation — an opaque attribute-sandboxed request bypasses the SW), so the
+    // opaque origin must come from a CSP `sandbox` directive in the SW response
+    // header instead. `allow-scripts` mirrors the `allowScripts` gate; preview
+    // (`allowScripts=false`) gets a bare `sandbox` (no scripts). The directive is
+    // honoured in the response header (set by the SW) and ignored in the `<meta>`
+    // copy, so artifactCsp's meta tag is unaffected.
+    const csp = isTauri()
+      ? artifactCsp
+      : `${allowScripts ? 'sandbox allow-scripts' : 'sandbox'}; ${artifactCsp}`
+    registerSandboxContent({ html: wrappedHtml, csp })
       .then((registered) => {
         if (cancelled) {
           registered.revoke()
@@ -187,7 +201,7 @@ export const SandboxedHtmlFrame = ({
       cancelled = true
       handle?.revoke()
     }
-  }, [wrappedHtml])
+  }, [wrappedHtml, allowScripts])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -241,7 +255,10 @@ export const SandboxedHtmlFrame = ({
     <iframe
       ref={iframeRef}
       title={title}
-      sandbox={allowScripts ? 'allow-scripts' : ''}
+      // Desktop keeps the attribute (cross-origin `sandbox:` origin). Web omits it
+      // so the SW intercepts the navigation; isolation there comes from the CSP
+      // `sandbox` directive in the SW response (see the register call above).
+      sandbox={isTauri() ? (allowScripts ? 'allow-scripts' : '') : undefined}
       src={src}
       style={style}
       className={frameClass}
