@@ -14,6 +14,7 @@ by `dev-local/rebuild-master.ps1`.
 |---|---|---|
 | `PUBLIC_URL` | `http://localhost:3000` | Public origin the demo is served from. Set to your tunnel URL for external access. Drives `APP_URL`, `BETTER_AUTH_URL`, `TRUSTED_ORIGINS`, `CORS_ORIGINS`, and `POWERSYNC_URL` for the compose backend. |
 | `WEB_PORT` | `3000` | Host port the web container's nginx (`:80`) is published on. |
+| `KEYCLOAK_PUBLIC_URL` | `http://localhost:8180` | Keycloak's **own** browser-facing origin (upstream OIDC recipe: `OIDC_ISSUER` = the keycloak service's `KC_HOSTNAME`). Local uses the published `:8180`; for remote access set it to Keycloak's own tunnel/domain (a **second** tunnel to `:8180`) — Keycloak keeps its own origin rather than riding the app tunnel. Only when `AUTH_MODE=oidc`. |
 | `OPENROUTER_API_KEYS` | _(empty)_ | Comma-separated OpenRouter API keys for the free system models. The backend injects them server-side and rotates on rate-limit. Use keys from **different OpenRouter accounts** for the free-tier limit to actually multiply. Empty ⇒ the models return 503 on use. |
 | `OPENROUTER_FREE_RPM` | `10` | Per-user requests/minute cap on the free models (in-memory throttle). |
 
@@ -47,6 +48,26 @@ PUBLIC_URL=https://demo.example.tld \
 `POWERSYNC_URL` all derive from `PUBLIC_URL`, so `/v1` and `/powersync` are
 same-origin and reachable through the single tunnel. Magic-link URLs logged by
 the backend point at `PUBLIC_URL` and are clickable end-to-end.
+
+### Keycloak OIDC through a tunnel
+
+When `AUTH_MODE=oidc`, the login page is a **browser** redirect straight to
+Keycloak's authorization endpoint — it does not go through `/v1`, so Keycloak
+needs its own browser-reachable origin (upstream recipe: Keycloak is a separate
+service with its own URL). Run a **second** tunnel to `localhost:8180` and set
+`KEYCLOAK_PUBLIC_URL` to it; the backend's server-side token exchange still uses
+the internal `keycloak:8080` (`KC_HOSTNAME_BACKCHANNEL_DYNAMIC`), so only the
+frontchannel rides the second tunnel:
+
+```bash
+PUBLIC_URL=https://demo.example.tld \
+KEYCLOAK_PUBLIC_URL=https://auth.example.tld \
+  docker compose -p bucher-thunderbolt -f powersync-service/docker-compose.yml up -d --build
+```
+
+Also add the app callback `${PUBLIC_URL}/v1/api/auth/sso/callback/sso` to the
+`volt` client's `redirectUris` in `powersync-service/keycloak/realm.json` (the
+committed realm allows `http://localhost:3000/*` for local dev).
 
 ## Web search + scrape (Phase 3)
 
