@@ -7,6 +7,12 @@ services:
     build:
       context: ../
       dockerfile: dev-local/docker/web.Dockerfile
+      args:
+        # Keycloak/OIDC: redirect unauthenticated users to the IdP (no consumer
+        # login), and turn off anonymous + waitlist-bypass so the SSO gate applies.
+        VITE_AUTH_MODE: sso
+        VITE_AUTH_ENABLE_ANONYMOUS: "false"
+        VITE_BYPASS_WAITLIST: "false"
     depends_on:
       - backend
       - powersync
@@ -60,7 +66,8 @@ services:
       # when native-fetch is off. Desktop native-fetch bypasses CORS entirely.
       CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://tauri.localhost,tauri://localhost,http://localhost:1420
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
-      AUTH_ALLOW_ANONYMOUS: "true"
+      # OIDC mode: no anonymous sessions — everyone signs in via Keycloak.
+      AUTH_ALLOW_ANONYMOUS: "false"
       # Fork: Keycloak OIDC. AUTH_MODE=oidc overrides backend/.env's `consumer`.
       # Issuer split — the browser-facing issuer (published :8180) vs the internal
       # discovery/backchannel over the compose net (keycloak:8080). The Keycloak
