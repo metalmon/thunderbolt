@@ -66,6 +66,14 @@ services:
       # when native-fetch is off. Desktop native-fetch bypasses CORS entirely.
       CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://tauri.localhost,tauri://localhost,http://localhost:1420
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
+      # Outbound egress proxy (HTTPS_PROXY/HTTP_PROXY) is set in secrets.env for
+      # cloud APIs that the closed perimeter only reaches via Proxifier's upstream
+      # proxy (Proxifier hooks host processes, not this container). Keep ALL
+      # internal service traffic OFF that proxy — otherwise backend→postgres/
+      # keycloak/powersync/searxng/firecrawl would be tunnelled out (breaking OIDC
+      # discovery, search, scrape, sync). Match by compose service name.
+      NO_PROXY: localhost,127.0.0.1,::1,postgres,keycloak,powersync,searxng,firecrawl-api,firecrawl-worker,firecrawl-redis,firecrawl-puppeteer,backend
+      no_proxy: localhost,127.0.0.1,::1,postgres,keycloak,powersync,searxng,firecrawl-api,firecrawl-worker,firecrawl-redis,firecrawl-puppeteer,backend
       # OIDC mode: no anonymous sessions — everyone signs in via Keycloak.
       AUTH_ALLOW_ANONYMOUS: "false"
       # Fork: Keycloak OIDC. AUTH_MODE=oidc overrides backend/.env's `consumer`.
