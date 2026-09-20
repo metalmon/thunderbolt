@@ -406,8 +406,8 @@ msgstr ""
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-#~ msgid "Approve {0}?"
-#~ msgstr ""
+msgid "Approve {0}?"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -2692,6 +2692,10 @@ msgstr ""
 msgid "Opening…"
 msgstr ""
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr ""
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -3240,6 +3244,10 @@ msgstr ""
 #: src/components/ui/combobox.tsx
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Search…"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
 msgstr ""
 
 #: src/lib/tool-metadata.ts
