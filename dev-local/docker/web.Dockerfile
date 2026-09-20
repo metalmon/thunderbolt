@@ -14,22 +14,28 @@ RUN bun install --frozen-lockfile
 
 # Frontend source
 COPY src ./src
+# Lingui catalogs live in src/locales/** (copied above). The old i18next root
+# `locales/` was retired in the Lingui migration — do not COPY it (it's gone).
 # Fork i18n catalogs — src/i18n/i18n.ts imports ../../locales/**; present on the
 # assembled master (fork/i18n + fork/i18n-locales), absent from upstream.
-COPY locales ./locales
 COPY public ./public
 COPY index.html ./
-COPY vite.config.ts tsconfig.json tsconfig.node.json ./
+COPY vite.config.ts lingui.config.ts tsconfig.json tsconfig.node.json ./
 COPY components.json ./
 COPY .storybook ./.storybook
 
-# Demo build config baked into the bundle. VITE_AUTH_MODE is intentionally
-# omitted (must not be "sso"). Do NOT copy the repo .env.production — it points
-# VITE_THUNDERBOLT_CLOUD_URL at localhost:8000, wrong for same-origin.
+# Demo build config baked into the bundle. VITE_AUTH_MODE defaults to consumer
+# (empty); set it to "sso" via a build arg for a Keycloak/OIDC deployment (the
+# app then redirects unauthenticated users to the IdP instead of the consumer
+# login) — pair it with anonymous+bypass off. Do NOT copy the repo
+# .env.production — it points VITE_THUNDERBOLT_CLOUD_URL at localhost:8000,
+# wrong for same-origin.
 ARG VITE_THUNDERBOLT_CLOUD_URL="/v1"
+ARG VITE_AUTH_MODE=""
 ARG VITE_AUTH_ENABLE_ANONYMOUS="true"
 ARG VITE_BYPASS_WAITLIST="true"
 ENV VITE_THUNDERBOLT_CLOUD_URL=$VITE_THUNDERBOLT_CLOUD_URL
+ENV VITE_AUTH_MODE=$VITE_AUTH_MODE
 ENV VITE_AUTH_ENABLE_ANONYMOUS=$VITE_AUTH_ENABLE_ANONYMOUS
 ENV VITE_BYPASS_WAITLIST=$VITE_BYPASS_WAITLIST
 
