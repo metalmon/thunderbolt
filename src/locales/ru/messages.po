@@ -418,8 +418,8 @@ msgstr "Разрешить"
 
 #. placeholder {0}: approveMatch[1]
 #: src/components/chat/permission-dialog.tsx
-#~ msgid "Approve {0}?"
-#~ msgstr "Разрешить {0}?"
+msgid "Approve {0}?"
+msgstr "Разрешить {0}?"
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -2688,6 +2688,10 @@ msgstr "Откройте Вольт на одном из доверенных у
 msgid "Opening…"
 msgstr "Открытие…"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr "Открывает публичную веб-страницу и извлекает её читаемый текст с указанием источника."
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -3233,6 +3237,10 @@ msgstr "Поиск задач…"
 #: src/components/ui/searchable-menu/searchable-menu.tsx
 msgid "Search…"
 msgstr "Поиск…"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
+msgstr "Ищет в интернете и возвращает результаты с указанием источников."
 
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"
