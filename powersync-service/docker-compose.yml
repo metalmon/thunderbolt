@@ -29,6 +29,8 @@ services:
         condition: service_started
       firecrawl-api:
         condition: service_started
+      keycloak:
+        condition: service_started
     build:
       context: ../
       dockerfile: deploy/docker/backend.Dockerfile
@@ -52,17 +54,48 @@ services:
       # must be the public origin (not the internal service host).
       APP_URL: ${PUBLIC_URL:-http://localhost:3000}
       BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3000}
-      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000}
+      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://localhost:8180,http://keycloak:8080
       # Web-demo origin (${PUBLIC_URL}) plus the Tauri desktop origins, so the
       # standalone binary (origin http://tauri.localhost) can call /v1 directly
       # when native-fetch is off. Desktop native-fetch bypasses CORS entirely.
       CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://tauri.localhost,tauri://localhost,http://localhost:1420
       POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
       AUTH_ALLOW_ANONYMOUS: "true"
+      # Fork: Keycloak OIDC. AUTH_MODE=oidc overrides backend/.env's `consumer`.
+      # Issuer split — the browser-facing issuer (published :8180) vs the internal
+      # discovery/backchannel over the compose net (keycloak:8080). The Keycloak
+      # service pins KC_HOSTNAME + BACKCHANNEL_DYNAMIC so the `iss` claim stays
+      # http://localhost:8180/realms/volt for both the browser and the backend.
+      AUTH_MODE: oidc
+      OIDC_CLIENT_ID: volt-app
+      OIDC_CLIENT_SECRET: volt-dev-secret
+      OIDC_ISSUER: http://localhost:8180/realms/volt
+      OIDC_DISCOVERY_URL: http://keycloak:8080/realms/volt/.well-known/openid-configuration
       # OPENROUTER_API_KEYS / OPENROUTER_FREE_RPM come from the git-ignored
       # secrets.env above (not hardcoded here, so a shell/env-file value wins).
     ports:
       - 8000:8000
+
+  keycloak:
+    restart: unless-stopped
+    # Fork: self-hosted OIDC IdP for AUTH_MODE=oidc. start-dev + embedded H2 (dev;
+    # the `volt` realm is re-imported each boot from ./keycloak/realm.json).
+    # KC_HOSTNAME pins the browser-facing base URL so the `iss` claim is stable;
+    # BACKCHANNEL_DYNAMIC lets the backend reach token/JWKS over the compose net
+    # (keycloak:8080) without hairpinning through the published host port.
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:8180
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+    ports:
+      - "8180:8080"
 
   powersync:
     restart: unless-stopped
