@@ -60,7 +60,7 @@ services:
       # must be the public origin (not the internal service host).
       APP_URL: ${PUBLIC_URL:-http://localhost:3000}
       BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3000}
-      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://localhost:8180,http://keycloak:8080
+      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},${KEYCLOAK_PUBLIC_URL:-http://localhost:8180},http://keycloak:8080
       # Web-demo origin (${PUBLIC_URL}) plus the Tauri desktop origins, so the
       # standalone binary (origin http://tauri.localhost) can call /v1 directly
       # when native-fetch is off. Desktop native-fetch bypasses CORS entirely.
@@ -76,7 +76,12 @@ services:
       AUTH_MODE: oidc
       OIDC_CLIENT_ID: volt-app
       OIDC_CLIENT_SECRET: volt-dev-secret
-      OIDC_ISSUER: http://localhost:8180/realms/volt
+      # Browser-facing issuer = Keycloak's own public URL (upstream recipe:
+      # OIDC_ISSUER must equal the keycloak service's KC_HOSTNAME). Defaults to the
+      # published :8180 for local (browser on the host); for remote access set
+      # KEYCLOAK_PUBLIC_URL to Keycloak's own tunnel/domain (a SECOND tunnel to
+      # :8180) — Keycloak keeps its own origin rather than riding the app tunnel.
+      OIDC_ISSUER: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/volt
       OIDC_DISCOVERY_URL: http://keycloak:8080/realms/volt/.well-known/openid-configuration
       # OPENROUTER_API_KEYS / OPENROUTER_FREE_RPM come from the git-ignored
       # secrets.env above (not hardcoded here, so a shell/env-file value wins).
@@ -96,7 +101,11 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME: http://localhost:8180
+      # Own public URL (upstream recipe). Must equal the backend's OIDC_ISSUER
+      # origin. Default = published :8180 (local); override with KEYCLOAK_PUBLIC_URL
+      # (its own tunnel/domain) for remote. BACKCHANNEL_DYNAMIC keeps token/JWKS on
+      # the internal keycloak:8080 for the backend, so this URL is browser-only.
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HEALTH_ENABLED: "true"
     volumes:
