@@ -17,6 +17,7 @@ by `dev-local/rebuild-master.ps1`.
 | `KEYCLOAK_PUBLIC_URL` | `http://localhost:8180` | Keycloak's **own** browser-facing origin (upstream OIDC recipe: `OIDC_ISSUER` = the keycloak service's `KC_HOSTNAME`). Local uses the published `:8180`; for remote access set it to Keycloak's own tunnel/domain (a **second** tunnel to `:8180`) — Keycloak keeps its own origin rather than riding the app tunnel. Only when `AUTH_MODE=oidc`. |
 | `OPENROUTER_API_KEYS` | _(empty)_ | Comma-separated OpenRouter API keys for the free system models. The backend injects them server-side and rotates on rate-limit. Use keys from **different OpenRouter accounts** for the free-tier limit to actually multiply. Empty ⇒ the models return 503 on use. |
 | `OPENROUTER_FREE_RPM` | `10` | Per-user requests/minute cap on the free models (in-memory throttle). |
+| `HTTPS_PROXY` / `HTTP_PROXY` | _(unset)_ | Set in `secrets.env` when the host reaches the internet only through a per-process proxifier that does **not** hook the container (e.g. Proxifier with fake-DNS `127.x`, common in a closed RU perimeter). Point them at the upstream HTTP-CONNECT proxy directly (`http://USER:PASS@host:port`); the proxy resolves the domain remotely, bypassing the fake DNS. Bun `fetch` honours these. `NO_PROXY` (set in `docker-compose.yml`) keeps internal service traffic — postgres, keycloak, powersync, searxng, firecrawl — off the proxy. Leave unset if the container has normal egress. |
 
 ## Free models (OpenRouter)
 
