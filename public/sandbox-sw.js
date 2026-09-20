@@ -64,6 +64,15 @@ self.addEventListener('fetch', (event) => {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Content-Security-Policy': item.csp,
+        // The app page is cross-origin isolated (COEP: credentialless, from
+        // deploy/config/security-headers.conf), and a nested document under such a
+        // parent must carry its OWN COEP header to be embeddable — a same-origin
+        // subframe is NOT exempt. Match the parent's `credentialless`; the frame's
+        // only subresources are data:/blob: (COEP-exempt). CORP cross-origin lets
+        // the opaque (CSP-sandboxed) document be embedded. Without these the frame
+        // loads blank in the web build.
+        'Cross-Origin-Embedder-Policy': 'credentialless',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
         'Cache-Control': 'no-store',
       },
     }),
