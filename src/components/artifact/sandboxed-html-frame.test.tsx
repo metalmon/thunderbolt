@@ -54,7 +54,10 @@ describe('SandboxedHtmlFrame', () => {
     const { container } = render(<SandboxedHtmlFrame html="<h1>Chart</h1>" title="My chart" />)
     await settle()
     const iframe = container.querySelector('iframe')!
-    expect(iframe.getAttribute('sandbox')).toBe('allow-scripts')
+    // Web build (isTauri() is false under test): NO `sandbox` attribute, so the
+    // service worker intercepts the navigation; the opaque origin comes from the
+    // CSP `sandbox allow-scripts` directive in the served header instead.
+    expect(iframe.getAttribute('sandbox')).toBeNull()
     expect(iframe.getAttribute('title')).toBe('My chart')
     // Loaded from the host URL, not srcdoc (which would inherit the app CSP).
     expect(iframe.getAttribute('src')).toBe('sandbox://localhost/test-id')
@@ -63,18 +66,27 @@ describe('SandboxedHtmlFrame', () => {
     expect(lastRegistered?.html).toContain('<h1>Chart</h1>')
     expect(lastRegistered?.html).toContain('postMessage')
     expect(lastRegistered?.csp).toContain("default-src 'none'")
+    // Isolation invariant (web): the served CSP always carries the sandbox directive,
+    // so artifact HTML can never be served unsandboxed even without the attribute.
+    expect(lastRegistered?.csp).toContain('sandbox allow-scripts')
   })
 
   it('never grants same-origin access to the sandboxed content', async () => {
     const { container } = render(<SandboxedHtmlFrame html="<p>x</p>" title="t" />)
     await settle()
-    expect(container.querySelector('iframe')?.getAttribute('sandbox')).not.toContain('allow-same-origin')
+    // Web: isolation is the CSP `sandbox` directive, never `allow-same-origin`.
+    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBeNull()
+    expect(lastRegistered?.csp).toContain('sandbox')
+    expect(lastRegistered?.csp).not.toContain('allow-same-origin')
   })
 
   it('serves the offline CSP but no harness when scripts are disabled (streaming preview)', async () => {
     const { container } = render(<SandboxedHtmlFrame html="<p>partial</p>" title="t" allowScripts={false} />)
     await settle()
-    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBe('')
+    // Preview (web): no attribute; CSP is a bare `sandbox` (no allow-scripts).
+    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBeNull()
+    expect(lastRegistered?.csp).toContain('sandbox;')
+    expect(lastRegistered?.csp).not.toContain('allow-scripts')
     expect(lastRegistered?.html).toContain('<p>partial</p>')
     expect(lastRegistered?.html).toContain('Content-Security-Policy') // preview is still offline
     expect(lastRegistered?.html).not.toContain('postMessage') // but no harness — scripts are off
