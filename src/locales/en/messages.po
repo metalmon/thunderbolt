@@ -138,7 +138,7 @@ msgstr "⚠ This export was made by a different account ({importSourceEmail}). I
 
 #: src/components/device-approval.tsx
 msgid "A device wants to sign in to your account as the Thunderbolt CLI. Only approve if you just started this from your own terminal."
-msgstr "A device wants to sign in to your account as the Thunderbolt CLI. Only approve if you just started this from your own terminal."
+msgstr "A device wants to sign in to your account as the Volt CLI. Only approve if you just started this from your own terminal."
 
 #: src/components/pending-device-modal.tsx
 msgid "A new device is requesting access to your encrypted data."
@@ -812,7 +812,7 @@ msgstr "Complete new task"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Complete the setup process to get started with Thunderbolt"
-msgstr "Complete the setup process to get started with Thunderbolt"
+msgstr "Complete the setup process to get started with Volt"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Completing…"
@@ -1861,7 +1861,7 @@ msgstr "Get started by adding your first AI model."
 #: src/components/download-app-banner-desktop.tsx
 #: src/components/download-app-banner-mobile.tsx
 msgid "Get Thunderbolt free app"
-msgstr "Get Thunderbolt free app"
+msgstr "Get Volt free app"
 
 #: src/lib/tool-metadata.ts
 msgid "Getting weather for {location}…"
@@ -1935,7 +1935,7 @@ msgstr "Heavy snow showers"
 
 #: src/settings/preferences.tsx
 msgid "Help Thunderbolt Improve"
-msgstr "Help Thunderbolt Improve"
+msgstr "Help Volt Improve"
 
 #: src/settings/preferences.tsx
 msgid "Help us improve the app by sending anonymous usage info such as crashes, performance, and usage. Read more about our <0>privacy policy</0>."
@@ -1960,11 +1960,11 @@ msgstr "Hide the model's live thinking while it generates."
 
 #: src/settings/preferences.tsx
 msgid "How Thunderbolt salutes you"
-msgstr "How Thunderbolt salutes you"
+msgstr "How Volt salutes you"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "I agree to share this chat session with the Thunderbolt team."
-msgstr "I agree to share this chat session with the Thunderbolt team."
+msgstr "I agree to share this chat session with the Volt team."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "I agree to the <0>Privacy Policy</0> and <1>Terms of Service</1>."
@@ -1976,7 +1976,7 @@ msgstr "I have saved my recovery phrase"
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app."
-msgstr "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app."
+msgstr "If you are using iOS Lockdown Mode, exclude Volt from the \"Configure Web Browsing\" setting, then reopen the app."
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "If you have access, we've sent an 8-digit code to <0>{email}</0>"
@@ -2682,11 +2682,11 @@ msgstr "Open the store to check for updates."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Open Thunderbolt CLI"
-msgstr "Open Thunderbolt CLI"
+msgstr "Open Volt CLI"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
-msgstr "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
+msgstr "Open Volt on one of your trusted devices and go to Settings → Devices to approve this device."
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
@@ -3294,7 +3294,7 @@ msgstr "Send message"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Send to the Thunderbolt team"
-msgstr "Send to the Thunderbolt team"
+msgstr "Send to the Volt team"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
@@ -3435,7 +3435,7 @@ msgstr "Sign In"
 
 #: src/components/device-approval.tsx
 msgid "Sign in to a Thunderbolt account to approve this CLI request."
-msgstr "Sign in to a Thunderbolt account to approve this CLI request."
+msgstr "Sign in to a Volt account to approve this CLI request."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to continue"
@@ -3451,7 +3451,7 @@ msgstr "Sign in to the CLI"
 
 #: src/components/sign-in-modal.tsx
 msgid "Sign in to Thunderbolt"
-msgstr "Sign in to Thunderbolt"
+msgstr "Sign in to Volt"
 
 #: src/search/commands/use-commands.ts
 msgid "Sign out"
@@ -3561,11 +3561,11 @@ msgstr "Speaking"
 
 #: src/settings/voice.tsx
 msgid "Speech-to-text and text-to-speech run in Thunderbolt’s confidential enclave."
-msgstr "Speech-to-text and text-to-speech run in Thunderbolt’s confidential enclave."
+msgstr "Speech-to-text and text-to-speech run in Volt’s confidential enclave."
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Start Using Thunderbolt"
-msgstr "Start Using Thunderbolt"
+msgstr "Start Using Volt"
 
 #: src/voice/ui/voice-mode-button.tsx
 msgid "Start voice mode"
@@ -3750,11 +3750,11 @@ msgstr "The AI provider took too long to respond. Try again."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The chat will be retained by the Thunderbolt team."
-msgstr "The chat will be retained by the Thunderbolt team."
+msgstr "The chat will be retained by the Volt team."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
-msgstr "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
+msgstr "The CLI will be signed out and must sign in again before it can use your Volt account."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "The device will be signed out and its local data will be cleared on next sync. This device will need to sign in again to use sync."
@@ -3778,7 +3778,7 @@ msgstr "The sign-in service is unavailable right now. Check your connection and 
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The Thunderbolt team, for debugging. It's tied to your account — it isn't anonymous."
-msgstr "The Thunderbolt team, for debugging. It's tied to your account — it isn't anonymous."
+msgstr "The Volt team, for debugging. It's tied to your account — it isn't anonymous."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #~ msgid "The Thunderbolt team, plus whoever operates the server you're connected to, for debugging. It's tied to your account — it isn't anonymous."
@@ -3844,7 +3844,7 @@ msgstr "This device has not been approved yet. Please approve it from a trusted 
 
 #: src/settings/preferences.tsx
 msgid "This file doesn't look like a Thunderbolt export."
-msgstr "This file doesn't look like a Thunderbolt export."
+msgstr "This file doesn't look like a Volt export."
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "This helps us personalize your experience with local settings and features."
@@ -3884,7 +3884,7 @@ msgstr "this project"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
-msgstr "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
+msgstr "This removes the connection from Volt only. Nothing on the remote server is changed."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "This server needs a personal access token or API key. Paste it in the Credential field above, then test again."
@@ -3912,7 +3912,7 @@ msgstr "This transcript is too large to upload."
 
 #: src/components/upgrade-required.tsx
 msgid "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
-msgstr "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
+msgstr "This version of Volt is no longer supported. Update the app to keep chatting and syncing."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "This will deny the device access to your encrypted data. The device will need to set up sync again."
@@ -3944,7 +3944,7 @@ msgstr "This will permanently delete your account and all of your data on our se
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "This will share the current chat with the Thunderbolt team so that they can debug the problem."
-msgstr "This will share the current chat with the Thunderbolt team so that they can debug the problem."
+msgstr "This will share the current chat with the Volt team so that they can debug the problem."
 
 #: src/components/approve-device-dialog.tsx
 msgid "This will share your encryption key with the device, allowing it to decrypt and sync your data."
@@ -3956,43 +3956,43 @@ msgstr "Thought for {duration}"
 
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
-msgstr "Thunderbolt (hosted, private)"
+msgstr "Volt (hosted, private)"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Thunderbolt CLI"
-msgstr "Thunderbolt CLI"
+msgstr "Volt CLI"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Thunderbolt is open-source"
-msgstr "Thunderbolt is open-source"
+msgstr "Volt is open-source"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
-msgstr "Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
+msgstr "Volt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled."
-msgstr "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled."
+msgstr "Volt needs browser storage (IndexedDB) to work, but it's currently disabled."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Thunderbolt Pro is not available yet. Stay tuned!"
-msgstr "Thunderbolt Pro is not available yet. Stay tuned!"
+msgstr "Volt Pro is not available yet. Stay tuned!"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Calendar"
-msgstr "Thunderbolt wants to connect to {providerName} Calendar"
+msgstr "Volt wants to connect to {providerName} Calendar"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Email"
-msgstr "Thunderbolt wants to connect to {providerName} Email"
+msgstr "Volt wants to connect to {providerName} Email"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Thunderbolt wants to connect to {providerName} Email and Calendar"
-msgstr "Thunderbolt wants to connect to {providerName} Email and Calendar"
+msgstr "Volt wants to connect to {providerName} Email and Calendar"
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "Thunderbolt will use it across the app. You can change it later in Preferences."
-msgstr "Thunderbolt will use it across the app. You can change it later in Preferences."
+msgstr "Volt will use it across the app. You can change it later in Preferences."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm"
@@ -4214,7 +4214,7 @@ msgstr "Use the connection prompt on screen to continue."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
-msgstr "Use Thunderbolt from the command line."
+msgstr "Use Volt from the command line."
 
 #: src/settings/voice.tsx
 msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
@@ -4333,7 +4333,7 @@ msgstr "Welcome"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Welcome to Thunderbolt!"
-msgstr "Welcome to Thunderbolt!"
+msgstr "Welcome to Volt!"
 
 #: src/components/magic-link-verify.tsx
 msgid "Welcome, {displayName}"
@@ -4379,7 +4379,7 @@ msgstr "What's in it?"
 
 #: src/settings/preferences.tsx
 msgid "When enabled, requests are routed through Thunderbolt's cloud proxy."
-msgstr "When enabled, requests are routed through Thunderbolt's cloud proxy."
+msgstr "When enabled, requests are routed through Volt's cloud proxy."
 
 #: src/skills/skill-form.tsx
 msgid "When to use this skill…"
