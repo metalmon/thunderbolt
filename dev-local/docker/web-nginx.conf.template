@@ -86,6 +86,31 @@ server {
         return 404;
     }
 
+    # Sandboxed artifact host (render_html / MCP-app HTML). The web sandbox host
+    # (src/artifacts/sandbox-host.ts + public/sandbox-sw.js) serves /__sandbox__/<id>
+    # from a service worker with the item's OWN per-item CSP, and the app frames it
+    # same-origin. The shared security-headers snippet sends `frame-ancestors 'none'`
+    # + `X-Frame-Options: DENY`, which — on any request that misses the SW (first
+    # paint before the SW claims, hard reload, SW disabled) — falls through to the
+    # SPA `index.html` and blocks the frame ("Framing 'http://localhost:3000/'
+    # violates ... frame-ancestors 'none'"). Give the sandbox route its own headers
+    # that permit same-origin framing, and 404 the fallback (the SW, not nginx,
+    # holds the content) so a miss fails cleanly instead of framing the app root.
+    # Do NOT include security-headers.conf here (it would re-impose the DENY).
+    location ^~ /__sandbox__/ {
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Cross-Origin-Embedder-Policy "credentialless" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Content-Security-Policy "frame-ancestors 'self'" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        try_files $uri =404;
+    }
+
     # SPA fallback.
     location / {
         include /etc/nginx/snippets/security-headers.conf;
