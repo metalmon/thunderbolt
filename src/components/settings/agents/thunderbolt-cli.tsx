@@ -19,6 +19,7 @@ import {
   installThunderboltCli,
 } from '@/lib/cli-install'
 import { getPlatform, isTauri } from '@/lib/platform'
+import { forkHideCliRow } from '@/fork/agents/hide-cli-row'
 import { AgentListRow } from './agent-list-row'
 import { IconTile } from '@/components/settings/icon-tile'
 
@@ -65,6 +66,10 @@ export const ThunderboltCliRow = ({
   const { i18n, t } = useLingui()
   const isTauriEnv = isTauriEnvProp ?? isTauri()
   const runtimeArchitecture = architecture ?? (isTauriEnv ? arch() : 'unknown')
+
+  // Fork: the standalone CLI is not distributed in the closed perimeter — hide
+  // the row everywhere (web + desktop), collapsing upstream's platform gate.
+  if (forkHideCliRow()) return null
 
   // Hide the row only on a Tauri build with no published binary for this
   // OS/architecture; web builds always show it (the detail links to the guide).
