@@ -11,11 +11,30 @@
 //! returns its OWN `Content-Security-Policy` response header escapes that — the
 //! frame is then governed only by the per-item CSP we set here.
 //!
-//! Security: the main app CSP (`script-src 'self'`) is untouched. The content is
-//! still framed with `sandbox="allow-scripts"` (never `allow-same-origin`) on the JS
-//! side, so it runs in an opaque origin that can't reach the app DOM/IPC/tokens, and
-//! the per-item CSP (e.g. render_html's `default-src 'none'; connect-src 'none'`)
-//! blocks network exfiltration.
+//! Security: the main app CSP (`script-src 'self'`) is untouched. The content runs
+//! in an opaque origin (via the iframe `sandbox` attribute on desktop / a CSP
+//! `sandbox` directive on web) that can't reach the app DOM, and the per-item CSP
+//! (e.g. render_html's `default-src 'none'`) blocks network exfiltration.
+//!
+//! ⚠ Tauri IPC exposure (defense-in-depth — DO NOT loosen the artifact CSP):
+//! Because this content is served from a `register_uri_scheme_protocol` origin,
+//! Tauri's `is_local_url` classifies the sandbox frame as **Local**, so Tauri
+//! injects its full IPC surface (`window.__TAURI_INTERNALS__`, `invoke`, …) into it
+//! and would grant it the main window's ACL. Tauri keys IPC on the *webview*, not the
+//! sub-frame, so it CANNOT be rejected by frame origin from Rust (verified against
+//! 2.11: `Webview::url()` returns the main frame's URL), and the injected internals
+//! are non-writable so they can't be neutralised from our harness. The artifact is
+//! nonetheless UNABLE to invoke commands because BOTH IPC transports are dead:
+//!   1. the fetch transport (`http://ipc.localhost/…`) is blocked by the per-item
+//!      CSP `default-src 'none'` (no `connect-src`) — OUR control, load-bearing;
+//!   2. the postMessage transport is not delivered to native from an opaque-origin
+//!      sub-frame by WebView2/WKWebView — a platform behaviour (verified live: a
+//!      `dialog|save` invoke opened no dialog).
+//! The safe canvas bridge is a separate channel (`window.parent.postMessage`, frame→
+//! app JS), not Tauri IPC. If invariant (1) is ever weakened, or (2) changes upstream,
+//! this becomes a real sandbox escape — re-evaluate (options: serve the artifact in a
+//! separate webview with no capability). See docs/superpowers/specs/2026-09-21-web-
+//! artifact-coep-sandbox-design.md §11.
 
 use std::collections::HashMap;
 use std::sync::Mutex;
