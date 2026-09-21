@@ -80,6 +80,20 @@ describe('SandboxedHtmlFrame', () => {
     expect(lastRegistered?.csp).not.toContain('allow-same-origin')
   })
 
+  it('served CSP blocks the Tauri IPC channel (security invariant — do NOT loosen)', async () => {
+    // On desktop the sandbox frame is Tauri-Local-classified and receives the full
+    // IPC surface (see src-tauri/src/sandbox.rs). The ONLY reason the artifact can't
+    // invoke commands is that `default-src 'none'` (no connect-src) blocks the fetch
+    // IPC transport to http://ipc.localhost. This is load-bearing security, not just
+    // offline behaviour — a connect-src that reached ipc.localhost would open a
+    // sandbox escape. Guard it here.
+    render(<SandboxedHtmlFrame html="<p>x</p>" title="t" />)
+    await settle()
+    const csp = lastRegistered?.csp ?? ''
+    expect(csp).toContain("default-src 'none'")
+    expect(csp).not.toContain('connect-src')
+  })
+
   it('serves the offline CSP but no harness when scripts are disabled (streaming preview)', async () => {
     const { container } = render(<SandboxedHtmlFrame html="<p>partial</p>" title="t" allowScripts={false} />)
     await settle()
