@@ -40,7 +40,16 @@
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
-        "languages": ["Russian", "English"]
+        "languages": ["Russian", "English"],
+        "installerHooks": "installer-hooks.nsi"
+      }
+    },
+    "linux": {
+      "deb": {
+        "desktopTemplate": "volt.desktop"
+      },
+      "rpm": {
+        "desktopTemplate": "volt.desktop"
       }
     },
     "icon": [
