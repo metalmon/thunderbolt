@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
+        <!-- Human-visible app name. CFBundleName stays "Volt" (from productName,
+             the ≤15-char machine name); this is the display label macOS shows in
+             Finder / the menu bar / the Dock and iOS shows on the home screen. -->
+        <key>CFBundleDisplayName</key>
+        <string>Вольт</string>
         <!-- These values will get merged with the values created by Tauri CLI:
         https://tauri.app/distribute/macos-application-bundle/#native-configuration -->
         <!-- @todo - this should be disabled for release! -->
