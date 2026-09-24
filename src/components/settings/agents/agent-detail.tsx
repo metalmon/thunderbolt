@@ -365,7 +365,7 @@ const CustomBody = ({
           }}
           inputProps={{ autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false }}
         />
-        {isEditable && isWebSocket && <AgentTokenField agentId={agent.id} />}
+        {isEditable && isWebSocket && <AgentTokenField agentId={agent.id} agentUrl={agent.url} />}
         <EditableField
           id="agent-detail-description"
           label={t`Description`}

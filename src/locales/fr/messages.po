@@ -921,6 +921,10 @@ msgstr "Connexion…"
 msgid "Connection"
 msgstr "Connexion"
 
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Connection code"
+msgstr ""
+
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Connection error"
 msgstr "Erreur de connexion"
@@ -1100,6 +1104,10 @@ msgstr "Impossible de charger l'identité d'association de cette application : {
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Couldn't pin {name}."
 msgstr "Impossible d'épingler {name}."
+
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Couldn't reach the agent. Check the address."
+msgstr ""
 
 #: src/settings/app-version-section.tsx
 #~ msgid "Couldn't restart to apply the update"
@@ -1685,6 +1693,10 @@ msgstr "Saisissez une URL wss:// ou ws://, ou un ticket iroh"
 msgid "Enter an API key to test the connection before saving."
 msgstr "Saisissez une clé API pour tester la connexion avant d'enregistrer."
 
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Enter connection code"
+msgstr ""
+
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter recovery phrase"
 msgstr "Saisir la phrase de récupération"
@@ -1704,6 +1716,10 @@ msgstr "Saisissez votre code"
 #: src/components/onboarding/onboarding-name-step.tsx
 msgid "Enter your name"
 msgstr "Saisissez votre nom"
+
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
+msgstr ""
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Exit voice mode"
@@ -2741,13 +2757,29 @@ msgstr "Outlook et Agenda"
 msgid "Overcast"
 msgstr "Couvert"
 
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Pair"
+msgstr ""
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Pair {deviceName}"
 msgstr "Associer {deviceName}"
 
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Pairing failed. Please try again."
+msgstr ""
+
 #: src/settings/devices.tsx
 msgid "Pairing identity"
 msgstr "Identité d'association"
+
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Pairing timed out. Try again."
+msgstr ""
+
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "Pairing was refused by the agent."
+msgstr ""
 
 #: src/components/theme-toggle-group.tsx
 msgid "Paper"
@@ -3742,6 +3774,10 @@ msgstr "Test…"
 
 #: src/fork/typography/chat-font-toggle.tsx
 msgid "Text size for chat messages."
+msgstr ""
+
+#: src/fork/agent-pairing/pair-by-code.tsx
+msgid "That code didn't work. Check it and try again."
 msgstr ""
 
 #: src/lib/device-grant.ts
