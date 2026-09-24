@@ -35,6 +35,19 @@
 //! this becomes a real sandbox escape — re-evaluate (options: serve the artifact in a
 //! separate webview with no capability). See docs/superpowers/specs/2026-09-21-web-
 //! artifact-coep-sandbox-design.md §11.
+//!
+//! ACCEPTED cosmetic console error (`Cannot read properties of undefined (reading
+//! 'plugins')`): the same all-frames injection runs Tauri's built-in `path` plugin
+//! init in this sub-frame, where it can execute before Tauri's `__TAURI_INTERNALS__`
+//! bootstrap and throw. It is console-only (end users never see it), does not affect
+//! rendering, and CANNOT be reliably suppressed: doing so requires running before that
+//! injected script, but WebView2 does not preserve script order across sub-frames — a
+//! plugin registered FIRST still lost the race (a `js_init_script_on_all_frames` guard
+//! stub, "Attempt A", was tried and reverted). The only reliable cure is making the
+//! artifact a MAIN frame (a separate child-webview, where the bootstrap runs
+//! deterministically), which is disproportionate for a cosmetic error — deferred (see
+//! spec §11 / the ledger). DECISION: accept + document. Do not re-attempt frame-level
+//! fixes; they hit the same non-deterministic sub-frame ordering.
 
 use std::collections::HashMap;
 use std::sync::Mutex;
