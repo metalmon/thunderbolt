@@ -17,28 +17,6 @@ use tauri::Manager;
 pub fn create_app() -> tauri::Builder<tauri::Wry> {
     let mut builder = tauri::Builder::default();
 
-    // Fork: pre-create `window.__TAURI_INTERNALS__` in ALL frames, registered FIRST.
-    // Tauri injects its core plugin init scripts (e.g. the built-in `path` plugin's
-    // `Object.defineProperty(window.__TAURI_INTERNALS__.plugins, 'path', …)`) into
-    // every frame — including our sandboxed artifact sub-frame (WebView2 adds
-    // document-create scripts to all frames). In that sub-frame those plugin scripts
-    // can run before Tauri's own `__TAURI_INTERNALS__` bootstrap and throw
-    // "Cannot read properties of undefined (reading 'plugins')" in the console.
-    // Registering this plugin first puts its init script ahead of the core plugins'
-    // in the injection list, and `_on_all_frames` guarantees it reaches the sub-frame
-    // (unlike Tauri's main-frame-only bootstrap), so those scripts find the object.
-    // Identical shape to Tauri's own bootstrap and guarded by `if (!…)`, so it is a
-    // no-op wherever the real bootstrap already ran. This is a cosmetic-console fix
-    // only — it does NOT grant the sandbox frame any IPC (the artifact CSP + the
-    // platform still block both IPC transports; see src-tauri/src/sandbox.rs).
-    builder = builder.plugin(
-        tauri::plugin::Builder::<tauri::Wry>::new("volt-internals-guard")
-            .js_init_script_on_all_frames(
-                "if (!window.__TAURI_INTERNALS__) { Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { plugins: {} } }); }",
-            )
-            .build(),
-    );
-
     // Conditionally include the HTTP plugin when the `native_fetch` feature is enabled
     #[cfg(feature = "native_fetch")]
     {
