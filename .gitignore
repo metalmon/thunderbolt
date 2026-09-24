@@ -23,6 +23,7 @@ web/release-snapshot.json
 /dev-local/dist-fork-master/
 /dev-local/*.patch
 /.superpowers/
+/docs/superpowers/
 
 # Editor directories and files
 .vscode/*
