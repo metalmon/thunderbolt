@@ -71,7 +71,15 @@ const attemptPair = (
   timeoutMs: number,
 ): Promise<PairResult> =>
   new Promise<PairResult>((resolve, reject) => {
-    const ws = factory(url)
+    let ws: WebSocketLike
+    try {
+      ws = factory(url)
+    } catch {
+      // A malformed URL / unsupported scheme makes `new WebSocket(...)` throw
+      // synchronously — surface it as a typed transport error, not a raw one.
+      reject(new PairingError('transport', 'Could not open the pairing connection'))
+      return
+    }
     const requestId = 1
     let settled = false
 
@@ -94,7 +102,11 @@ const attemptPair = (
     }
 
     const handleOpen = () => {
-      ws.send(JSON.stringify({ jsonrpc: '2.0', id: requestId, method, params: { code, device_name: deviceName } }))
+      try {
+        ws.send(JSON.stringify({ jsonrpc: '2.0', id: requestId, method, params: { code, device_name: deviceName } }))
+      } catch {
+        finish(() => reject(new PairingError('transport', 'Could not send the pairing request')))
+      }
     }
 
     const handleMessage = (event: { data: string }) => {

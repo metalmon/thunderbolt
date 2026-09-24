@@ -134,4 +134,13 @@ describe('pairOverAcp', () => {
     expect((err as PairingError).kind).toBe('timeout')
     expect(ws.closed).toBe(true)
   })
+
+  it('rejects a synchronous socket-construction failure as transport (bad URL)', async () => {
+    const throwingFactory = (() => {
+      throw new Error('malformed url')
+    }) as unknown as (url: string) => WebSocketLike
+    const err = await pairOverAcp({ url: 'nonsense', code: 'X', webSocketFactory: throwingFactory }).catch((e) => e)
+    expect(err).toBeInstanceOf(PairingError)
+    expect((err as PairingError).kind).toBe('transport')
+  })
 })
