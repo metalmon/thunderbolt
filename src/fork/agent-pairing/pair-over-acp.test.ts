@@ -4,6 +4,7 @@
 
 import { beforeEach, describe, expect, it } from 'bun:test'
 import type { WebSocketLike } from '@/acp/transports/websocket'
+import { getDeviceDisplayName } from '@/lib/platform'
 import { getClock } from '@/testing-library'
 import { pairOverAcp, PairingError } from './pair-over-acp'
 
@@ -66,7 +67,11 @@ describe('pairOverAcp', () => {
     const ws = MockWs.instances[0]
     ws.emit('open')
 
-    expect(JSON.parse(ws.sent[0])).toMatchObject({ jsonrpc: '2.0', method: 'volt/pair', params: { code: 'ABC123' } })
+    expect(JSON.parse(ws.sent[0])).toMatchObject({
+      jsonrpc: '2.0',
+      method: 'volt/pair',
+      params: { code: 'ABC123', device_name: getDeviceDisplayName() },
+    })
 
     ws.emit('message', { data: resultFrame('zc_x') })
     await expect(p).resolves.toEqual({ token: 'zc_x' })

@@ -12,6 +12,7 @@
  */
 
 import type { WebSocketLike } from '@/acp/transports/websocket'
+import { getDeviceDisplayName } from '@/lib/platform'
 import { resolvePairingWebSocketFactory } from './pairing-transport'
 
 /** Result of a successful pairing. `agents` is an unused Phase-1 slot for the
@@ -44,7 +45,6 @@ type JsonRpcError = { code?: number; message?: string; data?: { reason?: string 
 const METHOD_UNKNOWN = Symbol('method-unknown')
 
 const defaultTimeoutMs = 15000
-const defaultDeviceName = 'Volt desktop'
 
 /** An old runtime rejects an unknown pairing method either as JSON-RPC
  *  method-not-found (-32601) or via its pre-auth gate (`reason: "pair_first"`,
@@ -55,7 +55,7 @@ const isMethodUnknown = (error: JsonRpcError): boolean => error.code === -32601 
 /** A wrong / expired / consumed code vs any other refusal. */
 const classifyError = (error: JsonRpcError): PairingErrorKind => {
   const text = (error.message ?? '').toLowerCase()
-  return /code|invalid|expired|not found|unknown/.test(text) ? 'invalid_code' : 'rejected'
+  return /code|invalid|expired/.test(text) ? 'invalid_code' : 'rejected'
 }
 
 /** One pairing attempt over a fresh socket with a single JSON-RPC request.
@@ -155,7 +155,7 @@ const attemptPair = (
 export const pairOverAcp = async (inputs: PairOverAcpInputs): Promise<PairResult> => {
   const factory = inputs.webSocketFactory ?? resolvePairingWebSocketFactory()
   const timeoutMs = inputs.timeoutMs ?? defaultTimeoutMs
-  const deviceName = inputs.deviceName ?? defaultDeviceName
+  const deviceName = inputs.deviceName ?? getDeviceDisplayName()
 
   try {
     return await attemptPair(factory, inputs.url, 'volt/pair', inputs.code, deviceName, timeoutMs)
