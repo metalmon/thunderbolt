@@ -1,6 +1,6 @@
-name: thunderbolt
+name: volt
 options:
-  bundleIdPrefix: net.thunderbird.thunderbolt
+  bundleIdPrefix: ru.metalmon
   deploymentTarget:
     iOS: 15.0
 fileGroups: [../../src]
@@ -10,8 +10,8 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: Thunderbolt
-      PRODUCT_BUNDLE_IDENTIFIER: net.thunderbird.thunderbolt
+      PRODUCT_NAME: Volt
+      PRODUCT_BUNDLE_IDENTIFIER: ru.metalmon.volt
 targetTemplates:
   app:
     type: application
@@ -51,8 +51,8 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-        CFBundleShortVersionString: 0.1.18
-        CFBundleVersion: "0.1.18"
+        CFBundleShortVersionString: 0.1.133
+        CFBundleVersion: "0.1.133"
         ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: thunderbolt_iOS/thunderbolt_iOS.entitlements
