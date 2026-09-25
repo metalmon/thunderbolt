@@ -897,7 +897,7 @@ msgstr "接続しています…"
 msgid "Connection"
 msgstr "接続"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Connection code"
 msgstr ""
 
@@ -1081,7 +1081,7 @@ msgstr "このアプリのペアリング ID を読み込めませんでした: 
 msgid "Couldn't pin {name}."
 msgstr "{name} をピン留めできませんでした。"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Couldn't reach the agent. Check the address."
 msgstr ""
 
@@ -1669,7 +1669,7 @@ msgstr "wss:// または ws:// の URL、あるいは iroh チケットを入力
 msgid "Enter an API key to test the connection before saving."
 msgstr "保存する前に接続をテストするには、API キーを入力してください。"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Enter connection code"
 msgstr ""
 
@@ -1693,7 +1693,7 @@ msgstr "コードを入力してください"
 msgid "Enter your name"
 msgstr "名前を入力してください"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
 msgstr ""
 
@@ -2733,7 +2733,7 @@ msgstr "Outlook とカレンダー"
 msgid "Overcast"
 msgstr "曇り"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pair"
 msgstr ""
 
@@ -2741,7 +2741,7 @@ msgstr ""
 msgid "Pair {deviceName}"
 msgstr "{deviceName} をペアリング"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing failed. Please try again."
 msgstr ""
 
@@ -2749,11 +2749,11 @@ msgstr ""
 msgid "Pairing identity"
 msgstr "ペアリング ID"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing timed out. Try again."
 msgstr ""
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing was refused by the agent."
 msgstr ""
 
@@ -3752,7 +3752,7 @@ msgstr "テストしています…"
 msgid "Text size for chat messages."
 msgstr ""
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "That code didn't work. Check it and try again."
 msgstr ""
 

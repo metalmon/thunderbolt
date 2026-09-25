@@ -909,7 +909,7 @@ msgstr "Connecting…"
 msgid "Connection"
 msgstr "Connection"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Connection code"
 msgstr "Connection code"
 
@@ -1093,7 +1093,7 @@ msgstr "Couldn't load this app's pairing identity: {error}"
 msgid "Couldn't pin {name}."
 msgstr "Couldn't pin {name}."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Couldn't reach the agent. Check the address."
 msgstr "Couldn't reach the agent. Check the address."
 
@@ -1681,7 +1681,7 @@ msgstr "Enter a wss:// or ws:// URL, or an iroh ticket"
 msgid "Enter an API key to test the connection before saving."
 msgstr "Enter an API key to test the connection before saving."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Enter connection code"
 msgstr "Enter connection code"
 
@@ -1705,7 +1705,7 @@ msgstr "Enter your code"
 msgid "Enter your name"
 msgstr "Enter your name"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
 msgstr "Exchanges a one-time code for an access token — no need to paste the token yourself."
 
@@ -2745,7 +2745,7 @@ msgstr "Outlook & Calendar"
 msgid "Overcast"
 msgstr "Overcast"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pair"
 msgstr "Pair"
 
@@ -2753,7 +2753,7 @@ msgstr "Pair"
 msgid "Pair {deviceName}"
 msgstr "Pair {deviceName}"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing failed. Please try again."
 msgstr "Pairing failed. Please try again."
 
@@ -2761,11 +2761,11 @@ msgstr "Pairing failed. Please try again."
 msgid "Pairing identity"
 msgstr "Pairing identity"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing timed out. Try again."
 msgstr "Pairing timed out. Try again."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing was refused by the agent."
 msgstr "Pairing was refused by the agent."
 
@@ -3764,7 +3764,7 @@ msgstr "Testing…"
 msgid "Text size for chat messages."
 msgstr "Text size for chat messages."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "That code didn't work. Check it and try again."
 msgstr "That code didn't work. Check it and try again."
 

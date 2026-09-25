@@ -917,9 +917,9 @@ msgstr "Подключение…"
 msgid "Connection"
 msgstr "Подключение"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Connection code"
-msgstr ""
+msgstr "Код подключения"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Connection error"
@@ -1093,9 +1093,9 @@ msgstr "Не удалось загрузить идентификатор соп
 msgid "Couldn't pin {name}."
 msgstr "Не удалось закрепить {name}."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Couldn't reach the agent. Check the address."
-msgstr ""
+msgstr "Не удалось связаться с агентом. Проверьте адрес."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update: {error}"
@@ -1677,9 +1677,9 @@ msgstr "Введите URL wss:// или ws://, либо iroh-тикет"
 msgid "Enter an API key to test the connection before saving."
 msgstr "Введите API-ключ, чтобы проверить соединение перед сохранением."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Enter connection code"
-msgstr ""
+msgstr "Введите код подключения"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter recovery phrase"
@@ -1701,9 +1701,9 @@ msgstr "Введите код"
 msgid "Enter your name"
 msgstr "Введите имя"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
-msgstr ""
+msgstr "Обменивает одноразовый код на токен доступа — не нужно вставлять токен вручную."
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Exit voice mode"
@@ -2741,29 +2741,29 @@ msgstr "Outlook и Календарь"
 msgid "Overcast"
 msgstr "Пасмурно"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pair"
-msgstr ""
+msgstr "Подключить"
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Pair {deviceName}"
 msgstr "Сопряжение «{deviceName}»"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing failed. Please try again."
-msgstr ""
+msgstr "Не удалось подключиться. Попробуйте снова."
 
 #: src/settings/devices.tsx
 msgid "Pairing identity"
 msgstr "Идентификатор сопряжения"
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing timed out. Try again."
-msgstr ""
+msgstr "Время ожидания подключения истекло. Попробуйте снова."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Pairing was refused by the agent."
-msgstr ""
+msgstr "Агент отклонил подключение."
 
 #: src/components/theme-toggle-group.tsx
 msgid "Paper"
@@ -3756,9 +3756,9 @@ msgstr "Проверка…"
 msgid "Text size for chat messages."
 msgstr "Размер текста сообщений чата."
 
-#: src/fork/agent-pairing/pair-by-code.tsx
+#: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "That code didn't work. Check it and try again."
-msgstr ""
+msgstr "Код не подошёл. Проверьте его и попробуйте снова."
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
