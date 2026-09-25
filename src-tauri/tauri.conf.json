@@ -47,6 +47,7 @@
     "windows": {
       "nsis": {
         "languages": ["Russian", "English"],
+        "template": "installer.nsi",
         "installerHooks": "installer-hooks.nsi"
       }
     },
