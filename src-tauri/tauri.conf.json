@@ -45,7 +45,11 @@
       "nsis": {
         "languages": ["Russian", "English"],
         "template": "installer.nsi",
-        "installerHooks": "installer-hooks.nsi"
+        "installerHooks": "installer-hooks.nsi",
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "headerImage": "icons/nsis-header.bmp",
+        "sidebarImage": "icons/nsis-sidebar.bmp"
       }
     },
     "linux": {
