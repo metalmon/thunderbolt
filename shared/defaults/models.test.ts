@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
+import { hashValues } from '../lib/hash'
 import {
   defaultModelGlm53,
   defaultModels,
@@ -56,6 +57,7 @@ describe('defaultModels version snapshot', () => {
     expect({
       version: defaultModelsVersion,
       hash: computeSnapshotHash(),
+      metadataHash: computeMetadataHash(),
     }).toEqual(expected)
   })
 
