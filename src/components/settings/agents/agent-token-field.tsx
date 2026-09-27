@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useDatabase } from '@/contexts'
 import { getAgentSecretsQuery, setAgentBearerToken } from '@/dal'
+import { PairByCode } from '@/fork/agent-pairing/pair-by-code'
 
 /**
  * Write-only bearer-token field for a custom agent's detail panel: shows
@@ -19,7 +20,7 @@ import { getAgentSecretsQuery, setAgentBearerToken } from '@/dal'
  * clear the stored one. Reactively reads the local-only secrets table so the
  * populated/empty indicator stays live across saves from this device.
  */
-export const AgentTokenField = ({ agentId }: { agentId: string }) => {
+export const AgentTokenField = ({ agentId, agentUrl }: { agentId: string; agentUrl?: string | null }) => {
   const { t } = useLingui()
   const db = useDatabase()
   const queryClient = useQueryClient()
@@ -115,6 +116,8 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
           )}
         </div>
       )}
+      {/* Fork: connect-by-code fills this same token slot (renders only with a URL). */}
+      <PairByCode agentId={agentId} agentUrl={agentUrl} />
     </div>
   )
 }
