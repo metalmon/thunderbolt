@@ -174,6 +174,7 @@ msgid "Accepts connections from your devices"
 msgstr ""
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Access token"
 msgstr ""
 
@@ -1114,8 +1115,8 @@ msgid "Couldn't restart to apply the update."
 msgstr ""
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Couldn't save {field}. Please try again."
-#~ msgstr ""
+msgid "Couldn't save {field}. Please try again."
+msgstr ""
 
 #: src/components/settings/agents/editable-field.tsx
 msgid "Couldn't save the {fieldName}. Please try again."
@@ -2802,6 +2803,7 @@ msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are sup
 msgstr ""
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Paste the agent access token"
 msgstr ""
 
@@ -3031,8 +3033,8 @@ msgid "Remove this bridge?"
 msgstr ""
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Remove token"
-#~ msgstr ""
+msgid "Remove token"
+msgstr ""
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/lib/tool-metadata.ts
@@ -3170,6 +3172,7 @@ msgid "Run this on the machine hosting the bridge, then add it — the connectio
 msgstr ""
 
 #: src/components/set-node-id-dialog.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
@@ -3361,6 +3364,7 @@ msgid "Sent"
 msgstr ""
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
 msgstr ""
 
@@ -4098,8 +4102,8 @@ msgid "Token rejected"
 msgstr ""
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Token set"
-#~ msgstr ""
+msgid "Token set"
+msgstr ""
 
 #: src/lib/otp-error-messages.ts
 msgid "Too many attempts. Please request a new code."
