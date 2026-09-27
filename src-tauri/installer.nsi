@@ -398,6 +398,8 @@ FunctionEnd
 
 ; 5. Choose install directory page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+; FORK: drop the subtitle - it restates the page title in every language.
+!define MUI_PAGE_HEADER_SUBTEXT ""
 !insertmacro MUI_PAGE_DIRECTORY
 
 ; 6. Start menu shortcut page
