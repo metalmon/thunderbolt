@@ -15,6 +15,7 @@ import { useFormatters } from '@/i18n/use-formatters'
 import { iconForAgent } from '@/components/agent-icon'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { IconTile } from '@/components/settings/icon-tile'
+import { AgentTokenField } from '@/components/settings/agents/agent-token-field'
 import { EditableField, FieldLabel } from '@/components/settings/agents/editable-field'
 import { inferTransport, validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import {
@@ -363,6 +364,7 @@ const CustomBody = ({
           }}
           inputProps={{ autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false }}
         />
+        {isEditable && isWebSocket && <AgentTokenField agentId={agent.id} />}
         <EditableField
           id="agent-detail-description"
           label={t`Description`}
