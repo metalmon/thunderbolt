@@ -36,39 +36,17 @@ const clickInstall = async () => {
 }
 
 describe('ThunderboltCliRow', () => {
-  it('renders an agent-style row that opens the detail panel', () => {
-    const onOpen = mock(() => {})
-    renderRow({ onOpen })
-
-    const row = screen.getByRole('button', { name: 'Open Volt CLI' })
-    expect(row).toBeInTheDocument()
-    expect(screen.getByText('Your agent · runs in your terminal')).toBeInTheDocument()
-
-    fireEvent.click(row)
-    expect(onOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('marks the row as selected while its panel is open', () => {
-    renderRow({ isSelected: true })
-    expect(screen.getByRole('button', { name: 'Open Volt CLI' })).toHaveAttribute('aria-pressed', 'true')
-  })
-
-  it('renders on web builds (install guide lives in the detail)', () => {
-    renderRow({ isTauriEnv: false })
-    expect(screen.getByRole('button', { name: 'Open Volt CLI' })).toBeInTheDocument()
-  })
-
-  it('renders nothing on unsupported Tauri platforms', () => {
-    const { container: windows } = renderRow({ platform: 'windows' })
-    expect(windows).toBeEmptyDOMElement()
-    cleanup()
-    const { container: mobile } = renderRow({ platform: 'ios' })
-    expect(mobile).toBeEmptyDOMElement()
-  })
-
-  it('renders nothing on Intel macOS because no binary is published', () => {
-    const { container } = renderRow({ architecture: 'x86_64' })
-    expect(container).toBeEmptyDOMElement()
+  // Fork: the standalone CLI is not distributed in the closed perimeter, so
+  // `forkHideCliRow()` collapses upstream's platform gate — the row renders
+  // nothing anywhere. Upstream's per-platform render cases would assert a row
+  // the fork deliberately does not mount; the detail panel below is untouched
+  // (it stays reachable, and stays covered).
+  it('renders nothing — the fork hides the CLI row on every platform', () => {
+    for (const props of [{}, { isTauriEnv: false }, { platform: 'windows' as const }, { platform: 'ios' as const }]) {
+      const { container } = renderRow(props)
+      expect(container).toBeEmptyDOMElement()
+      cleanup()
+    }
   })
 })
 
@@ -96,7 +74,7 @@ describe('ThunderboltCliDetail', () => {
     )
     expect(guideLink).toHaveAttribute('target', '_blank')
     expect(guideLink).toHaveAttribute('rel', 'noopener noreferrer')
-    expect(screen.getByText('Use Volt from the command line.')).toBeInTheDocument()
+    expect(screen.getByText('Use Thunderbolt from the command line.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /install cli/i })).not.toBeInTheDocument()
   })
 
@@ -106,7 +84,7 @@ describe('ThunderboltCliDetail', () => {
 
     await clickInstall()
 
-    expect(screen.getByText('Installed to /home/u/.local/bin/thunderbolt')).toBeInTheDocument()
+    expect(screen.getByText('/home/u/.local/bin/thunderbolt')).toBeInTheDocument()
     expect(screen.queryByText(/add.*to your PATH/i)).not.toBeInTheDocument()
   })
 
