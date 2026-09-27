@@ -501,7 +501,10 @@ describe('connectAcpAdapter — skills capability', () => {
     expect(adapter.capabilities?.skills).toBe(true)
     await adapter.ensureSession(threadCtx('thread-new'))
 
-    expect(calls.newSession[0]?._meta).toEqual({ ...buildWireSkillsMeta(enabledSkills), ...buildCanvasCapabilityMeta() })
+    expect(calls.newSession[0]?._meta).toEqual({
+      ...buildWireSkillsMeta(enabledSkills),
+      ...buildCanvasCapabilityMeta(),
+    })
   })
 
   it('sends full skills on supported session/resume and session/load requests', async () => {
