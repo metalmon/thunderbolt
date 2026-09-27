@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { pairOverAcp, PairingError, type PairOverAcpInputs, type PairResult } from './pair-over-acp'
 
 /**
@@ -71,10 +72,8 @@ export const PairByCodeInput = ({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor="agent-pairing-code" className="text-sm font-medium text-muted-foreground">
-        {t`Connection code`}
-      </label>
+    <div className="grid grid-cols-1 gap-2">
+      <Label htmlFor="agent-pairing-code">{t`Connection code`}</Label>
       <div className="flex gap-2">
         <Input
           id="agent-pairing-code"
@@ -90,21 +89,20 @@ export const PairByCodeInput = ({
           autoCorrect="off"
           spellCheck={false}
           aria-invalid={error ? true : undefined}
-          className="h-9"
         />
-        <Button size="sm" disabled={pending || trimmed === '' || !urlReady} onClick={() => void handlePair()}>
+        <Button disabled={pending || trimmed === '' || !urlReady} onClick={() => void handlePair()}>
           {t`Pair`}
         </Button>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
         {urlReady
           ? t`Exchanges a one-time code for an access token — no need to paste the token yourself.`
           : t`Enter the agent URL above first — the code alone does not say where to connect.`}
       </p>
       {/* The token field is hidden in this mode, so say the exchange worked. */}
-      {paired && <p className="text-sm text-success">{t`Access token received.`}</p>}
+      {paired && <p className="text-[length:var(--font-size-xs)] text-success">{t`Access token received.`}</p>}
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-[length:var(--font-size-sm)] text-destructive">
           {error}
         </p>
       )}
