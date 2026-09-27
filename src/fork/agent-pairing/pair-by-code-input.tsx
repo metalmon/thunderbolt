@@ -19,16 +19,22 @@ import { pairOverAcp, PairingError, type PairOverAcpInputs, type PairResult } fr
 export const PairByCodeInput = ({
   url,
   onToken,
+  urlReady = true,
   pair = pairOverAcp,
 }: {
   url: string
   onToken: (token: string) => void | Promise<void>
+  /** False while the caller has no valid WebSocket target yet: the code alone
+   *  cannot be paired (unlike a self-contained iroh ticket, it carries no
+   *  address), so Pair stays disabled and the hint says what is missing. */
+  urlReady?: boolean
   pair?: (inputs: PairOverAcpInputs) => Promise<PairResult>
 }) => {
   const { t } = useLingui()
   const [code, setCode] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [paired, setPaired] = useState(false)
 
   const trimmed = code.trim()
 
@@ -50,11 +56,13 @@ export const PairByCodeInput = ({
       return
     }
     setError(null)
+    setPaired(false)
     setPending(true)
     try {
       const { token } = await pair({ url, code: trimmed })
       await onToken(token)
       setCode('')
+      setPaired(true)
     } catch (pairError) {
       setError(pairError instanceof PairingError ? messageFor(pairError.kind) : t`Pairing failed. Please try again.`)
     } finally {
@@ -72,7 +80,10 @@ export const PairByCodeInput = ({
           id="agent-pairing-code"
           type="text"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
+          onChange={(e) => {
+            setCode(e.target.value)
+            setPaired(false)
+          }}
           placeholder={t`Enter connection code`}
           autoComplete="off"
           autoCapitalize="none"
@@ -81,13 +92,17 @@ export const PairByCodeInput = ({
           aria-invalid={error ? true : undefined}
           className="h-9"
         />
-        <Button size="sm" disabled={pending || trimmed === ''} onClick={() => void handlePair()}>
+        <Button size="sm" disabled={pending || trimmed === '' || !urlReady} onClick={() => void handlePair()}>
           {t`Pair`}
         </Button>
       </div>
       <p className="text-sm text-muted-foreground">
-        {t`Exchanges a one-time code for an access token — no need to paste the token yourself.`}
+        {urlReady
+          ? t`Exchanges a one-time code for an access token — no need to paste the token yourself.`
+          : t`Enter the agent URL above first — the code alone does not say where to connect.`}
       </p>
+      {/* The token field is hidden in this mode, so say the exchange worked. */}
+      {paired && <p className="text-sm text-success">{t`Access token received.`}</p>}
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
