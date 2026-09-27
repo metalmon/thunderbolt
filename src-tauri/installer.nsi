@@ -6,9 +6,11 @@
 ; stays ASCII ${PRODUCTNAME}=Volt (INSTALLDIR, Volt.exe, uninstall registry key path).
 ;
 ; RE-SYNC on every Tauri/@tauri-apps/cli upgrade: re-fetch the upstream installer.nsi
-; for the pinned CLI version and re-apply four edits - (a) !define DISPLAYNAME before
+; for the pinned CLI version and re-apply six edits - (a) !define DISPLAYNAME before
 ; the Name directive, (b) Name -> ${DISPLAYNAME}, (c) the UNINSTKEY DisplayName value
-; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk (this script).
+; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk, (e) empty
+; subtitles on the pages whose subtitle only restates the title, (f) a BrandingText
+; fallback so an unset copyright does not advertise NSIS (this script).
 ;
 ; ENCODING: plain UTF-8, NO BOM. Tauri runs this template through handlebars and
 ; writes the generated .nsi itself (handling non-ASCII exactly as it does a Cyrillic
@@ -89,7 +91,12 @@ Var OldMainBinaryName
 ; FORK: human-visible name (the machine name stays ${PRODUCTNAME}=Volt).
 !define DISPLAYNAME "Вольт"
 Name "${DISPLAYNAME}"
-BrandingText "${COPYRIGHT}"
+; FORK: an empty BrandingText makes NSIS advertise itself instead.
+!if "${COPYRIGHT}" == ""
+  BrandingText "${DISPLAYNAME}"
+!else
+  BrandingText "${COPYRIGHT}"
+!endif
 OutFile "${OUTFILE}"
 
 ; We don't actually use this value as default install path,
@@ -398,7 +405,7 @@ FunctionEnd
 
 ; 5. Choose install directory page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-; FORK: drop the subtitle - it restates the page title in every language.
+; FORK: no subtitle - it restated the page title.
 !define MUI_PAGE_HEADER_SUBTEXT ""
 !insertmacro MUI_PAGE_DIRECTORY
 
@@ -413,6 +420,9 @@ Var AppStartMenuFolder
 !insertmacro MUI_PAGE_STARTMENU Application $AppStartMenuFolder
 
 ; 7. Installation page
+; FORK: no subtitle - it restated the page title.
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT ""
+!define MUI_INSTFILESPAGE_ABORTHEADER_SUBTEXT ""
 !insertmacro MUI_PAGE_INSTFILES
 
 ; 8. Finish page
@@ -474,9 +484,13 @@ Function un.ConfirmLeave
   SendMessage $DeleteAppDataCheckbox ${BM_GETCHECK} 0 0 $DeleteAppDataCheckboxState
 FunctionEnd
 !define MUI_PAGE_CUSTOMFUNCTION_PRE un.SkipIfPassive
+; FORK: no subtitle - it restated the page title.
+!define MUI_PAGE_HEADER_SUBTEXT ""
 !insertmacro MUI_UNPAGE_CONFIRM
 
 ; 2. Uninstalling Page
+; FORK: no subtitle - it restated the page title.
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT ""
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ;Languages
