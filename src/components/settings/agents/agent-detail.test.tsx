@@ -216,3 +216,28 @@ describe('AgentDetail — connection test', () => {
   })
 })
 
+describe('AgentDetail — bearer token field', () => {
+  it('renders the token field for an editable websocket agent', () => {
+    renderDetail(customAgent())
+
+    expect(screen.getByLabelText('Access token')).toBeInTheDocument()
+  })
+
+  it('is absent for an iroh agent', () => {
+    renderDetail(customAgent({ transport: 'iroh', url: 'a'.repeat(52) }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
+  })
+
+  it('is absent for a non-editable (other-user) agent', () => {
+    renderDetail(customAgent({ userId: 'someone-else' }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
+  })
+
+  it('is absent for a system agent', () => {
+    renderDetail(customAgent({ isSystem: 1, userId: null }))
+
+    expect(screen.queryByLabelText('Access token')).not.toBeInTheDocument()
+  })
+})
