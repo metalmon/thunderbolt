@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans, useLingui } from '@lingui/react/macro'
-import { useReducer } from 'react'
+import { type ComponentProps, useReducer } from 'react'
 import { Check, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
@@ -17,6 +17,7 @@ import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { IrohPairingPanel, useAppNodeId } from '@/components/settings/iroh-pairing-panel'
 import { validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import type { CustomAgentTransport } from '@/dal/agents'
+import { PairByCodeInput } from '@/fork/agent-pairing/pair-by-code-input'
 
 export type AddCustomAgentPayload = {
   name: string
@@ -46,6 +47,9 @@ type AddCustomAgentFormProps = {
    *  bridge operator allowlists. Production omits and lazy-loads the wasm client
    *  (only when the user enters an iroh target, so the wasm chunk stays lazy). */
   loadAppNodeId?: () => Promise<string>
+  /** Test/DI override for the connect-by-code exchange. Production omits (the
+   *  fork's real `pairOverAcp`). */
+  pair?: ComponentProps<typeof PairByCodeInput>['pair']
 }
 
 type AgentFormState = {
@@ -116,6 +120,7 @@ export const AddCustomAgentForm = ({
   isIos,
   testAcpConnection = defaultTestAcpConnection,
   loadAppNodeId = irohClientNodeId,
+  pair,
 }: AddCustomAgentFormProps) => {
   const { i18n, t } = useLingui()
   const [state, dispatch] = useReducer(agentFormReducer, emptyState)
@@ -151,7 +156,10 @@ export const AddCustomAgentForm = ({
 
   const handleTestConnection = async () => {
     dispatch({ type: 'CONNECTION_TEST_STARTED' })
-    const result = await testAcpConnection({ url: trimmedUrl, authToken: trimmedToken.length > 0 ? trimmedToken : null })
+    const result = await testAcpConnection({
+      url: trimmedUrl,
+      authToken: trimmedToken.length > 0 ? trimmedToken : null,
+    })
     if (result.success) {
       dispatch({ type: 'CONNECTION_TEST_SUCCEEDED' })
       return
@@ -245,6 +253,14 @@ export const AddCustomAgentForm = ({
             />
             <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Sent as a bearer credential, not in the URL. Stored only on this device.`}</p>
           </div>
+        )}
+        {/* Fork: connect-by-code fills the token field above from a pairing code. */}
+        {transport === 'websocket' && (
+          <PairByCodeInput
+            url={trimmedUrl}
+            pair={pair}
+            onToken={(token) => dispatch({ type: 'TOKEN_CHANGED', value: token })}
+          />
         )}
         {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
         <div className="grid grid-cols-1 gap-2">
