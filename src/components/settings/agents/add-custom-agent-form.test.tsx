@@ -6,6 +6,7 @@ import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { AddCustomAgentForm, type AddCustomAgentPayload, type TestAcpConnectionFn } from './add-custom-agent-form'
+import { PairingError } from '@/fork/agent-pairing/pair-over-acp'
 
 afterEach(() => {
   cleanup()
@@ -114,51 +115,53 @@ describe('AddCustomAgentForm', () => {
     expect(screen.getByLabelText('Connection code')).toBeInTheDocument()
   })
 
-  it('fills the access token field from a pairing code', async () => {
-    const onSubmit = mock(async () => {})
+  it('pairs the code as part of the connection test and probes with the new token', async () => {
+    const onSubmit = mock(async (_: AddCustomAgentPayload) => {})
     const onClose = mock(() => {})
     const pair = mock(async () => ({ token: 'zc_from_code' }))
+    const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
     render(
-      <AddCustomAgentForm
-        onClose={onClose}
-        onSubmit={onSubmit}
-        isIos={notIos}
-        testAcpConnection={succeedingProbe}
-        pair={pair}
-      />,
+      <AddCustomAgentForm onClose={onClose} onSubmit={onSubmit} isIos={notIos} testAcpConnection={probe} pair={pair} />,
     )
 
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'GOST' } })
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
     fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'ABC123' } })
+
+    // One button does both: exchange the code, then probe with what it bought.
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Pair' }))
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
     })
 
     expect(pair).toHaveBeenCalledWith({ url: 'wss://gw.example/acp', code: 'ABC123' })
-    // The token field is hidden in code mode, so the exchange is confirmed inline…
-    expect(screen.getByText('Access token received.')).toBeInTheDocument()
-    // …and the token really is in the same slot the manual path writes to.
-    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
-    expect(screen.getByLabelText(/access token/i)).toHaveValue('zc_from_code')
+    expect(probe).toHaveBeenCalledWith({ url: 'wss://gw.example/acp', authToken: 'zc_from_code' })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /add agent/i }))
+    })
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ authToken: 'zc_from_code' }))
   })
 
-  it('keeps Pair disabled until the URL is a valid WebSocket endpoint', () => {
-    const onSubmit = mock(async () => {})
+  it('reports a failed exchange as the connection result and never probes', async () => {
+    const pair = mock(async () => {
+      throw new PairingError('invalid_code', 'nope')
+    })
+    const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
     render(
-      <AddCustomAgentForm onClose={() => {}} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
+      <AddCustomAgentForm onClose={() => {}} onSubmit={async () => {}} isIos={notIos} testAcpConnection={probe} pair={pair} />,
     )
 
-    // A pairing code is not self-contained (unlike an iroh ticket) — it carries
-    // no address, so the target must be known before the exchange can run.
-    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'ABC123' } })
-    expect(screen.getByRole('button', { name: 'Pair' })).toBeDisabled()
-    expect(screen.getByText(/Enter the agent URL above first/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
+    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'BAD' } })
 
-    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'http://example.com' } })
-    expect(screen.getByRole('button', { name: 'Pair' })).toBeDisabled()
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
+    })
 
-    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
-    expect(screen.getByRole('button', { name: 'Pair' })).not.toBeDisabled()
+    expect(probe).not.toHaveBeenCalled()
+    expect(screen.getByText("That code didn't work. Check it and try again.")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /add agent/i })).toBeDisabled()
   })
 
   it('keeps the dialog open with submit re-enabled when onSubmit rejects', async () => {
