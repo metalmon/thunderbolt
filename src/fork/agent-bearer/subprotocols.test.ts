@@ -3,11 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it } from 'bun:test'
-import { buildAgentSubprotocols, buildAgentWebSocketFactory } from './subprotocols'
+import {
+  buildAgentSubprotocols,
+  buildAgentWebSocketFactory,
+  buildPairingSubprotocols,
+  voltCarrierSubprotocol,
+  zeroclawCarrierSubprotocol,
+} from './subprotocols'
 
 describe('buildAgentSubprotocols', () => {
-  it('returns carrier + bearer entry for a token', () => {
-    expect(buildAgentSubprotocols('zc_abc123')).toEqual(['zeroclaw.acp.v1', 'bearer.zc_abc123'])
+  it('returns both carriers (volt first) + bearer entry for a token', () => {
+    expect(buildAgentSubprotocols('zc_abc123')).toEqual(['volt.acp.v1', 'zeroclaw.acp.v1', 'bearer.zc_abc123'])
   })
 
   it('returns undefined for null / undefined / empty', () => {
@@ -19,7 +25,19 @@ describe('buildAgentSubprotocols', () => {
 
   it('sends the token verbatim (no encoding)', () => {
     const t = 'zc_0123456789abcdef'
-    expect(buildAgentSubprotocols(t)).toEqual(['zeroclaw.acp.v1', `bearer.${t}`])
+    expect(buildAgentSubprotocols(t)).toEqual(['volt.acp.v1', 'zeroclaw.acp.v1', `bearer.${t}`])
+  })
+})
+
+describe('buildPairingSubprotocols', () => {
+  it('returns both carriers, volt first, and NO bearer entry (tokenless pre-auth socket)', () => {
+    expect(buildPairingSubprotocols()).toEqual([voltCarrierSubprotocol, zeroclawCarrierSubprotocol])
+    expect(buildPairingSubprotocols().some((p) => p.startsWith('bearer.'))).toBe(false)
+  })
+
+  it('exposes volt.acp.v1 as the preferred carrier', () => {
+    expect(voltCarrierSubprotocol).toBe('volt.acp.v1')
+    expect(zeroclawCarrierSubprotocol).toBe('zeroclaw.acp.v1')
   })
 })
 
@@ -54,7 +72,9 @@ describe('buildAgentWebSocketFactory', () => {
       factory?.('wss://example.test/ws')
     })
 
-    expect(seen).toEqual([{ url: 'wss://example.test/ws', protocols: ['zeroclaw.acp.v1', 'bearer.zc_abc123'] }])
+    expect(seen).toEqual([
+      { url: 'wss://example.test/ws', protocols: ['volt.acp.v1', 'zeroclaw.acp.v1', 'bearer.zc_abc123'] },
+    ])
   })
 
   it('returns undefined for null / undefined / empty — callers fall back to their own default', () => {
