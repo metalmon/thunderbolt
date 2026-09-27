@@ -22,6 +22,18 @@ s = s.replace(
   '; FORK: human-visible name (the machine name stays ${PRODUCTNAME}=Volt).\n!define DISPLAYNAME "Вольт"\nName "${DISPLAYNAME}"',
 )
 
+// (e) Blank the directory page's MUI subtitle. NSIS pairs a bold title with an
+//     instruction line, and the Russian pair says the same thing twice
+//     ("Выбор папки установки" / "Выберите папку для установки Вольт."). The
+//     define wins over MUI_DEFAULT and MUI unsets it after the page, so only
+//     this page is affected.
+const dirPage = '!insertmacro MUI_PAGE_DIRECTORY'
+if (!s.includes(dirPage)) throw new Error('MUI_PAGE_DIRECTORY not found')
+s = s.replace(
+  dirPage,
+  '; FORK: drop the subtitle - it restates the page title in every language.\n!define MUI_PAGE_HEADER_SUBTEXT ""\n' + dirPage,
+)
+
 const header = [
   '; FORK (Volt) - VENDORED copy of Tauri 2.11.2 NSIS installer.nsi',
   '; (crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi @ tag tauri-cli-v2.11.2),',
@@ -31,9 +43,10 @@ const header = [
   '; stays ASCII ${PRODUCTNAME}=Volt (INSTALLDIR, Volt.exe, uninstall registry key path).',
   ';',
   '; RE-SYNC on every Tauri/@tauri-apps/cli upgrade: re-fetch the upstream installer.nsi',
-  '; for the pinned CLI version and re-apply four edits - (a) !define DISPLAYNAME before',
+  '; for the pinned CLI version and re-apply five edits - (a) !define DISPLAYNAME before',
   '; the Name directive, (b) Name -> ${DISPLAYNAME}, (c) the UNINSTKEY DisplayName value',
-  '; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk (this script).',
+  '; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk, (e) an empty',
+  '; MUI_PAGE_HEADER_SUBTEXT on the directory page (this script).',
   ';',
   '; ENCODING: plain UTF-8, NO BOM. Tauri runs this template through handlebars and',
   '; writes the generated .nsi itself (handling non-ASCII exactly as it does a Cyrillic',
