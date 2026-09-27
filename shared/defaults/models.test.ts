@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
+import { hashValues } from '../lib/hash'
 import {
   defaultModelGlm53Flash,
   defaultModelGlm53,
@@ -31,9 +32,17 @@ import {
 const computeSnapshotHash = () =>
   defaultModels.map((model, index) => `${index}:${model.id}:${hashModel(model)}`).join('|')
 
+// `hashModel` deliberately hashes only user-editable fields (it drives the
+// user-edit detection in reconciliation), so it is blind to metadata like
+// `vendor` and `description`. Hash those separately here so a metadata-only
+// defaults change still trips the snapshot and gets its version bump.
+const computeMetadataHash = () =>
+  defaultModels.map((model, index) => `${index}:${hashValues([model.vendor, model.description])}`).join('|')
+
 const expected = {
-  version: 8,
+  version: 10,
   hash: '0:38e10634-2fbc-4323-b86d-3a5a6c0ca824:-p0uvif',
+  metadataHash: '0:xlomh0',
 }
 
 describe('defaultModels version snapshot', () => {
@@ -41,6 +50,7 @@ describe('defaultModels version snapshot', () => {
     expect({
       version: defaultModelsVersion,
       hash: computeSnapshotHash(),
+      metadataHash: computeMetadataHash(),
     }).toEqual(expected)
   })
 
