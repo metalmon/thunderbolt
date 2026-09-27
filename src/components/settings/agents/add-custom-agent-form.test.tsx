@@ -85,6 +85,7 @@ describe('AddCustomAgentForm', () => {
       fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
     })
 
+    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
     fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_abc' } })
 
     await act(async () => {
@@ -94,16 +95,23 @@ describe('AddCustomAgentForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ authToken: 'zc_abc' }))
   })
 
-  it('shows the access token field for a websocket target', () => {
+  it('offers connect-by-code by default and swaps in the token field on demand', () => {
     const onSubmit = mock(async () => {})
     const onClose = mock(() => {})
     render(
       <AddCustomAgentForm onClose={onClose} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
     )
 
-    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    // Pairing is the default path — the raw-token field is one click away.
+    expect(screen.getByLabelText('Connection code')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/access token/i)).not.toBeInTheDocument()
 
+    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
     expect(screen.getByLabelText(/access token/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText('Connection code')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Connection code' }))
+    expect(screen.getByLabelText('Connection code')).toBeInTheDocument()
   })
 
   it('fills the access token field from a pairing code', async () => {
@@ -127,22 +135,30 @@ describe('AddCustomAgentForm', () => {
     })
 
     expect(pair).toHaveBeenCalledWith({ url: 'wss://gw.example/acp', code: 'ABC123' })
+    // The token field is hidden in code mode, so the exchange is confirmed inline…
+    expect(screen.getByText('Access token received.')).toBeInTheDocument()
+    // …and the token really is in the same slot the manual path writes to.
+    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
     expect(screen.getByLabelText(/access token/i)).toHaveValue('zc_from_code')
   })
 
-  it('does not offer connect-by-code before a valid WebSocket URL is entered', () => {
+  it('keeps Pair disabled until the URL is a valid WebSocket endpoint', () => {
     const onSubmit = mock(async () => {})
     render(
       <AddCustomAgentForm onClose={() => {}} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
     )
 
-    expect(screen.queryByLabelText('Connection code')).not.toBeInTheDocument()
+    // A pairing code is not self-contained (unlike an iroh ticket) — it carries
+    // no address, so the target must be known before the exchange can run.
+    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'ABC123' } })
+    expect(screen.getByRole('button', { name: 'Pair' })).toBeDisabled()
+    expect(screen.getByText(/Enter the agent URL above first/)).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'http://example.com' } })
-    expect(screen.queryByLabelText('Connection code')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pair' })).toBeDisabled()
 
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
-    expect(screen.getByLabelText('Connection code')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pair' })).not.toBeDisabled()
   })
 
   it('keeps the dialog open with submit re-enabled when onSubmit rejects', async () => {
@@ -263,6 +279,7 @@ describe('AddCustomAgentForm — connection status', () => {
     renderWithProbe(probe)
 
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
     fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_abc' } })
 
     await act(async () => {
@@ -449,6 +466,7 @@ describe('AddCustomAgentForm — iroh', () => {
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Laptop Bridge' } })
     // Start on a websocket URL — the token field is visible — and type a token.
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    fireEvent.click(screen.getByRole('radio', { name: 'Token' }))
     fireEvent.change(screen.getByLabelText(/access token/i), { target: { value: 'zc_stale' } })
 
     // Switching the target to iroh hides the field, but the typed value stays
