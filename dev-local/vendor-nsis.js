@@ -22,16 +22,51 @@ s = s.replace(
   '; FORK: human-visible name (the machine name stays ${PRODUCTNAME}=Volt).\n!define DISPLAYNAME "Вольт"\nName "${DISPLAYNAME}"',
 )
 
-// (e) Blank the directory page's MUI subtitle. NSIS pairs a bold title with an
-//     instruction line, and the Russian pair says the same thing twice
-//     ("Выбор папки установки" / "Выберите папку для установки Вольт."). The
-//     define wins over MUI_DEFAULT and MUI unsets it after the page, so only
-//     this page is affected.
-const dirPage = '!insertmacro MUI_PAGE_DIRECTORY'
-if (!s.includes(dirPage)) throw new Error('MUI_PAGE_DIRECTORY not found')
+// (e) Drop the wizard subtitles that only restate their own page title. NSIS
+//     pairs a bold title with an instruction line, and several of those pairs
+//     say the same thing twice ("Установка завершена" over "Установка успешно
+//     завершена."). Only the ones that ADD something - "Подождите, идёт
+//     копирование файлов..." - are left alone.
+//
+//     Two mechanisms, both documented MUI2 settings: MUI_PAGE_HEADER_SUBTEXT
+//     for a normal page (given alone, MUI keeps the localized title), and
+//     MUI_INSTFILESPAGE_{FINISH,ABORT}HEADER_SUBTEXT for the progress page's
+//     end states.
+//
+//     Scoping is NOT uniform, and getting it wrong fails the build: MUI unsets
+//     MUI_PAGE_HEADER_SUBTEXT and ...FINISHHEADER_SUBTEXT after each page (so
+//     the uninstaller's pages need their own defines), but it does NOT unset
+//     ...ABORTHEADER_SUBTEXT - defining that one twice is a duplicate !define.
+//     One define, before the first instfiles page, covers both.
+const blankSubtitle = (anchor, defines) => {
+  if (!s.includes(anchor)) throw new Error(`${anchor} not found`)
+  const block = defines.map((d) => `!define ${d} ""`).join('\n')
+  s = s.replace(anchor, `; FORK: no subtitle - it restated the page title.\n${block}\n${anchor}`)
+}
+
+blankSubtitle('!insertmacro MUI_PAGE_DIRECTORY', ['MUI_PAGE_HEADER_SUBTEXT'])
+blankSubtitle('!insertmacro MUI_PAGE_INSTFILES', [
+  'MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT',
+  'MUI_INSTFILESPAGE_ABORTHEADER_SUBTEXT',
+])
+blankSubtitle('!insertmacro MUI_UNPAGE_CONFIRM', ['MUI_PAGE_HEADER_SUBTEXT'])
+blankSubtitle('!insertmacro MUI_UNPAGE_INSTFILES', ['MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT'])
+
+// (f) Brand the strip along the bottom of every page. Tauri wires it to the
+//     bundle's `copyright`, which we do not set - and NSIS reads an empty
+//     BrandingText as "use my own", printing "Nullsoft Install System v3.11".
+const branding = 'BrandingText "${COPYRIGHT}"'
+if (!s.includes(branding)) throw new Error('BrandingText not found')
 s = s.replace(
-  dirPage,
-  '; FORK: drop the subtitle - it restates the page title in every language.\n!define MUI_PAGE_HEADER_SUBTEXT ""\n' + dirPage,
+  branding,
+  [
+    '; FORK: an empty BrandingText makes NSIS advertise itself instead.',
+    '!if "${COPYRIGHT}" == ""',
+    '  BrandingText "${DISPLAYNAME}"',
+    '!else',
+    `  ${branding}`,
+    '!endif',
+  ].join('\n'),
 )
 
 const header = [
@@ -43,10 +78,11 @@ const header = [
   '; stays ASCII ${PRODUCTNAME}=Volt (INSTALLDIR, Volt.exe, uninstall registry key path).',
   ';',
   '; RE-SYNC on every Tauri/@tauri-apps/cli upgrade: re-fetch the upstream installer.nsi',
-  '; for the pinned CLI version and re-apply five edits - (a) !define DISPLAYNAME before',
+  '; for the pinned CLI version and re-apply six edits - (a) !define DISPLAYNAME before',
   '; the Name directive, (b) Name -> ${DISPLAYNAME}, (c) the UNINSTKEY DisplayName value',
-  '; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk, (e) an empty',
-  '; MUI_PAGE_HEADER_SUBTEXT on the directory page (this script).',
+  '; -> ${DISPLAYNAME}, (d) every ${PRODUCTNAME}.lnk -> ${DISPLAYNAME}.lnk, (e) empty',
+  '; subtitles on the pages whose subtitle only restates the title, (f) a BrandingText',
+  '; fallback so an unset copyright does not advertise NSIS (this script).',
   ';',
   '; ENCODING: plain UTF-8, NO BOM. Tauri runs this template through handlebars and',
   '; writes the generated .nsi itself (handling non-ASCII exactly as it does a Cyrillic',
