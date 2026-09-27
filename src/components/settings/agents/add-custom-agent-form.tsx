@@ -12,12 +12,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ResponsiveModalCancel } from '@/components/ui/responsive-modal'
 import { StatusCard } from '@/components/ui/status-card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { testAcpConnection as defaultTestAcpConnection } from '@/acp'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { IrohPairingPanel, useAppNodeId } from '@/components/settings/iroh-pairing-panel'
 import { validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import type { CustomAgentTransport } from '@/dal/agents'
 import { PairByCodeInput } from '@/fork/agent-pairing/pair-by-code-input'
+
+/** Auth-mode toggle items match the Input fields' rounding (same treatment as
+ *  the MCP add-server mode toggle). */
+const authModeItemClass =
+  'first:rounded-l-lg last:rounded-r-lg data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=off]:bg-transparent data-[state=off]:text-muted-foreground dark:data-[state=on]:bg-accent'
 
 export type AddCustomAgentPayload = {
   name: string
@@ -52,11 +58,17 @@ type AddCustomAgentFormProps = {
   pair?: ComponentProps<typeof PairByCodeInput>['pair']
 }
 
+/** Fork: how the user supplies the agent credential. Pairing is the default —
+ *  typing a short code is the path we want people on; pasting a raw token is
+ *  the fallback for agents with no pairing endpoint. */
+export type AgentAuthMode = 'code' | 'token'
+
 type AgentFormState = {
   name: string
   url: string
   description: string
   authToken: string
+  authMode: AgentAuthMode
   submitting: boolean
   /** Save failed after the connection gate — shown next to the buttons. */
   submitError: string | null
@@ -71,6 +83,7 @@ type AgentFormAction =
   | { type: 'URL_CHANGED'; value: string }
   | { type: 'DESCRIPTION_CHANGED'; value: string }
   | { type: 'TOKEN_CHANGED'; value: string }
+  | { type: 'AUTH_MODE_CHANGED'; value: AgentAuthMode }
   | { type: 'SUBMIT_STARTED' }
   | { type: 'SUBMIT_FAILED'; message: string }
   | { type: 'CONNECTION_TEST_STARTED' }
@@ -82,6 +95,7 @@ const emptyState: AgentFormState = {
   url: '',
   description: '',
   authToken: '',
+  authMode: 'code',
   submitting: false,
   submitError: null,
   isTestingConnection: false,
@@ -101,6 +115,8 @@ const agentFormReducer = (state: AgentFormState, action: AgentFormAction): Agent
       return { ...state, description: action.value }
     case 'TOKEN_CHANGED':
       return { ...state, authToken: action.value }
+    case 'AUTH_MODE_CHANGED':
+      return { ...state, authMode: action.value }
     case 'SUBMIT_STARTED':
       return { ...state, submitting: true, submitError: null }
     case 'SUBMIT_FAILED':
@@ -237,30 +253,55 @@ export const AddCustomAgentForm = ({
             </Trans>
           </p>
         </div>
+        {/* Fork: one credential, two ways in — pair with a code (default) or
+            paste a token. Only the chosen input is shown; both write the same
+            `authToken` state, so the submit payload is unchanged. */}
         {!isIroh && (
           <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="agent-token">{t`Access token`}</Label>
-            <Input
-              id="agent-token"
-              type="password"
-              placeholder={t`Paste the agent access token`}
-              value={state.authToken}
-              onChange={(e) => dispatch({ type: 'TOKEN_CHANGED', value: e.target.value })}
-              autoComplete="off"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Sent as a bearer credential, not in the URL. Stored only on this device.`}</p>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              value={state.authMode}
+              onValueChange={(value) => {
+                if (value !== 'code' && value !== 'token') {
+                  return
+                }
+                dispatch({ type: 'AUTH_MODE_CHANGED', value })
+              }}
+              className="w-full flex-shrink-0 rounded-lg"
+            >
+              <ToggleGroupItem value="code" className={authModeItemClass}>
+                {t`Connection code`}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="token" className={authModeItemClass}>
+                {t`Token`}
+              </ToggleGroupItem>
+            </ToggleGroup>
+            {state.authMode === 'code' ? (
+              <PairByCodeInput
+                url={trimmedUrl}
+                pair={pair}
+                urlReady={transport === 'websocket'}
+                onToken={(token) => dispatch({ type: 'TOKEN_CHANGED', value: token })}
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-2">
+                <Label htmlFor="agent-token">{t`Access token`}</Label>
+                <Input
+                  id="agent-token"
+                  type="password"
+                  placeholder={t`Paste the agent access token`}
+                  value={state.authToken}
+                  onChange={(e) => dispatch({ type: 'TOKEN_CHANGED', value: e.target.value })}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+                <p className="text-[length:var(--font-size-xs)] text-muted-foreground">{t`Sent as a bearer credential, not in the URL. Stored only on this device.`}</p>
+              </div>
+            )}
           </div>
-        )}
-        {/* Fork: connect-by-code fills the token field above from a pairing code. */}
-        {transport === 'websocket' && (
-          <PairByCodeInput
-            url={trimmedUrl}
-            pair={pair}
-            onToken={(token) => dispatch({ type: 'TOKEN_CHANGED', value: token })}
-          />
         )}
         {isIroh && <IrohPairingPanel appNodeId={appNodeId} />}
         <div className="grid grid-cols-1 gap-2">
