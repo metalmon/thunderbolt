@@ -106,6 +106,45 @@ describe('AddCustomAgentForm', () => {
     expect(screen.getByLabelText(/access token/i)).toBeInTheDocument()
   })
 
+  it('fills the access token field from a pairing code', async () => {
+    const onSubmit = mock(async () => {})
+    const onClose = mock(() => {})
+    const pair = mock(async () => ({ token: 'zc_from_code' }))
+    render(
+      <AddCustomAgentForm
+        onClose={onClose}
+        onSubmit={onSubmit}
+        isIos={notIos}
+        testAcpConnection={succeedingProbe}
+        pair={pair}
+      />,
+    )
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
+    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'ABC123' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Pair' }))
+    })
+
+    expect(pair).toHaveBeenCalledWith({ url: 'wss://gw.example/acp', code: 'ABC123' })
+    expect(screen.getByLabelText(/access token/i)).toHaveValue('zc_from_code')
+  })
+
+  it('does not offer connect-by-code before a valid WebSocket URL is entered', () => {
+    const onSubmit = mock(async () => {})
+    render(
+      <AddCustomAgentForm onClose={() => {}} onSubmit={onSubmit} isIos={notIos} testAcpConnection={succeedingProbe} />,
+    )
+
+    expect(screen.queryByLabelText('Connection code')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'http://example.com' } })
+    expect(screen.queryByLabelText('Connection code')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://example.com/ws' } })
+    expect(screen.getByLabelText('Connection code')).toBeInTheDocument()
+  })
+
   it('keeps the dialog open with submit re-enabled when onSubmit rejects', async () => {
     const consoleError = spyOn(console, 'error').mockImplementation(() => {})
     const onSubmit = mock(async () => {
