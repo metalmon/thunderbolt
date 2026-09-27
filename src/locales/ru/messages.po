@@ -186,6 +186,7 @@ msgid "Accepts connections from your devices"
 msgstr "Принимает подключения от ваших устройств"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Access token"
 msgstr "Токен доступа"
 
@@ -1110,8 +1111,8 @@ msgid "Couldn't restart to apply the update."
 msgstr "Не удалось перезапустить для установки обновления."
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Couldn't save {field}. Please try again."
-#~ msgstr "Не удалось сохранить {field}. Попробуйте ещё раз."
+msgid "Couldn't save {field}. Please try again."
+msgstr "Не удалось сохранить {field}. Попробуйте ещё раз."
 
 #: src/components/settings/agents/editable-field.tsx
 msgid "Couldn't save the {fieldName}. Please try again."
@@ -2798,6 +2799,7 @@ msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are sup
 msgstr "Вставьте конфиг <0>mcpServers</0>. Поддерживаются только удалённые (http/sse) серверы; не-Bearer заголовки авторизации игнорируются."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Paste the agent access token"
 msgstr "Вставьте токен доступа агента"
 
@@ -3027,8 +3029,8 @@ msgid "Remove this bridge?"
 msgstr "Убрать этот мост?"
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Remove token"
-#~ msgstr "Удалить токен"
+msgid "Remove token"
+msgstr "Удалить токен"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/lib/tool-metadata.ts
@@ -3166,6 +3168,7 @@ msgid "Run this on the machine hosting the bridge, then add it — the connectio
 msgstr "Выполните это на машине с мостом, затем добавьте — соединение проверяется при первом использовании."
 
 #: src/components/set-node-id-dialog.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/models/edit-model-form.tsx
@@ -3353,6 +3356,7 @@ msgid "Sent"
 msgstr "Отправлено"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
 msgstr "Отправляется как bearer-учётные данные, не в URL. Хранится только на этом устройстве."
 
@@ -4078,8 +4082,8 @@ msgid "Token rejected"
 msgstr "Токен отклонён"
 
 #: src/components/settings/agents/agent-token-field.tsx
-#~ msgid "Token set"
-#~ msgstr "Токен задан"
+msgid "Token set"
+msgstr "Токен задан"
 
 #: src/lib/otp-error-messages.ts
 msgid "Too many attempts. Please request a new code."
