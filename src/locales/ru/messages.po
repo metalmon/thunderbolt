@@ -191,8 +191,8 @@ msgid "Access token"
 msgstr "Токен доступа"
 
 #: src/fork/agent-pairing/pair-by-code-input.tsx
-msgid "Access token received."
-msgstr "Токен доступа получен."
+#~ msgid "Access token received."
+#~ msgstr "Токен доступа получен."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Access token required"
@@ -922,7 +922,7 @@ msgid "Connection"
 msgstr "Подключение"
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pair-by-code-field.tsx
 msgid "Connection code"
 msgstr "Код подключения"
 
@@ -1098,7 +1098,7 @@ msgstr "Не удалось загрузить идентификатор соп
 msgid "Couldn't pin {name}."
 msgstr "Не удалось закрепить {name}."
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pairing-messages.ts
 msgid "Couldn't reach the agent. Check the address."
 msgstr "Не удалось связаться с агентом. Проверьте адрес."
 
@@ -1682,7 +1682,7 @@ msgstr "Введите URL wss:// или ws://, либо iroh-тикет"
 msgid "Enter an API key to test the connection before saving."
 msgstr "Введите API-ключ, чтобы проверить соединение перед сохранением."
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pair-by-code-field.tsx
 msgid "Enter connection code"
 msgstr "Введите код подключения"
 
@@ -1695,8 +1695,8 @@ msgid "Enter the 24-word recovery phrase you saved when you first set up sync."
 msgstr "Введите фразу из 24 слов, которую вы сохранили при первой настройке синхронизации."
 
 #: src/fork/agent-pairing/pair-by-code-input.tsx
-msgid "Enter the agent URL above first — the code alone does not say where to connect."
-msgstr "Сначала укажите адрес агента выше — по одному коду неизвестно, куда подключаться."
+#~ msgid "Enter the agent URL above first — the code alone does not say where to connect."
+#~ msgstr "Сначала укажите адрес агента выше — по одному коду неизвестно, куда подключаться."
 
 #: src/components/device-approval.tsx
 msgid "Enter the code shown in your terminal to continue."
@@ -1710,9 +1710,13 @@ msgstr "Введите код"
 msgid "Enter your name"
 msgstr "Введите имя"
 
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
+msgstr "Обменивается на токен доступа при проверке подключения — вставлять токен вручную не нужно."
+
 #: src/fork/agent-pairing/pair-by-code-input.tsx
-msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
-msgstr "Обменивает одноразовый код на токен доступа — не нужно вставлять токен вручную."
+#~ msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
+#~ msgstr "Обменивает одноразовый код на токен доступа — не нужно вставлять токен вручную."
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Exit voice mode"
@@ -2758,7 +2762,7 @@ msgstr "Подключить"
 msgid "Pair {deviceName}"
 msgstr "Сопряжение «{deviceName}»"
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pairing-messages.ts
 msgid "Pairing failed. Please try again."
 msgstr "Не удалось подключиться. Попробуйте снова."
 
@@ -2766,11 +2770,11 @@ msgstr "Не удалось подключиться. Попробуйте сн�
 msgid "Pairing identity"
 msgstr "Идентификатор сопряжения"
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pairing-messages.ts
 msgid "Pairing timed out. Try again."
 msgstr "Время ожидания подключения истекло. Попробуйте снова."
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pairing-messages.ts
 msgid "Pairing was refused by the agent."
 msgstr "Агент отклонил подключение."
 
@@ -3765,7 +3769,7 @@ msgstr "Проверка…"
 msgid "Text size for chat messages."
 msgstr "Размер текста сообщений чата."
 
-#: src/fork/agent-pairing/pair-by-code-input.tsx
+#: src/fork/agent-pairing/pairing-messages.ts
 msgid "That code didn't work. Check it and try again."
 msgstr "Код не подошёл. Проверьте его и попробуйте снова."
 
