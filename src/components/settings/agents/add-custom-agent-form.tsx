@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Trans, useLingui } from '@lingui/react/macro'
-import { type ComponentProps, useReducer } from 'react'
+import { useReducer } from 'react'
 import { Check, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FormFooter } from '@/components/ui/form-footer'
@@ -18,7 +18,9 @@ import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { IrohPairingPanel, useAppNodeId } from '@/components/settings/iroh-pairing-panel'
 import { validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import type { CustomAgentTransport } from '@/dal/agents'
-import { PairByCodeInput } from '@/fork/agent-pairing/pair-by-code-input'
+import { PairByCodeField } from '@/fork/agent-pairing/pair-by-code-field'
+import { pairOverAcp, PairingError } from '@/fork/agent-pairing/pair-over-acp'
+import { pairingErrorMessages, pairingFailedMessage } from '@/fork/agent-pairing/pairing-messages'
 
 /** Auth-mode toggle items match the Input fields' rounding (same treatment as
  *  the MCP add-server mode toggle). */
@@ -55,7 +57,7 @@ type AddCustomAgentFormProps = {
   loadAppNodeId?: () => Promise<string>
   /** Test/DI override for the connect-by-code exchange. Production omits (the
    *  fork's real `pairOverAcp`). */
-  pair?: ComponentProps<typeof PairByCodeInput>['pair']
+  pair?: typeof pairOverAcp
 }
 
 /** Fork: how the user supplies the agent credential. Pairing is the default —
@@ -69,6 +71,7 @@ type AgentFormState = {
   description: string
   authToken: string
   authMode: AgentAuthMode
+  pairingCode: string
   submitting: boolean
   /** Save failed after the connection gate — shown next to the buttons. */
   submitError: string | null
@@ -84,6 +87,7 @@ type AgentFormAction =
   | { type: 'DESCRIPTION_CHANGED'; value: string }
   | { type: 'TOKEN_CHANGED'; value: string }
   | { type: 'AUTH_MODE_CHANGED'; value: AgentAuthMode }
+  | { type: 'PAIRING_CODE_CHANGED'; value: string }
   | { type: 'SUBMIT_STARTED' }
   | { type: 'SUBMIT_FAILED'; message: string }
   | { type: 'CONNECTION_TEST_STARTED' }
@@ -96,6 +100,7 @@ const emptyState: AgentFormState = {
   description: '',
   authToken: '',
   authMode: 'code',
+  pairingCode: '',
   submitting: false,
   submitError: null,
   isTestingConnection: false,
@@ -117,6 +122,9 @@ const agentFormReducer = (state: AgentFormState, action: AgentFormAction): Agent
       return { ...state, authToken: action.value }
     case 'AUTH_MODE_CHANGED':
       return { ...state, authMode: action.value }
+    case 'PAIRING_CODE_CHANGED':
+      // A fresh code invalidates the previous test — it pairs a new token.
+      return { ...state, pairingCode: action.value, connectionStatus: 'idle', connectionError: null }
     case 'SUBMIT_STARTED':
       return { ...state, submitting: true, submitError: null }
     case 'SUBMIT_FAILED':
@@ -172,9 +180,30 @@ export const AddCustomAgentForm = ({
 
   const handleTestConnection = async () => {
     dispatch({ type: 'CONNECTION_TEST_STARTED' })
+
+    // Fork: in code mode the test is also the pairing step — the code buys the
+    // very token the probe needs, and nothing can be saved without a passing
+    // test, so a separate Pair button would only add a click. An already-paired
+    // token (or one typed in token mode) is reused as-is.
+    let authToken = trimmedToken
+    const trimmedCode = state.pairingCode.trim()
+    if (state.authMode === 'code' && trimmedCode.length > 0 && authToken.length === 0) {
+      try {
+        const { token } = await (pair ?? pairOverAcp)({ url: trimmedUrl, code: trimmedCode })
+        authToken = token
+        dispatch({ type: 'TOKEN_CHANGED', value: token })
+      } catch (pairError) {
+        const message = i18n._(
+          pairError instanceof PairingError ? pairingErrorMessages[pairError.kind] : pairingFailedMessage,
+        )
+        dispatch({ type: 'CONNECTION_TEST_FAILED', error: message })
+        return
+      }
+    }
+
     const result = await testAcpConnection({
       url: trimmedUrl,
-      authToken: trimmedToken.length > 0 ? trimmedToken : null,
+      authToken: authToken.length > 0 ? authToken : null,
     })
     if (result.success) {
       dispatch({ type: 'CONNECTION_TEST_SUCCEEDED' })
@@ -278,11 +307,10 @@ export const AddCustomAgentForm = ({
               </ToggleGroupItem>
             </ToggleGroup>
             {state.authMode === 'code' ? (
-              <PairByCodeInput
-                url={trimmedUrl}
-                pair={pair}
-                urlReady={transport === 'websocket'}
-                onToken={(token) => dispatch({ type: 'TOKEN_CHANGED', value: token })}
+              <PairByCodeField
+                value={state.pairingCode}
+                onChange={(value) => dispatch({ type: 'PAIRING_CODE_CHANGED', value })}
+                invalid={state.connectionStatus === 'error'}
               />
             ) : (
               <div className="grid grid-cols-1 gap-2">
