@@ -190,6 +190,10 @@ msgstr "Принимает подключения от ваших устройс
 msgid "Access token"
 msgstr "Токен доступа"
 
+#: src/fork/agent-pairing/pair-by-code-input.tsx
+msgid "Access token received."
+msgstr "Токен доступа получен."
+
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Access token required"
 msgstr "Требуется токен доступа"
@@ -917,6 +921,7 @@ msgstr "Подключение…"
 msgid "Connection"
 msgstr "Подключение"
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/fork/agent-pairing/pair-by-code-input.tsx
 msgid "Connection code"
 msgstr "Код подключения"
@@ -1688,6 +1693,10 @@ msgstr "Введите фразу восстановления"
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter the 24-word recovery phrase you saved when you first set up sync."
 msgstr "Введите фразу из 24 слов, которую вы сохранили при первой настройке синхронизации."
+
+#: src/fork/agent-pairing/pair-by-code-input.tsx
+msgid "Enter the agent URL above first — the code alone does not say where to connect."
+msgstr "Сначала укажите адрес агента выше — по одному коду неизвестно, куда подключаться."
 
 #: src/components/device-approval.tsx
 msgid "Enter the code shown in your terminal to continue."
@@ -4059,6 +4068,10 @@ msgstr "Боковая панель"
 #: src/layout/sidebar/sidebar-header.tsx
 msgid "Toggle Sidebar"
 msgstr "Переключить боковую панель"
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+msgid "Token"
+msgstr "Токен"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Token rejected"
