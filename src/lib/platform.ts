@@ -6,6 +6,7 @@ import { invoke, isTauri as isTauriCore } from '@tauri-apps/api/core'
 import { platform, type Platform } from '@tauri-apps/plugin-os'
 import type { DatabaseType } from '../db/database'
 import { memoize } from './memoize'
+import { databaseNames, forkDatabaseFilename } from '@/fork/db/database-filename'
 
 /** Matches Render PR preview hostnames: thunderbolt-pr-{number}.onrender.com */
 export const prPreviewHostRegex = /^thunderbolt-pr-\d+\.onrender\.com$/
@@ -282,14 +283,14 @@ export const getDatabaseType = async (): Promise<DatabaseType> => {
 export const getDatabasePath = async (databaseType: DatabaseType, appDataDirPath: string): Promise<string> => {
   // For native databases (bun-sqlite), use file path directly
   if (databaseType === 'bun-sqlite') {
-    return `${appDataDirPath}/thunderbolt.db`
+    return `${appDataDirPath}/${databaseNames.plain}`
   }
 
   // For wa-sqlite and powersync, check OPFS availability
   const opfsAvailable = await isOpfsAvailable()
   if (opfsAvailable) {
-    // Use different filename for PowerSync to avoid conflicts during migration
-    const filename = databaseType === 'powersync' ? 'thunderbolt-sync.db' : 'thunderbolt.db'
+    // Fork: product-named database, migrating a pre-rename one when it is safe.
+    const filename = await forkDatabaseFilename(databaseType === 'powersync')
     return `${appDataDirPath}/${filename}`
   }
 
