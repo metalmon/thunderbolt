@@ -5,6 +5,8 @@
 import { isTauri as isTauriCore } from '@tauri-apps/api/core'
 import { platform, type Platform } from '@tauri-apps/plugin-os'
 import type { DatabaseType } from '../db/database'
+import { memoize } from './memoize'
+import { forkDatabaseFilename } from '@/fork/db/database-filename'
 
 /** Matches Render PR preview hostnames: thunderbolt-pr-{number}.onrender.com */
 export const prPreviewHostRegex = /^thunderbolt-pr-\d+\.onrender\.com$/
@@ -325,7 +327,11 @@ export const powerSyncDbFilename = 'thunderbolt-sync.db'
 export const getDatabasePath = async (appDataDirPath: string, filename: string): Promise<string> => {
   const opfsAvailable = await isOpfsAvailable()
   if (opfsAvailable) {
-    return `${appDataDirPath}/${filename}`
+    // Fork: product-named database, migrating a pre-rename one when it is safe.
+    // Only the DEFAULT slot is renamed — a per-slot name already carries its uuid
+    // and must stay unique per account, so it passes through untouched.
+    const name = filename === powerSyncDbFilename ? await forkDatabaseFilename(true) : filename
+    return `${appDataDirPath}/${name}`
   }
 
   console.warn('OPFS not available (likely private browsing)')
