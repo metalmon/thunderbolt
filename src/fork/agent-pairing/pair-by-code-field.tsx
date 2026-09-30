@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label'
 /**
  * The pairing-code field on its own — no action button.
  *
- * For callers that already have a button the user must press before the value
- * is worth anything: the add-agent form folds the exchange into its "Test
- * connection" step, since a custom agent cannot be saved without a passing
- * test. The detail panel, where pairing IS the action, uses `PairByCodeInput`
- * instead (this field plus its own button).
+ * Pairing happens once, when an agent is added: the add-agent form folds the
+ * exchange into its "Test connection" step, since a custom agent cannot be
+ * saved without a passing test, so the field needs no button of its own. The
+ * detail panel of a saved agent offers the manual token field only — there is
+ * no re-pair-by-code, and a revoked or rotated token is recovered by removing
+ * and re-adding the agent.
  */
 export const PairByCodeField = ({
   value,
