@@ -13,11 +13,18 @@
  * agent, tested a different one, got a green check and then
  * `agent_not_permitted` on the first chat).
  *
- * So the probe mints a session and immediately cancels it. The rule that keeps
- * this safe for every other agent: only an explicit denial is an answer. Any
- * other failure — an agent that does not implement `session/new`, a transient
- * error — leaves the verdict `unknown`, because `initialize` already succeeded
- * and a probe must not invent a failure it cannot prove.
+ * So the probe mints a session and then CLOSES it. `session/close` is the call
+ * that matters: in the runtime it does `sessions.remove(id)`, whereas
+ * `session/cancel` only fires the cancel token of the current turn and leaves
+ * the session in place — and sessions are capped (`max_sessions`), so probing
+ * with cancel would slowly fill that cap with throwaway sessions and start
+ * denying real ones.
+ *
+ * The rule that keeps this safe for every other agent: only an explicit denial
+ * is an answer. Any other failure — an agent that does not implement
+ * `session/new`, a transient error — leaves the verdict `unknown`, because
+ * `initialize` already succeeded and a probe must not invent a failure it
+ * cannot prove.
  */
 
 /** ACP requires a `cwd`; browsers have no path to offer, so mirror the adapter's
@@ -29,7 +36,7 @@ export type AgentAccessVerdict = 'permitted' | 'denied' | 'unknown'
 /** The slice of an ACP connection this probe drives. */
 export type AgentAccessConnection = {
   newSession?: (params: { cwd: string; mcpServers: never[] }) => Promise<{ sessionId: string }>
-  cancel?: (params: { sessionId: string }) => Promise<void>
+  closeSession?: (params: { sessionId: string }) => Promise<unknown>
 }
 
 type JsonRpcLike = { code?: number; message?: string; data?: unknown }
@@ -68,9 +75,9 @@ export const probeAgentAccess = async (connection: AgentAccessConnection): Promi
   }
   try {
     const { sessionId } = await connection.newSession({ cwd: sessionCwd, mcpServers: [] })
-    // Fire-and-forget, exactly as the adapter cancels a turn: the session is
-    // disposable and the transport closes right after this anyway.
-    void connection.cancel?.({ sessionId }).catch(() => {})
+    // Give the slot back. Fire-and-forget: an agent with no `session/close`
+    // simply errors, and the transport closes right after this anyway.
+    void connection.closeSession?.({ sessionId }).catch(() => {})
     return 'permitted'
   } catch (error) {
     return isAgentNotPermitted(error) ? 'denied' : 'unknown'
