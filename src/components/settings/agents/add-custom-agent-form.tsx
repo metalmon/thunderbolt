@@ -21,6 +21,7 @@ import type { CustomAgentTransport } from '@/dal/agents'
 import { PairByCodeField } from '@/fork/agent-pairing/pair-by-code-field'
 import { pairOverAcp, PairingError } from '@/fork/agent-pairing/pair-over-acp'
 import { pairingErrorMessages, pairingFailedMessage } from '@/fork/agent-pairing/pairing-messages'
+import { agentNotPermittedMessage } from '@/fork/acp/agent-access'
 
 /** Auth-mode toggle items match the Input fields' rounding (same treatment as
  *  the MCP add-server mode toggle). */
@@ -219,7 +220,10 @@ export const AddCustomAgentForm = ({
       dispatch({ type: 'CONNECTION_TEST_SUCCEEDED' })
       return
     }
-    dispatch({ type: 'CONNECTION_TEST_FAILED', error: result.error })
+    // Fork: an RBAC refusal is the account's problem, not the address' — say so
+    // in the user's language instead of passing the probe's English through.
+    const failure = result.reason === 'agent_not_permitted' ? i18n._(agentNotPermittedMessage) : result.error
+    dispatch({ type: 'CONNECTION_TEST_FAILED', error: failure })
   }
 
   const handleSubmit = async () => {
