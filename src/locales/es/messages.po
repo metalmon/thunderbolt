@@ -1727,8 +1727,8 @@ msgid "Enter your name"
 msgstr "Introduce tu nombre"
 
 #: src/fork/agent-pairing/pair-by-code-field.tsx
-msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
-msgstr ""
+#~ msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
+#~ msgstr ""
 
 #: src/fork/agent-pairing/pair-by-code-input.tsx
 #~ msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
@@ -2658,6 +2658,10 @@ msgstr "Una app, todos los modelos de IA"
 #: src/components/device-approval.tsx
 msgid "One moment while we look up the code."
 msgstr "Un momento, estamos buscando el código."
+
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself."
+msgstr ""
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
@@ -3790,8 +3794,12 @@ msgid "Text size for chat messages."
 msgstr ""
 
 #: src/fork/agent-pairing/pairing-messages.ts
-msgid "That code didn't work. Check it and try again."
+msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
 msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+#~ msgid "That code didn't work. Check it and try again."
+#~ msgstr ""
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
@@ -3871,6 +3879,10 @@ msgstr "Pensando"
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
 msgstr "Esta acción no se puede deshacer. Se eliminarán de forma permanente este chat y todos sus mensajes."
 
+#: src/fork/acp/agent-access.ts
+msgid "This agent is not available for your account."
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
 msgstr "Esto puede ocurrir en ventanas privadas o cuando se bloquean los datos del sitio. Activa el almacenamiento para este sitio y recarga."
@@ -3922,6 +3934,10 @@ msgstr "Esto nos ayuda a personalizar tu experiencia con ajustes y funciones loc
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
 msgstr "Este es el primer dispositivo de tu cuenta. Crearemos una clave de cifrado para proteger tus datos y te daremos una clave de recuperación para que la guardes a salvo."
+
+#: src/fork/agents/proxy-reachability.ts
+msgid "This is your own machine's address. The desktop app can reach it, but in the browser the connection is made by the server, which would look for the agent on itself."
+msgstr ""
 
 #: src/lib/otp-error-messages.ts
 msgid "This link has expired. Please request a new one."
