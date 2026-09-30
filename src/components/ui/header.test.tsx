@@ -131,6 +131,39 @@ describe('Header', () => {
     expect(screen.getByTestId('agent-selector-trigger').closest('button')?.parentElement).toHaveClass('top-2')
   })
 
+  it('keeps a disabled agent out of the picker', async () => {
+    // The Enabled switch promises "Disabled agents stay out of the chat agent
+    // picker"; upstream shipped the flag and the copy but never filtered.
+    await createAgent(getDb(), {
+      id: 'enabled-agent',
+      name: 'Enabled Agent',
+      type: 'remote-acp',
+      transport: 'websocket',
+      url: 'wss://example.com/enabled',
+      userId: 'user-1',
+    })
+    await createAgent(getDb(), {
+      id: 'disabled-agent',
+      name: 'Disabled Agent',
+      type: 'remote-acp',
+      transport: 'websocket',
+      url: 'wss://example.com/disabled',
+      userId: 'user-1',
+      enabled: 0,
+    })
+    setupWithAgent(builtInAgent)
+
+    render(<Header />, { wrapper: TestWrapper })
+    await flushAgentsQuery()
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('agent-selector-trigger'))
+    })
+
+    expect(screen.getByText('Enabled Agent')).toBeInTheDocument()
+    expect(screen.queryByText('Disabled Agent')).toBeNull()
+  })
+
   it('keeps showing the thread agent after the synced list hydrates', async () => {
     // Once `useAllAgents` resolves and the thread's custom agent appears in the
     // list, the header must still display it (the selector now finds it by id).
