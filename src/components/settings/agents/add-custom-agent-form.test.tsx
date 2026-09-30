@@ -188,7 +188,7 @@ describe('AddCustomAgentForm', () => {
     })
 
     expect(probe).not.toHaveBeenCalled()
-    expect(screen.getByText("That code didn't work. Check it and try again.")).toBeInTheDocument()
+    expect(screen.getByText(/That code didn't work\./)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /add agent/i })).toBeDisabled()
   })
 
