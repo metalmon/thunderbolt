@@ -1711,8 +1711,8 @@ msgid "Enter your name"
 msgstr "Введите имя"
 
 #: src/fork/agent-pairing/pair-by-code-field.tsx
-msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
-msgstr "Обменивается на токен доступа при проверке подключения — вставлять токен вручную не нужно."
+#~ msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
+#~ msgstr "Обменивается на токен доступа при проверке подключения — вставлять токен вручную не нужно."
 
 #: src/fork/agent-pairing/pair-by-code-input.tsx
 #~ msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
@@ -2642,6 +2642,10 @@ msgstr "Одно приложение — все модели ИИ"
 #: src/components/device-approval.tsx
 msgid "One moment while we look up the code."
 msgstr "Секунду, ищем код."
+
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself."
+msgstr "Одноразовый код, обменивается на токен доступа при проверке подключения — вставлять токен вручную не нужно."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
@@ -3770,8 +3774,12 @@ msgid "Text size for chat messages."
 msgstr "Размер текста сообщений чата."
 
 #: src/fork/agent-pairing/pairing-messages.ts
-msgid "That code didn't work. Check it and try again."
-msgstr "Код не подошёл. Проверьте его и попробуйте снова."
+msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
+msgstr "Код не подошёл. Он одноразовый и быстро истекает — запросите новый."
+
+#: src/fork/agent-pairing/pairing-messages.ts
+#~ msgid "That code didn't work. Check it and try again."
+#~ msgstr "Код не подошёл. Проверьте его и попробуйте снова."
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
@@ -3851,6 +3859,10 @@ msgstr "Думаю"
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
 msgstr "Это действие нельзя отменить. Чат и все сообщения будут удалены безвозвратно."
 
+#: src/fork/acp/agent-access.ts
+msgid "This agent is not available for your account."
+msgstr "Этот агент недоступен для вашей учётной записи."
+
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
 msgstr "Так бывает в приватных окнах или когда данные сайта заблокированы. Разрешите хранилище для этого сайта и перезагрузите страницу."
@@ -3902,6 +3914,10 @@ msgstr "Это поможет персонализировать опыт с у�
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
 msgstr "Это первое устройство в аккаунте. Мы создадим ключ шифрования для защиты данных и выдадим фразу восстановления — сохраните её в надёжном месте."
+
+#: src/fork/agents/proxy-reachability.ts
+msgid "This is your own machine's address. The desktop app can reach it, but in the browser the connection is made by the server, which would look for the agent on itself."
+msgstr "Это адрес вашей машины. Приложение на компьютере до него достучится, а в браузере соединение устанавливает сервер — и будет искать агента у себя."
 
 #: src/lib/otp-error-messages.ts
 msgid "This link has expired. Please request a new one."
