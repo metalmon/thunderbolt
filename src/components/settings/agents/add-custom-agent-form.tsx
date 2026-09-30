@@ -123,8 +123,18 @@ const agentFormReducer = (state: AgentFormState, action: AgentFormAction): Agent
     case 'AUTH_MODE_CHANGED':
       return { ...state, authMode: action.value }
     case 'PAIRING_CODE_CHANGED':
-      // A fresh code invalidates the previous test — it pairs a new token.
-      return { ...state, pairingCode: action.value, connectionStatus: 'idle', connectionError: null }
+      // A fresh code invalidates the previous test AND the token it paired: in
+      // code mode the token is derived from the code, so keeping the old one
+      // would silently ignore the new code (the test skips pairing whenever a
+      // token is already present) and keep retrying a credential the user has
+      // just replaced.
+      return {
+        ...state,
+        pairingCode: action.value,
+        authToken: '',
+        connectionStatus: 'idle',
+        connectionError: null,
+      }
     case 'SUBMIT_STARTED':
       return { ...state, submitting: true, submitError: null }
     case 'SUBMIT_FAILED':
