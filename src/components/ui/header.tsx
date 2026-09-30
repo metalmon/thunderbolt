@@ -198,6 +198,12 @@ export const Header = () => {
   const { openCreateItem } = useCreateItem()
   const location = useLocation()
   const allAgents = useAllAgents()
+  // Fork: the Enabled switch promises "Disabled agents stay out of the chat
+  // agent picker" — upstream ships the flag and the copy but never filters. The
+  // current thread's agent arrives separately as `selectedAgent`, so a thread
+  // whose agent was just disabled keeps showing it; it only stops being
+  // offered. Built-in and system agents are always enabled, so they survive.
+  const selectableAgents = allAgents.filter((agent) => agent.enabled === 1)
   const allowCustomAgents = useConfigStore((state) => selectAllowCustomAgents(state.config))
   const minimalMode = useConfigStore((state) => selectMinimalMode(state.config))
   const configSettled = useConfigStore(selectConfigSettled)
@@ -242,7 +248,7 @@ export const Header = () => {
   const isChatRoute = location.pathname.startsWith('/chats')
   // Wait for `/config` so a first visit never flashes the pill before minimal mode is known.
   const showAgentSelector =
-    isChatRoute && chatInstance !== undefined && allAgents.length > 0 && configSettled && !minimalMode
+    isChatRoute && chatInstance !== undefined && selectableAgents.length > 0 && configSettled && !minimalMode
 
   // The operator's logo takes the selector's place for direct visitors. Inside a native app's WebView the app's own chrome carries the branding.
   const showBrandLogo = minimalMode && brandLogo !== null && !isEmbedded()
@@ -302,7 +308,7 @@ export const Header = () => {
     <HeaderAgentSelector
       chatInstance={chatInstance}
       selectedAgent={effectiveAgent}
-      agents={allAgents}
+      agents={selectableAgents}
       onSelect={handleAgentSelect}
       onAddAgent={allowCustomAgents ? handleAddAgent : undefined}
       leading={isChatRoute ? <ProjectBadge chatThreadId={chatThreadId ?? null} iconOnly /> : undefined}
