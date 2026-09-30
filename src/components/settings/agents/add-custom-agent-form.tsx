@@ -22,6 +22,8 @@ import { PairByCodeField } from '@/fork/agent-pairing/pair-by-code-field'
 import { pairOverAcp, PairingError } from '@/fork/agent-pairing/pair-over-acp'
 import { pairingErrorMessages, pairingFailedMessage } from '@/fork/agent-pairing/pairing-messages'
 import { agentNotPermittedMessage } from '@/fork/acp/agent-access'
+import { isLoopbackBeyondProxy, loopbackThroughProxyMessage } from '@/fork/agents/proxy-reachability'
+import { isTauri } from '@/lib/platform'
 
 /** Auth-mode toggle items match the Input fields' rounding (same treatment as
  *  the MCP add-server mode toggle). */
@@ -43,7 +45,7 @@ export type AddCustomAgentPayload = {
 export type TestAcpConnectionFn = (opts: {
   url: string
   authToken?: string | null
-}) => Promise<{ success: true } | { success: false; error: string }>
+}) => Promise<{ success: true } | { success: false; error: string; reason?: 'agent_not_permitted' }>
 
 type AddCustomAgentFormProps = {
   onClose: () => void
@@ -295,6 +297,9 @@ export const AddCustomAgentForm = ({
               NodeId works only if the peer is discoverable).
             </Trans>
           </p>
+          {isLoopbackBeyondProxy(trimmedUrl, isTauri()) && (
+            <p className="text-[length:var(--font-size-xs)] text-warning">{i18n._(loopbackThroughProxyMessage)}</p>
+          )}
         </div>
         {/* Fork: one credential, two ways in — pair with a code (default) or
             paste a token. Only the chosen input is shown; both write the same
