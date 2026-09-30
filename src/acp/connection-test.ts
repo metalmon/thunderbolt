@@ -6,7 +6,8 @@
  * One-shot connection probe for the "Add Custom Agent" settings dialog. Mirrors
  * the model "Test Connection" flow: open the raw endpoint, run the ACP
  * `initialize` handshake, and report success (with the agent's capabilities) or
- * a user-facing error.
+ * a user-facing error. Fork: it also checks that this account may use THIS
+ * agent, which `initialize` does not answer (see `@/fork/acp/agent-access`).
  *
  * Unlike {@link connectAcpAdapter}, this opens the endpoint via
  * `openWebSocketTransport` *directly* — skipping the managed-ACP bearer /
@@ -19,6 +20,7 @@ import type { Agent as AcpSdkAgent, ClientSideConnection, Client } from '@agentc
 import { ClientSideConnection as ClientSideConnectionImpl } from '@agentclientprotocol/sdk'
 import type { AgentCapabilities } from '@/types/acp'
 import { buildAgentWebSocketFactory } from '@/fork/agent-bearer/subprotocols'
+import { probeAgentAccess } from '@/fork/acp/agent-access'
 import { adaptCapabilities } from './acp-adapter'
 import { openWebSocketTransport, type WebSocketFactory } from './transports/websocket'
 import type { AcpTransport } from './types'
@@ -28,9 +30,10 @@ const clientName = 'thunderbolt'
 const clientVersion = '0.2.0'
 const defaultTimeoutMs = 10000
 
-/** Minimal client handler: the probe never drives a session, so session updates
- *  are dropped and any permission prompt is auto-cancelled (same cancelled shape
- *  the adapter uses as its safe default). */
+/** Minimal client handler: the probe mints at most one throwaway session and
+ *  never prompts through it, so session updates are dropped and any permission
+ *  request is auto-cancelled (same cancelled shape the adapter uses as its safe
+ *  default). */
 const probeClient: Client = {
   sessionUpdate: async () => {},
   requestPermission: async () => ({ outcome: { outcome: 'cancelled' } }),
@@ -64,7 +67,7 @@ export type TestAcpConnectionOptions = {
 
 export type TestAcpConnectionResult =
   | { success: true; capabilities: AgentCapabilities }
-  | { success: false; error: string }
+  | { success: false; error: string; reason?: 'agent_not_permitted' }
 
 /** Translate a thrown probe error into a user-facing message. A bare network
  *  `TypeError` (DNS failure, refused socket) carries no useful text, so we swap
@@ -115,6 +118,13 @@ export const testAcpConnection = async (opts: TestAcpConnectionOptions): Promise
       }),
       timeoutPromise,
     ])
+
+    // Fork: `initialize` only proves the account has some access; per-agent
+    // permission is decided at `session/new`.
+    const access = await Promise.race([probeAgentAccess(connection), timeoutPromise])
+    if (access === 'denied') {
+      return { success: false, error: 'Agent not permitted for this account', reason: 'agent_not_permitted' }
+    }
 
     return { success: true, capabilities: adaptCapabilities(response) }
   } catch (err) {
