@@ -1715,8 +1715,8 @@ msgid "Enter your name"
 msgstr ""
 
 #: src/fork/agent-pairing/pair-by-code-field.tsx
-msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
-msgstr ""
+#~ msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
+#~ msgstr ""
 
 #: src/fork/agent-pairing/pair-by-code-input.tsx
 #~ msgid "Exchanges a one-time code for an access token — no need to paste the token yourself."
@@ -2645,6 +2645,10 @@ msgstr ""
 
 #: src/components/device-approval.tsx
 msgid "One moment while we look up the code."
+msgstr ""
+
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself."
 msgstr ""
 
 #: src/components/onboarding/onboarding-auth-step.tsx
@@ -3778,8 +3782,12 @@ msgid "Text size for chat messages."
 msgstr ""
 
 #: src/fork/agent-pairing/pairing-messages.ts
-msgid "That code didn't work. Check it and try again."
+msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
 msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+#~ msgid "That code didn't work. Check it and try again."
+#~ msgstr ""
 
 #: src/lib/device-grant.ts
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
@@ -3859,6 +3867,10 @@ msgstr ""
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
 msgstr ""
 
+#: src/fork/acp/agent-access.ts
+msgid "This agent is not available for your account."
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
 msgstr ""
@@ -3909,6 +3921,10 @@ msgstr ""
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
+msgstr ""
+
+#: src/fork/agents/proxy-reachability.ts
+msgid "This is your own machine's address. The desktop app can reach it, but in the browser the connection is made by the server, which would look for the agent on itself."
 msgstr ""
 
 #: src/lib/otp-error-messages.ts
