@@ -29,13 +29,15 @@ describe('isAgentNotPermitted', () => {
 })
 
 describe('probeAgentAccess', () => {
-  it('mints a session, cancels it, and reports access', async () => {
-    const cancel = mock(async () => {})
+  it('mints a session, closes it, and reports access', async () => {
+    const closeSession = mock(async () => ({}))
     const newSession = mock(async () => ({ sessionId: 'sess-1' }))
 
-    expect(await probeAgentAccess({ newSession, cancel })).toBe('permitted')
+    expect(await probeAgentAccess({ newSession, closeSession })).toBe('permitted')
     expect(newSession).toHaveBeenCalledWith({ cwd: '.', mcpServers: [] })
-    expect(cancel).toHaveBeenCalledWith({ sessionId: 'sess-1' })
+    // session/close frees the slot; session/cancel would only end the turn and
+    // leave the session counting against the runtime's max_sessions cap.
+    expect(closeSession).toHaveBeenCalledWith({ sessionId: 'sess-1' })
   })
 
   it('reports a denial when the agent is not permitted for this account', async () => {
@@ -60,12 +62,12 @@ describe('probeAgentAccess', () => {
     expect(await probeAgentAccess({})).toBe('unknown')
   })
 
-  it('still reports access when cancelling the throwaway session fails', async () => {
+  it('still reports access when closing the throwaway session fails', async () => {
     const newSession = mock(async () => ({ sessionId: 'sess-1' }))
-    const cancel = mock(async () => {
+    const closeSession = mock(async () => {
       throw new Error('already gone')
     })
 
-    expect(await probeAgentAccess({ newSession, cancel })).toBe('permitted')
+    expect(await probeAgentAccess({ newSession, closeSession })).toBe('permitted')
   })
 })
