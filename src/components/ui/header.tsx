@@ -187,6 +187,12 @@ export const Header = () => {
   const { openCreateItem } = useCreateItem()
   const location = useLocation()
   const allAgents = useAllAgents()
+  // Fork: the Enabled switch promises "Disabled agents stay out of the chat
+  // agent picker" — upstream ships the flag and the copy but never filters. The
+  // current thread's agent arrives separately as `selectedAgent`, so a thread
+  // whose agent was just disabled keeps showing it; it only stops being
+  // offered. Built-in and system agents are always enabled, so they survive.
+  const selectableAgents = allAgents.filter((agent) => agent.enabled === 1)
   const allowCustomAgents = useConfigStore((state) => selectAllowCustomAgents(state.config))
 
   const { chatInstance, selectedAgent, setSelectedAgent, chatThreadId, hasThread } = useChatStore(
@@ -211,7 +217,7 @@ export const Header = () => {
   const effectiveAgent = selectedAgent ?? builtInAgent
 
   const isChatRoute = location.pathname.startsWith('/chats')
-  const showAgentSelector = isChatRoute && chatInstance !== undefined && allAgents.length > 0
+  const showAgentSelector = isChatRoute && chatInstance !== undefined && selectableAgents.length > 0
 
   const handleAddAgent = () => {
     openCreateItem({ kind: 'agent' })
@@ -227,7 +233,7 @@ export const Header = () => {
     <HeaderAgentSelector
       chatInstance={chatInstance}
       selectedAgent={effectiveAgent}
-      agents={allAgents}
+      agents={selectableAgents}
       onSelect={handleAgentSelect}
       onAddAgent={allowCustomAgents ? handleAddAgent : undefined}
       leading={isChatRoute ? <ProjectBadge chatThreadId={chatThreadId ?? null} iconOnly /> : undefined}
