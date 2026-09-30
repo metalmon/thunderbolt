@@ -15,6 +15,7 @@ import { iconForAgent } from '@/components/agent-icon'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { IconTile } from '@/components/settings/icon-tile'
 import { AgentTokenField } from '@/components/settings/agents/agent-token-field'
+import { agentNotPermittedMessage } from '@/fork/acp/agent-access'
 import { EditableField, FieldLabel } from '@/components/settings/agents/editable-field'
 import { inferTransport, validateAgentUrl } from '@/components/settings/agents/validate-agent-url'
 import {
@@ -319,7 +320,14 @@ const CustomBody = ({
     const probe = await testAcpConnection({ url: agent.url, authToken })
     const testedAt = new Date().toISOString()
     setTestResult(
-      probe.success ? { isReachable: true, testedAt } : { isReachable: false, testedAt, error: probe.error },
+      probe.success
+        ? { isReachable: true, testedAt }
+        : {
+            isReachable: false,
+            testedAt,
+            // Fork: same RBAC refusal, same localized wording as the add form.
+            error: probe.reason === 'agent_not_permitted' ? i18n._(agentNotPermittedMessage) : probe.error,
+          },
     )
   }
 
