@@ -27,6 +27,16 @@
  * cannot prove.
  */
 
+import { msg } from '@lingui/core/macro'
+import type { MessageDescriptor } from '@lingui/core'
+
+/**
+ * Display copy for a refusal. The probe returns a verdict, not a sentence, so
+ * each display boundary resolves this with `i18n._()` — a module-scope `t`
+ * would pin the boot locale.
+ */
+export const agentNotPermittedMessage: MessageDescriptor = msg`This agent is not available for your account.`
+
 /** ACP requires a `cwd`; browsers have no path to offer, so mirror the adapter's
  *  launch-relative directory. */
 const sessionCwd = '.'
