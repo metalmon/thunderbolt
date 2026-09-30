@@ -15,7 +15,10 @@ import type { PairingErrorKind } from './pair-over-acp'
  * boot locale. Resolve at the point of use with `i18n._(pairingErrorMessages[kind])`.
  */
 export const pairingErrorMessages: Record<PairingErrorKind, MessageDescriptor> = {
-  invalid_code: msg`That code didn't work. Check it and try again.`,
+  // The runtime cannot tell "wrong" from "expired" apart either — an expired
+  // code is erased and simply stops matching — so the copy names both, and
+  // points at the only real remedy rather than inviting a re-read of digits.
+  invalid_code: msg`That code didn't work. A code is one-time and expires quickly — ask for a new one.`,
   transport: msg`Couldn't reach the agent. Check the address.`,
   timeout: msg`Pairing timed out. Try again.`,
   rejected: msg`Pairing was refused by the agent.`,
