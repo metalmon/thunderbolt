@@ -44,7 +44,7 @@ export const PairByCodeField = ({
         aria-invalid={invalid ? true : undefined}
       />
       <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-        {t`Exchanged for an access token when you test the connection — no need to paste the token yourself.`}
+        {t`One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself.`}
       </p>
     </div>
   )
