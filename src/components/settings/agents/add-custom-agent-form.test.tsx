@@ -143,6 +143,34 @@ describe('AddCustomAgentForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ authToken: 'zc_from_code' }))
   })
 
+  it('pairs again when the code changes, instead of reusing the token it already has', async () => {
+    let issued = 0
+    const pair = mock(async (_inputs: { url: string; code: string }) => ({ token: `zc_token_${++issued}` }))
+    const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
+    render(
+      <AddCustomAgentForm onClose={() => {}} onSubmit={async () => {}} isIos={notIos} testAcpConnection={probe} pair={pair} />,
+    )
+
+    fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
+    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'FIRST' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
+    })
+
+    // A code is one-time, so the user who retries types a NEW one — and that
+    // one has to be exchanged, not shadowed by the token the first one bought
+    // (which is how a permission-less token kept being retried against a live
+    // pilot until the 401 was traced back to here).
+    fireEvent.change(screen.getByLabelText('Connection code'), { target: { value: 'SECOND' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /test connection/i }))
+    })
+
+    expect(pair).toHaveBeenCalledTimes(2)
+    expect(pair).toHaveBeenLastCalledWith({ url: 'wss://gw.example/acp', code: 'SECOND' })
+    expect(probe).toHaveBeenLastCalledWith({ url: 'wss://gw.example/acp', authToken: 'zc_token_2' })
+  })
+
   it('reports a failed exchange as the connection result and never probes', async () => {
     const pair = mock(async () => {
       throw new PairingError('invalid_code', 'nope')
