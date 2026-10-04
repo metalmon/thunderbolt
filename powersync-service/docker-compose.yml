@@ -131,11 +131,26 @@ services:
       # Verified: without it the hop fails with "unable to verify the first
       # certificate", with it the same request returns 200.
       NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
+      # Fork: voltd agent auto-discovery. Unset VOLTD_URL leaves the whole feature
+      # inert — no provider registered, no relay route, issuer surface still served
+      # only if the keys are present. The keys are PATHS, not values: a PEM is
+      # multi-line so env_file cannot carry one, and a private key in an env var
+      # leaks into `docker inspect`.
+      VOLTD_URL: ${VOLTD_URL:-}
+      VOLTD_JWT_PRIVATE_KEY_FILE: ${VOLTD_JWT_PRIVATE_KEY_FILE:-/etc/volt/voltd-keys/signing.key.pem}
+      VOLTD_JWT_PUBLIC_KEY_FILE: ${VOLTD_JWT_PUBLIC_KEY_FILE:-/etc/volt/voltd-keys/signing.pub.pem}
+      # Dotted path to the group claim in the IdP's token. Keycloak's Group
+      # Membership mapper emits `groups`; realm roles would be
+      # `realm_access.roles`.
+      VOLTD_GROUPS_CLAIM: ${VOLTD_GROUPS_CLAIM:-groups}
     volumes:
       # Same directory the `tls` service reads its certificate from; mounted so
       # THUNDERBOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
       # /etc/volt/certs/ca.crt. Harmless when the directory holds nothing.
       - ${THUNDERBOLT_TLS_CERT_DIR:-./certs}:/etc/volt/certs:ro
+      # ES256 keypair the backend signs voltd access tokens with. Git-ignored;
+      # generate per deployment (see README-pilot-tls.md).
+      - ./voltd-keys:/etc/volt/voltd-keys:ro
     ports:
       - 8000:8000
 
