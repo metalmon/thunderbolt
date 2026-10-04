@@ -309,7 +309,7 @@ const currencyByRegion: Record<string, string> = {
  * resolves to the root default: `en-GB` is `h23` but `en-Latn-GB` is `h12`, and
  * `es-MX` is `h12` but `es-Latn-MX` is `h23`.
  */
-const tagForRegion = (region: string): string => {
+export const tagForRegion = (region: string): string => {
   const { language } = new Intl.Locale(`und-${region}`).maximize()
   return new Intl.Locale(language, { region }).toString()
 }
