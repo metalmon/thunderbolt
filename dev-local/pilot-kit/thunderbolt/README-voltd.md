@@ -62,9 +62,10 @@ scripts/up.sh --tls
 
 Группы `volt-admins` / `volt-avk` / `volt-kb` уже заведены в
 `conf/keycloak/realm.json`, и клиент реалма отдаёт их в claim `groups`
-(mapper «Group Membership», `full.path: false`). Пользователей в группы
-распределяет администратор в консоли Keycloak — в комплекте никто ни в какой
-группе не состоит.
+(mapper «Group Membership», `full.path: false`). Пользователей в комплекте нет
+вообще: их создаёт администратор в консоли Keycloak и там же распределяет по
+группам. Секрет клиента реалма тоже не зашит — его выпускает `gen-secrets`
+одновременно в `.env` и в `realm.json`.
 
 Примечание к `certs/README.md`: там написано, что для OIDC-issuer по https с
 приватным CA настройки у voltd «пока нет». Она есть — `[oidc.volt].tls_ca_cert_path`,
