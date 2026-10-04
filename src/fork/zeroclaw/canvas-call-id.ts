@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
-/** ZeroClaw derives the ACP `toolCallId` of a canvas-origin tool call as `canvas:<callId>`. */
+/** Volt derives the ACP `toolCallId` of a canvas-origin tool call as `canvas:<callId>`. */
 export const CANVAS_TOOLCALL_PREFIX = 'canvas:'
 
 /**
