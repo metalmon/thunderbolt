@@ -12,7 +12,7 @@
  */
 
 import type { WebSocketLike } from '@/acp/transports/websocket'
-import { getDeviceDisplayName } from '@/lib/platform'
+import { pairingDeviceName, pairingDeviceType } from './device-identity'
 import { resolvePairingWebSocketFactory } from './pairing-transport'
 
 /** Result of a successful pairing. `agents` is an unused Phase-1 slot for the
@@ -34,6 +34,8 @@ export type PairOverAcpInputs = {
   url: string
   code: string
   deviceName?: string
+  /** Device class for the gateway's admin list. Defaults to this platform's. */
+  deviceType?: string
   timeoutMs?: number
   /** Test seam — production omits and the tokenless pairing factory is built. */
   webSocketFactory?: (url: string) => WebSocketLike
@@ -67,7 +69,10 @@ const attemptPair = (
   url: string,
   method: string,
   code: string,
-  deviceName: string,
+  // A promise, not a value: the hostname lookup is an IPC round-trip, and awaiting
+  // it before dialling would add that latency to every pairing AND move socket
+  // creation off the caller's tick. Opened first, resolved while connecting.
+  device: Promise<{ name: string; type: string }>,
   timeoutMs: number,
 ): Promise<PairResult> =>
   new Promise<PairResult>((resolve, reject) => {
@@ -102,11 +107,18 @@ const attemptPair = (
     }
 
     const handleOpen = () => {
-      try {
-        ws.send(JSON.stringify({ jsonrpc: '2.0', id: requestId, method, params: { code, device_name: deviceName } }))
-      } catch {
-        finish(() => reject(new PairingError('transport', 'Could not send the pairing request')))
-      }
+      void device
+        .then(({ name, type }) => {
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: requestId,
+              method,
+              params: { code, device_name: name, device_type: type },
+            }),
+          )
+        })
+        .catch(() => finish(() => reject(new PairingError('transport', 'Could not send the pairing request'))))
     }
 
     const handleMessage = (event: { data: string }) => {
@@ -155,10 +167,16 @@ const attemptPair = (
 export const pairOverAcp = async (inputs: PairOverAcpInputs): Promise<PairResult> => {
   const factory = inputs.webSocketFactory ?? resolvePairingWebSocketFactory()
   const timeoutMs = inputs.timeoutMs ?? defaultTimeoutMs
-  const deviceName = inputs.deviceName ?? getDeviceDisplayName()
+  // Both are what the gateway lists a paired device by; without them its admin
+  // page shows "Без названия" and an operator cannot tell one machine from another.
+  // Started, not awaited: the socket opens on this tick and the lookup rides along.
+  const device = (async () => ({
+    name: inputs.deviceName ?? (await pairingDeviceName()),
+    type: inputs.deviceType ?? pairingDeviceType(),
+  }))()
 
   try {
-    return await attemptPair(factory, inputs.url, 'volt/pair', inputs.code, deviceName, timeoutMs)
+    return await attemptPair(factory, inputs.url, 'volt/pair', inputs.code, device, timeoutMs)
   } catch (error) {
     if (error !== METHOD_UNKNOWN) {
       throw error
@@ -166,7 +184,7 @@ export const pairOverAcp = async (inputs: PairOverAcpInputs): Promise<PairResult
   }
 
   try {
-    return await attemptPair(factory, inputs.url, 'zeroclaw/pair', inputs.code, deviceName, timeoutMs)
+    return await attemptPair(factory, inputs.url, 'zeroclaw/pair', inputs.code, device, timeoutMs)
   } catch (error) {
     if (error === METHOD_UNKNOWN) {
       throw new PairingError('rejected', 'The agent does not support code pairing')
