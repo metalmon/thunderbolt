@@ -827,6 +827,7 @@ msgstr "外部リンクを開くことを確認"
 msgid "Confirm this code matches the one in your terminal."
 msgstr "このコードがターミナルに表示されているものと一致することを確認してください。"
 
+#: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connect {providerName}"
