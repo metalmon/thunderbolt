@@ -30,6 +30,22 @@
         "openid",
         "profile",
         "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "introspection.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "groups",
+            "userinfo.token.claim": "true"
+          }
+        }
       ]
     }
   ],
@@ -47,7 +63,28 @@
           "value": "demo",
           "temporary": false
         }
+      ],
+      "groups": [
+        "/volt-crm"
       ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "volt-admins",
+      "path": "/volt-admins",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "volt-crm",
+      "path": "/volt-crm",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
     }
   ]
 }
