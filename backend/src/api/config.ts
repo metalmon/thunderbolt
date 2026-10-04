@@ -95,6 +95,15 @@ export const createConfigRoutes = (settings: Settings, brandingAssets: BrandingA
         google: settings.googleClientId !== '',
         microsoft: settings.microsoftClientId !== '',
       },
+      // How this deployment signs people in, so ONE build serves every customer —
+      // the same reason the backend address is baked once. A client built for the
+      // consumer flow asks an oidc deployment for /sign-in/anonymous and dies on the
+      // 404 before rendering; a client built for sso would strand a consumer
+      // deployment the same way. The deployment is the only thing that knows.
+      auth: {
+        mode: settings.authMode,
+        allowAnonymous: settings.authAllowAnonymous,
+      },
       minAppVersion: settings.minAppVersion || undefined,
       defaults: {
         models: {
