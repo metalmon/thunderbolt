@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** After ZeroClaw materializes outbound ACP `resource`+`blob`, Thunderbolt maintains a client ref-map `uri → localFileId` and resolves `[N]` / `<widget:document-result fileId=…>` to sideview `local-file` on the ZeroClaw path — without Haystack fetch and without ACP `filename`.
+**Goal:** After Volt materializes outbound ACP `resource`+`blob`, Thunderbolt maintains a client ref-map `uri → localFileId` and resolves `[N]` / `<widget:document-result fileId=…>` to sideview `local-file` on the Volt path — without Haystack fetch and without ACP `filename`.
 
 **Architecture:** Thick logic stays under `src/fork/zeroclaw/` (ref-map, resolve helpers, citation placeholders). Existing `materializeOutboundResourceBlobs` gains `uri` + `turnPosition` on refs and registers the map. Thin MPL hooks in `acp-to-ai-sdk.ts`, `document-result/widget.tsx`, `text-part.tsx`, and `source-card.tsx` call fork helpers only. Haystack `_meta` / `/v1/haystack/files` paths remain untouched for Deepset agents.
 
@@ -34,7 +34,7 @@
 | `src/components/chat/text-part.tsx` | Thin: when no haystack refs, try delivered citations from message tool parts / map |
 | `src/components/chat/source-card.tsx` | Thin: local-file sideview when citation is delivered-local |
 | `src/components/chat/assistant-message.tsx` | Thin: pass delivered refs into TextPart if needed |
-| `src/acp/acp-adapter.ts` | Thin: inject ZC cite note into `composeAcpPrompt` when agent is ZeroClaw (or always-safe additive note for ACP) |
+| `src/acp/acp-adapter.ts` | Thin: inject ZC cite note into `composeAcpPrompt` when agent is Volt (or always-safe additive note for ACP) |
 | `zeroclaw-integration/HAYSTACK-TO-ACP.md` | Mark widget/`[N]` resolve as adapted |
 
 **Do not:** `git rm` Haystack; open upstream TB PRs that include `src/fork/zeroclaw/`; add ACP `filename`.
@@ -54,7 +54,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, test, beforeEach } from 'vitest'
 import {
@@ -122,7 +122,7 @@ Expected: FAIL — module not found.
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 export type DeliveredUriRef = {
   uri: string
@@ -563,7 +563,7 @@ export const instructions = `## Document Result
 <widget:document-result name="filename.pdf" fileId="uuid-or-attachment-uri" snippet="relevant text excerpt" score="0.95" />
 Shows a source document card with file name and content snippet.
 Haystack: fileId is a remote document id.
-ZeroClaw: after deliver_file, fileId must be the exact returned uri (attachment://deliver/<basename>); name= comes from [Document: …], not from inventing ACP filename.`
+Volt: after deliver_file, fileId must be the exact returned uri (attachment://deliver/<basename>); name= comes from [Document: …], not from inventing ACP filename.`
 ```
 
 - [ ] **Step 4: Run tests — PASS**
@@ -577,7 +577,7 @@ bun test src/widgets/document-result/widget.test.tsx src/fork/zeroclaw/resolve-d
 ```bash
 git add src/widgets/document-result/widget.tsx src/widgets/document-result/widget.test.tsx src/widgets/document-result/instructions.ts
 git commit -m "$(cat <<'EOF'
-feat(widgets): resolve document-result via ZeroClaw uri map
+feat(widgets): resolve document-result via Volt uri map
 
 EOF
 )"
@@ -814,9 +814,9 @@ EOF
 
 - [ ] **Step 1: Failing adapter test**
 
-Add a test that when composing an ACP prompt for a ZeroClaw-style agent (use the same agent id / registry hint the fork already uses for ZC — if none, inject unconditionally into ACP compose as a small always-on note for ACP sessions only), the prompt text includes a substring like `deliver_file returns uri` / `attachment://deliver`.
+Add a test that when composing an ACP prompt for a Volt-style agent (use the same agent id / registry hint the fork already uses for ZC — if none, inject unconditionally into ACP compose as a small always-on note for ACP sessions only), the prompt text includes a substring like `deliver_file returns uri` / `attachment://deliver`.
 
-Inspect how the adapter distinguishes agents; if ZeroClaw is selected via registry snapshot / agent id containing `zeroclaw`, gate on that. If gating is unclear, append the note for **all** ACP prompts (Haystack agents ignore `deliver_file` — YAGNI-safe). Prefer: append for all ACP `composeAcpPrompt` outputs when `skillInstructions` path runs — simplest thin hook:
+Inspect how the adapter distinguishes agents; if Volt is selected via registry snapshot / agent id containing `zeroclaw`, gate on that. If gating is unclear, append the note for **all** ACP prompts (Haystack agents ignore `deliver_file` — YAGNI-safe). Prefer: append for all ACP `composeAcpPrompt` outputs when `skillInstructions` path runs — simplest thin hook:
 
 ```ts
 import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
@@ -875,7 +875,7 @@ bun test src/acp/acp-adapter.test.ts
 ```bash
 git add src/fork/zeroclaw/zc-deliver-cite-note.ts src/acp/acp-adapter.ts src/acp/acp-adapter.test.ts
 git commit -m "$(cat <<'EOF'
-feat(acp): inject ZeroClaw deliver_file citation note into compose
+feat(acp): inject Volt deliver_file citation note into compose
 
 EOF
 )"
