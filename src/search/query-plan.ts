@@ -26,6 +26,7 @@
  * dictionary from the query's own script for the same reason.
  */
 
+import { isSearchableSegment } from '@/fork/search/segment-word-like'
 import { wordSegmenterFor } from '@/lib/segmenter'
 
 /**
@@ -55,7 +56,7 @@ const segment = (token: string): string[] => {
     // `東京の天気`.
     return [token]
   }
-  const words = [...segmenter.segment(token)].filter((part) => part.isWordLike === true).map((part) => part.segment)
+  const words = [...segmenter.segment(token)].filter(isSearchableSegment).map((part) => part.segment)
   const meaningful = words.filter((word) => word.length > 1)
   return meaningful.length > 0 ? meaningful : words
 }
