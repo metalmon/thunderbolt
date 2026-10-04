@@ -213,7 +213,12 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       sessionsPerUser.set(user.id, live + 1)
       state.countedUserId = user.id
 
-      const token = await options.service.mint({ userId: user.id, groups: readPrincipalGroups(user) })
+      const token = await options.service.mint({
+        userId: user.id,
+        groups: readPrincipalGroups(user),
+        name: user.name,
+        email: user.email,
+      })
       if (state.closed) return
 
       const target = new URL(options.gatewayUrl)
