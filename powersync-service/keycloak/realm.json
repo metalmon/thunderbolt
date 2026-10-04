@@ -90,14 +90,6 @@
       "realmRoles": [],
       "clientRoles": {},
       "subGroups": []
-    },
-    {
-      "name": "volt-crm",
-      "path": "/volt-crm",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {},
-      "subGroups": []
     }
   ],
   "internationalizationEnabled": true,
