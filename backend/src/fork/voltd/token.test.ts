@@ -121,6 +121,52 @@ describe('readVoltdTokenConfig', () => {
     })
   })
 
+  // The file form is the one a container can use: a PEM is multi-line so env_file
+  // cannot carry it, and a private key in an env var leaks into docker inspect.
+  it('reads keys from files when given paths', () => {
+    const files: Record<string, string> = { '/keys/priv.pem': privateKeyPem, '/keys/pub.pem': publicKeyPem }
+    const resolved = readVoltdTokenConfig(
+      {
+        BETTER_AUTH_URL: 'https://backend.volt.example',
+        VOLTD_JWT_PRIVATE_KEY_FILE: '/keys/priv.pem',
+        VOLTD_JWT_PUBLIC_KEY_FILE: '/keys/pub.pem',
+      },
+      (path) => files[path] ?? (() => { throw new Error('ENOENT') })(),
+    )
+    expect(resolved?.privateKeyPem).toBe(privateKeyPem)
+    expect(resolved?.publicKeyPem).toBe(publicKeyPem)
+  })
+
+  it('prefers an inline PEM over a path', () => {
+    const resolved = readVoltdTokenConfig(
+      {
+        BETTER_AUTH_URL: 'https://backend.volt.example',
+        VOLTD_JWT_PRIVATE_KEY_PEM: privateKeyPem,
+        VOLTD_JWT_PUBLIC_KEY_PEM: publicKeyPem,
+        VOLTD_JWT_PRIVATE_KEY_FILE: '/never/read',
+      },
+      () => {
+        throw new Error('should not be read')
+      },
+    )
+    expect(resolved?.privateKeyPem).toBe(privateKeyPem)
+  })
+
+  // Inert beats crashing the backend at startup over a typo'd path.
+  it('stays inert when a key path cannot be read', () => {
+    const resolved = readVoltdTokenConfig(
+      {
+        BETTER_AUTH_URL: 'https://backend.volt.example',
+        VOLTD_JWT_PRIVATE_KEY_FILE: '/missing/priv.pem',
+        VOLTD_JWT_PUBLIC_KEY_FILE: '/missing/pub.pem',
+      },
+      () => {
+        throw new Error('ENOENT')
+      },
+    )
+    expect(resolved).toBeNull()
+  })
+
   it('clamps a lifetime above the gateway ceiling instead of minting a token it refuses', () => {
     const resolved = readVoltdTokenConfig({
       BETTER_AUTH_URL: 'https://backend.volt.example',
