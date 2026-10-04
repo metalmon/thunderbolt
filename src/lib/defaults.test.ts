@@ -5,12 +5,21 @@
 import type { SharedModel } from '@shared/defaults/models'
 import { describe, expect, test } from 'bun:test'
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
-import { defaultModels, hashModel } from '@shared/defaults/models'
+import { defaultModelGlm53, defaultModelGlm53Flash, defaultModelOpus5, defaultModels, hashModel } from '@shared/defaults/models'
+
+/**
+ * Model fixtures. `hashModel`'s behaviour is what these tests are about, and this
+ * fork ships an EMPTY `defaultModels` — iterating it would assert nothing at all.
+ * The structural test below still reads the real catalog, because "whatever we
+ * ship must be well-formed" stays true of an empty list.
+ */
+const fixtureModels = [defaultModelOpus5, defaultModelGlm53Flash, defaultModelGlm53] as const
 import { defaultSettings, hashSetting } from '../defaults/settings'
 
 describe('defaults', () => {
   test('defaultModels has expected structure', () => {
-    expect(defaultModels.length).toBeGreaterThan(0)
+    // No lower bound: this fork ships none. Every entry that IS shipped must still
+    // be well-formed, which is what the loop below checks.
     for (const model of defaultModels) {
       expect(model.id).toBeDefined()
       expect(model.name).toBeDefined()
@@ -46,14 +55,14 @@ describe('defaults', () => {
 
 describe('defaults-hash', () => {
   test('hashModel produces consistent hashes', () => {
-    const model = defaultModels[0]
+    const model = fixtureModels[0]
     const hash1 = hashModel(model)
     const hash2 = hashModel(model)
     expect(hash1).toBe(hash2)
   })
 
   test('hashModel detects changes in any field', () => {
-    const model = defaultModels[0]
+    const model = fixtureModels[0]
     const originalHash = hashModel(model)
 
     // Test various field changes
@@ -68,7 +77,7 @@ describe('defaults-hash', () => {
   })
 
   test('hashModel ignores order of object creation', () => {
-    const model = defaultModels[0]
+    const model = fixtureModels[0]
     // Create model with same values but different property order
     const reorderedModel: SharedModel = {
       contextWindow: model.contextWindow,
@@ -124,7 +133,7 @@ describe('defaults-hash', () => {
   })
 
   test('hash computation is deterministic for models', () => {
-    for (const model of defaultModels) {
+    for (const model of fixtureModels) {
       const hash1 = hashModel(model)
       const hash2 = hashModel(model)
       expect(hash1).toBe(hash2)
@@ -143,7 +152,7 @@ describe('defaults-hash', () => {
 
   test('hash detects round-trip modification', () => {
     // Simulate: Original → Modified → Back to Original
-    const model = defaultModels[0]
+    const model = fixtureModels[0]
     const originalHash = hashModel(model)
 
     // Modify

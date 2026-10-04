@@ -40,5 +40,14 @@ export const hashModelProfile = (profile: ModelProfile): string =>
     profile.deletedAt,
   ])
 
-/** All default model profiles for iteration */
-export const defaultModelProfiles: ReadonlyArray<ModelProfile> = [defaultModelProfileOpenRouterFree] as const
+/**
+ * All default model profiles for iteration — EMPTY, paired with the empty
+ * `defaultModels` (see its header in shared/defaults/models.ts).
+ *
+ * The pairing is not cosmetic: `reconcileDefaults` seeds a model only when the
+ * BUILD bundles a profile for its id, so a profile left here without its model
+ * would be dead weight, and a model shipped without one would be silently dropped.
+ * Re-adding a model means re-adding its profile in the same change — which is what
+ * the 1:1 test next door enforces.
+ */
+export const defaultModelProfiles: ReadonlyArray<ModelProfile> = [] as const
