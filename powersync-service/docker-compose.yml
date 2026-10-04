@@ -121,6 +121,21 @@ services:
       OIDC_DISCOVERY_URL: http://keycloak:8080/realms/volt/.well-known/openid-configuration
       # OPENROUTER_API_KEYS / OPENROUTER_FREE_RPM come from the git-ignored
       # secrets.env above (not hardcoded here, so a shell/env-file value wins).
+      #
+      # Trust the deployment's private CA. This matters more than it looks: a
+      # Custom model/MCP endpoint on a NON-loopback host (a LAN model server, for
+      # instance) is routed through the universal proxy, not the client's native
+      # fetch — see the dispatch in src/ai/fetch.ts — so the TLS hop to it is made
+      # HERE, by Bun, and Bun's own root store knows nothing about an internal CA.
+      # Empty is safe (Bun ignores it); point it at the mounted CA to enable.
+      # Verified: without it the hop fails with "unable to verify the first
+      # certificate", with it the same request returns 200.
+      NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
+    volumes:
+      # Same directory the `tls` service reads its certificate from; mounted so
+      # THUNDERBOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
+      # /etc/volt/certs/ca.crt. Harmless when the directory holds nothing.
+      - ${THUNDERBOLT_TLS_CERT_DIR:-./certs}:/etc/volt/certs:ro
     ports:
       - 8000:8000
 
