@@ -15,10 +15,17 @@
  *   *at all* — far worse than having no agents. So nothing escapes: every failure
  *   is logged and swallowed, leaving the session with no groups, which degrades
  *   exactly like the empty-roster case the gateway already handles.
- * - **`mapping.extraFields` cannot do this job.** The plugin rebuilds the object it
- *   hands to the account-linking step from `{email, name, id, image,
- *   emailVerified}` only, so extra claims never reach the database through it.
- *   They survive solely in the `userInfo` passed here.
+ * - **`mapping.extraFields` is how the claim gets here at all, and it is not
+ *   optional.** The plugin builds the `userInfo` it passes on from five fields —
+ *   `{id, email, emailVerified, name, image}` — plus whatever `extraFields` names,
+ *   and it does that in BOTH branches: from the UserInfo endpoint when the provider
+ *   advertises one (Keycloak does, so this is the live path) and from the verified
+ *   `id_token` otherwise. Every other claim is dropped before this callback runs.
+ *   An earlier version of this comment claimed the opposite and the column silently
+ *   stayed empty: the sign-in succeeded, `userInfo` carried only those five names,
+ *   and no agent was ever published. `voltdGroupsExtraFields` below is what the
+ *   call site must pass; the `claim names offered by the identity provider` log line
+ *   is the diagnostic that catches it next time.
  *
  * **Only the operator's own identity provider is trusted.** Better Auth's
  * `/sso/register` endpoint is gated by `sessionMiddleware` alone, so without the
@@ -91,6 +98,24 @@ export const readTrustedIssuers = (settings: Pick<Settings, 'oidcIssuer' | 'saml
  */
 export const readGroupsClaimPath = (env: NodeJS.ProcessEnv = process.env): string =>
   env.VOLTD_GROUPS_CLAIM?.trim() || defaultGroupsClaimPath
+
+/**
+ * The SSO provider's `mapping.extraFields`, so the group claim survives the
+ * plugin's five-field rebuild and reaches `provisionUser`. Without this the
+ * callback below sees no claim at all and every user ends up with no groups.
+ *
+ * Keyed on the FIRST segment of the claim path, because `extraFields` copies a
+ * top-level claim by name while the path may address a nested one: `groups` copies
+ * `groups`, and `realm_access.roles` copies the whole `realm_access` object for the
+ * dotted reader to walk into. The target key matches the source so the claim keeps
+ * the name the path expects.
+ *
+ * @param claimPath - dotted claim path, defaulting to the configured one
+ */
+export const voltdGroupsExtraFields = (claimPath: string = readGroupsClaimPath()): Record<string, string> => {
+  const root = claimPath.split('.')[0]?.trim() ?? ''
+  return root ? { [root]: root } : {}
+}
 
 /**
  * Read a dotted path out of a claim set and normalise it to group names.
