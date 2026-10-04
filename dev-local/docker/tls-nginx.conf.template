@@ -1,0 +1,137 @@
+# TLS terminator for on-prem deployments (additive fork IP).
+#
+# Deliberately a SEPARATE service in front of `web` rather than a second server
+# block inside web-nginx.conf.template: nginx refuses to start when an `ssl`
+# listener's certificate file is missing, so folding TLS into the web container
+# would break every certificate-less run (local dev, the tunnel demo) the moment
+# the template shipped. As its own service it is opt-in — bring it up only where
+# certificates are mounted, and `web` stays byte-identical.
+#
+# Terminates https on the deployment's public name and forwards everything to
+# the web container, which already reverse-proxies /v1 (backend) and /powersync
+# same-origin. One origin therefore serves the SPA, the desktop client's API
+# base (VITE_THUNDERBOLT_CLOUD_URL = https://<name>/v1) and the sync stream.
+#
+# Response headers (COEP/COOP/CSP/Referrer-Policy) come from the web container's
+# per-location security-headers snippet and pass through untouched. Do NOT add
+# add_header directives here — nginx's inheritance quirk would silently drop the
+# upstream set on any location that defines one.
+#
+# THUNDERBOLT_-prefixed variable names dodge Kubernetes' auto-injected
+# <SERVICE>_PORT env vars, same rationale as the other templates in this folder.
+
+# Keep-alive for ordinary requests, Upgrade for WebSockets (the backend's
+# /v1/gemini-live relay and the ACP proxy at /v1/proxy/ws). A bare
+# `Connection: upgrade` on every request breaks keep-alive; a bare "" breaks
+# WebSockets. The map picks per request.
+map $http_upgrade $thunderbolt_connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+
+    # ACME http-01 is not used (certificates are issued out of band via dns-01),
+    # so there is nothing to serve on port 80 but the redirect.
+    location / {
+        return 308 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+
+    ssl_certificate /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    # TLS 1.2 is kept for WebView2 on older Windows builds; 1.0/1.1 are off.
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1h;
+    ssl_session_tickets off;
+
+    # Attachments and artifact uploads travel through /v1; nginx's 1m default
+    # rejects them with a 413 before the backend sees the request.
+    client_max_body_size 100m;
+
+    location / {
+        # Variable upstream forces runtime DNS resolution, so this container
+        # starts even when `web` is not up yet (same pattern as web-nginx).
+        resolver 127.0.0.11 valid=10s;
+        set $thunderbolt_app "${THUNDERBOLT_TLS_UPSTREAM_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$thunderbolt_app:${THUNDERBOLT_TLS_UPSTREAM_PORT};
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # Fixed, not $scheme: this listener is https by construction, and Better
+        # Auth builds absolute callback URLs from the forwarded scheme.
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $host;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $thunderbolt_connection_upgrade;
+
+        # The backend streams SSE on /v1 and PowerSync streams sync over plain
+        # HTTP; buffering either stalls the client until the response ends.
+        proxy_buffering off;
+        proxy_request_buffering off;
+        # Above the backend's own 120s idleTimeout (backend/src/index.ts) so the
+        # upstream closes first — a proxy that closes first leaves the client
+        # reusing a dead connection and seeing 502s.
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+}
+
+# Keycloak on the SAME name, a different port — so one certificate and one DNS
+# record cover both. It cannot share port 443 with the app: Keycloak owns paths
+# at its root (/realms, /resources) and relative-path hosting needs a realm-wide
+# KC_HTTP_RELATIVE_PATH change, which would invalidate the imported realm's
+# existing issuer. The port shows up only inside OIDC redirect URLs.
+#
+# Plain http would also "work" for the browser (a redirect to the IdP is a
+# top-level navigation, not blocked as mixed content) — but it would put the
+# user's password on the wire in cleartext. Hence TLS here too.
+#
+# Set KEYCLOAK_PUBLIC_URL to https://<name>:<this port> and keep
+# KC_PROXY_HEADERS=xforwarded on the keycloak service, or Keycloak builds its
+# issuer and redirect URLs as http and the OIDC flow fails on an `iss` mismatch.
+server {
+    listen 8443 ssl;
+    http2 on;
+    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+
+    ssl_certificate /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1h;
+    ssl_session_tickets off;
+
+    location / {
+        resolver 127.0.0.11 valid=10s;
+        set $thunderbolt_idp "${THUNDERBOLT_TLS_KEYCLOAK_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$thunderbolt_idp:${THUNDERBOLT_TLS_KEYCLOAK_PORT};
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port 8443;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
