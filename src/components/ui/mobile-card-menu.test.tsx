@@ -20,7 +20,12 @@ describe('MobileCardMenu', () => {
 
     const drawer = screen.getByText('Choose model').closest('[data-slot="drawer-content"]')
     expect(drawer).toHaveClass('w-full')
-    expect(drawer).toHaveClass('bg-popover/80', 'backdrop-blur-lg')
+    // eece0f367 made these surfaces opaque on purpose: animating opacity over a
+    // backdrop blur is expensive on weak hardware. Assert the DECISION — solid
+    // background, no blur — so reintroducing one fails here rather than being
+    // noticed on a slow machine.
+    expect(drawer).toHaveClass('bg-popover')
+    expect(drawer.className).not.toMatch(/backdrop-blur/)
     expect(drawer).toHaveClass(
       'data-[swipe-direction=down]:rounded-t-3xl',
       'data-[swipe-direction=down]:shadow-[var(--shadow-drawer-down)]',
@@ -69,7 +74,9 @@ describe('MobileCardMenu', () => {
 
     const overlay = document.querySelector('[data-slot="drawer-overlay"]')
     expect(overlay).toBeInTheDocument()
-    expect(overlay).toHaveClass('backdrop-blur-xs', 'backdrop-saturate-75')
+    // Same decision on the overlay: it dims, it does not blur.
+    expect(overlay).toHaveClass('bg-black/40')
+    expect((overlay as HTMLElement).className).not.toMatch(/backdrop-blur|backdrop-saturate/)
     fireEvent.keyDown(document, { key: 'Escape' })
     // Not toHaveBeenCalledWith: Base UI passes an eventDetails object as a
     // second argument, and bun's deep-equal spins on its happy-dom internals.
