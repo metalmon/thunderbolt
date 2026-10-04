@@ -25,8 +25,9 @@ import {
  * newest defaults across devices (THU-637). Changing defaults without bumping
  * the version breaks that ordering silently.
  *
- * Fork note: `defaultModels` ships the free-tier OpenRouter catalog only
- * (see the header on `defaultModels` in models.ts). The upstream Opus 5 / GLM
+ * Fork note: `defaultModels` is EMPTY — the free-tier OpenRouter entry was removed
+ * for the closed-perimeter pilot (see the header on `defaultModels` in models.ts),
+ * so the loops below iterate nothing by design. The upstream Opus 5 / GLM
  * rows stay exported for automations/eval but are intentionally absent here.
  */
 const computeSnapshotHash = () =>
@@ -40,9 +41,12 @@ const computeMetadataHash = () =>
   defaultModels.map((model, index) => `${index}:${hashValues([model.vendor, model.description])}`).join('|')
 
 const expected = {
-  version: 10,
-  hash: '0:38e10634-2fbc-4323-b86d-3a5a6c0ca824:-p0uvif',
-  metadataHash: '0:xlomh0',
+  version: 11,
+  // Empty: this fork ships no models (see the header on `defaultModels`). Both
+  // hashes are the join of an empty list, and that is still the guard — a model
+  // reappearing in the bundle without a version bump fails here.
+  hash: '',
+  metadataHash: '',
 }
 
 describe('defaultModels version snapshot', () => {

@@ -155,14 +155,20 @@ export const defaultModelGlm53: SharedModel = {
  * The backend accepts `glm-5-2` and `deepseek-v4-flash` for older clients.
  */
 /**
- * Fork (metalmon) free-tier catalog. A single "OpenRouter Free" entry replaces
- * the upstream defaults in the picker: it is served through the backend's
- * server-side OpenRouter key (backend/src/fork/openrouter/routes.ts) so anonymous
- * demo users chat without bringing their own key. `provider:'openrouter',
- * isSystem:1`; the backend proxy forwards the slug verbatim and `openrouter/free`
- * is OpenRouter's meta-router across the free tier. The upstream consts above stay
- * exported (referenced by automations/eval) but are absent from `defaultModels`,
- * so reconcile soft-deletes their rows.
+ * Fork (metalmon): the shipped catalog is EMPTY.
+ *
+ * It held one "OpenRouter Free" entry, served through the backend's server-side
+ * OpenRouter key (backend/src/fork/openrouter/routes.ts) so anonymous demo users
+ * could chat without bringing a key. Volt ships into closed perimeters where that
+ * model is unreachable and anonymous sign-in is off, so the entry was a picker row
+ * that could only ever fail. The constant stays exported — the eval slug map and a
+ * DAL test still reference it — but nothing ships it, and reconcile soft-deletes
+ * the row on upgrade exactly as it did for the upstream models before it.
+ *
+ * Consequence to keep in mind: a deployment that wants a default model now
+ * publishes one over the air (see `pickModelsDefaults`), or the user adds a Custom
+ * model pointing at their own endpoint. The public web demo has no model until one
+ * of those happens — that was the trade accepted when the pilot took priority.
  */
 export const defaultModelOpenRouterFree: SharedModel = {
   id: '38e10634-2fbc-4323-b86d-3a5a6c0ca824',
@@ -189,7 +195,7 @@ export const defaultModelOpenRouterFree: SharedModel = {
 // default served through the backend OpenRouter key without bringing their own.
 export const defaultModelId = defaultModelOpenRouterFree.id
 
-export const defaultModels: ReadonlyArray<SharedModel> = [defaultModelOpenRouterFree] as const
+export const defaultModels: ReadonlyArray<SharedModel> = [] as const
 
 /**
  * Monotonic version of the shipped defaults. Bump every time `defaultModels`
@@ -201,4 +207,4 @@ export const defaultModels: ReadonlyArray<SharedModel> = [defaultModelOpenRouter
  * The paired snapshot test in `models.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultModelsVersion = 10
+export const defaultModelsVersion = 11
