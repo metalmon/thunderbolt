@@ -39,7 +39,7 @@ export const createAgentsRoutes = (auth: Auth) =>
       const sessionUser = session?.user as User | undefined
       return { user: sessionUser ?? null }
     })
-    .get('/', ({ request, set, user }): AgentDiscoveryResponse | AgentsErrorResponse | { error: string } => {
+    .get('/', async ({ request, set, user }): Promise<AgentDiscoveryResponse | AgentsErrorResponse | { error: string }> => {
       if (!user) {
         set.status = 401
         return { error: 'Unauthorized' }
@@ -54,7 +54,7 @@ export const createAgentsRoutes = (auth: Auth) =>
       const visibleToCaller = (descriptor: RemoteAgentDescriptor) =>
         isAgentAllowed(settings, descriptor.id) && (!user.isAnonymous || descriptor.anonymousSafe)
 
-      const agents = collectAgents(request, settings)
+      const agents = await collectAgents(request, settings)
       const filtered = agents.filter(visibleToCaller)
 
       return {
@@ -72,13 +72,14 @@ export const createAgentsRoutes = (auth: Auth) =>
  * results. A throwing provider is logged and skipped — one misbehaving plugin
  * never poisons the response for the others.
  */
-const collectAgents = (request: Request, settings: Settings): RemoteAgentDescriptor[] => {
+const collectAgents = async (request: Request, settings: Settings): Promise<RemoteAgentDescriptor[]> => {
   const log = createStandaloneLogger(settings)
   const out: RemoteAgentDescriptor[] = []
   for (const provider of getRegisteredProviders()) {
     try {
-      out.push(...provider.list(request, settings))
+      out.push(...(await provider.list(request, settings)))
     } catch (error) {
+      if (provider.required) throw error
       log.warn({ err: error, providerId: provider.id }, 'agent provider list() failed; skipping')
     }
   }
