@@ -49,23 +49,7 @@
       ]
     }
   ],
-  "users": [
-    {
-      "username": "demo",
-      "email": "demo@volt.local",
-      "firstName": "Demo",
-      "lastName": "User",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "demo",
-          "temporary": false
-        }
-      ]
-    }
-  ],
+  "users": [],
   "groups": [
     {
       "name": "volt-admins",
