@@ -18,66 +18,75 @@ const serverPayload = (version: number) => ({
   data: [{ ...defaultModelOpenRouterFree, name: `Server v${version}` }],
 })
 
+/**
+ * Bundle fixture. These rules describe how a server payload is weighed against the
+ * BUNDLE, and this fork ships an empty one — so the bundle is supplied here. The
+ * model is OpenRouter Free because it is the id whose profile the build still
+ * bundles, which is what `reconcileDefaults` requires before it will seed anything.
+ */
+const fixtureBundle = { version: defaultModelsVersion, data: [defaultModelOpenRouterFree] as const }
+
 describe('pickModelsDefaults', () => {
   test('bundle wins when server is absent (offline / no fetch yet)', () => {
-    const picked = pickModelsDefaults(undefined)
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults(undefined, fixtureBundle)
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('server wins when it declares a strictly higher version', () => {
     const server = serverPayload(defaultModelsVersion + 1)
-    const picked = pickModelsDefaults(server)
+    const picked = pickModelsDefaults(server, fixtureBundle)
     expect(picked.version).toBe(server.version)
     expect(picked.data).toBe(server.data)
   })
 
   test('bundle wins when server declares an equal version (avoid needless swap)', () => {
-    const picked = pickModelsDefaults(serverPayload(defaultModelsVersion))
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults(serverPayload(defaultModelsVersion), fixtureBundle)
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('bundle wins when server declares a lower version (rollback protection)', () => {
-    const picked = pickModelsDefaults(serverPayload(defaultModelsVersion - 1))
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults(serverPayload(defaultModelsVersion - 1), fixtureBundle)
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('bundle wins when server ships a bumped version with empty data (malformed payload)', () => {
     // Otherwise cleanupRemovedDefaults would soft-delete every unedited system
     // model against an empty currentModelIds set.
-    const picked = pickModelsDefaults({ version: defaultModelsVersion + 5, data: [] })
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults({ version: defaultModelsVersion + 5, data: [] }, fixtureBundle)
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('bundle wins when server ships a bumped version with a non-array data value', () => {
     // Runtime defense against a malformed JSON response the type system can't catch.
-    const picked = pickModelsDefaults({
-      version: defaultModelsVersion + 5,
-      data: null as unknown as (typeof defaultModels)[number][],
-    })
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults(
+      { version: defaultModelsVersion + 5, data: null as unknown as (typeof defaultModels)[number][] },
+      fixtureBundle,
+    )
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('bundle wins when server ships a non-finite version (NaN / Infinity)', () => {
     // A "bumped" version that isn't a real number is malformed — treating NaN as
     // higher than the bundle would let bad server responses win.
     for (const version of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
-      const picked = pickModelsDefaults(serverPayload(version))
-      expect(picked.version).toBe(defaultModelsVersion)
-      expect(picked.data).toBe(defaultModels)
+      const picked = pickModelsDefaults(serverPayload(version), fixtureBundle)
+      expect(picked.version).toBe(fixtureBundle.version)
+      expect(picked.data).toBe(fixtureBundle.data)
     }
   })
 
   test('bundle wins when server payload has zero overlap with bundled ids (wholesale replacement)', () => {
-    // Without this guard, `cleanupRemovedDefaults` would treat every bundle-
-    // known row as retired (nothing matches server's currentModelIds) and
-    // soft-delete them all, while the filtered reconcile pass would insert
-    // nothing (OTA-only-new ids have no bundled profile). Client would boot
-    // with zero system models.
+    // Guards `cleanupRemovedDefaults` from treating every bundle-known row as
+    // retired. On this fork the bundle is EMPTY, so the rule also means a payload
+    // can never arrive on its own: a model is only ever seeded when the BUILD
+    // bundles a profile for its id (see `bundledProfileModelIds` in
+    // reconcile-defaults), which is why relaxing this for an empty bundle would
+    // promise models the pipeline then drops anyway.
     const disjointPayload = {
       version: defaultModelsVersion + 5,
       data: [
@@ -85,9 +94,9 @@ describe('pickModelsDefaults', () => {
         { ...defaultModelOpus5, id: 'disjoint-id-2', name: 'Fully Different Model 2' },
       ],
     }
-    const picked = pickModelsDefaults(disjointPayload)
-    expect(picked.version).toBe(defaultModelsVersion)
-    expect(picked.data).toBe(defaultModels)
+    const picked = pickModelsDefaults(disjointPayload, fixtureBundle)
+    expect(picked.version).toBe(fixtureBundle.version)
+    expect(picked.data).toBe(fixtureBundle.data)
   })
 
   test('server wins when the payload has any overlap with bundled ids (partial overlap ok)', () => {
@@ -101,7 +110,7 @@ describe('pickModelsDefaults', () => {
         { ...defaultModelOpus5, id: 'new-id', name: 'Server-only New Model' },
       ],
     }
-    const picked = pickModelsDefaults(partialOverlap)
+    const picked = pickModelsDefaults(partialOverlap, fixtureBundle)
     expect(picked.version).toBe(defaultModelsVersion + 1)
     expect(picked.data).toBe(partialOverlap.data)
   })
