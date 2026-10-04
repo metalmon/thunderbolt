@@ -123,8 +123,8 @@ cd powersync-service
 # .env
 PUBLIC_URL=https://backend.volt.oktaplus.ru
 KEYCLOAK_PUBLIC_URL=https://backend.volt.oktaplus.ru:8443
-THUNDERBOLT_TLS_SERVER_NAME=backend.volt.oktaplus.ru
-THUNDERBOLT_TLS_CERT_DIR=./certs        # fullchain.pem + privkey.pem
+VOLT_TLS_SERVER_NAME=backend.volt.oktaplus.ru
+VOLT_TLS_CERT_DIR=./certs        # fullchain.pem + privkey.pem
 
 docker compose --profile tls up -d
 ```
@@ -175,10 +175,10 @@ LAN-адреса, `.local`, публичные эндпоинты — уходи
 
 ```sh
 # .env
-THUNDERBOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt
+VOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt
 ```
 
-Каталог `THUNDERBOLT_TLS_CERT_DIR` смонтирован в бэкенд как `/etc/volt/certs:ro`.
+Каталог `VOLT_TLS_CERT_DIR` смонтирован в бэкенд как `/etc/volt/certs:ro`.
 Проверено на `oven/bun:alpine`: без `NODE_EXTRA_CA_CERTS` запрос падает с
 «unable to verify the first certificate», с ним возвращает 200.
 
