@@ -76,6 +76,22 @@
       "subGroups": []
     },
     {
+      "name": "volt-avk",
+      "path": "/volt-avk",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "volt-kb",
+      "path": "/volt-kb",
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
       "name": "volt-crm",
       "path": "/volt-crm",
       "attributes": {},
