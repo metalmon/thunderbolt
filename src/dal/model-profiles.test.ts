@@ -333,7 +333,8 @@ describe('Model Profiles DAL', () => {
         temperature: 0.99,
       })
 
-      // Calling createDefaultModelProfile should not overwrite
+      // Calling createDefaultModelProfile should not overwrite. The bundle is passed
+      // in because this build ships none — see the function's own note.
       await createDefaultModelProfile(getDb(), defaultModelOpenRouterFree.id, [defaultModelProfileOpenRouterFree])
 
       const profile = await getModelProfile(getDb(), defaultModelOpenRouterFree.id)
