@@ -39,7 +39,7 @@ scripts/up.sh --tls
 | `VOLTD_URL` | `wss://<имя>:8443/acp` | публичная точка voltd |
 | `VOLTD_ISSUER` | `https://<имя>/v1` | наш `iss`; voltd берёт отсюда discovery и JWKS |
 | `VOLTD_GROUPS_CLAIM` | `groups` | где в токене Keycloak лежат группы |
-| `THUNDERBOLT_BACKEND_EXTRA_CA` | `/etc/volt/certs/ca.crt.pem` | Bun не знает про приватный CA |
+| `VOLT_BACKEND_EXTRA_CA` | `/etc/volt/certs/ca.crt.pem` | Bun не знает про приватный CA |
 
 `--voltd` требует `--tls` и без него откажется работать: `iss` по `http://` на
 не-loopback адресе бэкенд отвергает сам, и фича молча не включилась бы.
