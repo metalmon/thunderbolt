@@ -4027,6 +4027,11 @@ msgstr ""
 msgid "Thought for {duration}"
 msgstr ""
 
+#: src/components/app-logo.tsx
+#: src/components/signed-out.tsx
+msgid "Thunderbolt"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
 msgstr ""
