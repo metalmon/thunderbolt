@@ -16,6 +16,16 @@ services:
     depends_on:
       - backend
       - powersync
+    environment:
+      # The nginx template reads these; the image carries the same values as
+      # ENV defaults. Naming them here too means a config change and an image
+      # rebuild no longer have to travel together — a renamed variable in the
+      # template would otherwise render an empty upstream host against a stale
+      # image, and nginx answers 502 without saying why.
+      VOLT_BACKEND_HOST: backend
+      VOLT_BACKEND_PORT: 8000
+      VOLT_POWERSYNC_HOST: powersync
+      VOLT_POWERSYNC_PORT: 8080
     ports:
       - "${WEB_PORT:-3000}:80"
 
@@ -24,7 +34,7 @@ services:
     # TLS terminator for on-prem deployments (no tunnel in front). Opt-in via
     # the `tls` profile so certificate-less runs are unaffected:
     #   docker compose --profile tls up -d
-    # Requires fullchain.pem + privkey.pem in THUNDERBOLT_TLS_CERT_DIR. See
+    # Requires fullchain.pem + privkey.pem in VOLT_TLS_CERT_DIR. See
     # dev-local/docker/README-pilot-tls.md.
     image: nginx:alpine
     profiles: ["tls"]
@@ -36,19 +46,19 @@ services:
       # Falls back to nginx's catch-all rather than being declared required: a
       # `${VAR:?}` anywhere in this file fails interpolation for EVERY compose
       # command, including ones that never touch this profile.
-      THUNDERBOLT_TLS_SERVER_NAME: ${THUNDERBOLT_TLS_SERVER_NAME:-_}
-      THUNDERBOLT_TLS_UPSTREAM_HOST: web
-      THUNDERBOLT_TLS_UPSTREAM_PORT: 80
-      THUNDERBOLT_TLS_KEYCLOAK_HOST: keycloak
-      THUNDERBOLT_TLS_KEYCLOAK_PORT: 8080
+      VOLT_TLS_SERVER_NAME: ${VOLT_TLS_SERVER_NAME:-_}
+      VOLT_TLS_UPSTREAM_HOST: web
+      VOLT_TLS_UPSTREAM_PORT: 80
+      VOLT_TLS_KEYCLOAK_HOST: keycloak
+      VOLT_TLS_KEYCLOAK_PORT: 8080
     volumes:
       - ../dev-local/docker/tls-nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
-      - ${THUNDERBOLT_TLS_CERT_DIR:-./certs}:/etc/nginx/certs:ro
+      - ${VOLT_TLS_CERT_DIR:-./certs}:/etc/nginx/certs:ro
     ports:
-      - "${THUNDERBOLT_TLS_HTTP_PORT:-80}:80"
-      - "${THUNDERBOLT_TLS_HTTPS_PORT:-443}:443"
+      - "${VOLT_TLS_HTTP_PORT:-80}:80"
+      - "${VOLT_TLS_HTTPS_PORT:-443}:443"
       # Keycloak on the same name/certificate, its own port (see tls-nginx template).
-      - "${THUNDERBOLT_TLS_KEYCLOAK_HTTPS_PORT:-8443}:8443"
+      - "${VOLT_TLS_KEYCLOAK_HTTPS_PORT:-8443}:8443"
 
   backend:
     restart: unless-stopped
@@ -133,7 +143,7 @@ services:
       # Empty is safe (Bun ignores it); point it at the mounted CA to enable.
       # Verified: without it the hop fails with "unable to verify the first
       # certificate", with it the same request returns 200.
-      NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
+      NODE_EXTRA_CA_CERTS: ${VOLT_BACKEND_EXTRA_CA:-}
       # Fork: voltd agent auto-discovery. VOLTD_URL and VOLTD_ISSUER come from
       # secrets.env (the env_file above) and must NOT be named here: an
       # `environment:` entry wins over env_file, and ${VOLTD_URL:-} interpolates
@@ -154,9 +164,9 @@ services:
       VOLTD_GROUPS_CLAIM: ${VOLTD_GROUPS_CLAIM:-groups}
     volumes:
       # Same directory the `tls` service reads its certificate from; mounted so
-      # THUNDERBOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
+      # VOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
       # /etc/volt/certs/ca.crt. Harmless when the directory holds nothing.
-      - ${THUNDERBOLT_TLS_CERT_DIR:-./certs}:/etc/volt/certs:ro
+      - ${VOLT_TLS_CERT_DIR:-./certs}:/etc/volt/certs:ro
       # ES256 keypair the backend signs voltd access tokens with. Git-ignored;
       # generate per deployment (see README-pilot-tls.md).
       - ./voltd-keys:/etc/volt/voltd-keys:ro

@@ -44,12 +44,12 @@ RUN bunx vite build && find dist -name '*.map' -delete
 # Stage 2: Serve with nginx
 FROM nginx:alpine
 
-# Upstream defaults; override in compose/k8s. THUNDERBOLT_-prefixed to dodge
+# Upstream defaults; override in compose/k8s. VOLT_-prefixed to dodge
 # Kubernetes <SERVICE>_PORT injection.
-ENV THUNDERBOLT_BACKEND_HOST=backend
-ENV THUNDERBOLT_BACKEND_PORT=8000
-ENV THUNDERBOLT_POWERSYNC_HOST=powersync
-ENV THUNDERBOLT_POWERSYNC_PORT=8080
+ENV VOLT_BACKEND_HOST=backend
+ENV VOLT_BACKEND_PORT=8000
+ENV VOLT_POWERSYNC_HOST=powersync
+ENV VOLT_POWERSYNC_PORT=8080
 
 COPY dev-local/docker/web-nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY deploy/config/security-headers.conf /etc/nginx/snippets/security-headers.conf

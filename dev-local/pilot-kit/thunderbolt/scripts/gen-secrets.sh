@@ -60,7 +60,7 @@ cp conf/.env.example .env
 # Portable in-place sed (no -i suffix quirk juggling): write to temp, then move.
 sed -e "s|^PUBLIC_URL=.*|PUBLIC_URL=${public_url}|" \
     -e "s|^KEYCLOAK_PUBLIC_URL=.*|KEYCLOAK_PUBLIC_URL=${keycloak_public_url}|" \
-    -e "s|^THUNDERBOLT_TLS_SERVER_NAME=.*|THUNDERBOLT_TLS_SERVER_NAME=${host}|" \
+    -e "s|^VOLT_TLS_SERVER_NAME=.*|VOLT_TLS_SERVER_NAME=${host}|" \
     -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${postgres_password}|" \
     -e "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=${better_auth_secret}|" \
     -e "s|^POWERSYNC_JWT_SECRET=.*|POWERSYNC_JWT_SECRET=${powersync_secret}|" \
@@ -132,7 +132,7 @@ EOF
   # The backend's own TLS hop to voltd is made by Bun, whose root store knows
   # nothing about the pilot CA. Without this the roster call fails with "unable
   # to verify the first certificate" and no agent is ever published.
-  sed -e "s|^THUNDERBOLT_BACKEND_EXTRA_CA=.*|THUNDERBOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt.pem|" \
+  sed -e "s|^VOLT_BACKEND_EXTRA_CA=.*|VOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt.pem|" \
       .env > .env.tmp
   mv .env.tmp .env
 
