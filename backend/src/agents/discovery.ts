@@ -14,9 +14,19 @@ export type AgentProvider = {
   /** Stable identifier for the provider. Re-registering the same id is a no-op. */
   id: string
   /** Returns descriptors visible to the caller. May read settings or the request
-   *  (e.g. for WS URL host derivation). Throwing here is isolated per-provider —
-   *  the discovery route swallows the failure and continues. */
-  list: (request: Request, settings: Settings) => RemoteAgentDescriptor[]
+   *  (e.g. for WS URL host derivation), and may be async — a provider that asks a
+   *  remote gateway which agents this user may use cannot answer synchronously.
+   *  Throwing is isolated per-provider by default; see `required`. */
+  list: (request: Request, settings: Settings) => RemoteAgentDescriptor[] | Promise<RemoteAgentDescriptor[]>
+  /** When true, a failure here fails the whole discovery response instead of
+   *  being logged and skipped.
+   *
+   *  This is not pedantry: the client treats a 200 as authoritative and deletes
+   *  every local `agents_system` row missing from it (`refreshSystemAgents` in
+   *  src/db/seeding/seed-agents.ts). So for a provider backed by a remote gateway,
+   *  swallowing an outage would silently wipe the user's agents, while an error
+   *  response makes the client keep what it already has. */
+  required?: boolean
 }
 
 /**
