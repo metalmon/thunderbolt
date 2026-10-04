@@ -29,6 +29,10 @@ param(
     #   gh run list -R metalmon/thunderbolt --workflow build-all.yml
     [string]$RunId,
     [ValidateSet('desktop', 'images', 'config')] [string[]]$Skip = @(),
+    # Where the installers live. The kit moved them out of `thunderbolt/desktop`
+    # into a top-level `volt-client/` — pointing at the old path simply recreates
+    # it as a 160 MB duplicate of what the operator already carries.
+    [string]$ClientPath,
     [string]$Repo = 'metalmon/thunderbolt',
     [string]$ComposeProject = 'bucher-thunderbolt'
 )
@@ -68,7 +72,11 @@ if ($Skip -notcontains 'desktop') {
     # Download into a staging directory FIRST and only then replace what the kit
     # has. Clearing up front and failing on the download — which is exactly what a
     # rate limit does — would leave the kit with no installers at all.
-    $desktop = Join-Path $KitPath "desktop"
+    $desktop = if ($ClientPath) { $ClientPath } else { Join-Path (Split-Path -Parent $KitPath) 'volt-client' }
+    if (-not (Test-Path $desktop)) {
+        Write-Error "no installer directory at $desktop — pass -ClientPath if the kit moved it again."
+        exit 1
+    }
     $staging = Join-Path ([System.IO.Path]::GetTempPath()) "volt-kit-desktop-$RunId"
     if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $staging | Out-Null
