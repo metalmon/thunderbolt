@@ -176,9 +176,13 @@ export const createVoltdTokenService = async (config: VoltdTokenConfig): Promise
 
 /**
  * Pulls group names off a session user. `groups` is not part of the upstream
- * `User` type — it arrives as a Better Auth additional field populated from the
- * IdP (a Keycloak "Group Membership" mapper), so it is read defensively and
- * non-string entries are dropped rather than forwarded to the gateway.
+ * `User` type — it arrives as a Better Auth additional field, populated through
+ * Better Auth's provider-agnostic SSO seam (a group-membership mapper on
+ * Keycloak, an equivalent claim from ADFS/Okta/Entra) or set by an admin on a
+ * deployment with no identity provider at all. The gateway never learns which:
+ * it trusts this backend as its only issuer, which is what keeps the identity
+ * provider pluggable. Read defensively, and non-string entries are dropped
+ * rather than forwarded.
  *
  * @param user - session user, shape unknown at this boundary
  */
