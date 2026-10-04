@@ -847,6 +847,7 @@ msgstr "Подтвердите открытие внешней ссылки"
 msgid "Confirm this code matches the one in your terminal."
 msgstr "Убедитесь, что код совпадает с тем, что в терминале."
 
+#: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connect {providerName}"
