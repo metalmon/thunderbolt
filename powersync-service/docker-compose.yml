@@ -33,7 +33,10 @@ services:
     environment:
       # Must equal the name baked into the client build (VITE_THUNDERBOLT_CLOUD_URL)
       # and the SAN of the mounted certificate.
-      THUNDERBOLT_TLS_SERVER_NAME: ${THUNDERBOLT_TLS_SERVER_NAME:?Set THUNDERBOLT_TLS_SERVER_NAME}
+      # Falls back to nginx's catch-all rather than being declared required: a
+      # `${VAR:?}` anywhere in this file fails interpolation for EVERY compose
+      # command, including ones that never touch this profile.
+      THUNDERBOLT_TLS_SERVER_NAME: ${THUNDERBOLT_TLS_SERVER_NAME:-_}
       THUNDERBOLT_TLS_UPSTREAM_HOST: web
       THUNDERBOLT_TLS_UPSTREAM_PORT: 80
       THUNDERBOLT_TLS_KEYCLOAK_HOST: keycloak
@@ -131,21 +134,18 @@ services:
       # Verified: without it the hop fails with "unable to verify the first
       # certificate", with it the same request returns 200.
       NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
-      # Fork: voltd agent auto-discovery. Keys are PATHS, not values: a PEM is
+      # Fork: voltd agent auto-discovery. Unset VOLTD_URL leaves the whole feature
+      # inert — no provider registered, no relay route, issuer surface still served
+      # only if the keys are present. The keys are PATHS, not values: a PEM is
       # multi-line so env_file cannot carry one, and a private key in an env var
       # leaks into `docker inspect`.
+      VOLTD_URL: ${VOLTD_URL:-}
       VOLTD_JWT_PRIVATE_KEY_FILE: ${VOLTD_JWT_PRIVATE_KEY_FILE:-/etc/volt/voltd-keys/signing.key.pem}
       VOLTD_JWT_PUBLIC_KEY_FILE: ${VOLTD_JWT_PUBLIC_KEY_FILE:-/etc/volt/voltd-keys/signing.pub.pem}
       # Dotted path to the group claim in the IdP's token. Keycloak's Group
       # Membership mapper emits `groups`; realm roles would be
       # `realm_access.roles`.
       VOLTD_GROUPS_CLAIM: ${VOLTD_GROUPS_CLAIM:-groups}
-      #
-      # VOLTD_URL and VOLTD_ISSUER are deliberately NOT listed here. An
-      # `environment:` entry takes precedence over `env_file`, so a `${VAR:-}`
-      # with an empty default would render as "" and SILENTLY SHADOW the value
-      # set in secrets.env — which is where both belong. Unset VOLTD_URL leaves
-      # the whole feature inert: no provider registered, no relay route.
     volumes:
       # Same directory the `tls` service reads its certificate from; mounted so
       # THUNDERBOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
@@ -154,8 +154,38 @@ services:
       # ES256 keypair the backend signs voltd access tokens with. Git-ignored;
       # generate per deployment (see README-pilot-tls.md).
       - ./voltd-keys:/etc/volt/voltd-keys:ro
+    # Lets the container (and anything sharing its network namespace, e.g.
+    # voltd-forward) address the host. `extra_hosts` is rejected on a service
+    # using `network_mode: service:*`, so it has to live here.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - 8000:8000
+
+  # Dev-only: makes the ZeroClaw gateway reachable from the backend container at
+  # the one address its certificate is valid for. Their server cert carries only
+  # `DNS:localhost, IP:127.0.0.1`, and inside a container 127.0.0.1 is the
+  # container itself — so forward it into the BACKEND's own network namespace,
+  # which is the mirror image of the socat sidecar they run to reach our issuer.
+  # Opt-in; a pilot gateway has a real name and a certificate for it.
+  #   docker compose --profile voltd-dev up -d voltd-forward
+  #
+  # ⚠ While this runs, the backend's loopback is NO LONGER local: 127.0.0.1:8453
+  # inside the container reaches the host. Code that treats loopback as "cannot
+  # leave this machine" is weaker for that one port — `isSecureGatewayUrl` permits
+  # cleartext ws:// to loopback on exactly that reasoning. Acceptable for a dev
+  # profile aimed at one known gateway; do not carry it into a deployment, and do
+  # not widen it to a port range.
+  voltd-forward:
+    profiles: ["voltd-dev"]
+    image: alpine/socat:latest
+    restart: unless-stopped
+    network_mode: "service:backend"
+    depends_on:
+      - backend
+    command: >-
+      TCP-LISTEN:${VOLTD_FORWARD_PORT:-8453},fork,reuseaddr,bind=127.0.0.1
+      TCP:${VOLTD_FORWARD_TARGET:-host.docker.internal}:${VOLTD_FORWARD_PORT:-8453}
 
   keycloak:
     restart: unless-stopped
