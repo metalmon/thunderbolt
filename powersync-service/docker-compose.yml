@@ -134,12 +134,18 @@ services:
       # Verified: without it the hop fails with "unable to verify the first
       # certificate", with it the same request returns 200.
       NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
-      # Fork: voltd agent auto-discovery. Unset VOLTD_URL leaves the whole feature
-      # inert — no provider registered, no relay route, issuer surface still served
-      # only if the keys are present. The keys are PATHS, not values: a PEM is
-      # multi-line so env_file cannot carry one, and a private key in an env var
-      # leaks into `docker inspect`.
-      VOLTD_URL: ${VOLTD_URL:-}
+      # Fork: voltd agent auto-discovery. VOLTD_URL and VOLTD_ISSUER come from
+      # secrets.env (the env_file above) and must NOT be named here: an
+      # `environment:` entry wins over env_file, and ${VOLTD_URL:-} interpolates
+      # from .env / the shell — not from secrets.env — so naming it silently
+      # overrode the gateway address with an empty string and left the feature
+      # inert with everything else correctly configured.
+      #
+      # Unset VOLTD_URL does leave the whole feature inert on purpose — no
+      # provider registered, no relay route, issuer surface served only if the
+      # keys are present. The keys are PATHS, not values: a PEM is multi-line so
+      # env_file cannot carry one, and a private key in an env var leaks into
+      # `docker inspect`.
       VOLTD_JWT_PRIVATE_KEY_FILE: ${VOLTD_JWT_PRIVATE_KEY_FILE:-/etc/volt/voltd-keys/signing.key.pem}
       VOLTD_JWT_PUBLIC_KEY_FILE: ${VOLTD_JWT_PUBLIC_KEY_FILE:-/etc/volt/voltd-keys/signing.pub.pem}
       # Dotted path to the group claim in the IdP's token. Keycloak's Group
