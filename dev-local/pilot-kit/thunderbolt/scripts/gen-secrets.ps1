@@ -103,6 +103,17 @@ $realm = $realm -replace '"https?://[^"/]*"', "`"$publicUrl`""
 $realm = $realm -replace '"secret": "[^"]*"', "`"secret`": `"$oidcClientSecret`""
 Set-Content -Path $realmPath -Value $realm -NoNewline
 
+if (-not $Tls) {
+    # No terminator in front, so the SPA and Keycloak have to be reachable on the
+    # LAN directly. Every other published port stays on loopback either way. The
+    # template's line is rewritten rather than a second one appended: compose
+    # would honour the last, but a file a human reads must not state it twice.
+    $content = Get-Content $envPath -Raw
+    $content = $content -replace '(?m)^VOLT_BIND_ADDR=.*', 'VOLT_BIND_ADDR=0.0.0.0'
+    Set-Content -Path $envPath -Value $content -NoNewline
+    Write-Host "NOTE: no -Tls, so web and Keycloak are published on 0.0.0.0 in plain HTTP."
+}
+
 Write-Host "Wrote .env (PUBLIC_URL=$publicUrl, KEYCLOAK_PUBLIC_URL=$keycloakPublicUrl)"
 Write-Host "Synced conf\powersync\config.yaml's HS256 key to the new POWERSYNC_JWT_SECRET."
 Write-Host "Repointed conf\keycloak\realm.json's redirect URIs at $publicUrl and gave"
