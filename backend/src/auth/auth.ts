@@ -19,7 +19,7 @@ import * as schema from '@/db/schema'
 import { normalizeEmail } from '@/lib/email'
 import { resolveEmailLocale } from '@/emails/i18n'
 import { getSettings } from '@/config/settings'
-import { forkProvisionVoltdGroups } from '@/fork/voltd/groups'
+import { forkProvisionVoltdGroups, voltdGroupsExtraFields } from '@/fork/voltd/groups'
 import { getTrustedIpHeaders } from '@/utils/request'
 import { createAuthMiddleware, getSessionFromCtx } from 'better-auth/api'
 import { betterAuth } from 'better-auth'
@@ -121,6 +121,10 @@ const buildSsoPlugins = (database: typeof DbType) => {
               clientSecret: settings.oidcClientSecret,
               discoveryEndpoint: settings.oidcDiscoveryUrl || `${settings.oidcIssuer}/.well-known/openid-configuration`,
               scopes: ['openid', 'profile', 'email'],
+              // Without this the group claim never reaches provisionUser: the
+              // plugin rebuilds userInfo from five fixed fields plus whatever
+              // extraFields names. See `@/fork/voltd/groups`.
+              mapping: { extraFields: voltdGroupsExtraFields() },
             },
           },
         ],
@@ -168,6 +172,11 @@ const buildSsoPlugins = (database: typeof DbType) => {
               spMetadata: {
                 entityID: settings.samlEntityId,
               },
+              // Same reason as the OIDC branch above: the plugin rebuilds userInfo
+              // from a fixed set of attributes plus whatever extraFields names, so
+              // without this the group attribute never reaches provisionUser. Here
+              // the configured name addresses a SAML attribute rather than a claim.
+              mapping: { extraFields: voltdGroupsExtraFields() },
             },
           },
         ],
