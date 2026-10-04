@@ -150,6 +150,38 @@ curl -v https://backend.volt.oktaplus.ru:8443/realms/volt/.well-known/openid-con
 **установка поверх старой не подхватит новый адрес** — на пилоте ставить на
 чистую машину либо чистить `thunderbolt-local-settings`.
 
+### Куда какой трафик идёт, и где нужен приватный CA
+
+Важно знать до выезда, потому что доверие к CA устанавливается в трёх разных
+местах, и по одному из путей клиент хранилище Windows не читает.
+
+| что | через что идёт | где должен быть CA |
+|---|---|---|
+| наш бэкенд `/v1` | `globalThis.fetch` (вебвью) | хранилище Windows |
+| ACP / шлюз ZeroClaw `wss://` | WebSocket вебвью | хранилище Windows |
+| PowerSync, статика SPA | вебвью | хранилище Windows |
+| модель на loopback по `http` | нативный fetch (Rust) | CA не участвует |
+| модель / MCP в их сети по `https` | **универсальный прокси бэкенда** | **контейнер бэкенда** |
+
+Последняя строка — та, которую легко пропустить. Диспетчеризация в
+`src/ai/fetch.ts`: Custom-провайдер на **loopback** (`localhost`, `127.x`,
+`[::1]`, `*.localhost`) идёт напрямую через нативный fetch, а всё остальное —
+LAN-адреса, `.local`, публичные эндпоинты — уходит на `getProxyFetch()`, то есть
+на `${cloudUrl}/proxy`. Значит TLS-соединение до такого сервиса устанавливает
+**Bun внутри контейнера бэкенда**, а его набор корней про внутренний CA не знает.
+
+Лечится конфигурацией, без пересборки: положить CA в каталог сертификатов и
+указать на него:
+
+```sh
+# .env
+THUNDERBOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt
+```
+
+Каталог `THUNDERBOLT_TLS_CERT_DIR` смонтирован в бэкенд как `/etc/volt/certs:ro`.
+Проверено на `oven/bun:alpine`: без `NODE_EXTRA_CA_CERTS` запрос падает с
+«unable to verify the first certificate», с ним возвращает 200.
+
 ### Приватный CA и «Use Native Fetch»
 
 Вызовы бэкенда идут через `globalThis.fetch` (`src/lib/http.ts:128` —
