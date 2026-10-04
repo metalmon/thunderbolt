@@ -82,7 +82,7 @@ export const ConnectProviderButton = ({
   }
 
   const providerName = provider === 'microsoft' ? 'Microsoft' : 'Google'
-  const defaultConnectLabel = connectLabel || `Connect ${providerName}`
+  const defaultConnectLabel = connectLabel || t`Connect ${providerName}`
 
   const showDisconnect = isConnected && allowDisconnect && isHovered
 
