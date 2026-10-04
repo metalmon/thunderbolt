@@ -50,7 +50,18 @@ hex = "0.4"
 tauri-plugin-devtools = "2.0.1"
 # unsafe-headers lets native-fetch.ts send an empty Origin, which the plugin then strips; without it the
 # plugin always sends the webview Origin, and MCP servers that guard against DNS rebinding answer 403.
-tauri-plugin-http = { version = "2.5.9", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "http2", "charset", "macos-system-configuration", "unsafe-headers"] }
+# `rustls-tls-native-roots` is what makes an on-prem CA installed in the machine trust
+# store work on the native-fetch path. Fork delta: `cookies`, so that path carries the
+# session cookie like the webview does.
+tauri-plugin-http = { version = "2.5.9", default-features = false, features = [
+    "rustls-tls",
+    "rustls-tls-native-roots",
+    "http2",
+    "charset",
+    "macos-system-configuration",
+    "unsafe-headers",
+    "cookies",
+] }
 tauri-plugin-process = "2.3.1"
 tauri-plugin-fs = "2.4.4"
 tauri-plugin-deep-link = "2.4"
