@@ -12,10 +12,17 @@ import type { AnySQLiteTable } from 'drizzle-orm/sqlite-core'
 import { SQLiteRemoteSession } from 'drizzle-orm/sqlite-proxy'
 import { modelProfilesTable, modelsTable, promptsTable, settingsTable, skillsTable, tasksTable } from '../db/tables'
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
-import { defaultModelProfileOpus55, defaultModelProfiles, hashModelProfile } from '../defaults/model-profiles'
+import {
+  defaultModelProfileDeepSeekV41Flash,
+  defaultModelProfileGlm53,
+  defaultModelProfileOpus55,
+  defaultModelProfiles,
+  hashModelProfile,
+} from '../defaults/model-profiles'
 import {
   defaultModelGlm53,
   defaultModelDeepSeekV41Flash,
+  defaultModelOpenRouterFree,
   defaultModelOpus55,
   defaultModelsVersion,
   hashModel,
@@ -167,6 +174,15 @@ describe('returning boot before initial sync', () => {
  */
 const fixtureModels = [defaultModelOpus55, defaultModelDeepSeekV41Flash, defaultModelGlm53] as const
 
+/** Profiles for everything these tests seed. `reconcileDefaults` drops any model
+ *  whose id has no profile in the BUILD, and this fork bundles only OpenRouter
+ *  Free's — so the fixture carries its own, or nothing would ever be written. */
+const fixtureProfiles = [
+  defaultModelProfileOpus55,
+  defaultModelProfileDeepSeekV41Flash,
+  defaultModelProfileGlm53,
+] as const
+
 describe('seedModels', () => {
   test('catalog updates and resets preserve effort without treating the model as customized', async () => {
     const db = getDb()
@@ -308,7 +324,7 @@ describe('cleanupRemovedDefaults', () => {
     await db.insert(modelsTable).values(buildRetiredModel())
     await db.insert(modelProfilesTable).values(buildRetiredProfile())
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
 
     const model = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     expect(model?.deletedAt).not.toBeNull()
@@ -329,7 +345,7 @@ describe('cleanupRemovedDefaults', () => {
     // changes that produced false-positive "modified" state on unedited rows.
     await db.insert(modelsTable).values({ ...buildRetiredModel(), name: 'User Renamed' })
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
 
     const model = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     expect(model?.deletedAt).not.toBeNull()
@@ -343,7 +359,7 @@ describe('cleanupRemovedDefaults', () => {
     await db.insert(modelsTable).values({ ...buildRetiredModel(), name: 'User Renamed' })
     await db.insert(modelProfilesTable).values(buildRetiredProfile())
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
 
     const profile = await db
       .select()
@@ -357,7 +373,7 @@ describe('cleanupRemovedDefaults', () => {
     const db = getDb()
     await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
 
     for (const def of fixtureModels) {
       const row = await db.select().from(modelsTable).where(eq(modelsTable.id, def.id)).get()
@@ -369,7 +385,7 @@ describe('cleanupRemovedDefaults', () => {
     const db = getDb()
     await db.insert(modelsTable).values({ ...buildRetiredModel(), isSystem: 0, defaultHash: null })
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
 
     const model = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     expect(model?.deletedAt).toBeNull()
@@ -377,7 +393,7 @@ describe('cleanupRemovedDefaults', () => {
 
   test('no-op when retired row is absent', async () => {
     const db = getDb()
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
     const model = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     expect(model).toBeUndefined()
   })
@@ -386,12 +402,12 @@ describe('cleanupRemovedDefaults', () => {
     const db = getDb()
     await db.insert(modelsTable).values(buildRetiredModel())
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
     const after1 = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     const firstDeletedAt = after1?.deletedAt
     expect(firstDeletedAt).not.toBeNull()
 
-    await cleanupRemovedDefaults(db)
+    await cleanupRemovedDefaults(db, true, fixtureModels)
     const after2 = await db.select().from(modelsTable).where(eq(modelsTable.id, retiredModelId)).get()
     expect(after2?.deletedAt).toBe(firstDeletedAt!)
   })
@@ -904,6 +920,7 @@ for (const [target, model, name] of [
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, target.id)).get()).toEqual({
@@ -940,6 +957,7 @@ describe('Opus data migration', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
@@ -972,6 +990,7 @@ describe('Opus data migration', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
@@ -996,7 +1015,7 @@ describe('Opus data migration', () => {
     const otaVersion = defaultModelsVersion + 1
     const otaModels = fixtureModels.map((model) => (model.id === defaultModelOpus55.id ? legacyModel : model))
 
-    await reconcileDefaults(db, { models: { version: otaVersion, data: otaModels, imageSupport: {} } })
+    await reconcileDefaults(db, { models: { version: otaVersion, data: otaModels }, profiles: fixtureProfiles })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
       ...defaultModelOpus55,
@@ -1022,7 +1041,10 @@ describe('Opus data migration', () => {
       value: String(defaultModelsVersion),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
       ...defaultModelOpus55,
@@ -1055,7 +1077,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
   test('fresh install applies bundle defaults and stamps the applied version', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const models = await db.select().from(modelsTable)
     for (const bundle of fixtureModels) {
@@ -1081,7 +1106,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion + 1),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const preserved = await db.select().from(modelsTable).where(eq(modelsTable.id, bundleRow.id)).get()
     expect(preserved?.name).toBe('Newer Bundle Name')
@@ -1105,7 +1133,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion + 1),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const alive = await db.select().from(modelsTable).where(eq(modelsTable.id, futureRow.id)).get()
     expect(alive?.deletedAt).toBeNull()
@@ -1115,7 +1146,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     // Prime with the current bundle, then rewind to look like a prior version.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
     const targetId = fixtureModels[0].id
     const staleRow = { ...fixtureModels[0], name: 'stale name' }
     await db
@@ -1127,7 +1161,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion - 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, targetId)).get()
     expect(upgraded?.name).toBe(fixtureModels[0].name)
@@ -1137,7 +1174,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
   test('newer bundle updates server-owned model metadata excluded from the user-edit hash', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
     await db
       .update(modelsTable)
       .set({ description: 'Confidential chat via Tinfoil' })
@@ -1147,7 +1187,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion - 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelGlm53.id)).get()
     expect(upgraded?.description).toBe('Confidential chat via Thunderbolt')
@@ -1158,7 +1201,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
   test('user edits survive under both older and newer bundle passes', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // User renames a row after the first apply.
     const editedId = fixtureModels[0].id
@@ -1169,7 +1215,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .update(settingsTable)
       .set({ value: String(defaultModelsVersion + 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const stillEdited = await db.select().from(modelsTable).where(eq(modelsTable.id, editedId)).get()
     expect(stillEdited?.name).toBe('user-picked name')
@@ -1183,7 +1232,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // readAppliedVersion treats non-numeric as null-version-but-exists → gate opens,
     // upsert must UPDATE the row. If it wrongly INSERTs, this throws on PK conflict.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
@@ -1204,7 +1256,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion + 1),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Our older bundle must not seed the retired id.
     const ghost = await db.select().from(modelsTable).where(eq(modelsTable.id, retired.id)).get()
@@ -1228,6 +1283,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     // The newer-content row must survive intact.
@@ -1248,6 +1304,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     const models = await db.select().from(modelsTable)
@@ -1259,7 +1316,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     // Seed at the current bundle so all rows have their bundle's defaultHash.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // User edits every model row so no update can proceed on the next pass.
     // Also rewind the marker to look like we're catching up from an older
@@ -1276,7 +1336,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion - 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Marker must stay at the rewound value — advancing it here would signal
     // to peers that this version was applied when in fact nothing was written.
@@ -1291,7 +1354,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // upgrading to this build: the four new markers (models/tasks/skills/
     // settings) don't exist yet, but the rows themselves were already
     // seeded by earlier reconcile runs and their hashes match the bundle.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Wipe the marker to simulate the pre-THU-677 "no marker written yet"
     // state. The gate stays open (`stored=null → rawCanOverwrite=true`)
@@ -1301,7 +1367,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // on every boot forever.
     await db.delete(settingsTable).where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
@@ -1315,12 +1384,15 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // would strand the marker permanently for anyone who edited a profile.
     const db = getDb()
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Simulate a user-edited model profile: hash-mismatched relative to its
     // stored `defaultHash` (as would happen after a `updateModelProfile` write
     // that intentionally diverges from the bundle default).
-    const targetProfile = defaultModelProfiles[0]
+    const targetProfile = fixtureProfiles[0]
     await db
       .update(modelProfilesTable)
       .set({ temperature: 0.77 })
@@ -1339,7 +1411,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion - 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Marker advances because the models pass mutated, even though the
     // profiles pass sees a user-edited row (not at target, not mutated).
@@ -1367,7 +1442,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     // Seed at the current bundle so every skills row hashes to target.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Wipe the skills marker to simulate the pre-THU-677 "no marker yet"
     // state for the non-models tables. The gate opens, reconcile finds
@@ -1375,14 +1453,20 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // still advance via the `everyBundleRowAtTarget` branch.
     await db.delete(settingsTable).where(eq(settingsTable.key, 'defaults_version.skills'))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     expect(await readStoredSkillsVersion()).toBe(defaultSkillsVersion)
   })
 
   test('runGatedPass does not advance marker when every editable skill row is user-edited', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Every editable skill row is user-edited (hash mismatch) and the marker
     // is rewound. Locked widget contracts remain at target. Reconcile skips
@@ -1398,7 +1482,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultSkillsVersion - 1) })
       .where(eq(settingsTable.key, 'defaults_version.skills'))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     expect(await readStoredSkillsVersion()).toBe(defaultSkillsVersion - 1)
   })
@@ -1423,6 +1510,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     const preserved = await db.select().from(modelsTable).where(eq(modelsTable.id, alive.id)).get()
@@ -1445,7 +1533,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion + 1),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const profile = await db.select().from(modelProfilesTable).where(eq(modelProfilesTable.modelId, model.id)).get()
     expect(profile).toBeDefined()
@@ -1456,7 +1547,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     // Seed at the current bundle so profiles get their defaultHash.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Simulate a newer-version device having tweaked a profile field
     // (temperature) — content matches its authoring hash, so it looks
@@ -1480,7 +1574,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion + 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const preserved = await db
       .select()
@@ -1510,7 +1607,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const revived = await db.select().from(modelsTable).where(eq(modelsTable.id, shipped.id)).get()
     expect(revived?.deletedAt).toBeNull()
@@ -1535,6 +1635,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     const stillGone = await db.select().from(modelsTable).where(eq(modelsTable.id, shipped.id)).get()
@@ -1550,7 +1651,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // the profile-cleanup loop would soft-delete this orphan; under sync-
     // incomplete the parent may still be alive on cloud and we must stay
     // non-mutating for the profiles table.
-    const stubProfile = defaultModelProfiles[0]
+    const stubProfile = fixtureProfiles[0]
     const orphanModelId = 'orphan-parent-id'
     await db.insert(modelProfilesTable).values({
       ...stubProfile,
@@ -1563,6 +1664,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
     })
 
     const profile = await db
@@ -1587,7 +1689,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       imageSupport: {},
     }
 
-    await reconcileDefaults(db, { models: otaSource })
+    await reconcileDefaults(db, { models: otaSource, profiles: fixtureProfiles })
 
     const ghostModel = await db.select().from(modelsTable).where(eq(modelsTable.id, retired.id)).get()
     expect(ghostModel).toBeUndefined()
@@ -1604,7 +1706,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Prime with the current bundle so both model and profile carry their
     // authoring hashes.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Server ships a higher version that drops the first model.
     // `cleanupRemovedDefaults` will soft-delete both the model and its profile
@@ -1618,7 +1723,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       imageSupport: {},
     }
 
-    await reconcileDefaults(db, { models: otaSource })
+    await reconcileDefaults(db, { models: otaSource, profiles: fixtureProfiles })
 
     const modelRow = await db.select().from(modelsTable).where(eq(modelsTable.id, retired.id)).get()
     expect(modelRow?.deletedAt).not.toBeNull()
@@ -1634,7 +1739,10 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     // Seed at the current bundle so all rows have their authoring hash.
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     // Server ships a higher-version payload that flips `isConfidential` and
     // `provider` on an existing bundle-known id, plus a legitimate change to
@@ -1654,7 +1762,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       imageSupport: {},
     }
 
-    await reconcileDefaults(db, { models: otaSource })
+    await reconcileDefaults(db, { models: otaSource, profiles: fixtureProfiles })
 
     const row = await db.select().from(modelsTable).where(eq(modelsTable.id, target.id)).get()
     // Frozen fields keep the original values...
@@ -1670,7 +1778,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     expect(row?.defaultHash).toBe(hashModel(effectiveExpected))
 
     // A follow-up reconcile with the same payload is a no-op on this row.
-    await reconcileDefaults(db, { models: otaSource })
+    await reconcileDefaults(db, { models: otaSource, profiles: fixtureProfiles })
     const rowAgain = await db.select().from(modelsTable).where(eq(modelsTable.id, target.id)).get()
     expect(rowAgain?.name).toBe('Renamed Via OTA')
     expect(rowAgain?.defaultHash).toBe(hashModel(effectiveExpected))
@@ -1714,7 +1822,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       imageSupport: {},
     }
 
-    await reconcileDefaults(db, { models: otaSource })
+    await reconcileDefaults(db, { models: otaSource, profiles: fixtureProfiles })
 
     const ghost = await db.select().from(modelsTable).where(eq(modelsTable.id, unknownId)).get()
     expect(ghost).toBeUndefined()
@@ -1793,7 +1901,10 @@ describe('widget skill reconciliation', () => {
       value: String(defaultSkillsVersion - 1),
     })
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const updated = await db.select().from(skillsTable).where(eq(skillsTable.id, defaultSkillWeather.id)).get()
     const marker = await db.select().from(settingsTable).where(eq(settingsTable.key, versionMarkerKeys.skills)).get()
@@ -1804,7 +1915,10 @@ describe('widget skill reconciliation', () => {
 
   test('newer defaults update contract content while preserving enabled and pinned state', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const staleWidget = { ...defaultSkillWeather, description: 'stale widget contract' }
     await db
@@ -1821,7 +1935,10 @@ describe('widget skill reconciliation', () => {
       .set({ value: String(defaultSkillsVersion - 1) })
       .where(eq(settingsTable.key, versionMarkerKeys.skills))
 
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     const updated = await db.select().from(skillsTable).where(eq(skillsTable.id, staleWidget.id)).get()
     expect(updated?.description).toBe(defaultSkillWeather.description)
@@ -1864,7 +1981,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
     describe(c.table, () => {
       test('fresh install seeds defaults and stamps the applied version', async () => {
         const db = getDb()
-        await reconcileDefaults(db)
+        await reconcileDefaults(db, {
+          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          profiles: fixtureProfiles,
+        })
 
         const rows = await db.select().from(c.dbTable)
         for (const bundle of c.defaults) {
@@ -1891,6 +2011,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         await reconcileDefaults(db, {
           initialSyncCompleted: false,
           models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          profiles: fixtureProfiles,
         })
 
         const preserved = (await db.select().from(c.dbTable).where(eq(c.pk, first.id)).get()) as Row | undefined
@@ -1900,7 +2021,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
 
       test('newer bundle upgrades in place and advances the stored version', async () => {
         const db = getDb()
-        await reconcileDefaults(db)
+        await reconcileDefaults(db, {
+          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          profiles: fixtureProfiles,
+        })
 
         // Rewind stored version to look like a prior release; also stale one
         // row so the pass has something to upgrade (otherwise mutated=false
@@ -1916,7 +2040,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
           .set({ value: String(c.currentVersion - 1) })
           .where(eq(settingsTable.key, c.versionKey))
 
-        await reconcileDefaults(db)
+        await reconcileDefaults(db, {
+          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          profiles: fixtureProfiles,
+        })
 
         const upgraded = (await db.select().from(c.dbTable).where(eq(c.pk, target.id)).get()) as Row | undefined
         expect(upgraded?.[c.editableField]).toBe(target[c.editableField])
@@ -1937,7 +2064,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
           value: String(c.currentVersion + 1),
         })
 
-        await reconcileDefaults(db)
+        await reconcileDefaults(db, {
+          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          profiles: fixtureProfiles,
+        })
 
         const preserved = (await db.select().from(c.dbTable).where(eq(c.pk, target.id)).get()) as Row | undefined
         expect(preserved?.[c.editableField] as string | undefined).toBe('from-newer-bundle')
@@ -1974,7 +2104,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
 
     test('fresh install seeds defaults and stamps the applied version', async () => {
       const db = getDb()
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
 
       for (const bundle of valuedDefaultSettings) {
         const row = await db.select().from(settingsTable).where(eq(settingsTable.key, bundle.key)).get()
@@ -2014,6 +2147,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       await reconcileDefaults(db, {
         initialSyncCompleted: false,
         models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
       })
 
       const seeded = await db.select().from(settingsTable).where(eq(settingsTable.key, key)).get()
@@ -2023,7 +2157,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
 
     test('newer bundle upgrades in place and advances the stored version', async () => {
       const db = getDb()
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
 
       // Rewind stored version and stale one row so the pass has something to
       // upgrade (otherwise mutated=false and the marker deliberately does
@@ -2044,7 +2181,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         .set({ value: String(defaultSettingsVersion - 1) })
         .where(eq(settingsTable.key, 'defaults_version.settings'))
 
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
 
       const upgraded = await db.select().from(settingsTable).where(eq(settingsTable.key, target.key)).get()
       expect(upgraded?.value).toBe(target.value)
@@ -2065,7 +2205,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         value: String(defaultSettingsVersion + 1),
       })
 
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
 
       const preserved = await db.select().from(settingsTable).where(eq(settingsTable.key, target.key)).get()
       expect(preserved?.value).toBe('from-newer-bundle')
@@ -2089,7 +2232,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       // Seed the bundle defaults so the pre-THU-677 device has all rows.
       // Reconcile no longer lays down null-valued rows, so create the one this
       // test edits the way an older build would have.
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
       await db.insert(settingsTable).values({ key: 'preferred_name', value: null })
 
       // Simulate the pre-THU-677 state: settings marker doesn't exist yet.
@@ -2109,7 +2255,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         .set({ value: 'John', defaultHash: hashSetting(userFilled) })
         .where(eq(settingsTable.key, target.key))
 
-      await reconcileDefaults(db)
+      await reconcileDefaults(db, {
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        profiles: fixtureProfiles,
+      })
 
       // Marker advances despite `mutated=false` — the user-filled null-default
       // row counts as at-target via the wouldOverwriteUserValue branch's
@@ -2132,7 +2281,10 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
     // and the settings gate would refuse to seed. Every valued default settings
     // row and the settings marker must land on this pass.
     const db = getDb()
-    await reconcileDefaults(db)
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      profiles: fixtureProfiles,
+    })
 
     for (const bundle of valuedDefaultSettings) {
       const row = await db.select().from(settingsTable).where(eq(settingsTable.key, bundle.key)).get()
