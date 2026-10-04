@@ -36,7 +36,16 @@ const queueMessages = 64
 /** How long the gateway gets to finish its handshake before we give up on it. */
 const connectTimeoutMs = 10_000
 
-/** Concurrent relayed sessions one user may hold. The sockets are long-lived and
+/** Concurrent relayed sessions one user may hold.
+ *
+ *  This, not a request-rate limiter, is the control that fits here. The app's
+ *  `createUserTierRateLimit` reads `ctx.user` populated by the auth macro and
+ *  documents itself as a silent no-op without it — and this route cannot use that
+ *  macro, because the bearer rides a subprotocol and is validated inside `open`
+ *  for the reasons in the file header. Wiring it in anyway would look like a
+ *  control and enforce nothing. (`proxy/ws.ts` wires it exactly that way; worth
+ *  a separate look, not a copy.) A concurrency cap is also the more useful axis
+ *  for a socket a client opens once per agent session and then holds. The sockets are long-lived and
  *  each pins one upstream connection to an on-prem gateway, so an authenticated
  *  client looping `new WebSocket` would otherwise exhaust both ends. */
 const defaultMaxSessionsPerUser = 8
@@ -77,9 +86,6 @@ export type CreateVoltdRelayRoutesOptions = {
   /** Per-connection telemetry, the same recorder the universal proxy uses.
    *  Defaults to the no-op so tests and unconfigured callers stay silent. */
   observability?: ObservabilityRecorder
-  /** Request rate limiting, applied as the universal proxy applies it
-   *  (`proxy/ws.ts`). */
-  rateLimit?: AnyElysia
   /** Override the concurrent-session cap. */
   maxSessionsPerUser?: number
 }
