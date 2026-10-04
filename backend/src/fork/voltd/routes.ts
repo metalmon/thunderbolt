@@ -8,33 +8,37 @@
  *
  * - `GET /.well-known/openid-configuration` — discovery, read by voltd
  * - `GET /voltd/jwks` — our public key, read by voltd
- * - `GET /voltd/token` — mints the caller's access token, read by our client
+ * - `WS  /voltd/ws?agent=<alias>` — the ACP relay (see `relay.ts`)
+ *
+ * It also registers the agent provider, so the gateway's agents appear in
+ * `GET /agents` — the same construction-time side effect `createHaystackRoutes`
+ * uses for its own provider.
+ *
+ * There is deliberately no `/voltd/token` route. The contract defines one for a
+ * client that dials the gateway itself, but here the backend mints and consumes
+ * the token server-side, so exposing it would be surface nothing uses.
  *
  * Mounted on the app root, which carries the `/v1` prefix, so the issuer is
  * `${BETTER_AUTH_URL}/v1` — the same origin and path the client already uses as
  * `cloudUrl`. Keeping them identical matters: voltd compares `iss` to its own
  * configured issuer byte for byte.
  *
- * The first two are machine-to-machine and arrive without `X-App-Version`, so
+ * Discovery and JWKS are machine-to-machine and arrive without `X-App-Version`, so
  * their prefixes must stay in `appVersionExemptPrefixes` or they 426 the moment
- * a deployment sets `MIN_APP_VERSION`. `/voltd/token` is called by our own
- * client and deliberately stays subject to the gate.
+ * a deployment sets `MIN_APP_VERSION`.
  *
  * Inert until configured: with no signing key the plugin exposes no routes at
  * all, so this can ship ahead of any deployment that uses it.
  */
 
-import { createAuthMacro, type Auth } from '@/auth/elysia-plugin'
+import { registerAgentProvider } from '@/agents/discovery'
+import type { Auth } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import type { User } from '@shared/types/auth'
 import { Elysia, type AnyElysia } from 'elysia'
-import {
-  createVoltdTokenService,
-  readPrincipalGroups,
-  readVoltdTokenConfig,
-  type VoltdTokenConfig,
-  type VoltdTokenService,
-} from './token'
+import { createVoltdAgentProvider } from './provider'
+import { createVoltdRelayRoutes } from './relay'
+import { createVoltdTokenService, readVoltdTokenConfig, type VoltdTokenConfig, type VoltdTokenService } from './token'
 
 export type CreateVoltdRoutesOptions = {
   auth: Auth
@@ -42,13 +46,17 @@ export type CreateVoltdRoutesOptions = {
   config?: VoltdTokenConfig | null
   /** Test seam — production builds the service from `config`. */
   service?: VoltdTokenService
+  /** Gateway ACP endpoint. Production reads `VOLTD_URL`. */
+  gatewayUrl?: string
+  /** Test seam for the relay's upstream socket. */
+  wsFactory?: (url: string, protocols: string[]) => WebSocket
 }
 
 /**
- * Builds the voltd issuer routes, or a plugin with no routes when the deployment
- * has no signing key configured.
+ * Builds the voltd routes and registers the agent provider, or a plugin with no
+ * routes when the deployment has no signing key configured.
  *
- * @param options - auth plugin plus test seams
+ * @param options - auth plugin, gateway URL, plus test seams
  */
 export const createVoltdRoutes = async (options: CreateVoltdRoutesOptions): Promise<AnyElysia> => {
   const base = new Elysia({ name: 'voltd-routes' }).onError(safeErrorHandler)
@@ -56,9 +64,22 @@ export const createVoltdRoutes = async (options: CreateVoltdRoutesOptions): Prom
   if (!config && !options.service) return base
 
   const service = options.service ?? (await createVoltdTokenService(config as VoltdTokenConfig))
+  const gatewayUrl = options.gatewayUrl ?? process.env.VOLTD_URL ?? ''
+
+  // Construction-time side effect, mirroring createHaystackRoutes. Null when no
+  // usable gateway is configured, so the registry is untouched on deployments
+  // that only want the issuer surface.
+  const provider = createVoltdAgentProvider({
+    service,
+    gatewayUrl,
+    resolveUser: async (request) => {
+      const session = await options.auth.api.getSession({ headers: request.headers })
+      return (session?.user as User | undefined) ?? null
+    },
+  })
+  if (provider) registerAgentProvider(provider)
 
   return base
-    .use(createAuthMacro(options.auth))
     .get('/.well-known/openid-configuration', ({ set }) => {
       // Short, not immutable: a key rotation must reach the gateway without an
       // operator having to restart it.
@@ -69,19 +90,5 @@ export const createVoltdRoutes = async (options: CreateVoltdRoutesOptions): Prom
       set.headers['cache-control'] = 'public, max-age=300'
       return service.jwks
     })
-    .get(
-      '/voltd/token',
-      async ({ user, set, status }) => {
-        // The macro has already rejected an absent session. Anonymous sessions
-        // are refused the same way `GET /agents` refuses them — an anonymous
-        // user has no identity to map to a permission profile.
-        if ((user as User).isAnonymous) {
-          return status(403, { error: 'Forbidden', code: 'ANONYMOUS_VOLTD_TOKEN_FORBIDDEN' })
-        }
-        set.headers['cache-control'] = 'no-store'
-        const token = await service.mint({ userId: user.id, groups: readPrincipalGroups(user) })
-        return { token, expiresIn: service.ttlSeconds }
-      },
-      { auth: true },
-    )
+    .use(createVoltdRelayRoutes({ auth: options.auth, service, gatewayUrl, wsFactory: options.wsFactory }))
 }
