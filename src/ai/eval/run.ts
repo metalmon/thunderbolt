@@ -30,7 +30,8 @@ import {
 import { judgeModels, judgePromptVersion } from './judge'
 import type { EvalTrial } from './types'
 import { runPool } from './runner'
-import { getModelId, getScenarios } from './scenarios'
+import { getModelId, getScenarios, evalReferenceModels } from './scenarios'
+import { seedEvalReferenceModels } from '@/fork/eval/seed-reference-models'
 import { getScenarioSampleCount, selectSmokeScenarios } from './smoke'
 import { initLayout, printFooter, restoreConsole, silenceConsole, teardownLayout } from './ui'
 
@@ -126,6 +127,8 @@ const main = async (): Promise<number> => {
   }
 
   await setupTestDatabase()
+  // Fork: the matrix benchmarks reference models this fork does not ship.
+  await seedEvalReferenceModels(getDb(), evalReferenceModels)
   const cells = await Promise.all(
     [...new Map(scenarios.map((scenario) => [`${scenario.modelName}/${scenario.engineName}`, scenario])).entries()].map(
       async ([key, scenario]) => {
