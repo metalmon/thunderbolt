@@ -42,6 +42,10 @@ powersync-service/secrets.env
 # Fork: ES256 keypair the backend signs voltd access tokens with. Generated per
 # deployment, never committed — see dev-local/docker/README-pilot-tls.md.
 powersync-service/voltd-keys/
+# Fork: TLS material for the local/on-prem stack — the terminator's fullchain and
+# PRIVATE KEY (THUNDERBOLT_TLS_CERT_DIR defaults here) plus any CA the backend is
+# told to trust. Deployment-specific, never committed.
+powersync-service/certs/
 
 # Kubernetes secrets (use secrets.yaml.example as template)
 secrets.yaml
