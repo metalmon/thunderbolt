@@ -21,10 +21,15 @@ touched.
 
 | Path | Why it is ours |
 |---|---|
-| `thunderbolt/conf/keycloak/realm.json` | pilot groups `volt-admins`/`volt-avk`/`volt-kb`, the Group Membership mapper that emits `groups`, RU locale, «Вольт» as the realm display name, nobody pre-assigned to a group |
+| `thunderbolt/conf/keycloak/realm.json` | pilot groups `volt-admins`/`volt-avk`/`volt-kb`, the Group Membership mapper that emits `groups`, RU locale, «Вольт» as the realm display name, and **no users at all** |
 | `thunderbolt/conf/nginx/web-nginx.conf.template` | byte-identical to `dev-local/docker/web-nginx.conf.template`; carries the WebSocket locations for `/v1/voltd/ws` and `/v1/proxy/ws` |
 | `thunderbolt/docker-compose.voltd.yml` | voltd overlay: key paths, group claim, read-only `conf/voltd-keys` mount |
-| `thunderbolt/scripts/gen-secrets.{sh,ps1}` | `--voltd` / `-Voltd`, the realm's redirect-URI repointing, and the `-Host` → `-PublicHost` fix |
+| `thunderbolt/scripts/gen-secrets.{sh,ps1}` | `--voltd` / `-Voltd`, the realm's redirect-URI repointing, a generated client secret written to `.env` and `realm.json` together, and the `-Host` → `-PublicHost` fix |
+
+One edit is still owed to the kit's own `thunderbolt/README.md`, which this repo
+does not carry: it documents a `demo`/`demo` login that the realm no longer
+creates. Replace that table with "users are created in the Keycloak admin console"
+when next touching the kit.
 | `thunderbolt/scripts/gen-voltd-keys.{sh,ps1}` | ES256 keypair via Bun inside the backend image (no openssl on the host) |
 | `thunderbolt/scripts/install-hosts.{sh,ps1}` | client-machine name resolution; the desktop build's backend address is baked in, so the name must resolve locally |
 | `thunderbolt/README-voltd.md` | operator steps + the `[oidc.volt]` fields that must match |
