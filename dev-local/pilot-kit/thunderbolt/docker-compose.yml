@@ -34,7 +34,11 @@ services:
       - ./conf/nginx/web-nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
       - ./conf/nginx/security-headers.conf:/etc/nginx/snippets/security-headers.conf:ro
     ports:
-      - "${WEB_PORT:-3000}:80"
+      # Plain HTTP. Under the tls profile this is only the terminator's upstream,
+      # reached over the compose network, so it has no business on the LAN; a
+      # no-TLS run is the one case that needs it there, and gen-secrets sets
+      # VOLT_BIND_ADDR for exactly that.
+      - "${VOLT_BIND_ADDR:-127.0.0.1}:${WEB_PORT:-3000}:80"
 
   tls:
     restart: unless-stopped
@@ -108,7 +112,13 @@ services:
     volumes:
       - ${VOLT_TLS_CERT_DIR:-./conf/certs}:/etc/volt/certs:ro
     ports:
-      - "8000:8000"
+      # Loopback only, always. Nothing outside this host has any business reaching
+      # the API directly: the `web` service proxies /v1 over the compose network,
+      # and `tls` terminates in front of it. Published on 0.0.0.0 this was the
+      # whole API — sessions and bearer tokens included — in clear text to every
+      # machine on the objekt's LAN, next to a TLS terminator put there to prevent
+      # exactly that. Kept bound for curl on the host itself.
+      - "127.0.0.1:8000:8000"
 
   keycloak:
     restart: unless-stopped
@@ -129,7 +139,12 @@ services:
     volumes:
       - ./conf/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
     ports:
-      - "8180:8080"
+      # Keycloak's PLAIN HTTP port. With the tls profile the browser reaches it as
+      # https://<name>:8444 and this one is only the terminator's upstream, so it
+      # must not be on the LAN — a published 8180 is the login form, and every
+      # password typed into it, in clear text. VOLT_BIND_ADDR opens it only for a
+      # deliberate no-TLS run; gen-secrets sets it there and nowhere else.
+      - "${VOLT_BIND_ADDR:-127.0.0.1}:8180:8080"
 
   powersync:
     restart: unless-stopped
