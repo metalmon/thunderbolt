@@ -131,18 +131,21 @@ services:
       # Verified: without it the hop fails with "unable to verify the first
       # certificate", with it the same request returns 200.
       NODE_EXTRA_CA_CERTS: ${THUNDERBOLT_BACKEND_EXTRA_CA:-}
-      # Fork: voltd agent auto-discovery. Unset VOLTD_URL leaves the whole feature
-      # inert — no provider registered, no relay route, issuer surface still served
-      # only if the keys are present. The keys are PATHS, not values: a PEM is
+      # Fork: voltd agent auto-discovery. Keys are PATHS, not values: a PEM is
       # multi-line so env_file cannot carry one, and a private key in an env var
       # leaks into `docker inspect`.
-      VOLTD_URL: ${VOLTD_URL:-}
       VOLTD_JWT_PRIVATE_KEY_FILE: ${VOLTD_JWT_PRIVATE_KEY_FILE:-/etc/volt/voltd-keys/signing.key.pem}
       VOLTD_JWT_PUBLIC_KEY_FILE: ${VOLTD_JWT_PUBLIC_KEY_FILE:-/etc/volt/voltd-keys/signing.pub.pem}
       # Dotted path to the group claim in the IdP's token. Keycloak's Group
       # Membership mapper emits `groups`; realm roles would be
       # `realm_access.roles`.
       VOLTD_GROUPS_CLAIM: ${VOLTD_GROUPS_CLAIM:-groups}
+      #
+      # VOLTD_URL and VOLTD_ISSUER are deliberately NOT listed here. An
+      # `environment:` entry takes precedence over `env_file`, so a `${VAR:-}`
+      # with an empty default would render as "" and SILENTLY SHADOW the value
+      # set in secrets.env — which is where both belong. Unset VOLTD_URL leaves
+      # the whole feature inert: no provider registered, no relay route.
     volumes:
       # Same directory the `tls` service reads its certificate from; mounted so
       # THUNDERBOLT_BACKEND_EXTRA_CA can name the CA inside it, e.g.
