@@ -108,7 +108,7 @@ const downstream = () => {
 }
 
 /** Handlers whose `mint` is held open, so a test can act inside the await window. */
-const heldHandlers = () => {
+const heldHandlers = (overrides: Partial<Parameters<typeof createVoltdRelayHandlers>[0]> = {}) => {
   let release: (token: string) => void = () => {}
   const minted = new Promise<string>((resolve) => (release = resolve))
   const handlers = createVoltdRelayHandlers({
@@ -116,6 +116,7 @@ const heldHandlers = () => {
     service: { ...service(), mint: () => minted },
     gatewayUrl: 'wss://gateway.internal:8443/acp',
     wsFactory: () => new FakeUpstream() as unknown as WebSocket,
+    ...overrides,
   })
   return { handlers, release: () => release('minted') }
 }
@@ -196,6 +197,68 @@ describe('voltd relay handlers', () => {
     handlers.close(ws)
 
     expect(FakeUpstream.created[0].closedWith).toHaveLength(1)
+  })
+
+  it('caps concurrent sessions per user, and frees the slot when one closes', async () => {
+    FakeUpstream.created = []
+    const { handlers, release } = heldHandlers({ maxSessionsPerUser: 2 })
+
+    const sockets = [downstream(), downstream(), downstream()]
+    const opens = sockets.map((entry) => handlers.open(entry.ws))
+    release()
+    await Promise.all(opens)
+
+    // Two dialled; the third was refused before the gateway was touched.
+    expect(FakeUpstream.created).toHaveLength(2)
+    expect(sockets[2].closes[0]?.code).toBe(4009)
+
+    // Closing one frees its slot for the next connection.
+    handlers.close(sockets[0].ws, 1000)
+    const fourth = downstream()
+    await handlers.open(fourth.ws)
+    expect(FakeUpstream.created).toHaveLength(3)
+    expect(fourth.closes).toHaveLength(0)
+  })
+
+  it('records one telemetry event per connection, with duration and close code', async () => {
+    FakeUpstream.created = []
+    const events: Array<Record<string, unknown>> = []
+    const { handlers, release } = heldHandlers({
+      observability: {
+        proxyRequest: () => {},
+        proxyWsRelay: (fields) => events.push(fields as unknown as Record<string, unknown>),
+      },
+    })
+    const { ws } = downstream()
+
+    const opening = handlers.open(ws)
+    release()
+    await opening
+    handlers.close(ws, 1000)
+
+    expect(events).toHaveLength(1)
+    expect(events[0]).toMatchObject({ user_id: 'user-1', close_code: 1000, method: 'GET' })
+    expect(events[0].target_url).toContain('agent=crm_bot')
+    expect(typeof events[0].duration_ms).toBe('number')
+  })
+
+  it('categorises a queue-overflow close so alerting can key off it', async () => {
+    FakeUpstream.created = []
+    const events: Array<Record<string, unknown>> = []
+    const { handlers, release } = heldHandlers({
+      observability: {
+        proxyRequest: () => {},
+        proxyWsRelay: (fields) => events.push(fields as unknown as Record<string, unknown>),
+      },
+    })
+    const { ws } = downstream()
+
+    const opening = handlers.open(ws)
+    release()
+    await opening
+    handlers.close(ws, 4008)
+
+    expect(events[0].error_type).toBe('cap_exceeded')
   })
 
   it('forwards the gateway close code so a refusal stays distinguishable', async () => {
