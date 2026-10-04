@@ -72,7 +72,11 @@ describe('PermissionDialog', () => {
     const onRespond = mock(() => {})
     render(<PermissionDialog {...defaultHandlers} request={baseRequest} onRespond={onRespond} />)
 
-    fireEvent.click(screen.getByText('Allow'))
+    // The button says "Allow once", not the agent's own `option.name`: the labels
+    // are rendered from the standardized `kind` so they can be translated, which
+    // is the whole point of `optionLabel`. Clicking the fixture's English name
+    // stopped working the day that landed.
+    fireEvent.click(screen.getByText('Allow once'))
     expect(onRespond).toHaveBeenCalledTimes(1)
     expect(onRespond).toHaveBeenCalledWith({ outcome: { outcome: 'selected', optionId: 'allow' } })
 
