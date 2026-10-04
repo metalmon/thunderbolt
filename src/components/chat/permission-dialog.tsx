@@ -107,10 +107,10 @@ export const PermissionDialog = ({
 
   const allowOption = findAllowOption(request.options)
   const toolCall = request.toolCall
-  // INTERIM (fork/perm-title-interim): ZeroClaw sends a pre-composed ENGLISH title like
-  // "Approve search?" and ACP carries no structured tool-name field. Until ZeroClaw
+  // INTERIM (fork/perm-title-interim): Volt sends a pre-composed ENGLISH title like
+  // "Approve search?" and ACP carries no structured tool-name field. Until Volt
   // localizes the title itself, transform that one pattern so the verb is localized while
-  // the agent-supplied tool name is preserved. Self-disabling: once ZeroClaw sends a
+  // the agent-supplied tool name is preserved. Self-disabling: once Volt sends a
   // non-"Approve …?" (e.g. Russian) title, the match fails and we fall through to it.
   const rawTitle = toolCall?.title
   const approveMatch = rawTitle?.match(/^Approve (.+)\?$/)
