@@ -92,6 +92,13 @@ const buildSsoPlugins = (database: typeof DbType) => {
 
     return [
       sso({
+        // MUST stay true: it defaults to false, and left there a user's groups
+        // would be captured once at first sign-in and never refreshed, so a group
+        // removed in the IdP would keep working indefinitely. Even with it on,
+        // revocation lands only at the next sign-in — an existing session keeps
+        // asserting the old groups for its lifetime, which is days, not the 15
+        // minutes the token lives. Revoking the session is the lever today;
+        // re-provisioning on session refresh is the untaken option.
         provisionUserOnEveryLogin: true,
         provisionUser: forkProvisionVoltdGroups({ database }),
         defaultSSO: [
@@ -122,6 +129,13 @@ const buildSsoPlugins = (database: typeof DbType) => {
 
     return [
       sso({
+        // MUST stay true: it defaults to false, and left there a user's groups
+        // would be captured once at first sign-in and never refreshed, so a group
+        // removed in the IdP would keep working indefinitely. Even with it on,
+        // revocation lands only at the next sign-in — an existing session keeps
+        // asserting the old groups for its lifetime, which is days, not the 15
+        // minutes the token lives. Revoking the session is the lever today;
+        // re-provisioning on session refresh is the untaken option.
         provisionUserOnEveryLogin: true,
         provisionUser: forkProvisionVoltdGroups({ database }),
         defaultSSO: [
