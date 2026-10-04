@@ -51,19 +51,47 @@ Write-Host "repo at master $head" -ForegroundColor Cyan
 # ── 1. desktop installers, from CI ────────────────────────────────────────────
 if ($Skip -notcontains 'desktop') {
     if (-not $RunId) { Write-Error "-RunId is required unless -Skip desktop. See the help."; exit 1 }
-    $runSha = (gh run view $RunId -R $Repo --json headSha --jq .headSha).Trim()
-    if ($runSha -notlike "$head*") {
-        Write-Warning "run $RunId built $($runSha.Substring(0,9)), but master is at $head — the installers will not match this checkout."
+
+    # Advisory only — a failure here (GitHub's secondary rate limit fires readily
+    # after a burst of gh calls) must not stop the refresh, and must not look like
+    # a null-reference crash either.
+    $runSha = $null
+    try { $runSha = (gh run view $RunId -R $Repo --json headSha --jq .headSha 2>$null | Out-String).Trim() } catch { }
+    if ($runSha) {
+        if ($runSha -notlike "$head*") {
+            Write-Warning "run $RunId built $($runSha.Substring(0, 9)), but master is at $head — the installers will not match this checkout."
+        }
+    } else {
+        Write-Warning "could not read run $RunId (rate limit?); skipping the commit check and trying the download anyway."
     }
+
+    # Download into a staging directory FIRST and only then replace what the kit
+    # has. Clearing up front and failing on the download — which is exactly what a
+    # rate limit does — would leave the kit with no installers at all.
     $desktop = Join-Path $KitPath "desktop"
-    # gh refuses to write over an existing artifact directory, and leaving the old
-    # bundles behind would ship two versions side by side.
-    Get-ChildItem $desktop -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-        Write-Host "  clearing $($_.Name)"
-        Remove-Item (Join-Path $_.FullName '*') -Recurse -Force
+    $staging = Join-Path ([System.IO.Path]::GetTempPath()) "volt-kit-desktop-$RunId"
+    if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+
+    Write-Host "downloading artifacts of run $RunId ..." -ForegroundColor Cyan
+    gh run download $RunId -R $Repo -D $staging
+    $fetched = @(Get-ChildItem $staging -Recurse -File)
+    if ($LASTEXITCODE -ne 0 -or $fetched.Count -eq 0) {
+        Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Warning "artifact download failed — desktop/ left untouched."
+        Write-Warning "Retry later with:  -Skip images,config"
+        Write-Warning "or download them by hand from https://github.com/$Repo/actions/runs/$RunId"
+        Write-Warning "and unzip each artifact into desktop/<artifact name>/."
+        exit 1
     }
-    Write-Host "downloading artifacts of run $RunId into desktop/ ..." -ForegroundColor Cyan
-    gh run download $RunId -R $Repo -D $desktop
+
+    foreach ($dir in Get-ChildItem $staging -Directory) {
+        $target = Join-Path $desktop $dir.Name
+        if (Test-Path $target) { Remove-Item (Join-Path $target '*') -Recurse -Force }
+        else { New-Item -ItemType Directory -Force -Path $target | Out-Null }
+        Copy-Item (Join-Path $dir.FullName '*') $target -Recurse -Force
+    }
+    Remove-Item $staging -Recurse -Force
     Get-ChildItem $desktop -Recurse -File | ForEach-Object {
         Write-Host ("  {0,-46} {1,6:N1} MB" -f $_.Name, ($_.Length / 1MB))
     }
