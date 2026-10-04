@@ -27,8 +27,9 @@ import {
  * newest defaults across devices (THU-637). Changing defaults without bumping
  * the version breaks that ordering silently.
  *
- * Fork note: `defaultModels` ships the free-tier OpenRouter catalog only
- * (see the header on `defaultModels` in models.ts). The upstream Opus 5 / GLM
+ * Fork note: `defaultModels` is EMPTY — the free-tier OpenRouter entry was removed
+ * for the closed-perimeter pilot (see the header on `defaultModels` in models.ts),
+ * so the loops below iterate nothing by design. The upstream Opus 5 / GLM
  * rows stay exported for automations/eval but are intentionally absent here.
  */
 const computeSnapshotHash = () =>

@@ -48,7 +48,13 @@ export const pickModelsDefaults = (server: ServerModelsDefaults | undefined): Mo
     server.data.length > 0
   ) {
     const bundledIds = new Set(defaultModels.map((m) => m.id))
-    if (server.data.some((m) => bundledIds.has(m.id))) {
+    // An EMPTY bundle (this fork ships no models) makes the overlap rule
+    // meaningless rather than strict: there is no bundle-known row for
+    // `cleanupRemovedDefaults` to retire and no local state a payload could wipe,
+    // so demanding an overlap would reject every well-formed payload and leave the
+    // deployment with no models at all. Overlap is required only when there IS a
+    // bundle to protect.
+    if (bundledIds.size === 0 || server.data.some((m) => bundledIds.has(m.id))) {
       // Backends that predate the map omit it; its models then fall back to the generic rules and detection.
       return { version: server.version, data: server.data, imageSupport: server.imageSupport ?? {} }
     }
