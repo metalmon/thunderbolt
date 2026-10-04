@@ -59,6 +59,10 @@ describe('MobileActionSheet', () => {
 
     const backdrops = document.querySelectorAll('[data-slot="drawer-overlay"]')
     expect(backdrops).toHaveLength(2)
-    expect(backdrops[1]).toHaveClass('bg-black/30', 'backdrop-blur-xs')
+    // Nested overlays dim without blurring (eece0f367): animating opacity over a
+    // backdrop blur is expensive on weak hardware, and a nested drawer stacks two
+    // of them. Assert the decision, not the exact tint class.
+    expect((backdrops[1] as HTMLElement).className).toMatch(/bg-black\//)
+    expect((backdrops[1] as HTMLElement).className).not.toMatch(/backdrop-blur/)
   })
 })
