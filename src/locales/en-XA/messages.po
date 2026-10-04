@@ -839,6 +839,7 @@ msgstr ""
 msgid "Confirm this code matches the one in your terminal."
 msgstr ""
 
+#: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connect {providerName}"
