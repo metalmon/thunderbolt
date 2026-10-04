@@ -4,19 +4,36 @@
 
 /**
  * `user.groups` is authorization input: the backend asserts it in the token a
- * voltd gateway maps onto permission profiles. If a user could write it, they
+ * voltd gateway maps onto permission profiles. If a user could write it they
  * could grant themselves any agent the gateway offers — so the field is declared
  * `input: false`, and these are the tests that hold that line.
  *
  * Route-level on purpose. A unit test of the declaration would pass whether or not
- * Better Auth honours the flag; only driving the real endpoints proves it.
+ * Better Auth honours the flag; only driving the real endpoints proves it. An
+ * anonymous session is used because it is the cheapest real session this backend
+ * issues — the property under test has nothing to do with how the user signed in.
  */
 
 import { createAuth } from '@/auth/auth'
+import { clearSettingsCache } from '@/config/settings'
 import { user } from '@/db/schema'
 import { createTestDb } from '@/test-utils/db'
 import { eq } from 'drizzle-orm'
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
+
+let savedAllowAnonymous: string | undefined
+
+beforeAll(() => {
+  savedAllowAnonymous = process.env.AUTH_ALLOW_ANONYMOUS
+  process.env.AUTH_ALLOW_ANONYMOUS = 'true'
+  clearSettingsCache()
+})
+
+afterAll(() => {
+  if (savedAllowAnonymous === undefined) delete process.env.AUTH_ALLOW_ANONYMOUS
+  else process.env.AUTH_ALLOW_ANONYMOUS = savedAllowAnonymous
+  clearSettingsCache()
+})
 
 describe('user.groups is not user-writable', () => {
   let auth: ReturnType<typeof createAuth>
@@ -34,45 +51,39 @@ describe('user.groups is not user-writable', () => {
     if (cleanup) await cleanup()
   })
 
-  const readGroups = async (email: string) => {
-    const rows = await db.select().from(user).where(eq(user.email, email))
-    return rows[0]?.groups
-  }
+  const rows = () => db.select().from(user)
 
-  it('ignores groups supplied at sign-up', async () => {
-    const email = 'escalate-create@example.com'
-    await auth.api.signUpEmail({
-      body: {
-        email,
-        password: 'testpassword123',
-        name: 'Test User',
-        // The attack: ask for a group the gateway maps to its operator profile.
-        groups: ['volt-admins'],
-      } as unknown as Parameters<typeof auth.api.signUpEmail>[0]['body'],
-    })
+  // There is deliberately no create-path test. The only endpoint that would take
+  // arbitrary user fields on creation is email+password sign-up, and this
+  // deployment has it disabled outright (`EMAIL_PASSWORD_SIGN_UP_DISABLED`); the
+  // paths that do create users — anonymous sign-in and email OTP — accept no such
+  // body. A test there would pass whether or not the field were protected, because
+  // no user is created at all. `input: false` still covers creation if a sign-up
+  // path is ever enabled; what cannot be done today is prove it here.
 
-    expect(await readGroups(email)).toEqual([])
-  })
+  it('never lets update-user overwrite what provisioning wrote', async () => {
+    const signIn = (await auth.api.signInAnonymous({ asResponse: true })) as Response
+    const cookie = signIn.headers.get('set-cookie')
+    expect(cookie).toBeTruthy()
 
-  it('ignores groups supplied to update-user, leaving what provisioning wrote', async () => {
-    const email = 'escalate-update@example.com'
-    const signUp = await auth.api.signUpEmail({
-      body: { email, password: 'testpassword123', name: 'Test User' },
-      asResponse: true,
-    })
-    const cookie = signUp.headers.get('set-cookie') ?? ''
-    expect(cookie).not.toBe('')
-
+    const [created] = await rows()
     // What the SSO provisioning hook would have written.
-    await db.update(user).set({ groups: ['volt-crm'] }).where(eq(user.email, email))
+    await db.update(user).set({ groups: ['volt-crm'] }).where(eq(user.id, created.id))
 
     await auth.api
       .updateUser({
-        body: { groups: ['volt-admins'] } as unknown as Parameters<typeof auth.api.updateUser>[0]['body'],
-        headers: new Headers({ cookie }),
+        body: { groups: ['volt-admins'] } as never,
+        headers: new Headers({ cookie: cookie! }),
       })
-      .catch(() => undefined) // A rejection is an acceptable outcome; a write is not.
+      .catch(() => undefined)
 
-    expect(await readGroups(email)).toEqual(['volt-crm'])
+    const [after] = await rows()
+    expect(after.groups).toEqual(['volt-crm'])
+  })
+
+  it('leaves the column empty for a session that was never provisioned', async () => {
+    await auth.api.signInAnonymous({ asResponse: true })
+    const [created] = await rows()
+    expect(created.groups).toEqual([])
   })
 })
