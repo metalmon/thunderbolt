@@ -48,6 +48,27 @@ describe('app-version gate', () => {
     it('does not exempt sso lookalikes without the trailing slash', () => {
       expect(isExempt('/v1/api/auth/ssoXYZ', 'GET')).toBe(false)
     })
+
+    // Named rather than left to the loop above: the loop stays green if an entry
+    // is dropped in a refactor, and dropping either of these is silent and
+    // severe. A voltd gateway fetches both as a Rust daemon with no
+    // X-App-Version, so a 426 there stops it verifying ANY token — which it
+    // answers with deny-all, nowhere near the cause.
+    it('exempts the discovery document a gateway fetches without a version header', () => {
+      expect(isExempt('/v1/.well-known/openid-configuration', 'GET')).toBe(true)
+    })
+
+    it('exempts the JWKS a gateway fetches without a version header', () => {
+      expect(isExempt('/v1/voltd/jwks', 'GET')).toBe(true)
+    })
+
+    it('still gates /v1/voltd/token — our own client calls it and does send the header', () => {
+      expect(isExempt('/v1/voltd/token', 'GET')).toBe(false)
+    })
+
+    it('does not exempt another .well-known route added later', () => {
+      expect(isExempt('/v1/.well-known/something-else', 'GET')).toBe(false)
+    })
   })
 
   describe('enforcement', () => {
