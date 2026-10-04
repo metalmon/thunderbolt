@@ -68,8 +68,14 @@ export const deleteModelProfileForModel = async (db: AnyDrizzleDatabase, modelId
 }
 
 /** Reset a profile to its default values */
-export const resetModelProfileToDefault = async (db: AnyDrizzleDatabase, modelId: string): Promise<void> => {
-  const defaultProfile = defaultModelProfiles.find((p) => p.modelId === modelId)
+export const resetModelProfileToDefault = async (
+  db: AnyDrizzleDatabase,
+  modelId: string,
+  // Same reason as `createDefaultModelProfile`: a build that bundles no profiles
+  // can only ever miss this lookup, so the bundle is injectable.
+  bundled: readonly ModelProfile[] = defaultModelProfiles,
+): Promise<void> => {
+  const defaultProfile = bundled.find((p) => p.modelId === modelId)
   if (!defaultProfile) {
     return
   }
