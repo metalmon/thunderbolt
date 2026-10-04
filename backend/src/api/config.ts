@@ -86,6 +86,15 @@ export const createConfigRoutes = (settings: Settings, brandingAssets: BrandingA
         settings.branding &&
         toPublicBranding(settings.branding, { fonts: brandingAssets.fonts(), logo: brandingAssets.logo() }),
       // Omit when unset so the frontend treats it as "no enforcement" without parsing an empty string as semver.
+      // Which OAuth integrations this deployment can actually offer. Derived from
+      // whether a client id is configured rather than from a separate switch, so a
+      // closed-perimeter install that never sets one simply has none — and there is
+      // no second source of truth to forget. The client uses this to drop the
+      // onboarding step that would otherwise invite a connection it cannot make.
+      oauthProviders: {
+        google: settings.googleClientId !== '',
+        microsoft: settings.microsoftClientId !== '',
+      },
       minAppVersion: settings.minAppVersion || undefined,
       defaults: {
         models: {

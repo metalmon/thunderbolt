@@ -36,6 +36,11 @@ export type AppConfig = {
   passkeyEnabled?: boolean
   /** The WebAuthn RP ID passkeys are registered under. Absent = the page's hostname. */
   passkeyRpId?: string
+  /** Which OAuth integrations the deployment can offer, derived server-side from
+   *  whether a client id is configured. Absent (offline/standalone, or an older
+   *  server) means "unknown", which the selector below treats as available so
+   *  nothing disappears for a client talking to a backend that predates this. */
+  oauthProviders?: { google?: boolean; microsoft?: boolean }
   /** Minimum semver string the server allows. Clients below this are hard-blocked
    *  until they upgrade. Absent/empty = no enforcement. */
   minAppVersion?: string
@@ -121,6 +126,19 @@ export const selectBrandLogo = (config: AppConfig): { light: string; dark: strin
 
 /** Whether the UI offers adding custom agents. Absent config defaults to allowed. */
 export const selectAllowCustomAgents = (config: AppConfig): boolean => config.allowCustomAgents !== false
+
+/**
+ * Whether this deployment can offer any OAuth integration at all.
+ *
+ * Absent config reads as available on purpose: a client in standalone mode, or
+ * talking to a server from before this field existed, should keep the behaviour it
+ * had rather than silently lose a step. A deployment that genuinely offers none
+ * says so explicitly by sending both false.
+ */
+export const selectHasOAuthProviders = (config: AppConfig): boolean =>
+  config.oauthProviders === undefined ||
+  config.oauthProviders.google !== false ||
+  config.oauthProviders.microsoft !== false
 
 /** Whether the server explicitly accepts debug transcript uploads. Absent
  * config is disabled because standalone mode has no backend recipient. */
