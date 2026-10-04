@@ -1043,27 +1043,11 @@ describe('Models DAL', () => {
   })
 
   describe('createModel auto-profile', () => {
-    it('should auto-create a default profile for a known seeded model', async () => {
-      const db = getDb()
-
-      // Create a model with the same ID as a seeded default (OpenRouter Free)
-      await createModel(getDb(), {
-        id: defaultModelOpenRouterFree.id,
-        provider: 'openrouter',
-        name: 'OpenRouter Free',
-        model: 'openrouter/free',
-      })
-
-      // Verify a profile was auto-created
-      const profile = await db
-        .select()
-        .from(modelProfilesTable)
-        .where(eq(modelProfilesTable.modelId, defaultModelOpenRouterFree.id))
-        .get()
-      expect(profile).not.toBeUndefined()
-      expect(profile?.temperature).toBe(0.2)
-    })
-
+    // The "known seeded model" case is gone with the catalog: this fork bundles no
+    // model profiles, so `createDefaultModelProfile` can only ever miss here. That
+    // branch is covered where the bundle can be injected — see
+    // `createDefaultModelProfile` in model-profiles.test.ts. What remains true at
+    // this level is the miss, which is what the next test asserts.
     it('should not create a profile for an unknown model ID', async () => {
       const db = getDb()
       const modelId = uuidv7()
