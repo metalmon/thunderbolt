@@ -48,7 +48,17 @@ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"
 sha2 = "0.10"
 hex = "0.4"
 tauri-plugin-devtools = "2.0.1"
-tauri-plugin-http = { version = "2.5.9", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "http2", "charset", "macos-system-configuration"] }
+# Upstream already asks for `rustls-tls-native-roots` here, which is what makes an
+# on-prem CA installed in the machine trust store work on the native-fetch path.
+# Fork delta: `cookies`, so that path carries the session cookie like the webview does.
+tauri-plugin-http = { version = "2.5.9", default-features = false, features = [
+    "rustls-tls",
+    "rustls-tls-native-roots",
+    "http2",
+    "charset",
+    "macos-system-configuration",
+    "cookies",
+] }
 tauri-plugin-process = "2.3.1"
 tauri-plugin-fs = "2.4.4"
 tauri-plugin-deep-link = "2.4"
