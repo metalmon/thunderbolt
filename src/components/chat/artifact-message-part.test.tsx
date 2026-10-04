@@ -9,8 +9,30 @@ import { resetAppSettledForTests } from '@/hooks/use-app-settled'
 import type { ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
 import { mockIntersectionObserver } from '@/test-utils/mock-intersection-observer'
 import { act, fireEvent, render } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { ArtifactMessagePart } from './artifact-message-part'
+
+// The frame no longer renders synchronously: since the sandbox-host redesign its
+// `src` comes from registering the document with the host (a Tauri IPC round-trip
+// on desktop, a service worker on web), and neither exists under jsdom — so the
+// component sits on its placeholder and no iframe is ever queried. Stand in for the
+// host, and the registrations it receives become the thing worth asserting: the
+// script gate now lives in the CSP we hand it, not in an iframe attribute (which
+// desktop still sets and web deliberately omits).
+const registrations: { html: string; csp: string }[] = []
+mock.module('@/artifacts/sandbox-host', () => ({
+  registerSandboxContent: async (content: { html: string; csp: string }) => {
+    registrations.push(content)
+    return { url: `sandbox://test/${registrations.length}`, revoke: () => {} }
+  },
+}))
+
+/** Lets the registration promise resolve so the iframe is in the DOM. */
+const settleFrame = async () => {
+  await act(async () => {
+    await Promise.resolve()
+  })
+}
 
 type PartOverrides = {
   toolCallId: string
@@ -53,29 +75,36 @@ describe('ArtifactMessagePart', () => {
     expect(container.querySelector('iframe')).toBeNull()
   })
 
-  it('reveals the live preview once the streaming HTML has body content', () => {
+  it('reveals the live preview once the streaming HTML has body content', async () => {
     const { container } = renderPart(
       toolPart({ toolCallId: 'a1b', state: 'input-streaming', html: '<body><h1>Hi</h1></body>' }),
     )
-    const iframe = container.querySelector('iframe')
-    expect(iframe).not.toBeNull()
-    expect(iframe?.getAttribute('sandbox')).toBe('') // scripts off during the preview
+    await settleFrame()
+    expect(container.querySelector('iframe')).not.toBeNull()
+    // Scripts off during the preview — asserted where the gate now lives.
+    expect(registrations.at(-1)?.csp).toContain('sandbox')
+    expect(registrations.at(-1)?.csp).not.toContain('allow-scripts')
   })
 
   it('renders a verified inline artifact, running scripts once visible + settled', async () => {
     const { container } = renderPart(toolPart({ toolCallId: 'a2', state: 'output-available', output: { ok: true } }))
-    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBe('')
+    await settleFrame()
+    expect(registrations.at(-1)?.csp).not.toContain('allow-scripts')
     await act(async () => {
       await getClock().tickAsync(1000)
     })
-    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBe('allow-scripts')
+    await settleFrame()
+    // Re-registered with scripts enabled once the artifact is visible and settled.
+    expect(registrations.at(-1)?.csp).toContain('allow-scripts')
+    expect(container.querySelector('iframe')).not.toBeNull()
     expect(container.textContent).toContain('My Artifact')
   })
 
-  it('toggles between inline and the side panel — never both at once', () => {
+  it('toggles between inline and the side panel — never both at once', async () => {
     const { container, getByTitle, getByText } = renderPart(
       toolPart({ toolCallId: 'a3', state: 'output-available', output: { ok: true } }),
     )
+    await settleFrame()
     expect(container.querySelector('iframe')).not.toBeNull()
 
     // Open in the side panel → the transcript collapses to a slim placeholder (no iframe).
@@ -85,10 +114,11 @@ describe('ArtifactMessagePart', () => {
     expect(container.querySelector('iframe')).toBeNull()
     expect(container.textContent).toContain('shown in side panel')
 
-    // Show inline → the iframe returns.
+    // Show inline → the iframe returns, once it has re-registered with the host.
     act(() => {
       fireEvent.click(getByText('Show inline'))
     })
+    await settleFrame()
     expect(container.querySelector('iframe')).not.toBeNull()
   })
 
