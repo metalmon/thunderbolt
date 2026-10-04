@@ -46,10 +46,10 @@ are NOT in this repo (≈850 MB). Refresh them whenever `master` moves:
 
 ```powershell
 docker compose -p bucher-thunderbolt -f powersync-service/docker-compose.yml build backend web
-docker tag bucher-thunderbolt-backend:latest thunderbolt-backend:pilot
-docker tag bucher-thunderbolt-web:latest     thunderbolt-web:pilot
-docker save thunderbolt-backend:pilot | gzip > <kit>\thunderbolt\images\thunderbolt-backend.tar.gz
-docker save thunderbolt-web:pilot     | gzip > <kit>\thunderbolt\images\thunderbolt-web.tar.gz
+docker tag bucher-thunderbolt-backend:latest volt-backend:pilot
+docker tag bucher-thunderbolt-web:latest     volt-web:pilot
+docker save volt-backend:pilot | gzip > <kit>\thunderbolt\images\volt-backend.tar.gz
+docker save volt-web:pilot     | gzip > <kit>\thunderbolt\images\volt-web.tar.gz
 ```
 
 Build from `master`, not from a fork branch — a fork branch's working tree is

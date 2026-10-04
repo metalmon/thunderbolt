@@ -25,7 +25,7 @@ backend.volt.oktaplus.ru
 Если DNS-администратора нет на месте — запись в `hosts` на машинах пилота.
 TLS от этого не страдает: сертификат выписан на имя, не на адрес.
 
-Keycloak живёт на **том же имени**, порт 8443 — поэтому нужен ровно один
+Keycloak живёт на **том же имени**, порт 8444 (8443 занят публичным /acp voltd) — поэтому нужен ровно один
 сертификат и ровно одна DNS-запись. Делить 443 с приложением он не может:
 Keycloak занимает пути в корне (`/realms`, `/resources`), а перенос на
 относительный путь ломает issuer уже импортированного realm'а.
@@ -122,7 +122,7 @@ cat backend.crt ca.crt > fullchain.pem   # privkey.pem уже лежит ряд�
 cd powersync-service
 # .env
 PUBLIC_URL=https://backend.volt.oktaplus.ru
-KEYCLOAK_PUBLIC_URL=https://backend.volt.oktaplus.ru:8443
+KEYCLOAK_PUBLIC_URL=https://backend.volt.oktaplus.ru:8444
 VOLT_TLS_SERVER_NAME=backend.volt.oktaplus.ru
 VOLT_TLS_CERT_DIR=./certs        # fullchain.pem + privkey.pem
 
@@ -140,7 +140,7 @@ docker compose --profile tls up -d
 
 ```sh
 curl -v https://backend.volt.oktaplus.ru/v1/health
-curl -v https://backend.volt.oktaplus.ru:8443/realms/volt/.well-known/openid-configuration
+curl -v https://backend.volt.oktaplus.ru:8444/realms/volt/.well-known/openid-configuration
 ```
 
 ## Клиент

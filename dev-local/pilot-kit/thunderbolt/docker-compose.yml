@@ -1,0 +1,171 @@
+# Thunderbolt pilot kit — air-gapped subset of powersync-service/docker-compose.yml.
+# Services: web, tls (profile), backend, keycloak, powersync, postgres.
+# Firecrawl/SearXNG are intentionally NOT included (decision: full stack minus
+# web-search/scrape). Auth is Keycloak SSO (AUTH_MODE=oidc) — no anonymous mode.
+# Email is log-only: there is no SMTP service; OTP/magic-link URLs appear in
+# `docker compose logs backend` only. See README.md for the operator workflow.
+#
+# All `build:` directives are replaced with `image:` pointing at the tags
+# `scripts/load-images.sh|ps1` restores from `images/*.tar.gz`. All editable
+# config lives under ./conf (bind mounts); Postgres data is a bind mount under
+# ./data so nothing is hidden in an anonymous volume.
+#
+# Variable substitution + backend env come from a single `.env` next to this
+# file (generate with scripts/gen-secrets.sh|ps1 from conf/.env.example).
+
+services:
+  web:
+    restart: unless-stopped
+    image: volt-web:pilot
+    depends_on:
+      - backend
+      - powersync
+    environment:
+      # The nginx template below reads these; the image carries the same values
+      # as ENV defaults. Naming them here too means the mounted config and the
+      # image no longer have to be refreshed together — otherwise a config-only
+      # update against an older image renders an empty upstream host and nginx
+      # answers 502 without saying why.
+      VOLT_BACKEND_HOST: backend
+      VOLT_BACKEND_PORT: 8000
+      VOLT_POWERSYNC_HOST: powersync
+      VOLT_POWERSYNC_PORT: 8080
+    volumes:
+      - ./conf/nginx/web-nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./conf/nginx/security-headers.conf:/etc/nginx/snippets/security-headers.conf:ro
+    ports:
+      - "${WEB_PORT:-3000}:80"
+
+  tls:
+    restart: unless-stopped
+    # TLS terminator for the closed perimeter (no tunnel in front). Opt-in via
+    # the `tls` profile: `docker compose --profile tls up -d`. Requires
+    # fullchain.pem + privkey.pem in VOLT_TLS_CERT_DIR — see
+    # README-pilot-tls.md (private CA, hosts-file, client trust store).
+    image: nginx:alpine
+    profiles: ["tls"]
+    depends_on:
+      - web
+    environment:
+      # Must equal the TLS cert's SAN and the client build's cloud URL host.
+      # Not a compose-level ${VAR:?...} requirement (that would fail `config`
+      # even when the tls profile isn't active) — scripts/up.sh|ps1 checks
+      # this is set before starting the tls profile.
+      VOLT_TLS_SERVER_NAME: ${VOLT_TLS_SERVER_NAME:-}
+      VOLT_TLS_UPSTREAM_HOST: web
+      VOLT_TLS_UPSTREAM_PORT: 80
+      VOLT_TLS_KEYCLOAK_HOST: keycloak
+      VOLT_TLS_KEYCLOAK_PORT: 8080
+    volumes:
+      - ./conf/nginx/tls-nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ${VOLT_TLS_CERT_DIR:-./conf/certs}:/etc/nginx/certs:ro
+    ports:
+      - "${VOLT_TLS_HTTP_PORT:-80}:80"
+      - "${VOLT_TLS_HTTPS_PORT:-443}:443"
+      # Keycloak on the same name/certificate, its own port.
+      - "${VOLT_TLS_KEYCLOAK_HTTPS_PORT:-8444}:8443"
+
+  backend:
+    restart: unless-stopped
+    # Some closed-perimeter hosts resolve AAAA-first and hang on an unreachable
+    # IPv6 route; force IPv4 inside the container.
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.default.disable_ipv6=1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    image: volt-backend:pilot
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres
+      # All public-origin URLs derive from PUBLIC_URL so the SPA, /v1 and
+      # /powersync stay same-origin behind one host name/tunnel.
+      APP_URL: ${PUBLIC_URL:-http://localhost:3000}
+      BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3000}
+      TRUSTED_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},${KEYCLOAK_PUBLIC_URL:-http://localhost:8180},http://keycloak:8080
+      # Desktop (Tauri) origins alongside the web origin.
+      CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:3000},http://tauri.localhost,tauri://localhost,http://localhost:1420
+      POWERSYNC_URL: ${PUBLIC_URL:-http://localhost:3000}/powersync
+      NO_PROXY: localhost,127.0.0.1,::1,postgres,keycloak,powersync,backend
+      no_proxy: localhost,127.0.0.1,::1,postgres,keycloak,powersync,backend
+      # Keycloak SSO only — no anonymous sessions.
+      AUTH_ALLOW_ANONYMOUS: "false"
+      AUTH_MODE: oidc
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-volt-app}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-volt-dev-secret}
+      # Browser-facing issuer = Keycloak's own public URL (must match KC_HOSTNAME
+      # below and the realm's issuer). Internal discovery stays on keycloak:8080.
+      OIDC_ISSUER: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/volt
+      OIDC_DISCOVERY_URL: http://keycloak:8080/realms/volt/.well-known/openid-configuration
+      # Trust a private CA for the backend's outbound universal-proxy HTTPS
+      # hops (LAN model/MCP endpoints signed by the pilot's own CA). Empty is
+      # safe. See README-pilot-tls.md.
+      NODE_EXTRA_CA_CERTS: ${VOLT_BACKEND_EXTRA_CA:-}
+    volumes:
+      - ${VOLT_TLS_CERT_DIR:-./conf/certs}:/etc/volt/certs:ro
+    ports:
+      - "8000:8000"
+
+  keycloak:
+    restart: unless-stopped
+    # Self-hosted OIDC IdP. start-dev + embedded H2 (fine for a pilot — the
+    # `volt` realm is re-imported from conf/keycloak/realm.json every boot).
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HTTP_ENABLED: "true"
+      # Own public URL. Must equal the backend's OIDC_ISSUER origin.
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+      # Honour X-Forwarded-* from the `tls` service; harmless without it.
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./conf/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+    ports:
+      - "8180:8080"
+
+  powersync:
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: docker.io/journeyapps/powersync-service:latest
+    command: ["start", "-r", "unified"]
+    volumes:
+      - ./conf/powersync/config.yaml:/config/config.yaml:ro
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/config.yaml
+    # Not reached directly by clients — the web/tls proxy serves /powersync
+    # same-origin. Loopback-only.
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  postgres:
+    image: docker.io/library/postgres:18-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - PGPORT=5432
+    volumes:
+      # postgres:18+ expects the bind mount at /var/lib/postgresql (no /data
+      # suffix) — it manages a version subdirectory itself.
+      - ./data/postgres:/var/lib/postgresql
+      - ./conf/postgres/init-db:/docker-entrypoint-initdb.d:ro
+    # Internal only (backend talks to it by service name). Loopback-only.
+    ports:
+      - "127.0.0.1:5433:5432"
+    command: ["postgres", "-c", "wal_level=logical"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
