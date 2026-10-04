@@ -1,16 +1,16 @@
-# Design: Citations / widgets / ACP deliver_file (Thunderbolt ↔ ZeroClaw)
+# Design: Citations / widgets / ACP deliver_file (Thunderbolt ↔ Volt)
 
 **Date:** 2026-07-18  
 **Status:** APPROVED — decisions frozen  
 **Primary owner:** Thunderbolt fork (`zeroclaw-integration` + `src/fork/zeroclaw/`)  
-**Companion:** ZeroClaw `docs/superpowers/specs/2026-07-18-deliver-file-return-uri-design.md`  
-**Sequencing:** ZeroClaw first (`uri` in `deliver_file` result), then Thunderbolt (ref-map + resolve)
+**Companion:** Volt `docs/superpowers/specs/2026-07-18-deliver-file-return-uri-design.md`  
+**Sequencing:** Volt first (`uri` in `deliver_file` result), then Thunderbolt (ref-map + resolve)
 
 ---
 
 ## 1. Problem / context
 
-ZeroClaw already delivers workspace files to ACP clients via standard wire:
+Volt already delivers workspace files to ACP clients via standard wire:
 
 `deliver_file` → ACP `tool_call_update.content` → `resource { uri, mimeType, blob }`
 
@@ -19,10 +19,10 @@ with `uri = attachment://deliver/<basename>` (sha storage basename).
 Thunderbolt already materializes outbound blobs into IndexedDB (`localFileId`) and shows a delivered-file card. What is still missing for a grounded ZC path:
 
 1. The **model-facing** `deliver_file` tool result does not expose the same `uri` the client receives, so the agent cannot reliably cite or widget-link that file.
-2. Assistant text may contain citation markers `[N]` and `<widget:document-result fileId=…>`. On the Haystack path these resolve via remote Deepset file ids + `GET /v1/haystack/files/:fileId`. On the ZeroClaw path there is **no** Haystack fetch — resolution must use locally materialized ACP blobs.
+2. Assistant text may contain citation markers `[N]` and `<widget:document-result fileId=…>`. On the Haystack path these resolve via remote Deepset file ids + `GET /v1/haystack/files/:fileId`. On the Volt path there is **no** Haystack fetch — resolution must use locally materialized ACP blobs.
 3. Pretty human names (`Договор.pdf`) must appear in UI, but **must not** extend the ACP resource schema (no `filename` on the wire).
 
-This slice closes the citation/widget loop for ZeroClaw without inventing ACP protocol extensions and without removing Haystack.
+This slice closes the citation/widget loop for Volt without inventing ACP protocol extensions and without removing Haystack.
 
 ---
 
@@ -43,7 +43,7 @@ This slice closes the citation/widget loop for ZeroClaw without inventing ACP pr
 
 - No ACP protocol extension (`filename`, required `_meta`, custom ContentBlock types).
 - No `git rm` / deletion of Haystack path in this slice.
-- No Haystack → Deepset fetch on the ZeroClaw agent path.
+- No Haystack → Deepset fetch on the Volt agent path.
 - No auto-deliver (agent still calls `deliver_file` explicitly).
 - No full citation UX redesign beyond resolve-to-local-file.
 - No P1 ACP `image` / P2 `audio` ContentBlocks (orthogonal roadmap).
@@ -73,7 +73,7 @@ This slice closes the citation/widget loop for ZeroClaw without inventing ACP pr
 ```mermaid
 sequenceDiagram
   participant Agent as ZC agent
-  participant ZC as ZeroClaw ACP
+  participant ZC as voltd ACP
   participant TB as Thunderbolt client
   participant IDB as IndexedDB
 
@@ -93,7 +93,7 @@ flowchart LR
   subgraph wire ["ACP wire (standard)"]
     R["resource\nuri + mimeType + blob"]
   end
-  subgraph zc ["ZeroClaw"]
+  subgraph zc ["Volt"]
     DF["deliver_file result\nuri = same as wire"]
   end
   subgraph tb ["Thunderbolt fork"]
@@ -134,7 +134,7 @@ Rules:
 - Fields on `resource`: **only** `uri`, `mimeType`, `blob` (plus any fields already required by the ACP EmbeddedResource schema that ZC already emits). **No `filename`.**
 - `_meta` is **not required** for this slice (Haystack `_meta.haystack*` remains Haystack-only).
 
-### 5.2 ZeroClaw `deliver_file` model-facing result
+### 5.2 Volt `deliver_file` model-facing result
 
 Must include `uri` identical to §5.1.
 
@@ -212,7 +212,7 @@ type DeliveredUriRef = {
 
 ## 6. TB resolve rules
 
-Apply on the **ZeroClaw / standard-ACP** path only. Haystack path keeps existing remote fetch.
+Apply on the **Volt / standard-ACP** path only. Haystack path keeps existing remote fetch.
 
 ### 6.1 Build map
 
@@ -264,7 +264,7 @@ Do **not** open upstream Thunderbolt PRs that include `src/fork/zeroclaw/` or th
 
 ---
 
-## 8. ZeroClaw change surface (pointer)
+## 8. Volt change surface (pointer)
 
 Minimal ZC work for this slice:
 
@@ -294,7 +294,7 @@ Pretty names come from [Document: …], never from uri basename alone if a Docum
 
 ## 10. Test plan (acceptance)
 
-### ZeroClaw
+### Volt
 
 - [ ] `deliver_file` success JSON contains `uri`.
 - [ ] ACP `tool_call_update` resource `uri` **===** tool-result `uri` (same string).
