@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { isRenderHtmlPart, renderHtmlOutput } from '@/artifacts/render-html-tool'
-// Fork-owned ZeroClaw delivered-file lift — see src/fork/zeroclaw/FORK.md
+// Fork-owned Volt delivered-file lift — see src/fork/zeroclaw/FORK.md
 import { toolPartHasDeliveredFiles } from '@/fork/zeroclaw/outbound-resource-blob'
 import { isUiResourcePart } from '@/fork/zeroclaw/ui-resource-part'
 import {
@@ -124,7 +124,7 @@ export const groupMessageParts = (parts: GroupableUIPart[]): GroupedUIPart[] => 
         return
       }
 
-      // Standard ACP outbound resource+blob (ZeroClaw deliver_file) — lift out
+      // Standard ACP outbound resource+blob (Volt deliver_file) — lift out
       // like render_html so preview/download is not buried in the tool group.
       if (toolPartHasDeliveredFiles(part)) {
         flushGroup()

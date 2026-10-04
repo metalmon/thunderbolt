@@ -36,7 +36,7 @@ import type {
   ToolCallStatus,
 } from '@agentclientprotocol/sdk'
 import type { HaystackDocumentMeta, HaystackReferenceMeta } from '@/types'
-// Fork-owned ZeroClaw ACP outbound blob materialization — see src/fork/zeroclaw/FORK.md
+// Fork-owned voltd ACP outbound blob materialization — see src/fork/zeroclaw/FORK.md
 import {
   enrichToolOutputWithDeliveredFiles,
   materializeOutboundResourceBlobs,
@@ -338,7 +338,7 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
             errorText: typeof update.rawOutput === 'string' ? update.rawOutput : JSON.stringify(update.rawOutput ?? {}),
           })
         } else {
-          // completed — a ZeroClaw `ui://` UI-resource (inline HTML) becomes an artifact;
+          // completed — a Volt `ui://` UI-resource (inline HTML) becomes an artifact;
           // otherwise standard resource+blob (deliver_file) → file card, keeping rawOutput text.
           const uiResource = extractUiResource(update.content)
           if (uiResource) {
