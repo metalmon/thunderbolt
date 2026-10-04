@@ -1,6 +1,6 @@
 # Haystack → standard ACP inventory (Thunderbolt fork)
 
-_Heystack = typo for Haystack._ Inventory of Haystack-specific wire/UI vs the standard ACP shapes ZeroClaw uses for live testing.
+_Heystack = typo for Haystack._ Inventory of Haystack-specific wire/UI vs the standard ACP shapes Volt uses for live testing.
 
 | Feature | Current Haystack wire / UI | Target standard ACP | Action |
 |--------|----------------------------|---------------------|--------|
