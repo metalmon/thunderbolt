@@ -71,7 +71,6 @@ export const createVoltdAgentProvider = (options: CreateVoltdAgentProviderOption
       const token = await options.service.mint({
         userId: user.id,
         groups: readPrincipalGroups(user),
-        name: user.name,
         email: user.email,
       })
       const roster = await fetchRoster({
