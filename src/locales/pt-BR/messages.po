@@ -4015,6 +4015,11 @@ msgstr "Isso compartilhará sua chave de criptografia com o dispositivo, permiti
 msgid "Thought for {duration}"
 msgstr "Pensou por {duration}"
 
+#: src/components/app-logo.tsx
+#: src/components/signed-out.tsx
+msgid "Thunderbolt"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
 msgstr "Thunderbolt (hospedado, privado)"
