@@ -297,7 +297,7 @@ const extractPriorTranscript = (init: RequestInit): string | undefined => {
   return transcript.length > 0 ? transcript : undefined
 }
 
-/** Fold session skill disclosure, ZeroClaw deliver_file cite note, forced
+/** Fold session skill disclosure, Volt deliver_file cite note, forced
  *  user-skill instructions, and fallback prior transcript into ACP's single
  *  prompt-text channel. Order: cite note first (always-on for ACP), session
  *  skill disclosure next, skill instructions (behavioral, system-like), the
@@ -729,7 +729,7 @@ export const connectAcpAdapter = async (
     // synchronous return value so the AI SDK can attach immediately.
     void (async () => {
       try {
-        // Fork: if this turn is a canvas action, attach its MCP-Apps `_meta` so ZeroClaw
+        // Fork: if this turn is a canvas action, attach its MCP-Apps `_meta` so Volt
         // dispatches the tool/prompt (Wire B). The action rides the last user message's
         // metadata (picked the same way buildPromptBlocks selects the turn's user message).
         const canvasAction = getCanvasAction([...parseRequestMessages(init)].reverse().find((m) => m.role === 'user') ?? {})
