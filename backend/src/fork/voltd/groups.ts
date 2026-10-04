@@ -27,6 +27,8 @@
  * differ again.
  */
 
+import { createStandaloneLogger } from '@/config/logger'
+import { getSettings } from '@/config/settings'
 import type { QueryableDatabase } from '@/db/client'
 import { user } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -49,6 +51,8 @@ export type ProvisionArgs = {
 
 export type ProvisionVoltdGroupsOptions = {
   database: QueryableDatabase
+  /** Defaults to the app's standalone logger, built lazily so importing this
+   *  module does not read settings. */
   logger?: GroupsLogger
   /** Test seam — production reads `VOLTD_GROUPS_CLAIM`. */
   claimPath?: string
@@ -105,12 +109,13 @@ export const resetClaimNameLoggingForTesting = (): void => {
  */
 export const forkProvisionVoltdGroups = (options: ProvisionVoltdGroupsOptions) => {
   const claimPath = options.claimPath ?? readGroupsClaimPath()
+  const logger = options.logger ?? createStandaloneLogger(getSettings())
 
   return async ({ user: ssoUser, userInfo }: ProvisionArgs): Promise<void> => {
     try {
       if (!claimNamesLogged) {
         claimNamesLogged = true
-        options.logger?.info(
+        logger.info(
           { claimPath, claimNames: Object.keys(userInfo ?? {}).sort() },
           'voltd groups: claim names offered by the identity provider',
         )
@@ -124,7 +129,7 @@ export const forkProvisionVoltdGroups = (options: ProvisionVoltdGroupsOptions) =
       await options.database.update(user).set({ groups }).where(eq(user.id, ssoUser.id))
     } catch (error) {
       // Never rethrow: the plugin awaits this before the session cookie is set.
-      options.logger?.warn({ err: error, userId: ssoUser?.id }, 'voltd groups: provisioning failed; session has none')
+      logger.warn({ err: error, userId: ssoUser?.id }, 'voltd groups: provisioning failed; session has none')
     }
   }
 }
