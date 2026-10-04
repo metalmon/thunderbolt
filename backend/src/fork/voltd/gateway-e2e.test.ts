@@ -77,7 +77,18 @@ const startGateway = () =>
     },
   })
 
-const gatewayUrl = () => `ws://127.0.0.1:${server.port}/acp`
+/** The port Bun chose for the fixture gateway. Typed optional because `Server.port`
+ *  is, so read it once here instead of asserting at three call sites — and throw
+ *  rather than build `ws://127.0.0.1:undefined`, which fails as a timeout much
+ *  further from the cause. */
+const gatewayPort = (): number => {
+  if (server.port === undefined) {
+    throw new Error('fixture gateway has no port')
+  }
+  return server.port
+}
+
+const gatewayUrl = () => `ws://127.0.0.1:${gatewayPort()}/acp`
 
 const service = (): VoltdTokenService => ({
   issuer: 'https://backend.volt.example/v1',
@@ -115,7 +126,7 @@ describe('voltd roster over a real socket', () => {
 
   it('rejects, rather than reporting an empty roster, when the gateway is not there', async () => {
     await expect(
-      fetchVoltdRoster({ gatewayUrl: `ws://127.0.0.1:${server.port + 1}/acp`, token: 't', timeoutMs: 3000 }),
+      fetchVoltdRoster({ gatewayUrl: `ws://127.0.0.1:${gatewayPort() + 1}/acp`, token: 't', timeoutMs: 3000 }),
     ).rejects.toThrow()
   })
 })
@@ -193,7 +204,7 @@ describe('voltd relay over a real socket', () => {
     const handlers = createVoltdRelayHandlers({
       auth: authorized(),
       service: service(),
-      gatewayUrl: `ws://127.0.0.1:${server.port + 1}/acp`,
+      gatewayUrl: `ws://127.0.0.1:${gatewayPort() + 1}/acp`,
     })
     const downstream = client()
 
