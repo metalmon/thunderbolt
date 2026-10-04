@@ -43,6 +43,10 @@ better_auth_secret="$(rand_b64 32)"
 powersync_secret="$(rand_b64 32)"
 postgres_password="$(rand_b64 24)"
 keycloak_admin_password="$(rand_b64 18)"
+# The realm's client secret is generated too, and written into BOTH .env and
+# realm.json below. The committed placeholder is the same on every copy of the
+# kit, and "remember to change it by hand in two files" is not a control.
+oidc_client_secret="$(openssl rand -hex 16)"
 
 if [[ "$use_tls" -eq 1 ]]; then
   public_url="https://${host}"
@@ -61,6 +65,7 @@ sed -e "s|^PUBLIC_URL=.*|PUBLIC_URL=${public_url}|" \
     -e "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=${better_auth_secret}|" \
     -e "s|^POWERSYNC_JWT_SECRET=.*|POWERSYNC_JWT_SECRET=${powersync_secret}|" \
     -e "s|^KEYCLOAK_ADMIN_PASSWORD=.*|KEYCLOAK_ADMIN_PASSWORD=${keycloak_admin_password}|" \
+    -e "s|^OIDC_CLIENT_SECRET=.*|OIDC_CLIENT_SECRET=${oidc_client_secret}|" \
     .env > .env.tmp
 mv .env.tmp .env
 
@@ -81,13 +86,18 @@ mv conf/powersync/config.yaml.tmp conf/powersync/config.yaml
 sed -e "s|\"https\?://[^\"]*/v1/api/auth/sso/callback/sso\"|\"${public_url}/v1/api/auth/sso/callback/sso\"|g" \
     -e "s|\"https\?://[^\"]*/\*\"|\"${public_url}/*\"|g" \
     -e "s|\"https\?://[^\"/]*\"|\"${public_url}\"|g" \
+    -e "s|\"secret\": \"[^\"]*\"|\"secret\": \"${oidc_client_secret}\"|" \
     conf/keycloak/realm.json > conf/keycloak/realm.json.tmp
 mv conf/keycloak/realm.json.tmp conf/keycloak/realm.json
 
 echo "Wrote .env (PUBLIC_URL=${public_url}, KEYCLOAK_PUBLIC_URL=${keycloak_public_url})"
 echo "Synced conf/powersync/config.yaml's HS256 key to the new POWERSYNC_JWT_SECRET."
-echo "Repointed conf/keycloak/realm.json's redirect URIs at ${public_url}."
-echo "AI provider key and OIDC_CLIENT_SECRET were left as-is — see .env comments."
+echo "Repointed conf/keycloak/realm.json's redirect URIs at ${public_url} and gave"
+echo "  the volt-app client a fresh secret (same value in .env and realm.json)."
+echo "AI provider key was left as-is — see .env comments."
+echo "The realm ships with NO users: create them in the Keycloak admin console at"
+echo "  ${keycloak_public_url}/admin (user 'admin', password in .env), then put each"
+echo "  one in volt-admins / volt-avk / volt-kb as needed."
 
 if [[ "$use_voltd" -eq 1 ]]; then
   # voltd agent auto-discovery: merge the overlay and name the gateway. The
