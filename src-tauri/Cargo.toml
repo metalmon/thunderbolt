@@ -52,7 +52,36 @@ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"
 sha2 = "0.10"
 hex = "0.4"
 tauri-plugin-devtools = "2.0.1"
-tauri-plugin-http = "2.5.9"
+# Fork: read roots from the OS trust store instead of the bundled Mozilla set.
+# The plugin's default `rustls-tls` feature pulls webpki-roots, so a CA installed
+# in the machine store (an on-prem deployment's internal CA) is NOT trusted on the
+# native-fetch path — and that path is the default on desktop, because the proxy
+# toggle defaults to off (`computeEffectiveProxyEnabled`), which sends every
+# non-loopback Custom model/MCP endpoint straight out through this plugin.
+# The other names are the plugin's remaining defaults, restated because
+# `default-features = false` removes them all.
+#
+# This is purely additive, and deliberately so. Our own `reqwest` dependency below
+# still asks for `rustls-tls`, and Cargo unifies features per crate version, so
+# `rustls-tls-webpki-roots` stays enabled alongside `rustls-tls-native-roots` —
+# reqwest then loads BOTH sets into one root store (verified with
+# `cargo tree -e features -i reqwest@0.12.28`: both `*-no-provider` features
+# resolve on). Public roots keep working exactly as before; the OS store is added.
+# Do not "tidy" this by dropping `rustls-tls` from the reqwest line below without
+# re-checking that resolution.
+#
+# Android gains nothing here: rustls-native-certs looks in the Unix default paths,
+# while Android keeps system CAs elsewhere and hides user-installed ones from apps
+# targeting API 24+ without a network_security_config. It does not regress either —
+# the bundled roots remain. Android needs rustls-platform-verifier (reqwest 0.13,
+# which this plugin has not moved to) plus that manifest file; tracked separately.
+tauri-plugin-http = { version = "2.5.9", default-features = false, features = [
+    "rustls-tls-native-roots",
+    "http2",
+    "charset",
+    "macos-system-configuration",
+    "cookies",
+] }
 tauri-plugin-process = "2.3.1"
 tauri-plugin-fs = "2.4.4"
 tauri-plugin-deep-link = "2.4"
