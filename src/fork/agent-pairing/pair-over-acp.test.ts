@@ -59,8 +59,38 @@ const flush = async () => {
 const resultFrame = (token: string) => JSON.stringify({ jsonrpc: '2.0', id: 1, result: { token } })
 const errorFrame = (error: unknown) => JSON.stringify({ jsonrpc: '2.0', id: 1, error })
 
+/** The pair frame is sent once the device name/type promise settles — one microtask
+ *  after `open`, so the hostname lookup overlaps the connect instead of delaying it. */
+const flushPairingFrame = async () => {
+  // Microtasks, not a timer: this suite may run under fake timers, where a
+  // setTimeout(0) would never fire and the test would hang rather than fail.
+  await Promise.resolve()
+  await Promise.resolve()
+  await Promise.resolve()
+}
+
 describe('pairOverAcp', () => {
   beforeEach(() => MockWs.reset())
+
+  it('names the device and its class — without them the gateway lists it as unnamed', async () => {
+    const p = pairOverAcp({
+      url: 'wss://gw/acp',
+      code: 'ABC',
+      deviceName: 'VOLT-PILOT-01 (Volt 0.1.134)',
+      deviceType: 'desktop',
+      webSocketFactory: factory,
+    })
+    const ws = MockWs.instances[0]
+    ws.emit('open')
+    await flushPairingFrame()
+
+    expect(JSON.parse(ws.sent[0])).toMatchObject({
+      params: { device_name: 'VOLT-PILOT-01 (Volt 0.1.134)', device_type: 'desktop' },
+    })
+
+    ws.emit('message', { data: resultFrame('zc_named') })
+    await expect(p).resolves.toEqual({ token: 'zc_named' })
+  })
 
   it('sends a long mixed-case code byte-for-byte — the runtime now mints 32 random chars', async () => {
     // The shape the gateway produces today. Nothing on this path may normalise it:
@@ -70,6 +100,7 @@ describe('pairOverAcp', () => {
     const p = pairOverAcp({ url: 'wss://gw/acp', code, webSocketFactory: factory })
     const ws = MockWs.instances[0]
     ws.emit('open')
+    await flushPairingFrame()
 
     expect(JSON.parse(ws.sent[0])).toMatchObject({ method: 'volt/pair', params: { code } })
 
@@ -81,6 +112,7 @@ describe('pairOverAcp', () => {
     const p = pairOverAcp({ url: 'wss://gw/acp', code: 'ABC123', webSocketFactory: factory })
     const ws = MockWs.instances[0]
     ws.emit('open')
+    await flushPairingFrame()
 
     expect(JSON.parse(ws.sent[0])).toMatchObject({
       jsonrpc: '2.0',
@@ -97,6 +129,7 @@ describe('pairOverAcp', () => {
     const p = pairOverAcp({ url: 'wss://gw/acp', code: 'ABC', webSocketFactory: factory })
     const ws1 = MockWs.instances[0]
     ws1.emit('open')
+    await flushPairingFrame()
     expect(ws1.lastMethod()).toBe('volt/pair')
 
     ws1.emit('message', { data: errorFrame({ code: -32601, message: 'method not found' }) })
@@ -105,6 +138,7 @@ describe('pairOverAcp', () => {
     const ws2 = MockWs.instances[1]
     expect(ws2).toBeDefined()
     ws2.emit('open')
+    await flushPairingFrame()
     expect(ws2.lastMethod()).toBe('zeroclaw/pair')
 
     ws2.emit('message', { data: resultFrame('zc_y') })
@@ -121,6 +155,7 @@ describe('pairOverAcp', () => {
     const ws2 = MockWs.instances[1]
     expect(ws2).toBeDefined()
     ws2.emit('open')
+    await flushPairingFrame()
     expect(ws2.lastMethod()).toBe('zeroclaw/pair')
     ws2.emit('message', { data: resultFrame('zc_z') })
     await expect(p).resolves.toEqual({ token: 'zc_z' })
