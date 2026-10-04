@@ -17,7 +17,6 @@ import {
   defaultModelGlm53,
   defaultModelDeepSeekV41Flash,
   defaultModelOpus55,
-  defaultModels,
   defaultModelsVersion,
   hashModel,
   type SharedModel,
@@ -108,7 +107,7 @@ beforeAll(async () => {
 
 // Also reset before each test — `setupTestDatabase` reconciles defaults into
 // the DB, so without this guard the first test picked by --randomize inherits
-// pre-populated rows (any raw `db.insert(modelsTable).values(defaultModels[N])`
+// pre-populated rows (any raw `db.insert(modelsTable).values(fixtureModels[N])`
 // then hits a PK conflict). Between-test reset alone doesn't cover that gap.
 beforeEach(async () => {
   await resetTestDatabase()
@@ -160,6 +159,14 @@ describe('returning boot before initial sync', () => {
   })
 })
 
+/**
+ * Fixture catalog. The reconciler is being tested, not the product's lineup, and
+ * this fork ships an EMPTY `fixtureModels` — so these tests supply their own models
+ * rather than inheriting whatever happens to be bundled. The constants are still
+ * exported for uses like this one.
+ */
+const fixtureModels = [defaultModelOpus55, defaultModelDeepSeekV41Flash, defaultModelGlm53] as const
+
 describe('seedModels', () => {
   test('catalog updates and resets preserve effort without treating the model as customized', async () => {
     const db = getDb()
@@ -186,12 +193,12 @@ describe('seedModels', () => {
 
   test('inserts new defaults on first run', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     const models = (await db.select().from(modelsTable)) as Model[]
-    expect(models.length).toBe(defaultModels.length)
+    expect(models.length).toBe(fixtureModels.length)
 
-    for (const defaultModel of defaultModels) {
+    for (const defaultModel of fixtureModels) {
       const inserted = models.find((m) => m.id === defaultModel.id)
       expect(inserted).toBeDefined()
       // Verify hash was computed during seed
@@ -203,33 +210,33 @@ describe('seedModels', () => {
   test('updates unmodified rows on re-seed', async () => {
     const db = getDb()
     // First seed
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // Get an unmodified model
-    const model = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModels[0].id)).get()
+    const model = await db.select().from(modelsTable).where(eq(modelsTable.id, fixtureModels[0].id)).get()
     expect(model).toBeDefined()
 
     // Seed again - should be idempotent
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // Model should still match default
-    const modelAfterReseed = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModels[0].id)).get()
-    expect(modelAfterReseed?.name).toBe(defaultModels[0].name)
+    const modelAfterReseed = await db.select().from(modelsTable).where(eq(modelsTable.id, fixtureModels[0].id)).get()
+    expect(modelAfterReseed?.name).toBe(fixtureModels[0].name)
     // Hash should still be computed correctly
-    expect(modelAfterReseed?.defaultHash).toBe(hashModel(defaultModels[0]))
+    expect(modelAfterReseed?.defaultHash).toBe(hashModel(fixtureModels[0]))
   })
 
   test('preserves user modifications', async () => {
     const db = getDb()
     // First seed
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // User modifies a model
-    const defaultModel = defaultModels[0]
+    const defaultModel = fixtureModels[0]
     await db.update(modelsTable).set({ name: 'User Modified Name' }).where(eq(modelsTable.id, defaultModel.id))
 
     // Seed again with "updated" default
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // Should NOT be overwritten
     const model = await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModel.id)).get()
@@ -240,58 +247,58 @@ describe('seedModels', () => {
 
   test('handles mixed scenarios correctly', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // Scenario 1: User modifies model 0
-    await db.update(modelsTable).set({ name: 'User Modified' }).where(eq(modelsTable.id, defaultModels[0].id))
+    await db.update(modelsTable).set({ name: 'User Modified' }).where(eq(modelsTable.id, fixtureModels[0].id))
 
     // Scenario 2: Model 1 stays unmodified
     // Scenario 3: Model 2 is user-deleted via the DAL — this scrubs the row's
     // nullable columns (including defaultHash) via `clearNullableColumns`,
     // which is what distinguishes a user delete from a cleanup soft-delete
     // and prevents the resurrect branch from undoing it.
-    await deleteModel(db, defaultModels[2].id)
+    await deleteModel(db, fixtureModels[2].id)
 
     // Seed again
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     const models = await db.select().from(modelsTable)
 
     // Model 0 should keep user modification
-    const model0 = models.find((m) => m.id === defaultModels[0].id)
+    const model0 = models.find((m) => m.id === fixtureModels[0].id)
     expect(model0?.name).toBe('User Modified')
 
     // Model 1 should be updated to latest default
-    const model1 = models.find((m) => m.id === defaultModels[1].id)
-    expect(model1?.name).toBe(defaultModels[1].name)
+    const model1 = models.find((m) => m.id === fixtureModels[1].id)
+    expect(model1?.name).toBe(fixtureModels[1].name)
 
     // Model 2 should stay deleted - user deletions are respected
-    const model2 = models.find((m) => m.id === defaultModels[2]?.id)
+    const model2 = models.find((m) => m.id === fixtureModels[2]?.id)
     expect(model2?.deletedAt).not.toBeNull()
   })
 
   test('soft-deleted models do not appear in getAllModels', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     // Get all models before deletion
     const modelsBefore = await getAllModels(getDb())
-    expect(modelsBefore.length).toBe(defaultModels.length)
+    expect(modelsBefore.length).toBe(fixtureModels.length)
 
     // User-delete a model via the DAL (scrubs nullable columns including
     // defaultHash so the resurrect branch treats it as a real user deletion).
-    await deleteModel(db, defaultModels[0].id)
+    await deleteModel(db, fixtureModels[0].id)
 
     // Get all models after deletion - should not include soft-deleted model
     const modelsAfter = await getAllModels(getDb())
-    expect(modelsAfter.length).toBe(defaultModels.length - 1)
-    expect(modelsAfter.find((m) => m.id === defaultModels[0].id)).toBeUndefined()
+    expect(modelsAfter.length).toBe(fixtureModels.length - 1)
+    expect(modelsAfter.find((m) => m.id === fixtureModels[0].id)).toBeUndefined()
 
     // Re-seed should not restore the deleted model
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
     const modelsAfterReseed = await getAllModels(getDb())
-    expect(modelsAfterReseed.length).toBe(defaultModels.length - 1)
-    expect(modelsAfterReseed.find((m) => m.id === defaultModels[0].id)).toBeUndefined()
+    expect(modelsAfterReseed.length).toBe(fixtureModels.length - 1)
+    expect(modelsAfterReseed.find((m) => m.id === fixtureModels[0].id)).toBeUndefined()
   })
 })
 
@@ -348,11 +355,11 @@ describe('cleanupRemovedDefaults', () => {
 
   test('leaves current defaults alone', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
 
     await cleanupRemovedDefaults(db)
 
-    for (const def of defaultModels) {
+    for (const def of fixtureModels) {
       const row = await db.select().from(modelsTable).where(eq(modelsTable.id, def.id)).get()
       expect(row?.deletedAt).toBeNull()
     }
@@ -394,7 +401,7 @@ describe('seedPrompts', () => {
   test('inserts new defaults on first run', async () => {
     const db = getDb()
     // Need models for FK constraint
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
     await reconcileDefaultsForTable(db, promptsTable, defaultAutomations, hashPrompt)
 
     const prompts = (await db.select().from(promptsTable)) as Prompt[]
@@ -411,7 +418,7 @@ describe('seedPrompts', () => {
 
   test('updates unmodified prompts on re-seed', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
     await reconcileDefaultsForTable(db, promptsTable, defaultAutomations, hashPrompt)
 
     // Get an unmodified prompt
@@ -434,7 +441,7 @@ describe('seedPrompts', () => {
 
   test('preserves user modifications', async () => {
     const db = getDb()
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
     await reconcileDefaultsForTable(db, promptsTable, defaultAutomations, hashPrompt)
 
     // User modifies a prompt
@@ -640,14 +647,14 @@ describe('reconcileDefaultsForTable', () => {
     // touches deletedAt). Resurrect must fire on an older-bundle-but-fully
     // -synced device (canOverwrite=false, canResurrect=true), otherwise the
     // row stays deleted for good once `stored.version` catches up.
-    const shipped = defaultModels[0]
+    const shipped = fixtureModels[0]
     await db.insert(modelsTable).values({
       ...shipped,
       deletedAt: '2026-01-01T00:00:00.000Z',
       defaultHash: hashModel(shipped),
     })
 
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, {
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, {
       canOverwrite: false,
       canResurrect: true,
     })
@@ -663,14 +670,14 @@ describe('reconcileDefaultsForTable', () => {
     // "soft-deleted" flag may be a partial-sync artefact of an authoritative
     // retirement; un-deleting would race with cloud state. Leave it, retry
     // on a later boot when sync has settled.
-    const shipped = defaultModels[0]
+    const shipped = fixtureModels[0]
     await db.insert(modelsTable).values({
       ...shipped,
       deletedAt: '2026-01-01T00:00:00.000Z',
       defaultHash: hashModel(shipped),
     })
 
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, {
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, {
       canOverwrite: false,
       canResurrect: false,
     })
@@ -686,7 +693,7 @@ describe('reconcileDefaultsForTable', () => {
     // `clearNullableColumns` — most importantly, `defaultHash` becomes null.
     // The resurrect guard's hash check can't satisfy a null defaultHash, so
     // the user's deletion is preserved regardless of canResurrect.
-    const shipped = defaultModels[0]
+    const shipped = fixtureModels[0]
     await db.insert(modelsTable).values({
       ...shipped,
       name: null,
@@ -697,7 +704,7 @@ describe('reconcileDefaultsForTable', () => {
       defaultHash: null,
     })
 
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, {
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, {
       canOverwrite: false,
       canResurrect: true,
     })
@@ -712,12 +719,12 @@ describe('reconcileDefaultsForTable', () => {
     // Row authored by a newer bundle (same id as a current default, but
     // different content, with an authoring hash that matches its content —
     // i.e., it looks "unedited from a newer version's perspective").
-    const bundleRow = defaultModels[0]
+    const bundleRow = fixtureModels[0]
     const newer: SharedModel = { ...bundleRow, name: 'Newer Bundle Name' }
     await db.insert(modelsTable).values({ ...newer, defaultHash: hashModel(newer) })
 
     // With canOverwrite=false the older bundle must not touch it.
-    await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, { canOverwrite: false })
+    await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, { canOverwrite: false })
 
     const row = await db.select().from(modelsTable).where(eq(modelsTable.id, bundleRow.id)).get()
     expect(row?.name).toBe('Newer Bundle Name')
@@ -769,7 +776,7 @@ describe('reconcileDefaultsForTable', () => {
     })
 
     test('fresh install seeds all rows → true (all rows now at target)', async () => {
-      const result = await reconcileDefaultsForTable(getDb(), modelsTable, defaultModels, hashModel)
+      const result = await reconcileDefaultsForTable(getDb(), modelsTable, fixtureModels, hashModel)
       expect(result.mutated).toBe(true)
       expect(result.everyBundleRowAtTarget).toBe(true)
     })
@@ -777,24 +784,24 @@ describe('reconcileDefaultsForTable', () => {
     test('every row already at target with no writes → true', async () => {
       const db = getDb()
       // Seed then run again — second run finds every row already at target.
-      await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
-      const result = await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+      await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
+      const result = await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
       expect(result.mutated).toBe(false)
       expect(result.everyBundleRowAtTarget).toBe(true)
     })
 
     test('any user-edited row (hash mismatch) → false', async () => {
       const db = getDb()
-      await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+      await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
       // Edit one row so its content-hash no longer matches its defaultHash.
-      await db.update(modelsTable).set({ name: 'user rename' }).where(eq(modelsTable.id, defaultModels[0].id))
-      const result = await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
+      await db.update(modelsTable).set({ name: 'user rename' }).where(eq(modelsTable.id, fixtureModels[0].id))
+      const result = await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
       expect(result.mutated).toBe(false)
       expect(result.everyBundleRowAtTarget).toBe(false)
     })
 
     test('missing row with insertMissing=false → false', async () => {
-      const result = await reconcileDefaultsForTable(getDb(), modelsTable, defaultModels, hashModel, {
+      const result = await reconcileDefaultsForTable(getDb(), modelsTable, fixtureModels, hashModel, {
         canOverwrite: false,
         // insertMissing defaults to canOverwrite → false. Rows are missing
         // and we don't seed → not at target.
@@ -809,8 +816,8 @@ describe('reconcileDefaultsForTable', () => {
       // canOverwrite=false. Even though rows are still at target, the flag
       // stays false because the closed gate means we deliberately can't
       // trust our view enough to advance the marker.
-      await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel)
-      const result = await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, {
+      await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel)
+      const result = await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, {
         canOverwrite: false,
       })
       expect(result.mutated).toBe(false)
@@ -825,7 +832,7 @@ describe('reconcileDefaultsForTable', () => {
       // must flip. Seed the other default rows unedited so the only branch
       // exercised on this pass is the resurrect skip.
       const db = getDb()
-      const [soft, ...rest] = defaultModels
+      const [soft, ...rest] = fixtureModels
       await db.insert(modelsTable).values({
         ...soft,
         deletedAt: '2026-01-01T00:00:00.000Z',
@@ -834,7 +841,7 @@ describe('reconcileDefaultsForTable', () => {
       for (const other of rest) {
         await db.insert(modelsTable).values({ ...other, defaultHash: hashModel(other) })
       }
-      const result = await reconcileDefaultsForTable(db, modelsTable, defaultModels, hashModel, {
+      const result = await reconcileDefaultsForTable(db, modelsTable, fixtureModels, hashModel, {
         canOverwrite: true,
         canResurrect: false,
       })
@@ -892,7 +899,12 @@ for (const [target, model, name] of [
     await db.insert(modelsTable).values(edited)
     await db.insert(settingsTable).values({ key: versionMarkerKeys.models, value: String(defaultModelsVersion) })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, target.id)).get()).toEqual({
       ...edited,
@@ -923,7 +935,12 @@ describe('Opus data migration', () => {
       value: String(defaultModelsVersion),
     })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
       ...defaultModelOpus55,
@@ -950,7 +967,12 @@ describe('Opus data migration', () => {
       value: String(defaultModelsVersion),
     })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
       ...customizedLegacy,
@@ -972,7 +994,7 @@ describe('Opus data migration', () => {
       value: String(defaultModelsVersion),
     })
     const otaVersion = defaultModelsVersion + 1
-    const otaModels = defaultModels.map((model) => (model.id === defaultModelOpus55.id ? legacyModel : model))
+    const otaModels = fixtureModels.map((model) => (model.id === defaultModelOpus55.id ? legacyModel : model))
 
     await reconcileDefaults(db, { models: { version: otaVersion, data: otaModels, imageSupport: {} } })
 
@@ -1036,7 +1058,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db)
 
     const models = await db.select().from(modelsTable)
-    for (const bundle of defaultModels) {
+    for (const bundle of fixtureModels) {
       expect(models.find((m) => m.id === bundle.id)).toBeDefined()
     }
 
@@ -1048,7 +1070,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Prior application by a newer-version device: rows carry the newer
     // content + matching authoring hash, and stored version is bumped past ours.
-    const [bundleRow, ...restBundle] = defaultModels
+    const [bundleRow, ...restBundle] = fixtureModels
     const newerRow: SharedModel = { ...bundleRow, name: 'Newer Bundle Name', description: 'from newer' }
     await db.insert(modelsTable).values({ ...newerRow, defaultHash: hashModel(newerRow) })
     for (const other of restBundle) {
@@ -1075,7 +1097,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Newer version added a system model our bundle does not know about.
     // It synced in with a matching authoring hash. Cleanup would normally
-    // remove it (id not in defaultModels, hash matches) — the gate must skip.
+    // remove it (id not in fixtureModels, hash matches) — the gate must skip.
     const futureRow = buildRetiredModel()
     await db.insert(modelsTable).values(futureRow)
     await db.insert(settingsTable).values({
@@ -1094,8 +1116,8 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Prime with the current bundle, then rewind to look like a prior version.
     await reconcileDefaults(db)
-    const targetId = defaultModels[0].id
-    const staleRow = { ...defaultModels[0], name: 'stale name' }
+    const targetId = fixtureModels[0].id
+    const staleRow = { ...fixtureModels[0], name: 'stale name' }
     await db
       .update(modelsTable)
       .set({ name: 'stale name', defaultHash: hashModel(staleRow) })
@@ -1108,8 +1130,8 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db)
 
     const upgraded = await db.select().from(modelsTable).where(eq(modelsTable.id, targetId)).get()
-    expect(upgraded?.name).toBe(defaultModels[0].name)
-    expect(upgraded?.defaultHash).toBe(hashModel(defaultModels[0]))
+    expect(upgraded?.name).toBe(fixtureModels[0].name)
+    expect(upgraded?.defaultHash).toBe(hashModel(fixtureModels[0]))
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
 
@@ -1139,7 +1161,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await reconcileDefaults(db)
 
     // User renames a row after the first apply.
-    const editedId = defaultModels[0].id
+    const editedId = fixtureModels[0].id
     await db.update(modelsTable).set({ name: 'user-picked name' }).where(eq(modelsTable.id, editedId))
 
     // Older-bundle pass: rewind stored version — user edit must still survive.
@@ -1173,7 +1195,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // past our bundle) and has retired one of the defaults our bundle still
     // ships. To exercise the insert branch we seed the *other* defaults but
     // leave the retired one absent — cloud will deliver its soft-delete later.
-    const [retired, ...alive] = defaultModels
+    const [retired, ...alive] = fixtureModels
     for (const other of alive) {
       await db.insert(modelsTable).values({ ...other, defaultHash: hashModel(other) })
     }
@@ -1197,11 +1219,16 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // hasn't been delivered yet. Acting on this partial view would let us
     // downgrade or resurrect rows and regress the stored version once cloud
     // finally delivers it.
-    const alive = defaultModels[0]
+    const alive = fixtureModels[0]
     const newerContent = { ...alive, name: 'Newer from cloud' }
     await db.insert(modelsTable).values({ ...newerContent, defaultHash: hashModel(newerContent) })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     // The newer-content row must survive intact.
     const preserved = await db.select().from(modelsTable).where(eq(modelsTable.id, alive.id)).get()
@@ -1216,10 +1243,15 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // Otherwise a fresh install offline (network flaky, first launch) would
     // boot with zero models.
     const db = getDb()
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     const models = await db.select().from(modelsTable)
-    expect(models.length).toBe(defaultModels.length)
+    expect(models.length).toBe(fixtureModels.length)
     expect(await readStoredModelsVersion()).toBe(defaultModelsVersion)
   })
 
@@ -1233,7 +1265,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // Also rewind the marker to look like we're catching up from an older
     // stored version — this opens the gate (rawCanOverwrite=true) but the
     // pass will still be a total no-op because every row is now user-edited.
-    for (const model of defaultModels) {
+    for (const model of fixtureModels) {
       await db
         .update(modelsTable)
         .set({ name: `user-edited ${model.id}` })
@@ -1296,7 +1328,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Rewind stored version and stale one models row so the pass has real
     // work to do (mutated=true), then re-run reconcile.
-    const targetModel = defaultModels[0]
+    const targetModel = fixtureModels[0]
     const staleModel = { ...targetModel, name: 'stale' }
     await db
       .update(modelsTable)
@@ -1378,7 +1410,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // bundle. Before the sync-outcome guard was broadened, this scenario let
     // rawCanOverwrite (bundle > stale-stored) reopen the gate and downgrade
     // rows that cloud may have already advanced past.
-    const alive = defaultModels[0]
+    const alive = fixtureModels[0]
     const newerContent = { ...alive, name: 'Newer from cloud' }
     await db.insert(modelsTable).values({ ...newerContent, defaultHash: hashModel(newerContent) })
     await db.insert(settingsTable).values({
@@ -1386,7 +1418,12 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       value: String(defaultModelsVersion - 1),
     })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     const preserved = await db.select().from(modelsTable).where(eq(modelsTable.id, alive.id)).get()
     expect(preserved?.name).toBe('Newer from cloud')
@@ -1401,7 +1438,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // Under strict gating the profile insert would be skipped and the model
     // would boot without its default profile — a runtime hazard. `insertMissing`
     // on the profiles call restores the 1:1 invariant.
-    const model = defaultModels[0]
+    const model = fixtureModels[0]
     await db.insert(modelsTable).values({ ...model, defaultHash: hashModel(model) })
     await db.insert(settingsTable).values({
       key: modelsVersionKey,
@@ -1424,7 +1461,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // Simulate a newer-version device having tweaked a profile field
     // (temperature) — content matches its authoring hash, so it looks
     // "unedited from the newer bundle's perspective".
-    const profileModelId = defaultModels[0].id
+    const profileModelId = fixtureModels[0].id
     const original = await db
       .select()
       .from(modelProfilesTable)
@@ -1462,7 +1499,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // (marker synced from another combined-PR device), so canOverwrite is
     // closed. initialSyncCompleted defaults to true — sync is settled.
     // Resurrect must still fire so the account recovers.
-    const shipped = defaultModels[0]
+    const shipped = fixtureModels[0]
     await db.insert(modelsTable).values({
       ...shipped,
       deletedAt: '2026-01-01T00:00:00.000Z',
@@ -1486,14 +1523,19 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // delete could be a partial-sync artefact of a genuine retirement; acting
     // on our incomplete view risks undoing a legitimate cleanup. Skip and
     // retry on a settled boot.
-    const shipped = defaultModels[0]
+    const shipped = fixtureModels[0]
     await db.insert(modelsTable).values({
       ...shipped,
       deletedAt: '2026-01-01T00:00:00.000Z',
       defaultHash: hashModel(shipped),
     })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     const stillGone = await db.select().from(modelsTable).where(eq(modelsTable.id, shipped.id)).get()
     expect(stillGone?.deletedAt).toBe('2026-01-01T00:00:00.000Z')
@@ -1516,7 +1558,12 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       defaultHash: hashModelProfile({ ...stubProfile, modelId: orphanModelId }),
     })
 
-    await reconcileDefaults(db, { initialSyncCompleted: false })
+    // Supply the fixture explicitly: the bundle is empty on this fork, so the
+    // default source would reconcile nothing and the legacy row would stand.
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+    })
 
     const profile = await db
       .select()
@@ -1533,7 +1580,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // fresh device the models pass never inserts it; the profiles pass must
     // NOT hit `insertMissing` for its profile — otherwise we'd have a profile
     // row pointing at a model that doesn't exist locally.
-    const [retired, ...remaining] = defaultModels
+    const [retired, ...remaining] = fixtureModels
     const otaSource: ModelsDefaults = {
       version: defaultModelsVersion + 1,
       data: [...remaining],
@@ -1564,7 +1611,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // (their content still matches authoring hashes). The profiles pass then
     // runs — with the pre-fix logic it would enter the resurrect branch on
     // the profile (hash match, canResurrect open) and un-delete an orphan.
-    const [retired, ...remaining] = defaultModels
+    const [retired, ...remaining] = fixtureModels
     const otaSource: ModelsDefaults = {
       version: defaultModelsVersion + 1,
       data: [...remaining],
@@ -1593,7 +1640,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // `provider` on an existing bundle-known id, plus a legitimate change to
     // `name` and `description`. Frozen fields must survive; unfrozen ones must
     // still update.
-    const target = defaultModels[0]
+    const target = fixtureModels[0]
     const flipped: SharedModel = {
       ...target,
       name: 'Renamed Via OTA',
@@ -1603,7 +1650,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     }
     const otaSource: ModelsDefaults = {
       version: defaultModelsVersion + 1,
-      data: [flipped, ...defaultModels.slice(1)],
+      data: [flipped, ...fixtureModels.slice(1)],
       imageSupport: {},
     }
 
@@ -1643,7 +1690,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const otaSource: ModelsDefaults = {
       version: defaultModelsVersion + 1,
       data: [
-        ...defaultModels,
+        ...fixtureModels,
         {
           id: unknownId,
           name: 'Server-only Future Model',
@@ -1673,7 +1720,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     expect(ghost).toBeUndefined()
 
     // Bundle-known models still applied.
-    for (const known of defaultModels) {
+    for (const known of fixtureModels) {
       const row = await db.select().from(modelsTable).where(eq(modelsTable.id, known.id)).get()
       expect(row).toBeDefined()
     }
@@ -1839,7 +1886,12 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
           await db.insert(c.dbTable).values({ ...row, defaultHash: c.hashFn(row) })
         }
 
-        await reconcileDefaults(db, { initialSyncCompleted: false })
+        // Supply the fixture explicitly: the bundle is empty on this fork, so the
+        // default source would reconcile nothing and the legacy row would stand.
+        await reconcileDefaults(db, {
+          initialSyncCompleted: false,
+          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        })
 
         const preserved = (await db.select().from(c.dbTable).where(eq(c.pk, first.id)).get()) as Row | undefined
         expect(preserved?.[c.editableField] as string | undefined).toBe('from-newer-peer')
@@ -1957,7 +2009,12 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       // refuse to seed the bundle defaults on top of it.
       await db.insert(settingsTable).values({ key: 'preferred_name', value: 'cloud-user' })
 
-      await reconcileDefaults(db, { initialSyncCompleted: false })
+      // Supply the fixture explicitly: the bundle is empty on this fork, so the
+      // default source would reconcile nothing and the legacy row would stand.
+      await reconcileDefaults(db, {
+        initialSyncCompleted: false,
+        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      })
 
       const seeded = await db.select().from(settingsTable).where(eq(settingsTable.key, key)).get()
       expect(seeded).toBeUndefined()
