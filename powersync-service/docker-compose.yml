@@ -176,7 +176,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      # Stays on 0.0.0.0, unlike the pilot kit's, and must: the ZeroClaw stand's
+      # Stays on 0.0.0.0, unlike the pilot kit's, and must: the voltd stand's
       # own socat sidecar reaches our issuer (discovery + JWKS) through
       # host.docker.internal, which does not resolve to a loopback-bound port.
       # Binding this to 127.0.0.1 "for safety" silently breaks voltd's ability to
@@ -184,7 +184,7 @@ services:
       # only — the kit publishes 8000 on loopback.
       - 8000:8000
 
-  # Dev-only: makes the ZeroClaw gateway reachable from the backend container at
+  # Dev-only: makes the voltd gateway reachable from the backend container at
   # the one address its certificate is valid for. Their server cert carries only
   # `DNS:localhost, IP:127.0.0.1`, and inside a container 127.0.0.1 is the
   # container itself — so forward it into the BACKEND's own network namespace,
@@ -282,7 +282,7 @@ services:
   searxng:
     restart: unless-stopped
     image: searxng/searxng:latest
-    # host-only публикация для ZeroClaw web_search (localhost:24080); внутренний
+    # host-only публикация для Volt web_search (localhost:24080); внутренний
     # доступ backend↔searxng по имени сервиса не меняется.
     ports:
       - "127.0.0.1:24080:8080"
@@ -310,7 +310,7 @@ services:
   firecrawl-api:
     restart: unless-stopped
     image: trieve/firecrawl
-    # host-only публикация для ZeroClaw firecrawl-mcp (localhost:3002); внутренний
+    # host-only публикация для Volt firecrawl-mcp (localhost:3002); внутренний
     # доступ backend↔firecrawl-api по имени сервиса не меняется.
     ports:
       - "127.0.0.1:3002:3002"

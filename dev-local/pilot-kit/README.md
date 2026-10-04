@@ -1,8 +1,8 @@
-# Our half of the ZeroClaw pilot kit
+# Our half of the Volt pilot kit
 
 The closed-perimeter pilot ships as a flash drive: `pilot-kit/` with one folder
 per component (`certs/`, `volt/` = voltd, `glossa/`, `volt-admin/`, `handy/`) and
-`thunderbolt/` — ours. That folder lives in ZeroClaw's staging tree; this
+`thunderbolt/` — ours. That folder lives in their staging tree; this
 directory is where its contents are **authored**.
 
 Everything here is copied into the kit by `dev-local/pilot-kit-sync.ps1`, never
