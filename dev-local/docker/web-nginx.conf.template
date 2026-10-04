@@ -33,6 +33,53 @@ server {
         proxy_send_timeout 3600s;
     }
 
+    # The two ACP WebSocket routes under /v1: the voltd agent relay (fork) and the
+    # universal proxy's WS hop. Same shape as gemini-live above and for the same
+    # reason — an ACP session idles between the user's turns, and nginx's 60s
+    # default read timeout then closes the upgrade, which is indistinguishable from
+    # the agent itself dropping the session. Measured through this container: with
+    # only the /v1/ location below, a relay idle for 65s is closed with code 1006;
+    # with these blocks it survives. The duplication is nginx's: `include` would
+    # need another mounted snippet, and a regex location can never be reached while
+    # `^~ /v1/` matches.
+    location ^~ /v1/proxy/ws {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    location ^~ /v1/voltd/ws {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # The relay builds the agent's advertised wss:// URL from this, so a
+        # missing/wrong value publishes an address the client cannot reach.
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
     # Backend API. Variable host forces runtime DNS resolution (nginx won't crash
     # if backend is not up yet). No URI on proxy_pass: with a variable host nginx
     # passes the original request URI through unchanged.
@@ -49,6 +96,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_http_version 1.1;
         # Empty Connection = HTTP/1.1 keep-alive; backend uses SSE, not WebSocket.
+        # The WebSocket routes under /v1 get their own locations above, each with
+        # the Upgrade passthrough and the long timeouts they need — same reason
+        # upstream's deploy/config/nginx.conf.template omits Upgrade here.
         proxy_set_header Connection "";
     }
 
