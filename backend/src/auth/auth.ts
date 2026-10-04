@@ -19,6 +19,7 @@ import * as schema from '@/db/schema'
 import { normalizeEmail } from '@/lib/email'
 import { resolveEmailLocale } from '@/emails/i18n'
 import { getSettings } from '@/config/settings'
+import { forkProvisionVoltdGroups } from '@/fork/voltd/groups'
 import { createRateLimitConsumer, type RateLimitSet } from '@/middleware/rate-limit'
 import { extractClientIp, getTrustedIpHeaders } from '@/utils/request'
 import { createAuthMiddleware, getSessionFromCtx } from 'better-auth/api'
@@ -81,7 +82,7 @@ const authTokenHeader = 'set-auth-token'
  * - Both paths (manual OTP entry, clicking link) use the same verification endpoint
  * - No separate email verification needed - signing in proves email ownership
  */
-const buildSsoPlugins = () => {
+const buildSsoPlugins = (database: typeof DbType) => {
   const settings = getSettings()
 
   if (settings.authMode === 'oidc') {
@@ -94,6 +95,8 @@ const buildSsoPlugins = () => {
 
     return [
       sso({
+        provisionUserOnEveryLogin: true,
+        provisionUser: forkProvisionVoltdGroups({ database }),
         defaultSSO: [
           {
             providerId: 'sso',
@@ -126,6 +129,8 @@ const buildSsoPlugins = () => {
 
     return [
       sso({
+        provisionUserOnEveryLogin: true,
+        provisionUser: forkProvisionVoltdGroups({ database }),
         defaultSSO: [
           {
             providerId: 'sso',
@@ -244,6 +249,18 @@ export const createAuth = (database: typeof DbType, emailDeps: AuthEmailDeps = {
           type: 'boolean',
           required: false,
           defaultValue: false,
+        },
+        // Fork: identity-provider group membership, asserted in the token an agent
+        // gateway authorizes against. `input: false` is a security control, not
+        // tidiness — Better Auth otherwise accepts the field from user-supplied
+        // input on both create and update, so a signed-in user could grant
+        // themselves any group the gateway maps to a permission profile. Written
+        // only by the SSO provisioning hook (`@/fork/voltd/groups`).
+        groups: {
+          type: 'string[]',
+          required: false,
+          defaultValue: [],
+          input: false,
         },
       },
     },
@@ -503,7 +520,7 @@ export const createAuth = (database: typeof DbType, emailDeps: AuthEmailDeps = {
             }),
           ]
         : []),
-      ...buildSsoPlugins(),
+      ...buildSsoPlugins(database),
     ],
   })
 }
