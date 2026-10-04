@@ -46,4 +46,13 @@ describe('brand translations', () => {
       expect(translationOf(catalog(locale), 'Thunderbolt')).not.toBe('')
     }
   })
+
+  // Not just the standalone brand: any translated sentence that names the product
+  // must carry the fork's name too. "Welcome to Thunderbolt!" is the one that went
+  // unnoticed — it reads correctly in the source, so only the shipped translation
+  // reveals it.
+  it.each(['ru', 'en'])('leaves no %s translation still naming the upstream product', (locale) => {
+    const offenders = [...catalog(locale).matchAll(/^msgstr(?:\[\d\])? "(.*Thunderbolt.*)"$/gm)].map((m) => m[1])
+    expect(offenders).toEqual([])
+  })
 })
