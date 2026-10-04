@@ -21,7 +21,7 @@ import * as schema from '@/db/schema'
 import { normalizeEmail } from '@/lib/email'
 import { resolveEmailLocale } from '@/emails/i18n'
 import { getPasskeyAndroidOriginsList, getSettings, isPasskeyEnabled, getPasskeyRpName } from '@/config/settings'
-import { forkProvisionVoltdGroups } from '@/fork/voltd/groups'
+import { forkProvisionVoltdGroups, voltdGroupsExtraFields } from '@/fork/voltd/groups'
 import { createRateLimitConsumer, type RateLimitSet } from '@/middleware/rate-limit'
 import { extractClientIp, getTrustedIpHeaders } from '@/utils/request'
 import { captchaTokenHeader, captchaVerificationFailedCode } from '@shared/captcha'
@@ -201,6 +201,10 @@ const buildSsoPlugins = (database: typeof DbType) => {
               // URLs that way (Authentik among them).
               discoveryEndpoint: settings.oidcDiscoveryUrl || computeDiscoveryUrl(settings.oidcIssuer),
               scopes: ['openid', 'profile', 'email'],
+              // Without this the group claim never reaches provisionUser: the
+              // plugin rebuilds userInfo from five fixed fields plus whatever
+              // extraFields names. See `@/fork/voltd/groups`.
+              mapping: { extraFields: voltdGroupsExtraFields() },
             },
           },
         ],
@@ -242,6 +246,11 @@ const buildSsoPlugins = (database: typeof DbType) => {
               idpMetadata: {
                 entityID: settings.samlIdpIssuer,
               },
+              // Same reason as the OIDC branch above: the plugin rebuilds userInfo
+              // from a fixed set of attributes plus whatever extraFields names, so
+              // without this the group attribute never reaches provisionUser. Here
+              // the configured name addresses a SAML attribute rather than a claim.
+              mapping: { extraFields: voltdGroupsExtraFields() },
             },
           },
         ],
