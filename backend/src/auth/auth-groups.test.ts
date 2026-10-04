@@ -87,26 +87,73 @@ describe('user.groups is not user-writable', () => {
     expect(created.groups).toEqual([])
   })
 
-  // The escalation this closes: /sso/register is gated by sessionMiddleware alone,
+  it('leaves the column empty for a session that was never provisioned', async () => {
+    await auth.api.signInAnonymous({ asResponse: true })
+    const [created] = await rows()
+    expect(created.groups).toEqual([])
+  })
+})
+
+/**
+ * The SSO plugin is only registered when `AUTH_MODE` is `oidc` or `saml`, so the
+ * default test configuration never loads it and `/sso/register` simply 404s. That
+ * made a first version of this test meaningless — it passed with the control
+ * removed. Build auth in OIDC mode to exercise the real endpoint.
+ */
+describe('SSO provider self-registration is disabled', () => {
+  const oidcEnv = {
+    AUTH_MODE: 'oidc',
+    OIDC_ISSUER: 'https://keycloak.example/realms/volt',
+    OIDC_CLIENT_ID: 'volt-app',
+    OIDC_CLIENT_SECRET: 'secret',
+    AUTH_ALLOW_ANONYMOUS: 'true',
+  } as const
+
+  let saved: Partial<Record<keyof typeof oidcEnv, string | undefined>>
+
+  beforeEach(() => {
+    saved = {}
+    for (const key of Object.keys(oidcEnv) as Array<keyof typeof oidcEnv>) {
+      saved[key] = process.env[key]
+      process.env[key] = oidcEnv[key]
+    }
+    clearSettingsCache()
+  })
+
+  afterEach(() => {
+    for (const key of Object.keys(oidcEnv) as Array<keyof typeof oidcEnv>) {
+      const value = saved[key]
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+    clearSettingsCache()
+  })
+
+  // The escalation this closes: the endpoint is gated by sessionMiddleware alone,
   // so without providersLimit: 0 any signed-in user could register an identity
   // provider they control and have it assert `volt-admins`.
-  it('refuses to let a signed-in user register their own identity provider', async () => {
+  it('refuses a signed-in user registering their own identity provider', async () => {
+    const testEnv = await createTestDb()
+    const auth = createAuth(testEnv.db)
+
+    // The plugin must actually be loaded, or this proves nothing.
+    expect(Object.keys(auth.api).some((name) => /sso/i.test(name))).toBe(true)
+
     const signIn = (await auth.api.signInAnonymous({ asResponse: true })) as Response
     const cookie = signIn.headers.get('set-cookie')!
 
-    const response = await auth.handler(
-      new Request('http://localhost/api/auth/sso/register', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', cookie },
-        body: JSON.stringify({
-          providerId: 'attacker',
-          issuer: 'https://attacker.example',
-          domain: 'attacker.example',
-          oidcConfig: { clientId: 'x', clientSecret: 'y', issuer: 'https://attacker.example' },
-        }),
-      }),
-    )
+    const attempt = auth.api.registerSSOProvider({
+      body: {
+        providerId: 'attacker',
+        issuer: 'https://attacker.example',
+        domain: 'attacker.example',
+        oidcConfig: { clientId: 'x', clientSecret: 'y', issuer: 'https://attacker.example' },
+      } as never,
+      headers: new Headers({ cookie }),
+    })
 
-    expect(response.status).toBeGreaterThanOrEqual(400)
+    await expect(attempt).rejects.toThrow(/registration is disabled/i)
+
+    await testEnv.cleanup()
   })
 })
