@@ -11,7 +11,8 @@ import { deleteIntegrationCredentials } from '@/dal'
 import type { OAuthProvider } from '@/lib/auth'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSettings } from '@/hooks/use-settings'
-import { onboardingStepCount, useOnboardingState } from '@/hooks/use-onboarding-state'
+import { useOnboardingState } from '@/hooks/use-onboarding-state'
+import { lastVisibleStep, visibleStepPosition } from '@/fork/onboarding/visible-steps'
 import { OnboardingPrivacyStep } from './onboarding-privacy-step'
 import { OnboardingAuthStep } from './onboarding-auth-step'
 import { OnboardingNameStep } from './onboarding-name-step'
@@ -31,7 +32,7 @@ export const OnboardingDialog = () => {
     user_has_completed_onboarding: false,
   })
   const [isOpen, setIsOpen] = useState(false)
-  const { state, actions } = useOnboardingState()
+  const { state, actions, visibleSteps } = useOnboardingState()
 
   // Owned here (the connected container) so the auth step stays presentational.
   const handleProviderDisconnect = async (provider: OAuthProvider) => {
@@ -68,7 +69,7 @@ export const OnboardingDialog = () => {
 
   // Unified action handlers
   const handleContinue = async () => {
-    if (state.currentStep === onboardingStepCount) {
+    if (state.currentStep === lastVisibleStep(visibleSteps)) {
       // Special handling for celebration step
       handleCelebrationComplete()
     } else if (state.currentStep === 2) {
@@ -91,7 +92,7 @@ export const OnboardingDialog = () => {
     }
   }
 
-  const isCelebration = state.currentStep === onboardingStepCount
+  const isCelebration = state.currentStep === lastVisibleStep(visibleSteps)
 
   const handleBackAction = () => {
     if (state.canGoBack) {
@@ -122,7 +123,10 @@ export const OnboardingDialog = () => {
           style={isMobile ? { paddingBottom: 'var(--kb, 0px)' } : undefined}
         >
           <div className="relative flex w-full shrink-0 items-center justify-center px-4 pb-2">
-            <StepIndicators currentStep={state.currentStep} totalSteps={onboardingStepCount} />
+            <StepIndicators
+              currentStep={visibleStepPosition(visibleSteps, state.currentStep)}
+              totalSteps={visibleSteps.length}
+            />
           </div>
           <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto px-6 py-4">
             {state.currentStep === 1 && <OnboardingPrivacyStep state={state} actions={actions} />}
