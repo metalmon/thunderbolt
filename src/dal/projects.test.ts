@@ -7,6 +7,8 @@ import { v7 as uuidv7 } from 'uuid'
 import { getDb } from '@/db/database'
 import { chatThreadsTable, modelsTable, projectsTable } from '@/db/tables'
 import type { Model } from '@/types'
+import { eq } from 'drizzle-orm'
+import { createModel } from './models'
 import { getOrCreateChatThread } from './chat-threads'
 import { setupTestDatabase, teardownTestDatabase } from './test-utils'
 import {
@@ -126,11 +128,22 @@ describe('chat membership', () => {
   })
 })
 
+/**
+ * A model to hang a thread on. These tests used to grab whatever the seeded
+ * defaults happened to leave in the table, and this fork now ships an empty
+ * catalog — so they bring their own. `createModel` adds the matching profile.
+ */
+const seedFixtureModel = async (db: Parameters<typeof createModel>[0]): Promise<Model> => {
+  const id = uuidv7()
+  await createModel(db, { id, provider: 'openai-compatible', name: 'Fixture model', model: 'fixture-1' })
+  return (await db.select().from(modelsTable).where(eq(modelsTable.id, id)).limit(1))[0] as Model
+}
+
 describe('new chat started inside a project', () => {
   it('stamps the project onto the lazily-created thread row', async () => {
     const db = getDb()
     const project = await createProject(db, { name: 'P' })
-    const model = (await db.select().from(modelsTable).limit(1))[0] as Model
+    const model = await seedFixtureModel(db)
 
     // Mirrors the hydration path: the row does not exist until the first message
     // save, at which point the session's projectId must reach it.
@@ -143,7 +156,7 @@ describe('new chat started inside a project', () => {
 
   it('leaves a chat started outside any project unassigned', async () => {
     const db = getDb()
-    const model = (await db.select().from(modelsTable).limit(1))[0] as Model
+    const model = await seedFixtureModel(db)
     const thread = await getOrCreateChatThread(db, uuidv7(), model.id)
     expect(thread.projectId).toBeNull()
   })
@@ -152,7 +165,7 @@ describe('new chat started inside a project', () => {
     const db = getDb()
     const a = await createProject(db, { name: 'A' })
     const b = await createProject(db, { name: 'B' })
-    const model = (await db.select().from(modelsTable).limit(1))[0] as Model
+    const model = await seedFixtureModel(db)
     const threadId = uuidv7()
     await getOrCreateChatThread(db, threadId, model.id, null, a.id)
 

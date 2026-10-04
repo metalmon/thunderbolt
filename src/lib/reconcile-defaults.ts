@@ -443,6 +443,11 @@ export type ReconcileDefaultsOverrides = {
   /** Models defaults source (server OTA payload or bundled). Falls back to
    *  the shipped `defaultModels` + `defaultModelsVersion` when omitted. */
   models?: ModelsDefaults
+  /** Bundled model profiles. A model is only ever seeded when the BUILD carries a
+   *  profile for its id, so a caller that supplies `models` must be able to supply
+   *  the matching profiles — otherwise its models are filtered out and nothing is
+   *  written. Defaults to what this build bundles. */
+  profiles?: readonly ModelProfile[]
   /** Did PowerSync's initial-sync gate finish this boot? When false (timed out
    *  or failed) we can't trust that a missing local stored version means "never
    *  applied" — cloud may hold both the version marker and newer rows we
@@ -452,6 +457,7 @@ export type ReconcileDefaultsOverrides = {
 
 export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: ReconcileDefaultsOverrides) => {
   const pickedModelsSource = overrides?.models ?? bundledModelsDefaults
+  const bundledProfiles = overrides?.profiles ?? defaultModelProfiles
   const modelsSource = {
     ...pickedModelsSource,
     data: pickedModelsSource.data.map(normalizeModelDefault),
@@ -492,7 +498,7 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     // those ids out and log the drop; cleanup still uses the unfiltered set
     // so a genuinely-shipped-elsewhere row (present locally via sync from a
     // newer-bundle peer) stays alive.
-    const bundledProfileModelIds = new Set(defaultModelProfiles.map((p) => p.modelId))
+    const bundledProfileModelIds = new Set(bundledProfiles.map((p) => p.modelId))
     const modelsForReconcile = modelsSource.data.filter((m) => bundledProfileModelIds.has(m.id))
     const droppedOtaModelIds = modelsSource.data.filter((m) => !bundledProfileModelIds.has(m.id)).map((m) => m.id)
     if (droppedOtaModelIds.length > 0) {
@@ -550,7 +556,7 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     // with no live model — reintroducing the very 1:1 hazard `insertMissing`
     // exists to prevent, from the OTA-retire direction.
     const aliveModelIdsForReconcile = new Set(modelsForReconcile.map((m) => m.id))
-    const profilesForReconcile = defaultModelProfiles.filter((p) => aliveModelIdsForReconcile.has(p.modelId))
+    const profilesForReconcile = bundledProfiles.filter((p) => aliveModelIdsForReconcile.has(p.modelId))
     const profilesPass = await reconcileDefaultsForTable(
       tx,
       modelProfilesTable,
