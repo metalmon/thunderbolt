@@ -68,7 +68,12 @@ export const createVoltdAgentProvider = (options: CreateVoltdAgentProviderOption
       // route itself has already decided who may see system agents.
       if (!user || user.isAnonymous) return []
 
-      const token = await options.service.mint({ userId: user.id, groups: readPrincipalGroups(user) })
+      const token = await options.service.mint({
+        userId: user.id,
+        groups: readPrincipalGroups(user),
+        name: user.name,
+        email: user.email,
+      })
       const roster = await fetchRoster({
         gatewayUrl: options.gatewayUrl,
         token,
