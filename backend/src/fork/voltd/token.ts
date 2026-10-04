@@ -22,6 +22,7 @@
  * over `jose`, which the backend already depends on.
  */
 
+import { readFileSync } from 'node:fs'
 import { SignJWT, calculateJwkThumbprint, exportJWK, importPKCS8, importSPKI, type JWK } from 'jose'
 
 /** The only signing algorithm this service issues. RS256 would also satisfy
@@ -68,15 +69,23 @@ export type VoltdTokenConfig = {
  * fork backend modules handle their own config (see `fork/openrouter/routes.ts`)
  * rather than extending the upstream settings schema.
  *
+ * Keys come from either `VOLTD_JWT_{PRIVATE,PUBLIC}_KEY_PEM` (inline) or
+ * `..._FILE` (a path). Prefer the file form in a container: a PEM is multi-line so
+ * `env_file` cannot carry it, and a private key in an environment variable leaks
+ * into `docker inspect` and crash dumps.
+ *
  * `VOLTD_ISSUER` is optional: the natural value is the backend's own public API
  * base, which is where these routes are mounted — `BETTER_AUTH_URL` plus the
  * app's `/v1` prefix.
  *
  * @param env - environment map, defaulting to `process.env`
  */
-export const readVoltdTokenConfig = (env: NodeJS.ProcessEnv = process.env): VoltdTokenConfig | null => {
-  const privateKeyPem = env.VOLTD_JWT_PRIVATE_KEY_PEM ?? ''
-  const publicKeyPem = env.VOLTD_JWT_PUBLIC_KEY_PEM ?? ''
+export const readVoltdTokenConfig = (
+  env: NodeJS.ProcessEnv = process.env,
+  readFile: (path: string) => string = defaultReadFile,
+): VoltdTokenConfig | null => {
+  const privateKeyPem = readKey(env.VOLTD_JWT_PRIVATE_KEY_PEM, env.VOLTD_JWT_PRIVATE_KEY_FILE, readFile)
+  const publicKeyPem = readKey(env.VOLTD_JWT_PUBLIC_KEY_PEM, env.VOLTD_JWT_PUBLIC_KEY_FILE, readFile)
   if (!privateKeyPem.trim() || !publicKeyPem.trim()) return null
 
   const issuer = resolveVoltdIssuer(env.VOLTD_ISSUER ?? '', env.BETTER_AUTH_URL ?? '')
@@ -88,6 +97,38 @@ export const readVoltdTokenConfig = (env: NodeJS.ProcessEnv = process.env): Volt
     privateKeyPem,
     publicKeyPem,
     ttlSeconds: clampTtl(env.VOLTD_TOKEN_TTL_SECONDS),
+  }
+}
+
+const defaultReadFile = (path: string): string => readFileSync(path, 'utf-8')
+
+/**
+ * Resolve a PEM from either an inline variable or a file path.
+ *
+ * The file form is the one a container can actually use: a PEM is multi-line and
+ * `env_file` cannot carry it, and a private key in an environment variable leaks
+ * into `docker inspect`, process listings and crash dumps. The inline form stays
+ * for tests and for platforms that inject secrets as values.
+ *
+ * An unreadable path yields an empty string, which leaves the whole feature inert
+ * rather than crashing the backend at startup over a misconfigured key path.
+ *
+ * @param inline - the `*_PEM` variable
+ * @param path - the `*_FILE` variable
+ * @param readFile - injected for tests
+ */
+const readKey = (
+  inline: string | undefined,
+  path: string | undefined,
+  readFile: (path: string) => string,
+): string => {
+  if (inline?.trim()) return inline
+  const trimmedPath = path?.trim()
+  if (!trimmedPath) return ''
+  try {
+    return readFile(trimmedPath)
+  } catch {
+    return ''
   }
 }
 
