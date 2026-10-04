@@ -216,7 +216,6 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       const token = await options.service.mint({
         userId: user.id,
         groups: readPrincipalGroups(user),
-        name: user.name,
         email: user.email,
       })
       if (state.closed) return
