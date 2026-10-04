@@ -32,22 +32,25 @@ type ServerModelsDefaults = { version: number; data: SharedModel[] }
  *     floor: OTA can update or retire ids the bundle knows, but not wipe
  *     wholesale.
  */
-export const pickModelsDefaults = (server: ServerModelsDefaults | undefined): ModelsDefaults => {
+export const pickModelsDefaults = (
+  server: ServerModelsDefaults | undefined,
+  // The bundle is a parameter so the rules below stay testable on a fork that
+  // ships none: with `defaultModels` empty the overlap guard can never be
+  // satisfied by any payload, and its tests would have nothing to assert against.
+  bundle: { version: number; data: readonly SharedModel[] } = {
+    version: defaultModelsVersion,
+    data: defaultModels,
+  },
+): ModelsDefaults => {
   if (
     server &&
     Number.isFinite(server.version) &&
-    server.version > defaultModelsVersion &&
+    server.version > bundle.version &&
     Array.isArray(server.data) &&
     server.data.length > 0
   ) {
-    const bundledIds = new Set(defaultModels.map((m) => m.id))
-    // An EMPTY bundle (this fork ships no models) makes the overlap rule
-    // meaningless rather than strict: there is no bundle-known row for
-    // `cleanupRemovedDefaults` to retire and no local state a payload could wipe,
-    // so demanding an overlap would reject every well-formed payload and leave the
-    // deployment with no models at all. Overlap is required only when there IS a
-    // bundle to protect.
-    if (bundledIds.size === 0 || server.data.some((m) => bundledIds.has(m.id))) {
+    const bundledIds = new Set(bundle.data.map((m) => m.id))
+    if (server.data.some((m) => bundledIds.has(m.id))) {
       return { version: server.version, data: server.data }
     }
     // Payload is well-formed but has zero overlap with the bundle. Either the
@@ -56,8 +59,8 @@ export const pickModelsDefaults = (server: ServerModelsDefaults | undefined): Mo
     // adopting it would wipe local state — fall back to bundle and log.
     console.warn(
       `[pickModelsDefaults] Server payload rejected: ${server.data.length} model id(s) with zero overlap ` +
-        `against the ${defaultModels.length} bundled defaults. Falling back to the bundled lineup.`,
+        `against the ${bundle.data.length} bundled defaults. Falling back to the bundled lineup.`,
     )
   }
-  return { version: defaultModelsVersion, data: defaultModels }
+  return { version: bundle.version, data: bundle.data }
 }
