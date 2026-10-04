@@ -110,7 +110,11 @@ describe('ChatSkillsBar', () => {
     expect(screen.getByLabelText('Add a skill')).toBeTruthy()
   })
 
-  it('excludes widget skills from pin candidates', () => {
+  // Fork (2593158b6): widget skills ARE pin candidates. Pinning is a display-only
+  // preference that never touches the model-facing widget contract, and the chip's
+  // own menu can unpin them — so excluding them here, as upstream did, made an
+  // unpinned Weather impossible to get back. This test guards the way back.
+  it('offers widget skills as pin candidates, so an unpinned one can be restored', () => {
     const task = { ...skill('task', 'daily-brief'), label: 'Daily Brief' }
     renderBar({
       useLibrarySkills: fakeUseLibrarySkills([task, defaultSkillWeather]),
@@ -120,10 +124,14 @@ describe('ChatSkillsBar', () => {
     fireEvent.click(screen.getByLabelText('Add a skill'))
 
     expect(screen.getByText('Daily Brief')).toBeTruthy()
-    expect(screen.queryByText('Weather')).toBeNull()
+    expect(screen.getByText(defaultSkillWeather.label)).toBeTruthy()
   })
 
-  it('keeps pinned widget skill actions read-only', async () => {
+  // Same fork decision as above: what stays locked on a widget skill is its
+  // CONTENT — the instruction text is the model-facing widget contract — while
+  // pinning is a display preference the user owns, so Unpin is offered and the
+  // skill can be re-pinned from the add popover.
+  it('locks a pinned widget skill content but still lets it be unpinned', async () => {
     renderBar({
       usePinnedSkills: fakeUsePinnedSkills({ pinned: [defaultSkillWeather] }),
       useLibrarySkills: fakeUseLibrarySkills([defaultSkillWeather]),
@@ -135,7 +143,7 @@ describe('ChatSkillsBar', () => {
     expect(await waitForElement(() => screen.queryByText('Add to chat'))).toBeTruthy()
     expect(screen.queryByText('Edit skill')).toBeNull()
     expect(screen.queryByText('Reorder')).toBeNull()
-    expect(screen.queryByText('Unpin')).toBeNull()
+    expect(screen.queryByText('Unpin')).toBeTruthy()
   })
 
   it('keeps the "+ Add a skill" trigger clickable when every enabled skill is already pinned (popover still offers New skill)', () => {
