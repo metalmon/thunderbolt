@@ -119,6 +119,16 @@ const loopbackHosts = new Set(['localhost', '::1', '[::1]'])
 const ipv4LoopbackPattern = /^127(?:\.\d{1,3}){3}$/
 
 /**
+ * Whether a hostname is loopback, i.e. plain-text transport to it cannot leave
+ * the machine. Shared with the gateway-URL check so both places agree on what
+ * "local" means.
+ *
+ * @param hostname - a parsed URL's hostname
+ */
+export const isLoopbackHostname = (hostname: string): boolean =>
+  loopbackHosts.has(hostname) || ipv4LoopbackPattern.test(hostname) || hostname.endsWith('.localhost')
+
+/**
  * Whether a string is usable as the `iss` claim: absolute http(s), no query,
  * fragment or credentials, no trailing slash, and https unless the host is
  * loopback (voltd accepts plain http only there).
@@ -132,7 +142,23 @@ export const isValidVoltdIssuer = (issuer: string): boolean => {
   if (issuer.endsWith('/')) return false
   if (url.protocol === 'https:') return true
   if (url.protocol !== 'http:') return false
-  return loopbackHosts.has(url.hostname) || ipv4LoopbackPattern.test(url.hostname) || url.hostname.endsWith('.localhost')
+  return isLoopbackHostname(url.hostname)
+}
+
+/**
+ * Whether a gateway URL is safe to send a minted access token to: `wss:`
+ * anywhere, `ws:` only to a loopback host. A misconfigured `ws://` to a LAN or
+ * remote gateway would put the token on the wire in clear text, so the provider
+ * refuses to dial rather than leaking it.
+ *
+ * @param gatewayUrl - the configured gateway ACP endpoint
+ */
+export const isSecureGatewayUrl = (gatewayUrl: string): boolean => {
+  if (!URL.canParse(gatewayUrl)) return false
+  const url = new URL(gatewayUrl)
+  if (url.username !== '' || url.password !== '') return false
+  if (url.protocol === 'wss:') return true
+  return url.protocol === 'ws:' && isLoopbackHostname(url.hostname)
 }
 
 /**
