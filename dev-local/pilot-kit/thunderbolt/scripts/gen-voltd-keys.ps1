@@ -13,7 +13,7 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
 $out = Join-Path $root "conf\voltd-keys"
-$image = if ($env:THUNDERBOLT_BACKEND_IMAGE) { $env:THUNDERBOLT_BACKEND_IMAGE } else { "thunderbolt-backend:pilot" }
+$image = if ($env:VOLT_BACKEND_IMAGE) { $env:VOLT_BACKEND_IMAGE } else { "volt-backend:pilot" }
 
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 $keyPath = Join-Path $out "signing.key.pem"
