@@ -95,7 +95,7 @@ export const mountMessageParts = (
     return partType === 'text' || partType === 'tool'
   })
 
-  // ZeroClaw deliver_file outputs in this message, flattened in delivery order. This is the
+  // Volt deliver_file outputs in this message, flattened in delivery order. This is the
   // persisted source of truth text parts resolve `[N]` / deliver-uri citations against — so
   // citations open after a reload / in later turns, with no live map.
   const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
