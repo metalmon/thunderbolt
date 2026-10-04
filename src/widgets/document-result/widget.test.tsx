@@ -63,7 +63,7 @@ describe('DocumentResultWidget', () => {
     })
   })
 
-  it('opens local-file sideview for ZeroClaw attachment uri (resolved from the uri, no map)', () => {
+  it('opens local-file sideview for Volt attachment uri (resolved from the uri, no map)', () => {
     const uri = 'attachment://deliver/a1b2c3d4e5f6.pdf'
 
     const { captured } = renderWithCapture(<DocumentResultWidget name="Договор.pdf" fileId={uri} />)
