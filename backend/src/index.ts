@@ -206,7 +206,7 @@ export const createApp = async (deps?: AppDeps) => {
       .use(createAccountRoutes(auth, settings, database))
       .use(createAgentsRoutes(auth))
       .use(createHaystackRoutes(settings, auth, { fetchFn }))
-      .use(await createVoltdRoutes({ auth, observability: proxyObservability, rateLimit: proRateLimit }))
+      .use(await createVoltdRoutes({ auth, observability: proxyObservability }))
   )
 }
 
