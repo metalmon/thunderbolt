@@ -46,6 +46,9 @@ powersync-service/voltd-keys/
 # PRIVATE KEY (THUNDERBOLT_TLS_CERT_DIR defaults here) plus any CA the backend is
 # told to trust. Deployment-specific, never committed.
 powersync-service/certs/
+# Fork: generated credentials for the local Keycloak test users (voltd live test).
+# Throwaway, local-only, never committed.
+powersync-service/.local-test-users.txt
 
 # Kubernetes secrets (use secrets.yaml.example as template)
 secrets.yaml
