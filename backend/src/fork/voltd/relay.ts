@@ -44,6 +44,9 @@ type RelayState = {
   /** The downstream socket closed. Read by `open` after each await, which is the
    *  only thing that keeps a gateway socket created later from being orphaned. */
   closed: boolean
+  /** Armed while the gateway handshake is outstanding; cleared by whichever of
+   *  open/close/error/timeout happens first. */
+  connectTimer: ReturnType<typeof setTimeout> | null
   pending: Frame[]
   pendingBytes: number
 }
@@ -91,7 +94,10 @@ const safeClose = (socket: { close: (code?: number, reason?: string) => void }, 
 export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): AnyElysia => {
   const base = new Elysia({ name: 'voltd-relay' })
   if (!isSecureGatewayUrl(options.gatewayUrl)) return base
-  return base.ws('/voltd/ws', createVoltdRelayHandlers(options))
+  // Elysia's WS hook type is deeply generic and not worth re-deriving: the handlers
+  // are structurally correct and driven directly by the tests, so the seam is cast
+  // here rather than contorting their signatures to match it.
+  return base.ws('/voltd/ws', createVoltdRelayHandlers(options) as never)
 }
 
 /** The downstream socket surface the handlers actually use, so tests can supply a
@@ -128,7 +134,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       // state those frames are dropped unbounded-by-nothing, and without the
       // `closed` flag below the socket we are about to open to the gateway would
       // outlive the client that asked for it, forever.
-      const state: RelayState = { upstream: null, ready: false, closed: false, pending: [], pendingBytes: 0 }
+      const state: RelayState = { upstream: null, ready: false, closed: false, connectTimer: null, pending: [], pendingBytes: 0 }
       states.set(ws, state)
 
       const request = (ws.data as unknown as { request?: Request }).request
@@ -172,14 +178,18 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       // A gateway that accepts the TCP connection but never completes the
       // handshake would otherwise hold this connection, and its queue, open
       // indefinitely.
-      const connectTimer = setTimeout(() => {
+      state.connectTimer = setTimeout(() => {
         if (state.ready) return
         safeClose(upstream)
         safeClose(ws, wsCloseCodes.internalError, 'gateway did not complete the handshake')
       }, connectTimeoutMs)
+      const clearConnectTimer = () => {
+        if (state.connectTimer) clearTimeout(state.connectTimer)
+        state.connectTimer = null
+      }
 
       upstream.onopen = () => {
-        clearTimeout(connectTimer)
+        clearConnectTimer()
         state.ready = true
         for (const frame of state.pending) upstream.send(frame)
         state.pending = []
@@ -187,14 +197,14 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       }
       upstream.onmessage = (event: MessageEvent) => ws.send(event.data)
       upstream.onerror = () => {
-        clearTimeout(connectTimer)
+        clearConnectTimer()
         safeClose(ws, wsCloseCodes.internalError, 'gateway socket failed')
       }
       // Propagate the gateway's own code where it is a valid one to forward, so a
       // 401 on upgrade (no agents for this principal) stays distinguishable from
       // our own failures.
       upstream.onclose = (event: CloseEvent) => {
-        clearTimeout(connectTimer)
+        clearConnectTimer()
         safeClose(ws, event.code >= 1000 && event.code <= 4999 ? event.code : wsCloseCodes.internalError, event.reason)
       }
     },
@@ -230,6 +240,8 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       // reference to this object, which is how it learns not to leave a gateway
       // socket behind.
       state.closed = true
+      if (state.connectTimer) clearTimeout(state.connectTimer)
+      state.connectTimer = null
       state.pending = []
       state.pendingBytes = 0
       if (state.upstream) safeClose(state.upstream)
