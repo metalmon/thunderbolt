@@ -9,9 +9,10 @@
  */
 
 import type { Auth } from '@/auth/elysia-plugin'
-import { describe, expect, it } from 'bun:test'
+import { getRegisteredProviders, resetAgentProvidersForTesting } from '@/agents/discovery'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
-import { decodeProtectedHeader, exportPKCS8, exportSPKI, generateKeyPair, jwtVerify } from 'jose'
+import { exportPKCS8, exportSPKI, generateKeyPair } from 'jose'
 import { createVoltdRoutes } from './routes'
 import { voltdMaxTokenTtlSeconds, type VoltdTokenConfig } from './token'
 
@@ -26,17 +27,16 @@ const config: VoltdTokenConfig = {
   ttlSeconds: voltdMaxTokenTtlSeconds,
 }
 
-type TestUser = { id: string; isAnonymous: boolean; groups?: unknown }
-
-const buildAuth = (user: TestUser | null): Auth =>
+const buildAuth = (): Auth =>
   ({
-    api: { getSession: () => Promise.resolve(user ? { user, session: {} } : null) },
+    api: { getSession: () => Promise.resolve({ user: { id: 'user-1', isAnonymous: false }, session: {} }) },
   }) as unknown as Auth
 
-const buildApp = async (user: TestUser | null, overrides: Partial<VoltdTokenConfig> | null = {}): Promise<Elysia> => {
+const buildApp = async (overrides: Partial<VoltdTokenConfig> | null = {}, gatewayUrl = ''): Promise<Elysia> => {
   const routes = await createVoltdRoutes({
-    auth: buildAuth(user),
+    auth: buildAuth(),
     config: overrides === null ? null : { ...config, ...overrides },
+    gatewayUrl,
   })
   return new Elysia().use(routes) as unknown as Elysia
 }
@@ -44,69 +44,53 @@ const buildApp = async (user: TestUser | null, overrides: Partial<VoltdTokenConf
 const get = (app: Elysia, path: string) => app.handle(new Request(`https://backend.volt.example${path}`))
 
 describe('voltd issuer routes', () => {
+  beforeEach(() => resetAgentProvidersForTesting())
+  afterEach(() => resetAgentProvidersForTesting())
+
   it('publishes a discovery document whose issuer matches the tokens it signs', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false })
-    const body = await (await get(app, '/.well-known/openid-configuration')).json()
+    const body = await (await get(await buildApp(), '/.well-known/openid-configuration')).json()
     expect(body).toEqual({ issuer, jwks_uri: `${issuer}/voltd/jwks` })
   })
 
   it('serves a JWKS without private key material', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false })
-    const body = await (await get(app, '/voltd/jwks')).json()
+    const body = await (await get(await buildApp(), '/voltd/jwks')).json()
     expect(body.keys).toHaveLength(1)
     expect(body.keys[0].d).toBeUndefined()
     expect(body.keys[0].kid).toBeTruthy()
   })
 
   it('lets the gateway re-read discovery and JWKS after a key rotation', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false })
+    const app = await buildApp()
     for (const path of ['/.well-known/openid-configuration', '/voltd/jwks']) {
-      const response = await get(app, path)
-      expect(response.headers.get('cache-control')).toBe('public, max-age=300')
+      expect((await get(app, path)).headers.get('cache-control')).toBe('public, max-age=300')
     }
   })
 
-  it('mints a token for an authenticated user, carrying their groups', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false, groups: ['volt-crm'] })
-    const response = await get(app, '/voltd/token')
-    expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body.expiresIn).toBe(voltdMaxTokenTtlSeconds)
-
-    const { payload } = await jwtVerify(body.token, keys.publicKey, { issuer, audience: 'volt' })
-    expect(payload.sub).toBe('user-1')
-    expect(payload.groups).toEqual(['volt-crm'])
-    expect(decodeProtectedHeader(body.token).typ).toBe('at+jwt')
-  })
-
-  it('never caches a minted token', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false })
-    expect((await get(app, '/voltd/token')).headers.get('cache-control')).toBe('no-store')
-  })
-
-  it('refuses an unauthenticated caller', async () => {
-    const app = await buildApp(null)
-    expect((await get(app, '/voltd/token')).status).toBe(401)
-  })
-
-  it('refuses an anonymous session — it has no identity to map to a profile', async () => {
-    const app = await buildApp({ id: 'anon-1', isAnonymous: true })
-    const response = await get(app, '/voltd/token')
-    expect(response.status).toBe(403)
-    expect(await response.json()).toMatchObject({ code: 'ANONYMOUS_VOLTD_TOKEN_FORBIDDEN' })
-  })
-
-  it('mints an empty groups claim for a user the IdP has not provisioned yet', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false })
-    const { token } = await (await get(app, '/voltd/token')).json()
-    const { payload } = await jwtVerify(token, keys.publicKey)
-    expect(payload.groups).toEqual([])
+  // The backend mints and consumes the gateway token itself, so a client-facing
+  // mint route would be surface nothing uses.
+  it('exposes no token-minting route', async () => {
+    expect((await get(await buildApp(), '/voltd/token')).status).toBe(404)
   })
 
   it('exposes no routes at all when the deployment has no signing key', async () => {
-    const app = await buildApp({ id: 'user-1', isAnonymous: false }, null)
-    for (const path of ['/.well-known/openid-configuration', '/voltd/jwks', '/voltd/token']) {
+    const app = await buildApp(null)
+    for (const path of ['/.well-known/openid-configuration', '/voltd/jwks']) {
       expect((await get(app, path)).status).toBe(404)
     }
+  })
+
+  it('registers the agent provider when a gateway is configured', async () => {
+    await buildApp({}, 'wss://gateway.internal:8443/acp')
+    expect(getRegisteredProviders().map((p) => p.id)).toContain('voltd')
+  })
+
+  it('registers no provider without a gateway', async () => {
+    await buildApp({}, '')
+    expect(getRegisteredProviders()).toHaveLength(0)
+  })
+
+  it('registers no provider for a cleartext gateway outside loopback', async () => {
+    await buildApp({}, 'ws://gateway.internal:8443/acp')
+    expect(getRegisteredProviders()).toHaveLength(0)
   })
 })
