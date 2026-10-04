@@ -5,7 +5,7 @@
 /**
  * Fork: does this account actually have access to THIS agent?
  *
- * ZeroClaw's RBAC gates per agent at `session/new`, while connect and
+ * the gateway's RBAC gates per agent at `session/new`, while connect and
  * `initialize` are only principal-level — "does the principal have any agents
  * at all". A connection test that stops at `initialize` therefore passes for an
  * agent the user cannot use, and the refusal only lands on their first message
