@@ -272,26 +272,32 @@ describe('identity claims for the gateway user list', () => {
     return payload
   }
 
-  it('carries name and email so a JWT sign-in is a person on the gateway, not an id', async () => {
+  it('carries the address so a JWT sign-in is a person on the gateway, not an id', async () => {
     const service = await createVoltdTokenService(config())
-    const token = await service.mint({
-      userId: 'user-1',
-      groups: ['volt-avk'],
-      name: 'avk Test',
-      email: 'avk@volt.local',
-    })
+    const token = await service.mint({ userId: 'user-1', groups: ['volt-avk'], email: 'avk@volt.local' })
 
     const payload = await verify(token)
-    expect(payload.name).toBe('avk Test')
     expect(payload.email).toBe('avk@volt.local')
   })
 
-  it('omits them when absent rather than sending blanks that would erase what the gateway knows', async () => {
+  it('never carries a display name — the account holder can set that to anything', async () => {
     const service = await createVoltdTokenService(config())
-    const token = await service.mint({ userId: 'user-2', groups: [], name: '   ' })
+    // Even if a caller passes one, nothing in the principal shape accepts it, and
+    // the minted token must not grow one by accident: the gateway shows it beside
+    // groups that ARE authoritative, so a self-chosen "Его величество" would read
+    // as if the IdP had said it.
+    const token = await service.mint({ userId: 'user-2', groups: ['volt-kb'], email: 'kb@volt.local' })
 
     const payload = await verify(token)
     expect('name' in payload).toBe(false)
+    expect('preferred_username' in payload).toBe(false)
+  })
+
+  it('omits the address when absent rather than sending a blank', async () => {
+    const service = await createVoltdTokenService(config())
+    const token = await service.mint({ userId: 'user-3', groups: [], email: '   ' })
+
+    const payload = await verify(token)
     expect('email' in payload).toBe(false)
     // The half the gateway actually verifies is untouched by the optional one.
     expect(payload.client_id).toBe('thunderbolt')
