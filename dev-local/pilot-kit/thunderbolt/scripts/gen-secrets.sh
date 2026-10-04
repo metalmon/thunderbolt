@@ -90,6 +90,16 @@ sed -e "s|\"https\?://[^\"]*/v1/api/auth/sso/callback/sso\"|\"${public_url}/v1/a
     conf/keycloak/realm.json > conf/keycloak/realm.json.tmp
 mv conf/keycloak/realm.json.tmp conf/keycloak/realm.json
 
+if [ "$use_tls" -ne 1 ]; then
+  # No terminator in front, so the SPA and Keycloak have to be reachable on the
+  # LAN directly. Every other published port stays on loopback either way. The
+  # template's line is rewritten rather than a second one appended: compose would
+  # honour the last, but a file a human reads must not state it twice.
+  sed -e "s|^VOLT_BIND_ADDR=.*|VOLT_BIND_ADDR=0.0.0.0|" .env > .env.tmp
+  mv .env.tmp .env
+  echo "NOTE: no --tls, so web and Keycloak are published on 0.0.0.0 in plain HTTP."
+fi
+
 echo "Wrote .env (PUBLIC_URL=${public_url}, KEYCLOAK_PUBLIC_URL=${keycloak_public_url})"
 echo "Synced conf/powersync/config.yaml's HS256 key to the new POWERSYNC_JWT_SECRET."
 echo "Repointed conf/keycloak/realm.json's redirect URIs at ${public_url} and gave"
