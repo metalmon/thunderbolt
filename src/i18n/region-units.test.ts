@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
-import { activeCurrencyCodes, unitDefaultsForRegion } from './region-units'
+import { activeCurrencyCodes, tagForRegion, unitDefaultsForRegion } from './region-units'
 
 describe('unitDefaultsForRegion', () => {
   test('reads the two CLDR exception lists independently', () => {
@@ -28,12 +28,26 @@ describe('unitDefaultsForRegion', () => {
     expect(unitDefaultsForRegion('IN').timeFormat).toBe('12h')
   })
 
-  test('resolves the hour cycle on a tag with no script subtag', () => {
-    // Regression guard for `tagForRegion`. ICU keys hour-cycle data on
-    // `language-REGION`, so a maximized tag misses: `en-Latn-GB` resolves to
-    // h12 and `es-Latn-MX` to h23 — both the opposite of the truth.
-    expect(unitDefaultsForRegion('GB').timeFormat).toBe('24h')
-    expect(unitDefaultsForRegion('MX').timeFormat).toBe('12h')
+  test('builds the lookup tag without a script subtag', () => {
+    // The rule this file owns. ICU keys hour-cycle data on `language-REGION`, so
+    // a maximized tag falls off the lookup path: `en-Latn-GB` resolves to h12 and
+    // `es-Latn-MX` to h23, both the opposite of the truth. Asserted on the tag
+    // itself because that part is ours and holds on every engine.
+    expect(tagForRegion('GB')).toBe('en-GB')
+    expect(tagForRegion('MX')).toBe('es-MX')
+  })
+
+  test('reads the hour cycle from that tag, whatever this engine knows', () => {
+    // NOT pinned to h12/h23: the answer is CLDR's, and ICU builds disagree —
+    // Chromium gives es-MX h12 while Bun's reduced data gives every tag h23, so
+    // a hardcoded expectation fails on one of the two for no good reason.
+    // What is ours is that the result matches the UNMAXIMIZED tag's own answer.
+    const expectedFor = (tag: string) => {
+      const { hourCycle } = new Intl.DateTimeFormat(tag, { hour: 'numeric' }).resolvedOptions()
+      return hourCycle === 'h11' || hourCycle === 'h12' ? '12h' : '24h'
+    }
+    expect(unitDefaultsForRegion('GB').timeFormat).toBe(expectedFor('en-GB'))
+    expect(unitDefaultsForRegion('MX').timeFormat).toBe(expectedFor('es-MX'))
   })
 
   test('maps the region to its circulating currency', () => {
@@ -112,8 +126,21 @@ describe('activeCurrencyCodes', () => {
     expect(Intl.supportedValuesOf('currency').length).toBeGreaterThan(activeCurrencyCodes.length)
   })
 
-  test('is a strict subset of what Intl can format', () => {
-    const supported = new Set(Intl.supportedValuesOf('currency'))
-    expect(activeCurrencyCodes.filter((code) => !supported.has(code))).toEqual([])
+  test('is formattable by Intl, on whatever ICU this engine ships', () => {
+    // Membership in `Intl.supportedValuesOf('currency')` is the wrong test: that
+    // list is this ICU build's, and a currency introduced after it ships — XCG,
+    // the Caribbean guilder, in 2025 — is absent from an older one while being
+    // perfectly correct in our data. What matters is that no code we ship is
+    // MALFORMED, which is the only thing Intl actually rejects; an unknown but
+    // well-formed code formats as itself, which is the right fallback anyway.
+    const rejected = activeCurrencyCodes.filter((code) => {
+      try {
+        new Intl.NumberFormat('en', { style: 'currency', currency: code }).format(1)
+        return false
+      } catch {
+        return true
+      }
+    })
+    expect(rejected).toEqual([])
   })
 })
