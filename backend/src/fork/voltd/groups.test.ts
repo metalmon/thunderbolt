@@ -11,6 +11,7 @@ import {
   readGroupsClaimPath,
   readTrustedIssuers,
   resetClaimNameLoggingForTesting,
+  voltdGroupsExtraFields,
 } from './groups'
 
 const trustedIssuer = 'https://keycloak.example/realms/volt'
@@ -232,5 +233,28 @@ describe('forkProvisionVoltdGroups', () => {
     // The values — an email address and a subject id — must not be in the log.
     expect(JSON.stringify(infos[0].obj)).not.toContain('person@example.test')
     expect(JSON.stringify(infos[0].obj)).not.toContain('abc')
+  })
+})
+
+describe('voltdGroupsExtraFields', () => {
+  // The whole point: the SSO plugin keeps the five fields it maps plus whatever
+  // extraFields names, and drops every other claim before provisionUser runs.
+  // Without this mapping the live sign-in produced a user with no groups and no
+  // agents, with nothing failing anywhere.
+  it('asks for the claim the dotted path addresses', () => {
+    expect(voltdGroupsExtraFields('groups')).toEqual({ groups: 'groups' })
+  })
+
+  it('asks for the ROOT object of a nested path, which the dotted reader then walks', () => {
+    expect(voltdGroupsExtraFields('realm_access.roles')).toEqual({ realm_access: 'realm_access' })
+  })
+
+  it('asks for nothing when the path is blank, rather than for a field named ""', () => {
+    expect(voltdGroupsExtraFields('')).toEqual({})
+    expect(voltdGroupsExtraFields('   ')).toEqual({})
+  })
+
+  it('defaults to the configured claim path', () => {
+    expect(voltdGroupsExtraFields()).toEqual({ [defaultGroupsClaimPath]: defaultGroupsClaimPath })
   })
 })
