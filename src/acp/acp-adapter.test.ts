@@ -251,7 +251,7 @@ const enabledSkills: SkillDefinition[] = [
   },
 ]
 
-/** Expected ACP prompt text with the always-on ZeroClaw deliver_file cite note. */
+/** Expected ACP prompt text with the always-on Volt deliver_file cite note. */
 const expectedPromptText = (body: string): string => body
 
 describe('connectAcpAdapter — handshake failure modes', () => {
