@@ -6,6 +6,7 @@ import { describe, expect, it } from 'bun:test'
 import { decodeProtectedHeader, exportPKCS8, exportSPKI, generateKeyPair, importJWK, jwtVerify } from 'jose'
 import {
   createVoltdTokenService,
+  isSecureGatewayUrl,
   isValidVoltdIssuer,
   readPrincipalGroups,
   readVoltdTokenConfig,
@@ -73,6 +74,29 @@ describe('isValidVoltdIssuer', () => {
       expect(isValidVoltdIssuer(issuer)).toBe(true)
     },
   )
+})
+
+describe('isSecureGatewayUrl', () => {
+  it('accepts wss anywhere', () => {
+    expect(isSecureGatewayUrl('wss://gateway.internal:8443/acp')).toBe(true)
+  })
+
+  it.each([
+    ['loopback by name', 'ws://localhost:8443/acp'],
+    ['loopback by address', 'ws://127.0.0.1:8443/acp'],
+  ])('allows cleartext on %s', (_label, url) => {
+    expect(isSecureGatewayUrl(url)).toBe(true)
+  })
+
+  it.each([
+    ['a LAN host', 'ws://gateway.internal:8443/acp'],
+    ['a public host', 'ws://gateway.example.com/acp'],
+    ['embedded credentials', 'wss://u:p@gateway.internal/acp'],
+    ['a non-ws scheme', 'https://gateway.internal/acp'],
+    ['a non-URL', 'gateway.internal:8443'],
+  ])('rejects %s', (_label, url) => {
+    expect(isSecureGatewayUrl(url)).toBe(false)
+  })
 })
 
 describe('readVoltdTokenConfig', () => {
