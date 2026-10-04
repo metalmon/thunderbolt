@@ -67,7 +67,7 @@ Copy-Item (Join-Path $root "conf\.env.example") $envPath -Force
 $content = Get-Content $envPath -Raw
 $content = $content -replace '(?m)^PUBLIC_URL=.*', "PUBLIC_URL=$publicUrl"
 $content = $content -replace '(?m)^KEYCLOAK_PUBLIC_URL=.*', "KEYCLOAK_PUBLIC_URL=$keycloakPublicUrl"
-$content = $content -replace '(?m)^THUNDERBOLT_TLS_SERVER_NAME=.*', "THUNDERBOLT_TLS_SERVER_NAME=$PublicHost"
+$content = $content -replace '(?m)^VOLT_TLS_SERVER_NAME=.*', "VOLT_TLS_SERVER_NAME=$PublicHost"
 $content = $content -replace '(?m)^POSTGRES_PASSWORD=.*', "POSTGRES_PASSWORD=$postgresPassword"
 $content = $content -replace '(?m)^BETTER_AUTH_SECRET=.*', "BETTER_AUTH_SECRET=$betterAuthSecret"
 $content = $content -replace '(?m)^POWERSYNC_JWT_SECRET=.*', "POWERSYNC_JWT_SECRET=$powersyncSecret"
@@ -77,7 +77,7 @@ if ($Voltd) {
     # The backend's own TLS hop to voltd is made by Bun, whose root store knows
     # nothing about the pilot CA. Without this the roster call fails with "unable
     # to verify the first certificate" and no agent is ever published.
-    $content = $content -replace '(?m)^THUNDERBOLT_BACKEND_EXTRA_CA=.*', "THUNDERBOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt.pem"
+    $content = $content -replace '(?m)^VOLT_BACKEND_EXTRA_CA=.*', "VOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt.pem"
 }
 Set-Content -Path $envPath -Value $content -NoNewline
 
