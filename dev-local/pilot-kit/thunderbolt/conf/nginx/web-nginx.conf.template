@@ -1,0 +1,169 @@
+# Fork web container nginx config (additive fork IP).
+# Same-origin reverse proxy so a single tunnel origin (${PUBLIC_URL}) serves the
+# SPA, the backend API, and the PowerSync sync stream. Rendered by the nginx
+# image's envsubst entrypoint over /etc/nginx/templates/*.template.
+#
+# THUNDERBOLT_-prefixed var names dodge Kubernetes' auto-injected <SERVICE>_PORT
+# env vars (same rationale as deploy/config/nginx.conf.template upstream).
+
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gemini Live voice co-pilot WebSocket relay (fork/voice-gemini-live). Unlike
+    # the SSE-only /v1/ proxy below, this path is a real WebSocket upgrade, so it
+    # needs Upgrade/Connection passthrough and long-lived timeouts. Longer ^~
+    # prefix wins over /v1/ for this path.
+    location ^~ /v1/gemini-live {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # The two ACP WebSocket routes under /v1: the voltd agent relay (fork) and the
+    # universal proxy's WS hop. Same shape as gemini-live above and for the same
+    # reason — an ACP session idles between the user's turns, and nginx's 60s
+    # default read timeout then closes the upgrade, which is indistinguishable from
+    # the agent itself dropping the session. Measured through this container: with
+    # only the /v1/ location below, a relay idle for 65s is closed with code 1006;
+    # with these blocks it survives. The duplication is nginx's: `include` would
+    # need another mounted snippet, and a regex location can never be reached while
+    # `^~ /v1/` matches.
+    location ^~ /v1/proxy/ws {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    location ^~ /v1/voltd/ws {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # The relay builds the agent's advertised wss:// URL from this, so a
+        # missing/wrong value publishes an address the client cannot reach.
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Backend API. Variable host forces runtime DNS resolution (nginx won't crash
+    # if backend is not up yet). No URI on proxy_pass: with a variable host nginx
+    # passes the original request URI through unchanged.
+    location ^~ /v1/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        # Empty Connection = HTTP/1.1 keep-alive; backend uses SSE, not WebSocket.
+        # The WebSocket routes under /v1 get their own locations above, each with
+        # the Upgrade passthrough and the long timeouts they need — same reason
+        # upstream's deploy/config/nginx.conf.template omits Upgrade here.
+        proxy_set_header Connection "";
+    }
+
+    # PowerSync sync stream. Strip the /powersync prefix, then proxy to the
+    # service root. HTTP streaming (SyncStreamConnectionMethod.HTTP) requires
+    # proxy_buffering off and long read timeouts; NO websocket Upgrade headers.
+    location ^~ /powersync/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        resolver 127.0.0.11 valid=10s;
+        set $psbackend "${THUNDERBOLT_POWERSYNC_HOST}";
+        rewrite ^/powersync/(.*)$ /$1 break;
+        # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
+        # nosemgrep: generic.nginx.security.missing-internal.missing-internal
+        proxy_pass http://$psbackend:${THUNDERBOLT_POWERSYNC_PORT};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Cache hashed static assets aggressively.
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Source maps are uploaded to error tracking, not served publicly.
+    location ~* \.map$ {
+        return 404;
+    }
+
+    # Sandboxed artifact host (render_html / MCP-app HTML). The web sandbox host
+    # (src/artifacts/sandbox-host.ts + public/sandbox-sw.js) serves /__sandbox__/<id>
+    # from a service worker with the item's OWN per-item CSP, and the app frames it
+    # same-origin. The shared security-headers snippet sends `frame-ancestors 'none'`
+    # + `X-Frame-Options: DENY`, which — on any request that misses the SW (first
+    # paint before the SW claims, hard reload, SW disabled) — falls through to the
+    # SPA `index.html` and blocks the frame ("Framing 'http://localhost:3000/'
+    # violates ... frame-ancestors 'none'"). Give the sandbox route its own headers
+    # that permit same-origin framing, and 404 the fallback (the SW, not nginx,
+    # holds the content) so a miss fails cleanly instead of framing the app root.
+    # Do NOT include security-headers.conf here (it would re-impose the DENY).
+    location ^~ /__sandbox__/ {
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Cross-Origin-Embedder-Policy "credentialless" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Content-Security-Policy "frame-ancestors 'self'" always;
+        # nosemgrep: generic.nginx.security.header-redefinition.header-redefinition
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        try_files $uri =404;
+    }
+
+    # SPA fallback.
+    location / {
+        include /etc/nginx/snippets/security-headers.conf;
+        try_files $uri $uri/ /index.html;
+    }
+}

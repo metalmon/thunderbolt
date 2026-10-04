@@ -1,0 +1,40 @@
+# Thunderbolt pilot kit — voltd agent auto-discovery (opt-in overlay).
+#
+# Merged on top of docker-compose.yml; it adds nothing to the service list, only
+# the backend's voltd wiring. Enabled by two lines `scripts/gen-secrets` writes
+# into .env when it is run with --voltd (compose reads both from .env):
+#
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.voltd.yml
+#   COMPOSE_PATH_SEPARATOR=:
+#
+# COMPOSE_PATH_SEPARATOR is not optional — compose defaults it to `;` on Windows,
+# where the `:` above would otherwise be read as part of a file name.
+#
+# What this turns on: the backend asks voltd for its agent roster over ACP
+# (`initialize._meta.zeroclaw.agents`), publishes each entry as a managed-acp
+# agent, and relays client sessions to it at /v1/voltd/ws, minting a per-user
+# ES256 access token (RFC 9068 `at+jwt`) carrying the user's Keycloak groups.
+# The client needs no configuration at all — the agents just appear, scoped to
+# whoever is signed in.
+#
+# Nothing here is reached unless VOLTD_URL is set in .env: with it empty the
+# provider is never registered, the relay route is not mounted, and the issuer
+# surface stays unserved. Safe to leave merged.
+
+services:
+  backend:
+    environment:
+      # The keys are PATHS, not values: a PEM is multi-line (env_file cannot
+      # carry one) and a private key in an env var leaks into `docker inspect`.
+      # scripts/gen-voltd-keys writes both files; the mount below is read-only.
+      VOLTD_JWT_PRIVATE_KEY_FILE: /etc/volt/voltd-keys/signing.key.pem
+      VOLTD_JWT_PUBLIC_KEY_FILE: /etc/volt/voltd-keys/signing.pub.pem
+      # Dotted path to the group claim in Keycloak's token. The realm's Group
+      # Membership mapper emits `groups` (realm roles would be
+      # `realm_access.roles`). Must match `claim_path` in voltd's [oidc.volt].
+      VOLTD_GROUPS_CLAIM: ${VOLTD_GROUPS_CLAIM:-groups}
+      # VOLTD_URL / VOLTD_ISSUER are deliberately NOT restated here: the backend
+      # already reads .env through env_file, and naming them in `environment:`
+      # would shadow that file with compose's own (possibly empty) substitution.
+    volumes:
+      - ./conf/voltd-keys:/etc/volt/voltd-keys:ro
