@@ -21,6 +21,11 @@ export type User = {
   image: string | null
   isNew: boolean
   isAnonymous: boolean
+  /** Fork: identity-provider group membership, written only by the SSO
+   *  provisioning hook and asserted in the token an agent gateway authorizes
+   *  against. Empty where there is no identity provider — that deployment shape
+   *  reaches agents by pairing code instead. */
+  groups: string[]
   createdAt: Date
   updatedAt: Date
 }
