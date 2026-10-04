@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, test } from 'vitest'
 import { type DocumentCitationSource } from '@/types/citation'
@@ -42,7 +42,7 @@ describe('buildDeliveredCitationPlaceholders', () => {
       expect(s.documentMeta.fileId).toBe('L1')
       expect(s.documentMeta.fileName).toBe('a.pdf')
       expect(s.id).toBe(buildDocumentSideviewId({ fileId: 'L1', fileName: 'a.pdf' }))
-      // Citation label is the ZeroClaw title (prose), distinct from the basename id.
+      // Citation label is the Volt title (prose), distinct from the basename id.
       expect(s.title).toBe('Договор аренды')
       expect((s as { localFileSideview?: boolean }).localFileSideview).toBe(true)
     }

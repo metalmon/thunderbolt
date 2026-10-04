@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * The issuer surface a voltd (ZeroClaw) gateway needs in order to accept
+ * The issuer surface a voltd gateway needs in order to accept
  * Thunderbolt users without pairing codes:
  *
  * - `GET /.well-known/openid-configuration` — discovery, read by voltd
