@@ -23,12 +23,12 @@
  * gone" and delete (`refreshSystemAgents`).
  */
 
-import type { AgentProvider } from '@/agents/discovery'
+import { buildWebSocketUrl, type AgentProvider } from '@/agents/discovery'
 import type { Settings } from '@/config/settings'
 import type { RemoteAgentDescriptor } from '@shared/acp-types'
 import type { User } from '@shared/types/auth'
 import { fetchVoltdRoster, type VoltdRosterAgent } from './roster'
-import { readPrincipalGroups, type VoltdTokenService } from './token'
+import { isSecureGatewayUrl, readPrincipalGroups, type VoltdTokenService } from './token'
 
 /** Prefix for descriptor ids, keeping aliases from colliding with other providers. */
 const agentIdPrefix = 'voltd-'
@@ -52,6 +52,10 @@ export type CreateVoltdAgentProviderOptions = {
  */
 export const createVoltdAgentProvider = (options: CreateVoltdAgentProviderOptions): AgentProvider | null => {
   if (!options.gatewayUrl.trim()) return null
+  // Refuse rather than dial: a `ws://` gateway outside loopback would put the
+  // minted access token on the wire in clear text. Disabling the feature is the
+  // fail-closed choice — the operator sees no agents and fixes the URL.
+  if (!isSecureGatewayUrl(options.gatewayUrl)) return null
   const fetchRoster = options.fetchRoster ?? fetchVoltdRoster
 
   return {
@@ -77,26 +81,21 @@ export const createVoltdAgentProvider = (options: CreateVoltdAgentProviderOption
 
 /**
  * Map a roster entry to a descriptor whose URL points at our relay rather than at
- * the gateway, derived from the request's own origin so one build serves every
- * deployment (the same derivation Haystack's provider uses).
+ * the gateway. The URL comes from `buildWebSocketUrl`, which honours
+ * `x-forwarded-proto`/`x-forwarded-host` — without that, a deployment behind a
+ * TLS terminator (where the backend itself speaks plain http) would advertise
+ * `ws://` and the client would carry its session bearer in clear text.
  *
  * @param agent - roster entry
  * @param request - the discovery request, for host derivation
  */
-const toDescriptor = (agent: VoltdRosterAgent, request: Request): RemoteAgentDescriptor => {
-  const url = new URL(request.url)
-  url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:'
-  url.pathname = '/v1/voltd/ws'
-  url.search = `?agent=${encodeURIComponent(agent.alias)}`
-
-  return {
-    id: `${agentIdPrefix}${agent.alias}`,
-    name: agent.displayName ?? agent.alias,
-    type: 'managed-acp',
-    transport: 'websocket',
-    url: url.toString(),
-    description: null,
-    icon: null,
-    isSystem: 1,
-  }
-}
+const toDescriptor = (agent: VoltdRosterAgent, request: Request): RemoteAgentDescriptor => ({
+  id: `${agentIdPrefix}${agent.alias}`,
+  name: agent.displayName ?? agent.alias,
+  type: 'managed-acp',
+  transport: 'websocket',
+  url: buildWebSocketUrl(request, `voltd/ws?agent=${encodeURIComponent(agent.alias)}`),
+  description: null,
+  icon: null,
+  isSystem: 1,
+})
