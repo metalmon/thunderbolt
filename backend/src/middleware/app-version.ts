@@ -22,6 +22,11 @@ export const appVersionExemptPrefixes = [
   '/v1/posthog',
   '/v1/proxy/ws',
   '/v1/debug-transcripts/intake', // server-to-server, no X-App-Version
+  // Read by a voltd gateway verifying our token signatures — a Rust daemon, not a
+  // client build, so it carries no version header. `/v1/voltd/token` is called by
+  // our own client and stays subject to the gate on purpose.
+  '/v1/.well-known',
+  '/v1/voltd/jwks',
 ] as const
 
 /** Settings the gate reads — a full `Settings` is assignable, keeping tests free of a cast. */
