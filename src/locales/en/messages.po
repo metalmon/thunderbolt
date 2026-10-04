@@ -4027,6 +4027,11 @@ msgstr "This will share your encryption key with the device, allowing it to decr
 msgid "Thought for {duration}"
 msgstr "Thought for {duration}"
 
+#: src/components/app-logo.tsx
+#: src/components/signed-out.tsx
+msgid "Thunderbolt"
+msgstr "Volt"
+
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
 msgstr "Volt (hosted, private)"
