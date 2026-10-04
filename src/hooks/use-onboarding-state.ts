@@ -9,6 +9,8 @@ import { useActiveLocale } from '@/i18n/use-active-locale'
 import { fetchEnglishLocationName } from '@/lib/locations'
 import { useReducer } from 'react'
 import { useAsyncAttempt } from './use-async-attempt'
+import { selectHasOAuthProviders, useConfigStore } from '@/api/config-store'
+import { providerOnboardingStep } from '@/fork/onboarding/visible-steps'
 import { useIntegrationStatus } from './use-integration-status'
 import { useSettings } from './use-settings'
 
@@ -183,7 +185,14 @@ export const useOnboardingState = ({
   const nameValue = draft.nameValue ?? preferredName.value
   const savedLocation = locationNameDisplay.value || locationName.value
   const hasSavedLocation = savedLocation.length > 0 && locationLat.value !== '' && locationLng.value !== ''
-  const steps = getOnboardingSteps(isStandalone, hasBuiltInSearch)
+  // Fork: a connected deployment with no OAuth client id configured cannot honour
+  // the sign-in step, so it is dropped from the walk. Upstream's standalone lists
+  // already leave it out, and navigation, the dots and the finish check all read
+  // this list, so nothing else needs to know.
+  const hasOAuthProviders = useConfigStore((store) => selectHasOAuthProviders(store.config))
+  const steps = getOnboardingSteps(isStandalone, hasBuiltInSearch).filter(
+    (step) => hasOAuthProviders || step !== providerOnboardingStep,
+  )
   const currentStep = resolveOnboardingStep(
     draft.currentStep ?? parseOnboardingStep(onboardingCurrentStep.value),
     isStandalone,
@@ -237,6 +246,11 @@ export const useOnboardingState = ({
       attempt.finish()
     }
   }
+
+  // A deployment with no OAuth client id configured cannot honour the auth step,
+  // so navigation steps over it. The reducer's own first/last comparisons stay
+  // correct because only an interior step is ever hidden.
+  const visibleSteps = visibleOnboardingSteps(useConfigStore((store) => selectHasOAuthProviders(store.config)))
 
   const actions = {
     setCurrentStep: (step: OnboardingStep) => dispatch({ type: 'SET_CURRENT_STEP', payload: step }),
