@@ -19,6 +19,34 @@ services:
     ports:
       - "${WEB_PORT:-3000}:80"
 
+  tls:
+    restart: unless-stopped
+    # TLS terminator for on-prem deployments (no tunnel in front). Opt-in via
+    # the `tls` profile so certificate-less runs are unaffected:
+    #   docker compose --profile tls up -d
+    # Requires fullchain.pem + privkey.pem in THUNDERBOLT_TLS_CERT_DIR. See
+    # dev-local/docker/README-pilot-tls.md.
+    image: nginx:alpine
+    profiles: ["tls"]
+    depends_on:
+      - web
+    environment:
+      # Must equal the name baked into the client build (VITE_THUNDERBOLT_CLOUD_URL)
+      # and the SAN of the mounted certificate.
+      THUNDERBOLT_TLS_SERVER_NAME: ${THUNDERBOLT_TLS_SERVER_NAME:?Set THUNDERBOLT_TLS_SERVER_NAME}
+      THUNDERBOLT_TLS_UPSTREAM_HOST: web
+      THUNDERBOLT_TLS_UPSTREAM_PORT: 80
+      THUNDERBOLT_TLS_KEYCLOAK_HOST: keycloak
+      THUNDERBOLT_TLS_KEYCLOAK_PORT: 8080
+    volumes:
+      - ../dev-local/docker/tls-nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ${THUNDERBOLT_TLS_CERT_DIR:-./certs}:/etc/nginx/certs:ro
+    ports:
+      - "${THUNDERBOLT_TLS_HTTP_PORT:-80}:80"
+      - "${THUNDERBOLT_TLS_HTTPS_PORT:-443}:443"
+      # Keycloak on the same name/certificate, its own port (see tls-nginx template).
+      - "${THUNDERBOLT_TLS_KEYCLOAK_HTTPS_PORT:-8443}:8443"
+
   backend:
     restart: unless-stopped
     # IPv6 is unreachable on this host, but Gemini (generativelanguage.googleapis.com)
@@ -116,6 +144,10 @@ services:
       KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HEALTH_ENABLED: "true"
+      # Honour X-Forwarded-Proto/Host from the `tls` service so Keycloak builds
+      # https issuer + redirect URLs when it sits behind TLS termination. Harmless
+      # without the proxy (nothing sets the headers), so it is unconditional.
+      KC_PROXY_HEADERS: xforwarded
     volumes:
       - ./keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
     ports:
