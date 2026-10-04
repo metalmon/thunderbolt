@@ -86,4 +86,27 @@ describe('user.groups is not user-writable', () => {
     const [created] = await rows()
     expect(created.groups).toEqual([])
   })
+
+  // The escalation this closes: /sso/register is gated by sessionMiddleware alone,
+  // so without providersLimit: 0 any signed-in user could register an identity
+  // provider they control and have it assert `volt-admins`.
+  it('refuses to let a signed-in user register their own identity provider', async () => {
+    const signIn = (await auth.api.signInAnonymous({ asResponse: true })) as Response
+    const cookie = signIn.headers.get('set-cookie')!
+
+    const response = await auth.handler(
+      new Request('http://localhost/api/auth/sso/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', cookie },
+        body: JSON.stringify({
+          providerId: 'attacker',
+          issuer: 'https://attacker.example',
+          domain: 'attacker.example',
+          oidcConfig: { clientId: 'x', clientSecret: 'y', issuer: 'https://attacker.example' },
+        }),
+      }),
+    )
+
+    expect(response.status).toBeGreaterThanOrEqual(400)
+  })
 })

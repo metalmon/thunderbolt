@@ -92,6 +92,15 @@ const buildSsoPlugins = (database: typeof DbType) => {
 
     return [
       sso({
+        // Disables /sso/register. The endpoint is gated by sessionMiddleware alone
+        // and the limit defaults to 10, so leaving it open lets ANY signed-in user
+        // register an identity provider they control, sign in through it, and have
+        // it assert any group — and `user.groups` is what the agent gateway's
+        // permission profiles key on. This deployment only ever uses defaultSSO
+        // below, so nothing legitimate is lost. `@/fork/voltd/groups` independently
+        // refuses claims from an issuer this deployment did not configure, so a
+        // rebase that drops this line does not reopen the hole on its own.
+        providersLimit: 0,
         // MUST stay true: it defaults to false, and left there a user's groups
         // would be captured once at first sign-in and never refreshed, so a group
         // removed in the IdP would keep working indefinitely. Even with it on,
@@ -129,6 +138,15 @@ const buildSsoPlugins = (database: typeof DbType) => {
 
     return [
       sso({
+        // Disables /sso/register. The endpoint is gated by sessionMiddleware alone
+        // and the limit defaults to 10, so leaving it open lets ANY signed-in user
+        // register an identity provider they control, sign in through it, and have
+        // it assert any group — and `user.groups` is what the agent gateway's
+        // permission profiles key on. This deployment only ever uses defaultSSO
+        // below, so nothing legitimate is lost. `@/fork/voltd/groups` independently
+        // refuses claims from an issuer this deployment did not configure, so a
+        // rebase that drops this line does not reopen the hole on its own.
+        providersLimit: 0,
         // MUST stay true: it defaults to false, and left there a user's groups
         // would be captured once at first sign-in and never refreshed, so a group
         // removed in the IdP would keep working indefinitely. Even with it on,
