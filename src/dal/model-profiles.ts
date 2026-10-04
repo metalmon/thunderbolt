@@ -37,8 +37,15 @@ export const upsertModelProfile = async (
 }
 
 /** Create default profile for a model using seed data */
-export const createDefaultModelProfile = async (db: AnyDrizzleDatabase, modelId: string): Promise<void> => {
-  const defaultProfile = defaultModelProfiles.find((p) => p.modelId === modelId)
+export const createDefaultModelProfile = async (
+  db: AnyDrizzleDatabase,
+  modelId: string,
+  // The bundled profiles are a parameter so this stays testable on a build that
+  // ships none: with `defaultModelProfiles` empty the lookup below can only ever
+  // miss, and "creates the bundled profile" would have nothing to assert.
+  bundled: readonly ModelProfile[] = defaultModelProfiles,
+): Promise<void> => {
+  const defaultProfile = bundled.find((p) => p.modelId === modelId)
   if (!defaultProfile) {
     return
   }
