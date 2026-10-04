@@ -20,6 +20,17 @@
  *   emailVerified}` only, so extra claims never reach the database through it.
  *   They survive solely in the `userInfo` passed here.
  *
+ * **Only the operator's own identity provider is trusted.** Better Auth's
+ * `/sso/register` endpoint is gated by `sessionMiddleware` alone, so without the
+ * `providersLimit: 0` set at the call site any signed-in user could register an
+ * OIDC provider they control, sign in through it, and have it assert
+ * `groups: ["volt-admins"]` — a complete authorization bypass, since this column
+ * is what the gateway's permission profiles key on. The issuer of the provider the
+ * sign-in actually came through is therefore checked against the configured one,
+ * and anything else clears the column instead of filling it. Two independent
+ * controls, because one of them lives in an upstream file that a future rebase
+ * could quietly drop.
+ *
  * The claim is addressed by a **dotted path** (`VOLTD_GROUPS_CLAIM`, default
  * `groups`), mirroring the gateway's own `claim_path`, because the identity
  * provider is not known in advance: Keycloak's Group Membership mapper emits
@@ -28,7 +39,7 @@
  */
 
 import { createStandaloneLogger } from '@/config/logger'
-import { getSettings } from '@/config/settings'
+import { getSettings, type Settings } from '@/config/settings'
 import type { QueryableDatabase } from '@/db/client'
 import { user } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -47,6 +58,8 @@ type GroupsLogger = {
 export type ProvisionArgs = {
   user: { id: string } & Record<string, unknown>
   userInfo: Record<string, unknown>
+  /** The provider the sign-in came through. `issuer` is on `BaseSSOProvider`. */
+  provider?: { issuer?: unknown; providerId?: unknown }
 }
 
 export type ProvisionVoltdGroupsOptions = {
@@ -56,7 +69,20 @@ export type ProvisionVoltdGroupsOptions = {
   logger?: GroupsLogger
   /** Test seam — production reads `VOLTD_GROUPS_CLAIM`. */
   claimPath?: string
+  /** Issuers whose group claims may be trusted. Production derives them from the
+   *  deployment's own OIDC/SAML configuration. */
+  trustedIssuers?: readonly string[]
 }
+
+/**
+ * The issuers this deployment configured itself. A provider whose issuer is not
+ * among them was registered by a user, not an operator, and its claims about group
+ * membership are worth nothing.
+ *
+ * @param settings - resolved app settings
+ */
+export const readTrustedIssuers = (settings: Pick<Settings, 'oidcIssuer' | 'samlIdpIssuer'>): string[] =>
+  [settings.oidcIssuer, settings.samlIdpIssuer].map((issuer) => issuer?.trim()).filter((issuer): issuer is string => !!issuer)
 
 /**
  * Resolve the configured claim path.
@@ -109,10 +135,26 @@ export const resetClaimNameLoggingForTesting = (): void => {
  */
 export const forkProvisionVoltdGroups = (options: ProvisionVoltdGroupsOptions) => {
   const claimPath = options.claimPath ?? readGroupsClaimPath()
+  // getSettings() is memoized per process, so resolving it twice costs nothing and
+  // keeps each default independent of whether the other was injected.
   const logger = options.logger ?? createStandaloneLogger(getSettings())
+  const trustedIssuers = options.trustedIssuers ?? readTrustedIssuers(getSettings())
 
-  return async ({ user: ssoUser, userInfo }: ProvisionArgs): Promise<void> => {
+  return async ({ user: ssoUser, userInfo, provider }: ProvisionArgs): Promise<void> => {
     try {
+      const issuer = typeof provider?.issuer === 'string' ? provider.issuer : ''
+      if (!trustedIssuers.includes(issuer)) {
+        // A provider this deployment did not configure. Clear rather than leave
+        // standing: the configured IdP is the only authority on membership, and a
+        // sign-in through anything else must not preserve what it once granted.
+        logger.warn(
+          { userId: ssoUser?.id, providerId: provider?.providerId },
+          'voltd groups: sign-in through an unconfigured provider; groups cleared',
+        )
+        await options.database.update(user).set({ groups: [] }).where(eq(user.id, ssoUser.id))
+        return
+      }
+
       if (!claimNamesLogged) {
         claimNamesLogged = true
         logger.info(

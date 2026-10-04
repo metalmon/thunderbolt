@@ -9,8 +9,12 @@ import {
   forkProvisionVoltdGroups,
   readGroupsClaim,
   readGroupsClaimPath,
+  readTrustedIssuers,
   resetClaimNameLoggingForTesting,
 } from './groups'
+
+const trustedIssuer = 'https://keycloak.example/realms/volt'
+const fromTrustedProvider = { issuer: trustedIssuer, providerId: 'sso' }
 
 describe('readGroupsClaimPath', () => {
   it('defaults to the gateway pilot value', () => {
@@ -24,6 +28,17 @@ describe('readGroupsClaimPath', () => {
 
   it('falls back when the override is blank', () => {
     expect(readGroupsClaimPath({ VOLTD_GROUPS_CLAIM: '   ' })).toBe('groups')
+  })
+})
+
+describe('readTrustedIssuers', () => {
+  it('takes whichever of the OIDC and SAML issuers the deployment configured', () => {
+    expect(readTrustedIssuers({ oidcIssuer: trustedIssuer, samlIdpIssuer: '' })).toEqual([trustedIssuer])
+    expect(readTrustedIssuers({ oidcIssuer: '', samlIdpIssuer: 'urn:idp' })).toEqual(['urn:idp'])
+  })
+
+  it('is empty when nothing is configured, so no provider is trusted by default', () => {
+    expect(readTrustedIssuers({ oidcIssuer: '  ', samlIdpIssuer: undefined as unknown as string })).toEqual([])
   })
 })
 
@@ -90,16 +105,17 @@ describe('forkProvisionVoltdGroups', () => {
 
   it('writes the claim values', async () => {
     const { database, writes } = fakeDb()
-    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups' })
-    await provision({ user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } })
+    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
+    await provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } })
     expect(writes).toHaveLength(1)
     expect(writes[0].groups).toEqual(['volt-crm'])
   })
 
   it('overwrites rather than merging, so a removal propagates', async () => {
     const { database, writes } = fakeDb()
-    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups' })
+    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
     await provision({
+      provider: fromTrustedProvider,
       user: { id: 'user-1', groups: ['volt-crm', 'volt-admins'] },
       userInfo: { groups: ['volt-crm'] },
     })
@@ -108,15 +124,15 @@ describe('forkProvisionVoltdGroups', () => {
 
   it('clears the column when the provider stops sending the claim', async () => {
     const { database, writes } = fakeDb()
-    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups' })
-    await provision({ user: { id: 'user-1', groups: ['volt-crm'] }, userInfo: {} })
+    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
+    await provision({ provider: fromTrustedProvider, user: { id: 'user-1', groups: ['volt-crm'] }, userInfo: {} })
     expect(writes[0].groups).toEqual([])
   })
 
   it('skips the write when nothing changed — this runs on every sign-in', async () => {
     const { database, writes } = fakeDb()
-    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups' })
-    await provision({ user: { id: 'user-1', groups: ['volt-crm'] }, userInfo: { groups: ['volt-crm'] } })
+    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
+    await provision({ provider: fromTrustedProvider, user: { id: 'user-1', groups: ['volt-crm'] }, userInfo: { groups: ['volt-crm'] } })
     expect(writes).toHaveLength(0)
   })
 
@@ -125,28 +141,90 @@ describe('forkProvisionVoltdGroups', () => {
   it('swallows a failing write so the user can still sign in', async () => {
     const { database } = fakeDb(true)
     const { logger, entries } = logs()
-    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups' })
-    await expect(provision({ user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } })).resolves.toBeUndefined()
+    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
+    await expect(provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } })).resolves.toBeUndefined()
     expect(entries.some((entry) => entry.level === 'warn')).toBe(true)
   })
 
   it('survives a provider that sends no claims at all', async () => {
     const { database, writes } = fakeDb()
-    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups' })
+    const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
     await expect(
-      provision({ user: { id: 'user-1' }, userInfo: undefined as unknown as Record<string, unknown> }),
+      provision({
+        provider: fromTrustedProvider,
+        user: { id: 'user-1' },
+        userInfo: undefined as unknown as Record<string, unknown>,
+      }),
     ).resolves.toBeUndefined()
     expect(writes).toHaveLength(0)
+  })
+
+  // /sso/register is gated by sessionMiddleware alone, so any signed-in user can
+  // register an OIDC provider they control unless registration is disabled. If it
+  // ever is enabled, a provider the operator did not configure must not be able to
+  // assert group membership — that would be a complete authorization bypass, since
+  // the gateway's permission profiles key on this column.
+  it('ignores group claims from a provider this deployment did not configure', async () => {
+    const { database, writes } = fakeDb()
+    const { logger, entries } = logs()
+    const provision = forkProvisionVoltdGroups({
+      database,
+      logger,
+      claimPath: 'groups',
+      trustedIssuers: [trustedIssuer],
+    })
+
+    await provision({
+      provider: { issuer: 'https://attacker.example', providerId: 'mine' },
+      user: { id: 'user-1' },
+      userInfo: { groups: ['volt-admins'] },
+    })
+
+    expect(writes).toHaveLength(1)
+    expect(writes[0].groups).toEqual([])
+    expect(entries.some((entry) => entry.level === 'warn')).toBe(true)
+  })
+
+  it('clears a group the configured provider once granted when an untrusted one signs in', async () => {
+    const { database, writes } = fakeDb()
+    const provision = forkProvisionVoltdGroups({
+      database,
+      claimPath: 'groups',
+      trustedIssuers: [trustedIssuer],
+    })
+
+    await provision({
+      provider: { issuer: 'https://attacker.example' },
+      user: { id: 'user-1', groups: ['volt-crm'] },
+      userInfo: { groups: ['volt-crm'] },
+    })
+
+    expect(writes[0].groups).toEqual([])
+  })
+
+  it.each([
+    ['no provider at all', undefined],
+    ['a provider with no issuer', { providerId: 'sso' }],
+    ['a non-string issuer', { issuer: 42 }],
+  ])('refuses to trust %s', async (_label, provider) => {
+    const { database, writes } = fakeDb()
+    const provision = forkProvisionVoltdGroups({
+      database,
+      claimPath: 'groups',
+      trustedIssuers: [trustedIssuer],
+    })
+    await provision({ provider, user: { id: 'user-1' }, userInfo: { groups: ['volt-admins'] } })
+    expect(writes[0].groups).toEqual([])
   })
 
   it('logs the claim NAMES once, and never their values', async () => {
     const { database } = fakeDb()
     const { logger, entries } = logs()
-    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups' })
+    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
     const userInfo = { groups: ['volt-crm'], email: 'person@example.test', sub: 'abc' }
 
-    await provision({ user: { id: 'user-1' }, userInfo })
-    await provision({ user: { id: 'user-2' }, userInfo })
+    await provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo })
+    await provision({ provider: fromTrustedProvider, user: { id: 'user-2' }, userInfo })
 
     const infos = entries.filter((entry) => entry.level === 'info')
     expect(infos).toHaveLength(1)
