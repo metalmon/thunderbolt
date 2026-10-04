@@ -3,7 +3,7 @@
 # SPA, the backend API, and the PowerSync sync stream. Rendered by the nginx
 # image's envsubst entrypoint over /etc/nginx/templates/*.template.
 #
-# THUNDERBOLT_-prefixed var names dodge Kubernetes' auto-injected <SERVICE>_PORT
+# VOLT_-prefixed var names dodge Kubernetes' auto-injected <SERVICE>_PORT
 # env vars (same rationale as deploy/config/nginx.conf.template upstream).
 
 server {
@@ -18,10 +18,10 @@ server {
     location ^~ /v1/gemini-live {
         include /etc/nginx/snippets/security-headers.conf;
         resolver 127.0.0.11 valid=10s;
-        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        set $backend "${VOLT_BACKEND_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_pass http://$backend:${VOLT_BACKEND_PORT};
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -45,10 +45,10 @@ server {
     location ^~ /v1/proxy/ws {
         include /etc/nginx/snippets/security-headers.conf;
         resolver 127.0.0.11 valid=10s;
-        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        set $backend "${VOLT_BACKEND_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_pass http://$backend:${VOLT_BACKEND_PORT};
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -63,10 +63,10 @@ server {
     location ^~ /v1/voltd/ws {
         include /etc/nginx/snippets/security-headers.conf;
         resolver 127.0.0.11 valid=10s;
-        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        set $backend "${VOLT_BACKEND_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_pass http://$backend:${VOLT_BACKEND_PORT};
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -86,10 +86,10 @@ server {
     location ^~ /v1/ {
         include /etc/nginx/snippets/security-headers.conf;
         resolver 127.0.0.11 valid=10s;
-        set $backend "${THUNDERBOLT_BACKEND_HOST}";
+        set $backend "${VOLT_BACKEND_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$backend:${THUNDERBOLT_BACKEND_PORT};
+        proxy_pass http://$backend:${VOLT_BACKEND_PORT};
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -108,11 +108,11 @@ server {
     location ^~ /powersync/ {
         include /etc/nginx/snippets/security-headers.conf;
         resolver 127.0.0.11 valid=10s;
-        set $psbackend "${THUNDERBOLT_POWERSYNC_HOST}";
+        set $psbackend "${VOLT_POWERSYNC_HOST}";
         rewrite ^/powersync/(.*)$ /$1 break;
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$psbackend:${THUNDERBOLT_POWERSYNC_PORT};
+        proxy_pass http://$psbackend:${VOLT_POWERSYNC_PORT};
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
