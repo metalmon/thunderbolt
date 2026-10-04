@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 /**
  * Canvas Action Channel — send seam.
@@ -58,7 +58,7 @@ type CanvasCarrierMessage = { metadata?: UIMessageMetadata }
  *   is the action's `prompt` when present, otherwise the EMPTY string — a
  *   tool-only turn carries its instruction in `_meta.toolCall`, not the prompt
  *   text, so the server can dispatch it silently (spec §3). The ACP layer's
- *   non-empty-prompt requirement is the ZeroClaw server's own, relaxed there for
+ *   non-empty-prompt requirement is the Volt server's own, relaxed there for
  *   `_meta.toolCall` turns.
  */
 export const buildCanvasActionMessage = (

@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { putAttachment, type StoredFile } from '@/lib/file-blob-storage'
 
-/** Cap aligned with ZeroClaw deliver_file / embedded resource intake (10 MiB). */
+/** Cap aligned with Volt deliver_file / embedded resource intake (10 MiB). */
 export const maxOutboundBlobBytes = 10 * 1024 * 1024
 
 export type AcpResourceBlob = {
@@ -85,7 +85,7 @@ export const deliveredLocalFileId = (uri: string): string => {
 }
 
 /**
- * Display caption for a delivered file: the ZeroClaw `tool_call_update.title`
+ * Display caption for a delivered file: the Volt `tool_call_update.title`
  * (prose, as-is) when present and meaningful, else the uri basename. The old
  * daemon sent the literal tool name "deliver_file" as the title — treat that as
  * absent. Used for citations + the document-result widget label, never the disk
@@ -134,7 +134,7 @@ const extensionFromUri = (uri: string): string => {
 }
 
 /**
- * Disk filename for a delivered blob: prefer the ZeroClaw `tool_call_update.title`
+ * Disk filename for a delivered blob: prefer the Volt `tool_call_update.title`
  * (a human name) over the uri basename (a content hash). Sanitizes FS-illegal
  * characters, and appends an extension from the mime type — else the uri — when the
  * title carries none. Empty or service titles fall back to the uri basename.

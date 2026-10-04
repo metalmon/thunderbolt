@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 /**
  * DEV/TEST-ONLY mock resolver for the Canvas Action Channel (`./canvas-action-channel`).
  *
- * There is no live ZeroClaw in this worktree, so a real `sendMessage(buildCanvasActionMessage(...))`
+ * There is no live Volt in this worktree, so a real `sendMessage(buildCanvasActionMessage(...))`
  * never produces the matching tool part the controller's `findResolvedPending` (`./canvas-pending`)
  * waits for — the pending `tools/call` would hang until the real turn eventually errors out (F1
  * no-hang fallback). This module answers it early with a SYNTHETIC completed tool part instead, so

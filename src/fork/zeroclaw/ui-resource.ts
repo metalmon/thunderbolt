@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { deliveredLocalFileId } from './outbound-resource-blob'
 
-/** A ZeroClaw `ui://` UI-resource artifact carried inline as text over ACP. */
+/** A Volt `ui://` UI-resource artifact carried inline as text over ACP. */
 export type UiResourceRef = { uri: string; mimeType: string; html: string }
 
 /** Shape emitted on `tool-output-available` when ACP content carried a `ui://` resource. */
