@@ -26,12 +26,12 @@ import type { VoltdTokenService } from './token'
 
 type Received = { protocol: string | null; token: string | null; frames: string[] }
 
-let server: Server
+let server: Server<{ token: string | null }>
 let received: Received
 
 /** A gateway that answers `initialize` with a roster, and echoes anything else. */
 const startGateway = () =>
-  Bun.serve<{ token: string | null }, Record<string, never>>({
+  Bun.serve<{ token: string | null }>({
     port: 0,
     fetch(request, srv) {
       const offered = request.headers.get('sec-websocket-protocol') ?? ''
