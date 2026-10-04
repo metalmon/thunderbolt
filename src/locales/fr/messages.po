@@ -851,6 +851,7 @@ msgstr "Confirmer l'ouverture d'un lien externe"
 msgid "Confirm this code matches the one in your terminal."
 msgstr "Vérifiez que ce code correspond à celui affiché dans votre terminal."
 
+#: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-auth-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connect {providerName}"
