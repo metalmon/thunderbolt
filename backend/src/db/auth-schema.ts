@@ -15,6 +15,12 @@ export const user = pgTable('user', {
   image: text('image'),
   isNew: boolean('is_new').default(true).notNull(),
   isAnonymous: boolean('is_anonymous').default(false).notNull(),
+  // Fork: identity-provider group membership, written only by the SSO provisioning
+  // hook and asserted in the token an agent gateway authorizes against. Declared
+  // `input: false` in the Better Auth field config — a user-writable value here
+  // would be self-service privilege escalation. Not null with an empty default so
+  // every existing row is valid and no read path needs a null branch.
+  groups: text('groups').array().notNull().default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
