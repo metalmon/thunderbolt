@@ -4019,6 +4019,11 @@ msgstr "Ключ шифрования будет передан устройст
 msgid "Thought for {duration}"
 msgstr "Думал {duration}"
 
+#: src/components/app-logo.tsx
+#: src/components/signed-out.tsx
+msgid "Thunderbolt"
+msgstr "Вольт"
+
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
 msgstr "Вольт (хостинг, приватно)"
