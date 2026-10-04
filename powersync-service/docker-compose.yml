@@ -176,6 +176,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
+      # Stays on 0.0.0.0, unlike the pilot kit's, and must: the ZeroClaw stand's
+      # own socat sidecar reaches our issuer (discovery + JWKS) through
+      # host.docker.internal, which does not resolve to a loopback-bound port.
+      # Binding this to 127.0.0.1 "for safety" silently breaks voltd's ability to
+      # verify our tokens, with "pair first" as the only symptom. Dev machine
+      # only — the kit publishes 8000 on loopback.
       - 8000:8000
 
   # Dev-only: makes the ZeroClaw gateway reachable from the backend container at
