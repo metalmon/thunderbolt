@@ -29,7 +29,7 @@ type TextPartProps = {
   isStreaming?: boolean
   sources?: SourceMetadata[]
   haystackReferences?: HaystackReferenceMeta[]
-  /** ZeroClaw files delivered in this message, in delivery order — the persisted source
+  /** Volt files delivered in this message, in delivery order — the persisted source
    *  of truth for `[N]` / deliver-uri citations (see delivered-citations). */
   deliveredFiles?: DeliveredFileRef[]
 }
