@@ -17,21 +17,21 @@
 # add_header directives here — nginx's inheritance quirk would silently drop the
 # upstream set on any location that defines one.
 #
-# THUNDERBOLT_-prefixed variable names dodge Kubernetes' auto-injected
+# VOLT_-prefixed variable names dodge Kubernetes' auto-injected
 # <SERVICE>_PORT env vars, same rationale as the other templates in this folder.
 
 # Keep-alive for ordinary requests, Upgrade for WebSockets (the backend's
 # /v1/gemini-live relay and the ACP proxy at /v1/proxy/ws). A bare
 # `Connection: upgrade` on every request breaks keep-alive; a bare "" breaks
 # WebSockets. The map picks per request.
-map $http_upgrade $thunderbolt_connection_upgrade {
+map $http_upgrade $volt_connection_upgrade {
     default upgrade;
     ''      close;
 }
 
 server {
     listen 80;
-    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+    server_name ${VOLT_TLS_SERVER_NAME};
 
     # ACME http-01 is not used (certificates are issued out of band via dns-01),
     # so there is nothing to serve on port 80 but the redirect.
@@ -43,7 +43,7 @@ server {
 server {
     listen 443 ssl;
     http2 on;
-    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+    server_name ${VOLT_TLS_SERVER_NAME};
 
     ssl_certificate /etc/nginx/certs/fullchain.pem;
     ssl_certificate_key /etc/nginx/certs/privkey.pem;
@@ -62,10 +62,10 @@ server {
         # Variable upstream forces runtime DNS resolution, so this container
         # starts even when `web` is not up yet (same pattern as web-nginx).
         resolver 127.0.0.11 valid=10s;
-        set $thunderbolt_app "${THUNDERBOLT_TLS_UPSTREAM_HOST}";
+        set $volt_app "${VOLT_TLS_UPSTREAM_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$thunderbolt_app:${THUNDERBOLT_TLS_UPSTREAM_PORT};
+        proxy_pass http://$volt_app:${VOLT_TLS_UPSTREAM_PORT};
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -77,7 +77,7 @@ server {
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $thunderbolt_connection_upgrade;
+        proxy_set_header Connection $volt_connection_upgrade;
 
         # The backend streams SSE on /v1 and PowerSync streams sync over plain
         # HTTP; buffering either stalls the client until the response ends.
@@ -107,7 +107,7 @@ server {
 server {
     listen 8443 ssl;
     http2 on;
-    server_name ${THUNDERBOLT_TLS_SERVER_NAME};
+    server_name ${VOLT_TLS_SERVER_NAME};
 
     ssl_certificate /etc/nginx/certs/fullchain.pem;
     ssl_certificate_key /etc/nginx/certs/privkey.pem;
@@ -119,10 +119,10 @@ server {
 
     location / {
         resolver 127.0.0.11 valid=10s;
-        set $thunderbolt_idp "${THUNDERBOLT_TLS_KEYCLOAK_HOST}";
+        set $volt_idp "${VOLT_TLS_KEYCLOAK_HOST}";
         # nosemgrep: generic.nginx.security.dynamic-proxy-host.dynamic-proxy-host
         # nosemgrep: generic.nginx.security.missing-internal.missing-internal
-        proxy_pass http://$thunderbolt_idp:${THUNDERBOLT_TLS_KEYCLOAK_PORT};
+        proxy_pass http://$volt_idp:${VOLT_TLS_KEYCLOAK_PORT};
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

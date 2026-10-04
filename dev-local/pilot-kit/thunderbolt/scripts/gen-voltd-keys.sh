@@ -16,7 +16,7 @@ cd "$root"
 force=0
 [[ "${1:-}" == "-f" ]] && force=1
 out="conf/voltd-keys"
-image="${THUNDERBOLT_BACKEND_IMAGE:-thunderbolt-backend:pilot}"
+image="${VOLT_BACKEND_IMAGE:-volt-backend:pilot}"
 
 mkdir -p "$out"
 if [[ -f "$out/signing.key.pem" && "$force" -ne 1 ]]; then
