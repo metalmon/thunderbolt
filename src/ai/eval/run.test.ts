@@ -77,7 +77,11 @@ test('records the exact nonempty scenario selection before any trial', async () 
         ...process.env,
         EVAL_AUTH_TOKEN: '',
         VITE_THUNDERBOLT_CLOUD_URL: 'http://[invalid]',
-        EVAL_MODELS: 'glm',
+        // The fork ships a single model in `defaultModels` (OpenRouter Free); glm,
+        // flash and opus survive only as eval references, so `getModel` finds no row
+        // for them in a freshly reconciled database and the run dies at model
+        // resolution — BEFORE the manifest this test is about is ever written.
+        EVAL_MODELS: 'openrouter-free',
         EVAL_SUITES: 'necessity',
         EVAL_MODES: 'chat',
         EVAL_ENGINES: 'pi',
@@ -93,8 +97,8 @@ test('records the exact nonempty scenario selection before any trial', async () 
     expect(records).toHaveLength(1)
     const { manifest } = JSON.parse(records[0]) as { manifest: EvalManifest }
     expect(manifest.scenarios.map(({ scenario }) => scenario.id)).toEqual([
-      'glm/pi/chat/never-search-01',
-      'glm/pi/chat/unknown-entity-01',
+      'openrouter-free/pi/chat/never-search-01',
+      'openrouter-free/pi/chat/unknown-entity-01',
     ])
   } finally {
     rmSync(directory, { recursive: true, force: true })
