@@ -34,6 +34,7 @@ import { createProToolsRoutes } from '@/pro/routes'
 import { createTinfoilKeepWarm } from '@/tinfoil/keep-warm'
 import { createTinfoilRoutes } from '@/tinfoil/routes'
 import { createOpenrouterRoutes } from '@/fork/openrouter/routes'
+import { createVoltdRoutes } from '@/fork/voltd/routes'
 import { createWaitlistRoutes } from '@/waitlist/routes'
 import { createAccountRoutes } from '@/api/account'
 import { createAgentsRoutes } from '@/agents'
@@ -205,6 +206,7 @@ export const createApp = async (deps?: AppDeps) => {
       .use(createAccountRoutes(auth, settings, database))
       .use(createAgentsRoutes(auth))
       .use(createHaystackRoutes(settings, auth, { fetchFn }))
+      .use(await createVoltdRoutes({ auth }))
   )
 }
 
