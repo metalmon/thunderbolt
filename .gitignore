@@ -38,6 +38,9 @@ dist-isolation
 
 # Fork: git-ignored demo secrets (OpenRouter key); .example template is tracked
 powersync-service/secrets.env
+# Fork: ES256 keypair the backend signs voltd access tokens with. Generated per
+# deployment, never committed — see dev-local/docker/README-pilot-tls.md.
+powersync-service/voltd-keys/
 
 # Kubernetes secrets (use secrets.yaml.example as template)
 secrets.yaml
