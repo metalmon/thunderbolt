@@ -228,7 +228,7 @@ describe('Model Profiles DAL', () => {
       })
 
       // Reset to defaults
-      await resetModelProfileToDefault(getDb(), defaultModelOpenRouterFree.id)
+      await resetModelProfileToDefault(getDb(), defaultModelOpenRouterFree.id, [defaultModelProfileOpenRouterFree])
 
       const profile = await getModelProfile(getDb(), defaultModelOpenRouterFree.id)
       expect(profile).not.toBe(null)
@@ -279,7 +279,7 @@ describe('Model Profiles DAL', () => {
         enabled: defaultModelOpenRouterFree.enabled,
       })
 
-      await createDefaultModelProfile(getDb(), defaultModelOpenRouterFree.id)
+      await createDefaultModelProfile(getDb(), defaultModelOpenRouterFree.id, [defaultModelProfileOpenRouterFree])
 
       const profile = await getModelProfile(getDb(), defaultModelOpenRouterFree.id)
       expect(profile).not.toBe(null)
@@ -332,8 +332,10 @@ describe('Model Profiles DAL', () => {
         temperature: 0.99,
       })
 
-      // Calling createDefaultModelProfile should not overwrite
-      await createDefaultModelProfile(getDb(), defaultModelOpenRouterFree.id)
+      // Calling createDefaultModelProfile should not overwrite. The bundle is passed
+      // in because this build ships none — see the function's own note.
+      const { defaultModelProfileOpenRouterFree } = await import('@/defaults/model-profiles')
+      await createDefaultModelProfile(getDb(), defaultModelOpenRouterFree.id, [defaultModelProfileOpenRouterFree])
 
       const profile = await getModelProfile(getDb(), defaultModelOpenRouterFree.id)
       expect(profile?.temperature).toBe(0.99)
