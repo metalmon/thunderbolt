@@ -53,8 +53,6 @@ export type CreateVoltdRoutesOptions = {
   wsFactory?: (url: string, protocols: string[]) => WebSocket
   /** Per-connection telemetry for the relay — the universal proxy's recorder. */
   observability?: ObservabilityRecorder
-  /** Request rate limiting for the relay. */
-  rateLimit?: AnyElysia
 }
 
 /**
@@ -102,7 +100,6 @@ export const createVoltdRoutes = async (options: CreateVoltdRoutesOptions): Prom
         gatewayUrl,
         wsFactory: options.wsFactory,
         observability: options.observability,
-        rateLimit: options.rateLimit,
       }),
     )
 }
