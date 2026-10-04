@@ -26,7 +26,7 @@ import { Elysia, type AnyElysia } from 'elysia'
 /**
  * Authorize a voice WebSocket upgrade, admitting **anonymous** users.
  *
- * Unlike `authorizeWsBearer` (used by the ZeroClaw ACP/proxy relay, which must
+ * Unlike `authorizeWsBearer` (used by the voltd ACP/proxy relay, which must
  * reject anonymous sessions), the voice relay is a consumer/demo feature: the
  * fork runs `AUTH_ALLOW_ANONYMOUS=true` and the distributed binary is used by
  * anonymous users, so a valid anonymous session is a first-class caller here.
