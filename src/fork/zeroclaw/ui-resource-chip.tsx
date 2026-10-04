@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { useEffect } from 'react'
 import { ChevronDown, Download, PanelRight } from 'lucide-react'
@@ -23,7 +23,7 @@ import { uiResourceOfPart } from './ui-resource-part'
 import { deriveChipState, useCanvasRegistry } from './canvas-registry'
 
 /**
- * Transcript anchor for a ZeroClaw `ui://` artifact (§UX). Side-panel-first: the
+ * Transcript anchor for a Volt `ui://` artifact (§UX). Side-panel-first: the
  * chip is the only inline surface (no live inline card). It gates auto-open to a
  * free slot, updates the open panel in place, and re-opens on click.
  */

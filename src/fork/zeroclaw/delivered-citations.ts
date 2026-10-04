@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Fork-owned (metalmon / ZeroClaw live-test). See ./FORK.md — do not upstream. */
+/* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import {
   buildDocumentSideviewId,
@@ -37,7 +37,7 @@ const sourceFromRef = (ref: DeliveredFileRef, isPrimary: boolean): LocalDocument
   const ext = ref.filename.split('.').pop()?.toLowerCase() ?? ''
   return {
     id: buildDocumentSideviewId({ fileId: ref.localFileId, fileName: ref.filename }),
-    // Citation label = ZeroClaw title (prose). The stable sideviewId + documentMeta stay
+    // Citation label = Volt title (prose). The stable sideviewId + documentMeta stay
     // keyed on the basename so the widget/card open the same preview.
     title: deliveredCaption(ref.title, ref.filename),
     url: '',

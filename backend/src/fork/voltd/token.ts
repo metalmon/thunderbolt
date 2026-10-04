@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Mints the access tokens a voltd (ZeroClaw) gateway accepts in JWKS mode, so an
+ * Mints the access tokens a voltd gateway accepts in JWKS mode, so an
  * authenticated Thunderbolt user reaches their agents without a pairing code.
  *
  * The contract is voltd's, not ours, and its validator is fail-closed — see
