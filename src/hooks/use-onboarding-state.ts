@@ -8,6 +8,8 @@ import { unitDefaultsForRegion } from '@/i18n/region-units'
 import { useActiveLocale } from '@/i18n/use-active-locale'
 import { fetchEnglishLocationName } from '@/lib/locations'
 import { useEffect, useReducer } from 'react'
+import { selectHasOAuthProviders, useConfigStore } from '@/api/config-store'
+import { nextVisibleStep, prevVisibleStep, visibleOnboardingSteps } from '@/fork/onboarding/visible-steps'
 import { useIntegrationStatus } from './use-integration-status'
 import { useSettings } from './use-settings'
 
@@ -234,6 +236,11 @@ export const useOnboardingState = () => {
 
   const isProviderConnected = state.isProviderConnected || (integrationStatusData?.googleConnected ?? false)
 
+  // A deployment with no OAuth client id configured cannot honour the auth step,
+  // so navigation steps over it. The reducer's own first/last comparisons stay
+  // correct because only an interior step is ever hidden.
+  const visibleSteps = visibleOnboardingSteps(useConfigStore((store) => selectHasOAuthProviders(store.config)))
+
   const actions = {
     setCurrentStep: (step: OnboardingStep) => dispatch({ type: 'SET_CURRENT_STEP', payload: step }),
     setPrivacyAgreed: (agreed: boolean) => dispatch({ type: 'SET_PRIVACY_AGREED', payload: agreed }),
@@ -317,17 +324,17 @@ export const useOnboardingState = () => {
     },
 
     nextStep: async () => {
-      const newStep = Math.min(state.currentStep + 1, onboardingStepCount) as OnboardingStep
-      dispatch({ type: 'NEXT_STEP' })
+      const newStep = nextVisibleStep(visibleSteps, state.currentStep) as OnboardingStep
+      dispatch({ type: 'SET_CURRENT_STEP', payload: newStep })
       await onboardingCurrentStep.setValue(String(newStep))
     },
     prevStep: async () => {
-      const newStep = Math.max(state.currentStep - 1, 1) as OnboardingStep
-      dispatch({ type: 'PREV_STEP' })
+      const newStep = prevVisibleStep(visibleSteps, state.currentStep) as OnboardingStep
+      dispatch({ type: 'SET_CURRENT_STEP', payload: newStep })
       await onboardingCurrentStep.setValue(String(newStep))
     },
     skipStep: async () => {
-      const newStep = Math.min(state.currentStep + 1, onboardingStepCount) as OnboardingStep
+      const newStep = nextVisibleStep(visibleSteps, state.currentStep) as OnboardingStep
 
       if (state.currentStep === 3) {
         try {
@@ -339,12 +346,12 @@ export const useOnboardingState = () => {
         }
       }
 
-      dispatch({ type: 'SKIP_STEP' })
+      dispatch({ type: 'SET_CURRENT_STEP', payload: newStep })
       await onboardingCurrentStep.setValue(String(newStep))
     },
   }
 
-  return { state: { ...state, isProviderConnected }, actions }
+  return { state: { ...state, isProviderConnected }, actions, visibleSteps }
 }
 
 export type { OnboardingAction, OnboardingState }
