@@ -21,7 +21,8 @@
 
 import { authorizeWsBearer, wsCloseUnauthorized } from '@/auth/ws-bearer-auth'
 import type { Auth } from '@/auth/elysia-plugin'
-import { wsCloseCodes } from '@/proxy/ws'
+import { noopObservability, type ObservabilityRecorder } from '@/proxy/observability'
+import { classifyWsCloseCode, wsCloseCodes } from '@/proxy/ws'
 import { wsCarrierSubprotocol } from '@shared/ws-bearer'
 import type { User } from '@shared/types/auth'
 import { buildAgentSubprotocols } from '@shared/zeroclaw-acp'
@@ -35,6 +36,15 @@ const queueMessages = 64
 /** How long the gateway gets to finish its handshake before we give up on it. */
 const connectTimeoutMs = 10_000
 
+/** Concurrent relayed sessions one user may hold. The sockets are long-lived and
+ *  each pins one upstream connection to an on-prem gateway, so an authenticated
+ *  client looping `new WebSocket` would otherwise exhaust both ends. */
+const defaultMaxSessionsPerUser = 8
+
+/** Close code for exceeding that cap — distinct from the queue cap so the two are
+ *  distinguishable in the logs. */
+const wsCloseTooManySessions = 4009
+
 /** Exactly what `WebSocket.send` accepts, so relayed frames need no cast. */
 type Frame = Parameters<WebSocket['send']>[0]
 
@@ -44,6 +54,12 @@ type RelayState = {
   /** The downstream socket closed. Read by `open` after each await, which is the
    *  only thing that keeps a gateway socket created later from being orphaned. */
   closed: boolean
+  /** Set once this socket has been counted against its user's session cap, so
+   *  `close` decrements exactly once and no early return leaks a slot. */
+  countedUserId: string | null
+  openedAt: number
+  targetUrl: string
+  userId: string
   /** Armed while the gateway handshake is outstanding; cleared by whichever of
    *  open/close/error/timeout happens first. */
   connectTimer: ReturnType<typeof setTimeout> | null
@@ -58,6 +74,14 @@ export type CreateVoltdRelayRoutesOptions = {
   gatewayUrl: string
   /** Test seam — production uses the global `WebSocket`. */
   wsFactory?: (url: string, protocols: string[]) => WebSocket
+  /** Per-connection telemetry, the same recorder the universal proxy uses.
+   *  Defaults to the no-op so tests and unconfigured callers stay silent. */
+  observability?: ObservabilityRecorder
+  /** Request rate limiting, applied as the universal proxy applies it
+   *  (`proxy/ws.ts`). */
+  rateLimit?: AnyElysia
+  /** Override the concurrent-session cap. */
+  maxSessionsPerUser?: number
 }
 
 const frameBytes = (frame: Frame): number => {
@@ -117,6 +141,18 @@ export type RelayDownstream = {
 export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions) => {
   const factory = options.wsFactory ?? ((url, protocols) => new WebSocket(url, protocols))
   const states = new WeakMap<object, RelayState>()
+  const observability = options.observability ?? noopObservability
+  const maxSessions = options.maxSessionsPerUser ?? defaultMaxSessionsPerUser
+  /** Live relayed sessions per user id. Only grows while sockets are open. */
+  const sessionsPerUser = new Map<string, number>()
+
+  const release = (state: RelayState) => {
+    if (!state.countedUserId) return
+    const remaining = (sessionsPerUser.get(state.countedUserId) ?? 1) - 1
+    if (remaining > 0) sessionsPerUser.set(state.countedUserId, remaining)
+    else sessionsPerUser.delete(state.countedUserId)
+    state.countedUserId = null
+  }
 
   return {
     upgrade({ request, set }: { request: Request; set: { headers: Record<string, string> } }) {
@@ -134,7 +170,18 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       // state those frames are dropped unbounded-by-nothing, and without the
       // `closed` flag below the socket we are about to open to the gateway would
       // outlive the client that asked for it, forever.
-      const state: RelayState = { upstream: null, ready: false, closed: false, connectTimer: null, pending: [], pendingBytes: 0 }
+      const state: RelayState = {
+        upstream: null,
+        ready: false,
+        closed: false,
+        countedUserId: null,
+        openedAt: Date.now(),
+        targetUrl: '',
+        userId: '',
+        connectTimer: null,
+        pending: [],
+        pendingBytes: 0,
+      }
       states.set(ws, state)
 
       const request = (ws.data as unknown as { request?: Request }).request
@@ -151,11 +198,21 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
         return
       }
 
+      state.userId = user.id
+      const live = sessionsPerUser.get(user.id) ?? 0
+      if (live >= maxSessions) {
+        ws.close(wsCloseTooManySessions, 'too many concurrent agent sessions')
+        return
+      }
+      sessionsPerUser.set(user.id, live + 1)
+      state.countedUserId = user.id
+
       const token = await options.service.mint({ userId: user.id, groups: readPrincipalGroups(user) })
       if (state.closed) return
 
       const target = new URL(options.gatewayUrl)
       target.searchParams.set('agent', alias)
+      state.targetUrl = target.toString()
 
       const upstream = (() => {
         try {
@@ -233,7 +290,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       state.pendingBytes += frameBytes(frame)
     },
 
-    close(ws: RelayDownstream) {
+    close(ws: RelayDownstream, code?: number) {
       const state = states.get(ws)
       if (!state) return
       // Set before deleting: `open` may still be mid-await and holds its own
@@ -245,7 +302,20 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       state.pending = []
       state.pendingBytes = 0
       if (state.upstream) safeClose(state.upstream)
+      release(state)
       states.delete(ws)
+
+      // One event per relayed connection, through the same recorder the universal
+      // proxy uses, so the relay is not the one hop with no telemetry.
+      observability.proxyWsRelay({
+        method: 'GET',
+        duration_ms: Date.now() - state.openedAt,
+        user_id: state.userId,
+        request_id: '',
+        target_url: state.targetUrl,
+        close_code: code ?? 1006,
+        error_type: code === undefined ? undefined : classifyWsCloseCode(code),
+      })
     },
   }
 }
