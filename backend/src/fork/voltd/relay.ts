@@ -32,12 +32,18 @@ import { isSecureGatewayUrl, readPrincipalGroups, type VoltdTokenService } from 
 const queueBytes = 256 * 1024
 const queueMessages = 64
 
+/** How long the gateway gets to finish its handshake before we give up on it. */
+const connectTimeoutMs = 10_000
+
 /** Exactly what `WebSocket.send` accepts, so relayed frames need no cast. */
 type Frame = Parameters<WebSocket['send']>[0]
 
 type RelayState = {
   upstream: WebSocket | null
   ready: boolean
+  /** The downstream socket closed. Read by `open` after each await, which is the
+   *  only thing that keeps a gateway socket created later from being orphaned. */
+  closed: boolean
   pending: Frame[]
   pendingBytes: number
 }
@@ -85,12 +91,29 @@ const safeClose = (socket: { close: (code?: number, reason?: string) => void }, 
 export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): AnyElysia => {
   const base = new Elysia({ name: 'voltd-relay' })
   if (!isSecureGatewayUrl(options.gatewayUrl)) return base
+  return base.ws('/voltd/ws', createVoltdRelayHandlers(options))
+}
 
+/** The downstream socket surface the handlers actually use, so tests can supply a
+ *  plain object instead of standing up a WebSocket upgrade. */
+export type RelayDownstream = {
+  data: unknown
+  send: (frame: Frame) => unknown
+  close: (code?: number, reason?: string) => void
+}
+
+/**
+ * The socket handlers, separate from the route so the parts worth testing — the
+ * close-during-await race and the queue budgets — can be driven directly.
+ *
+ * @param options - auth, token service, gateway URL, and the socket seam
+ */
+export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions) => {
   const factory = options.wsFactory ?? ((url, protocols) => new WebSocket(url, protocols))
   const states = new WeakMap<object, RelayState>()
 
-  return base.ws('/voltd/ws', {
-    upgrade({ request, set }) {
+  return {
+    upgrade({ request, set }: { request: Request; set: { headers: Record<string, string> } }) {
       // Echo the carrier so strict clients accept the upgrade; the bearer entry is
       // never echoed, keeping it off `WebSocket.protocol` and out of proxy logs.
       const offered = request.headers.get('sec-websocket-protocol')
@@ -99,9 +122,18 @@ export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): 
       }
     },
 
-    async open(ws) {
+    async open(ws: RelayDownstream) {
+      // Register before the first await. Authorizing and minting are async, and a
+      // client may both send frames and hang up during that window: without the
+      // state those frames are dropped unbounded-by-nothing, and without the
+      // `closed` flag below the socket we are about to open to the gateway would
+      // outlive the client that asked for it, forever.
+      const state: RelayState = { upstream: null, ready: false, closed: false, pending: [], pendingBytes: 0 }
+      states.set(ws, state)
+
       const request = (ws.data as unknown as { request?: Request }).request
       const user: User | null = await authorizeWsBearer(options.auth, request?.headers.get('sec-websocket-protocol') ?? null)
+      if (state.closed) return
       if (!user || user.isAnonymous) {
         ws.close(wsCloseUnauthorized, 'unauthorized')
         return
@@ -113,10 +145,9 @@ export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): 
         return
       }
 
-      const state: RelayState = { upstream: null, ready: false, pending: [], pendingBytes: 0 }
-      states.set(ws, state)
-
       const token = await options.service.mint({ userId: user.id, groups: readPrincipalGroups(user) })
+      if (state.closed) return
+
       const target = new URL(options.gatewayUrl)
       target.searchParams.set('agent', alias)
 
@@ -130,28 +161,56 @@ export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): 
       })()
       if (!upstream) return
       state.upstream = upstream
+      // The client may have hung up between the check above and here; closing the
+      // socket we just created is the only way it gets cleaned up, because the
+      // close handler already ran and saw no upstream.
+      if (state.closed) {
+        safeClose(upstream)
+        return
+      }
+
+      // A gateway that accepts the TCP connection but never completes the
+      // handshake would otherwise hold this connection, and its queue, open
+      // indefinitely.
+      const connectTimer = setTimeout(() => {
+        if (state.ready) return
+        safeClose(upstream)
+        safeClose(ws, wsCloseCodes.internalError, 'gateway did not complete the handshake')
+      }, connectTimeoutMs)
 
       upstream.onopen = () => {
+        clearTimeout(connectTimer)
         state.ready = true
         for (const frame of state.pending) upstream.send(frame)
         state.pending = []
         state.pendingBytes = 0
       }
       upstream.onmessage = (event: MessageEvent) => ws.send(event.data)
-      upstream.onerror = () => safeClose(ws, wsCloseCodes.internalError, 'gateway socket failed')
+      upstream.onerror = () => {
+        clearTimeout(connectTimer)
+        safeClose(ws, wsCloseCodes.internalError, 'gateway socket failed')
+      }
       // Propagate the gateway's own code where it is a valid one to forward, so a
       // 401 on upgrade (no agents for this principal) stays distinguishable from
       // our own failures.
-      upstream.onclose = (event: CloseEvent) =>
+      upstream.onclose = (event: CloseEvent) => {
+        clearTimeout(connectTimer)
         safeClose(ws, event.code >= 1000 && event.code <= 4999 ? event.code : wsCloseCodes.internalError, event.reason)
+      }
     },
 
-    message(ws, message) {
+    message(ws: RelayDownstream, message: unknown) {
       const state = states.get(ws)
-      if (!state) return
+      if (!state || state.closed) return
       const frame = message as Frame
       if (state.ready && state.upstream) {
         state.upstream.send(frame)
+        // Forwarding is not free: a gateway slower than the client turns the
+        // upstream socket's own buffer into an unbounded queue, which the
+        // pre-connect budget above does nothing about. Hold it to the same cap.
+        if (state.upstream.bufferedAmount > queueBytes) {
+          safeClose(ws, wsCloseCodes.queueOverflow, 'gateway backpressure')
+        }
         return
       }
       // Still connecting upstream: hold a bounded amount rather than dropping
@@ -164,10 +223,17 @@ export const createVoltdRelayRoutes = (options: CreateVoltdRelayRoutesOptions): 
       state.pendingBytes += frameBytes(frame)
     },
 
-    close(ws) {
+    close(ws: RelayDownstream) {
       const state = states.get(ws)
-      if (state?.upstream) safeClose(state.upstream)
+      if (!state) return
+      // Set before deleting: `open` may still be mid-await and holds its own
+      // reference to this object, which is how it learns not to leave a gateway
+      // socket behind.
+      state.closed = true
+      state.pending = []
+      state.pendingBytes = 0
+      if (state.upstream) safeClose(state.upstream)
       states.delete(ws)
     },
-  })
+  }
 }
