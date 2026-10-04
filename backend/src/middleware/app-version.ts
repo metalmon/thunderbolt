@@ -25,7 +25,7 @@ export const appVersionExemptPrefixes = [
   // Read by a voltd gateway verifying our token signatures — a Rust daemon, not a
   // client build, so it carries no version header. `/v1/voltd/token` is called by
   // our own client and stays subject to the gate on purpose.
-  '/v1/.well-known',
+  '/v1/.well-known/openid-configuration',
   '/v1/voltd/jwks',
 ] as const
 
