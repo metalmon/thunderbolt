@@ -62,6 +62,21 @@ const errorFrame = (error: unknown) => JSON.stringify({ jsonrpc: '2.0', id: 1, e
 describe('pairOverAcp', () => {
   beforeEach(() => MockWs.reset())
 
+  it('sends a long mixed-case code byte-for-byte — the runtime now mints 32 random chars', async () => {
+    // The shape the gateway produces today. Nothing on this path may normalise it:
+    // the field keeps autoCapitalize off and the form only trims, so a case fold or
+    // a length cap anywhere here would reject every code the runtime issues.
+    const code = 'MqHjvxc0K8hGnjNHocVk6WTCfvx0siqo'
+    const p = pairOverAcp({ url: 'wss://gw/acp', code, webSocketFactory: factory })
+    const ws = MockWs.instances[0]
+    ws.emit('open')
+
+    expect(JSON.parse(ws.sent[0])).toMatchObject({ method: 'volt/pair', params: { code } })
+
+    ws.emit('message', { data: resultFrame('zc_long') })
+    await expect(p).resolves.toEqual({ token: 'zc_long' })
+  })
+
   it('sends volt/pair with the code and resolves the issued token', async () => {
     const p = pairOverAcp({ url: 'wss://gw/acp', code: 'ABC123', webSocketFactory: factory })
     const ws = MockWs.instances[0]
