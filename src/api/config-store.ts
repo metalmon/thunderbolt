@@ -19,6 +19,10 @@ export type AppConfig = {
    *  server) means "unknown", which the selector below treats as available so
    *  nothing disappears for a client talking to a backend that predates this. */
   oauthProviders?: { google?: boolean; microsoft?: boolean }
+  /** How this deployment signs people in. Absent means an older server that does
+   *  not report it, and the client falls back to what it was built with — see
+   *  `@/fork/auth/deployment-auth-mode`. */
+  auth?: { mode?: 'consumer' | 'oidc' | 'saml'; allowAnonymous?: boolean }
   /** Minimum semver string the server allows. Clients below this are hard-blocked
    *  until they upgrade. Absent/empty = no enforcement. */
   minAppVersion?: string
