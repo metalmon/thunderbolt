@@ -162,4 +162,31 @@ describe('GET /agents', () => {
     const body = await res.json()
     expect(body.agents).toEqual([customDescriptor])
   })
+
+  it('awaits an async provider', async () => {
+    registerAgentProvider({ id: 'async', list: async () => [haystackDescriptor] })
+
+    const app = buildApp(buildAuth({ id: 'user-1', isAnonymous: false }))
+    const body = await (await app.handle(new Request('http://localhost/agents'))).json()
+    expect(body.agents).toEqual([haystackDescriptor])
+  })
+
+  // A 200 is authoritative for the client: refreshSystemAgents deletes every
+  // local row missing from it. So a gateway-backed provider must fail the
+  // response rather than quietly contribute nothing, or an outage wipes the
+  // user's agents instead of leaving them in place.
+  it('fails the response when a required provider throws, rather than returning a partial 200', async () => {
+    registerAgentProvider({
+      id: 'gateway',
+      required: true,
+      list: async () => {
+        throw new Error('gateway unreachable')
+      },
+    })
+    registerAgentProvider({ id: 'ok', list: () => [customDescriptor] })
+
+    const app = buildApp(buildAuth({ id: 'user-1', isAnonymous: false }))
+    const res = await app.handle(new Request('http://localhost/agents'))
+    expect(res.status).toBeGreaterThanOrEqual(500)
+  })
 })
