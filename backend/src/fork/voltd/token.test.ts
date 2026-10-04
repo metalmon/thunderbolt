@@ -262,3 +262,39 @@ describe('readPrincipalGroups', () => {
     expect(readPrincipalGroups({ groups: ['volt-crm', '', '  ', 7, null] })).toEqual(['volt-crm'])
   })
 })
+
+describe('identity claims for the gateway user list', () => {
+  const verify = async (token: string) => {
+    const { payload } = await jwtVerify(token, keys.publicKey, {
+      issuer: 'https://backend.volt.example/v1',
+      audience: 'volt',
+    })
+    return payload
+  }
+
+  it('carries name and email so a JWT sign-in is a person on the gateway, not an id', async () => {
+    const service = await createVoltdTokenService(config())
+    const token = await service.mint({
+      userId: 'user-1',
+      groups: ['volt-avk'],
+      name: 'avk Test',
+      email: 'avk@volt.local',
+    })
+
+    const payload = await verify(token)
+    expect(payload.name).toBe('avk Test')
+    expect(payload.email).toBe('avk@volt.local')
+  })
+
+  it('omits them when absent rather than sending blanks that would erase what the gateway knows', async () => {
+    const service = await createVoltdTokenService(config())
+    const token = await service.mint({ userId: 'user-2', groups: [], name: '   ' })
+
+    const payload = await verify(token)
+    expect('name' in payload).toBe(false)
+    expect('email' in payload).toBe(false)
+    // The half the gateway actually verifies is untouched by the optional one.
+    expect(payload.client_id).toBe('thunderbolt')
+    expect(payload.aud).toBe('volt')
+  })
+})
