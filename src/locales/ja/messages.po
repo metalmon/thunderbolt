@@ -4015,6 +4015,11 @@ msgstr "暗号化キーをこのデバイスと共有し、データの復号と
 msgid "Thought for {duration}"
 msgstr "{duration}思考しました"
 
+#: src/components/app-logo.tsx
+#: src/components/signed-out.tsx
+msgid "Thunderbolt"
+msgstr ""
+
 #: src/settings/voice.tsx
 msgid "Thunderbolt (hosted, private)"
 msgstr "Thunderbolt（ホスト型・プライベート）"
