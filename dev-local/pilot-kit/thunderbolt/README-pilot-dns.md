@@ -19,7 +19,7 @@
 
 **Имя в сертификате и вшитое имя должны совпадать.** Лист для `tls`-службы
 выпускается на `backend.volt.oktaplus.ru` (`certs/gen-certs`), и это же имя
-идёт в `THUNDERBOLT_TLS_SERVER_NAME`, `PUBLIC_URL` и `KEYCLOAK_PUBLIC_URL`
+идёт в `VOLT_TLS_SERVER_NAME`, `PUBLIC_URL` и `KEYCLOAK_PUBLIC_URL`
 (`scripts/gen-secrets … --tls`). Лист на другое имя = клиент не откроет бэкенд, и
 починить это на объекте нечем, кроме перевыпуска сертификата.
 

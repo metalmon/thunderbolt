@@ -105,8 +105,8 @@ if ($Skip -notcontains 'images') {
     if ($LASTEXITCODE -ne 0) { Write-Error "image build failed"; exit 1 }
 
     $pairs = @(
-        @{ src = "$ComposeProject-backend:latest"; tag = 'thunderbolt-backend:pilot'; file = 'thunderbolt-backend.tar.gz' },
-        @{ src = "$ComposeProject-web:latest"; tag = 'thunderbolt-web:pilot'; file = 'thunderbolt-web.tar.gz' }
+        @{ src = "$ComposeProject-backend:latest"; tag = 'volt-backend:pilot'; file = 'volt-backend.tar.gz' },
+        @{ src = "$ComposeProject-web:latest"; tag = 'volt-web:pilot'; file = 'volt-web.tar.gz' }
     )
     foreach ($p in $pairs) {
         docker tag $p.src $p.tag
