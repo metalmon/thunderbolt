@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-Copy our half of the ZeroClaw pilot kit (dev-local/pilot-kit/thunderbolt) into a
+Copy our half of the Volt pilot kit (dev-local/pilot-kit/thunderbolt) into a
 kit checkout.
 
 .DESCRIPTION
