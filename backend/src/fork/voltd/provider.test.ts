@@ -113,4 +113,23 @@ describe('createVoltdAgentProvider', () => {
     const [descriptor] = await provider.list(new Request('http://localhost:8000/v1/agents'), settings)
     expect(descriptor.url).toBe('ws://localhost:8000/v1/voltd/ws?agent=a')
   })
+
+  // Behind the on-prem TLS terminator the backend itself speaks plain http, so
+  // deriving the scheme from the request alone would advertise ws:// and the
+  // client would carry its session bearer in clear text.
+  it('advertises wss:// behind a TLS terminator that forwards the original scheme', async () => {
+    const provider = build({ roster: [{ alias: 'a', displayName: null, isDefault: false }] })!
+    const [descriptor] = await provider.list(
+      new Request('http://backend:8000/v1/agents', {
+        headers: { 'x-forwarded-proto': 'https', 'x-forwarded-host': 'backend.volt.oktaplus.ru' },
+      }),
+      settings,
+    )
+    expect(descriptor.url).toBe('wss://backend.volt.oktaplus.ru/v1/voltd/ws?agent=a')
+  })
+
+  it('stays off for a cleartext gateway outside loopback, rather than leaking the token', () => {
+    expect(build({ gatewayUrl: 'ws://gateway.internal:8443/acp' })).toBeNull()
+    expect(build({ gatewayUrl: 'ws://localhost:8443/acp' })).not.toBeNull()
+  })
 })
