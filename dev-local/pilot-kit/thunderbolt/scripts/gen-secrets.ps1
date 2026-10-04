@@ -40,10 +40,20 @@ function New-RandomSecret([int]$Bytes) {
     return [Convert]::ToBase64String($buf)
 }
 
+function New-RandomHex([int]$Bytes) {
+    $buf = New-Object byte[] $Bytes
+    [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($buf)
+    return -join ($buf | ForEach-Object { $_.ToString("x2") })
+}
+
 $betterAuthSecret = New-RandomSecret 32
 $powersyncSecret = New-RandomSecret 32
 $postgresPassword = New-RandomSecret 24
 $keycloakAdminPassword = New-RandomSecret 18
+# The realm's client secret is generated too, and written into BOTH .env and
+# realm.json below. The committed placeholder is the same on every copy of the
+# kit, and "remember to change it by hand in two files" is not a control.
+$oidcClientSecret = New-RandomHex 16
 
 if ($Tls) {
     $publicUrl = "https://$PublicHost"
@@ -62,6 +72,7 @@ $content = $content -replace '(?m)^POSTGRES_PASSWORD=.*', "POSTGRES_PASSWORD=$po
 $content = $content -replace '(?m)^BETTER_AUTH_SECRET=.*', "BETTER_AUTH_SECRET=$betterAuthSecret"
 $content = $content -replace '(?m)^POWERSYNC_JWT_SECRET=.*', "POWERSYNC_JWT_SECRET=$powersyncSecret"
 $content = $content -replace '(?m)^KEYCLOAK_ADMIN_PASSWORD=.*', "KEYCLOAK_ADMIN_PASSWORD=$keycloakAdminPassword"
+$content = $content -replace '(?m)^OIDC_CLIENT_SECRET=.*', "OIDC_CLIENT_SECRET=$oidcClientSecret"
 if ($Voltd) {
     # The backend's own TLS hop to voltd is made by Bun, whose root store knows
     # nothing about the pilot CA. Without this the roster call fails with "unable
@@ -89,12 +100,17 @@ $realm = Get-Content $realmPath -Raw
 $realm = $realm -replace '"https?://[^"]*/v1/api/auth/sso/callback/sso"', "`"$publicUrl/v1/api/auth/sso/callback/sso`""
 $realm = $realm -replace '"https?://[^"]*/\*"', "`"$publicUrl/*`""
 $realm = $realm -replace '"https?://[^"/]*"', "`"$publicUrl`""
+$realm = $realm -replace '"secret": "[^"]*"', "`"secret`": `"$oidcClientSecret`""
 Set-Content -Path $realmPath -Value $realm -NoNewline
 
 Write-Host "Wrote .env (PUBLIC_URL=$publicUrl, KEYCLOAK_PUBLIC_URL=$keycloakPublicUrl)"
 Write-Host "Synced conf\powersync\config.yaml's HS256 key to the new POWERSYNC_JWT_SECRET."
-Write-Host "Repointed conf\keycloak\realm.json's redirect URIs at $publicUrl."
-Write-Host "AI provider key and OIDC_CLIENT_SECRET were left as-is — see .env comments."
+Write-Host "Repointed conf\keycloak\realm.json's redirect URIs at $publicUrl and gave"
+Write-Host "  the volt-app client a fresh secret (same value in .env and realm.json)."
+Write-Host "AI provider key was left as-is — see .env comments."
+Write-Host "The realm ships with NO users: create them in the Keycloak admin console at"
+Write-Host "  $keycloakPublicUrl/admin (user 'admin', password in .env), then put each"
+Write-Host "  one in volt-admins / volt-avk / volt-kb as needed."
 
 if ($Voltd) {
     # voltd agent auto-discovery: merge the overlay and name the gateway. The
