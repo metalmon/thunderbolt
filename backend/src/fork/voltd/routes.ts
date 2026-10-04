@@ -35,6 +35,7 @@ import { registerAgentProvider } from '@/agents/discovery'
 import type { Auth } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import type { User } from '@shared/types/auth'
+import type { ObservabilityRecorder } from '@/proxy/observability'
 import { Elysia, type AnyElysia } from 'elysia'
 import { createVoltdAgentProvider } from './provider'
 import { createVoltdRelayRoutes } from './relay'
@@ -50,6 +51,10 @@ export type CreateVoltdRoutesOptions = {
   gatewayUrl?: string
   /** Test seam for the relay's upstream socket. */
   wsFactory?: (url: string, protocols: string[]) => WebSocket
+  /** Per-connection telemetry for the relay — the universal proxy's recorder. */
+  observability?: ObservabilityRecorder
+  /** Request rate limiting for the relay. */
+  rateLimit?: AnyElysia
 }
 
 /**
@@ -90,5 +95,14 @@ export const createVoltdRoutes = async (options: CreateVoltdRoutesOptions): Prom
       set.headers['cache-control'] = 'public, max-age=300'
       return service.jwks
     })
-    .use(createVoltdRelayRoutes({ auth: options.auth, service, gatewayUrl, wsFactory: options.wsFactory }))
+    .use(
+      createVoltdRelayRoutes({
+        auth: options.auth,
+        service,
+        gatewayUrl,
+        wsFactory: options.wsFactory,
+        observability: options.observability,
+        rateLimit: options.rateLimit,
+      }),
+    )
 }
