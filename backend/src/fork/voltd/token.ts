@@ -45,12 +45,18 @@ export type VoltdPrincipal = {
    *  via `profile_map`. An empty array is valid here and means "no agents",
    *  which voltd answers with a 401 on upgrade. */
   groups: string[]
-  /** Display name and address, for the gateway's own user list. Without them a
-   *  JWT sign-in shows up there as an id and nothing else, which is no use to an
-   *  operator deciding whose access to revoke. Both optional: a deployment whose
-   *  IdP supplies neither still pairs and still authorizes — identity on the
-   *  gateway's screen is a convenience, never a gate. */
-  name?: string
+  /** Address, for the gateway's own user list — without it a JWT sign-in shows up
+   *  there as an id and nothing else, which is no use to an operator deciding whose
+   *  access to revoke.
+   *
+   *  The display NAME is deliberately not sent. It is the account's own field, and
+   *  Better Auth's update-user endpoint lets anyone holding a session set it to
+   *  whatever they like — "Его величество" would then sit in the gateway's user
+   *  list looking as authoritative as the groups beside it. The address is the
+   *  IdP's and is what identifies a person anyway.
+   *
+   *  Optional: a deployment whose IdP supplies no address still pairs and still
+   *  authorizes — identity on the gateway's screen is a convenience, never a gate. */
   email?: string
 }
 
@@ -228,12 +234,9 @@ export const createVoltdTokenService = async (config: VoltdTokenConfig): Promise
 
   const mint = async (principal: VoltdPrincipal): Promise<string> => {
     if (!principal.userId.trim()) throw new Error('voltd token requires a non-empty subject')
-    // Omitted rather than sent empty: a blank `name` claim would overwrite whatever
-    // the gateway already knows about the user with nothing.
-    const identity = {
-      ...(principal.name?.trim() ? { name: principal.name.trim() } : {}),
-      ...(principal.email?.trim() ? { email: principal.email.trim() } : {}),
-    }
+    // Omitted rather than sent empty: a blank claim would overwrite whatever the
+    // gateway already knows about the user with nothing.
+    const identity = principal.email?.trim() ? { email: principal.email.trim() } : {}
     return new SignJWT({ client_id: voltdClientId, groups: principal.groups, ...identity })
       .setProtectedHeader({ alg: voltdSigningAlg, kid: publicJwk.kid, typ: 'at+jwt' })
       .setIssuer(config.issuer)
