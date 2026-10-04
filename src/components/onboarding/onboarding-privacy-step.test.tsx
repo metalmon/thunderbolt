@@ -54,7 +54,12 @@ describe('OnboardingPrivacyStep', () => {
       renderComponent()
 
       expect(screen.getByText(/Welcome to/)).toBeInTheDocument()
-      expect(screen.getByText(/Volt/)).toBeInTheDocument()
+      // The macro mock renders the English SOURCE (see src/testing-library.ts), and
+      // the source says "Thunderbolt" — the fork's brand lives in the catalogs,
+      // rewritten by dev-local/i18n-brand-swap.mjs. Asserting /Volt/ here could
+      // never pass; that the brand is actually swapped is covered by
+      // src/i18n/brand.test.ts.
+      expect(screen.getByText(/Thunderbolt/)).toBeInTheDocument()
       expect(screen.getByText(/Your private AI assistant/)).toBeInTheDocument()
     })
 
