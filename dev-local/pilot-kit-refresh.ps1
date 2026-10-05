@@ -141,7 +141,12 @@ if ($Skip -notcontains 'config') {
 
 Write-Host ""
 Write-Host "Still by hand: the kit's own README version list." -ForegroundColor Yellow
-Write-Host "  - Volt desktop: 0.1.134 (сборка master metalmon/thunderbolt $head)"
-Write-Host "  - Thunderbolt backend/web: образы собраны из master $head"
-Write-Host "  (the current text says the images came from the dev stand on 2026-10-04;"
-Write-Host "   they were in fact two weeks older than that until this run.)"
+if ($Skip -notcontains 'images') {
+    Write-Host "  - Образы бэкенда и веб-клиента «Вольт»: собраны из master $head"
+}
+if ($Skip -notcontains 'desktop') {
+    Write-Host "  - Приложение «Вольт» (volt-client/): сборка master $head, прогон CI $RunId"
+} else {
+    Write-Host "  - Десктоп НЕ обновлялся этим запуском: в volt-client/ остается прежняя сборка." -ForegroundColor Yellow
+    Write-Host "    Не приписывайте ему $head в README." -ForegroundColor Yellow
+}
