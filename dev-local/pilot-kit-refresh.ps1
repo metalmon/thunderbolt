@@ -145,7 +145,8 @@ if ($Skip -notcontains 'images') {
     Write-Host "  - Образы бэкенда и веб-клиента «Вольт»: собраны из master $head"
 }
 if ($Skip -notcontains 'desktop') {
-    Write-Host "  - Приложение «Вольт» (volt-client/): сборка master $head, прогон CI $RunId"
+    $builtFrom = if ($runSha) { $runSha.Substring(0, 9) } else { $head }
+    Write-Host "  - Приложение «Вольт» (volt-client/): сборка master $builtFrom, прогон CI $RunId"
 } else {
     Write-Host "  - Десктоп НЕ обновлялся этим запуском: в volt-client/ остается прежняя сборка." -ForegroundColor Yellow
     Write-Host "    Не приписывайте ему $head в README." -ForegroundColor Yellow
