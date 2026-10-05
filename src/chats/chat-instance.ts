@@ -1133,13 +1133,18 @@ export const createChatInstance = (
       throw new Error('No session found')
     }
 
-    const { chatThread, selectedModel } = session
+    const { chatThread, selectedAgent, selectedModel } = session
 
-    if (!selectedModel) {
+    // Fork: only the built-in agent needs a local model — an ACP agent carries its own,
+    // and an installation may legitimately ship no catalog at all. Demanding one here
+    // refused every agent turn on such an installation.
+    if (!selectedModel && isBuiltInAgent(selectedAgent)) {
       throw new Error('No selected model')
     }
 
-    if (chatThread && chatThread.isEncrypted !== selectedModel.isConfidential) {
+    // Encryption is a property of the model, so with no model there is nothing
+    // confidential to mismatch.
+    if (selectedModel && chatThread && chatThread.isEncrypted !== selectedModel.isConfidential) {
       throw new Error(
         `This model is not available for ${chatThread.isEncrypted === 1 ? 'encrypted' : 'unencrypted'} conversations.`,
       )
@@ -1150,15 +1155,15 @@ export const createChatInstance = (
     const debugTranscript = isDebugTranscriptCaptureEnabled() ? debugMetadataForTurn(currentTurn) : null
     const messageMetadata: NonNullable<ThunderboltUIMessage['metadata']> = {
       ...message?.metadata,
-      modelId: selectedModel.id,
+      ...(selectedModel ? { modelId: selectedModel.id } : {}),
     }
     if (debugTranscript) {
       messageMetadata.debugTranscript = { ...debugTranscript, engine: null }
     }
     trackEvent('chat_send_prompt', {
-      model_id: selectedModel.id,
-      model_name: selectedModel.model,
-      provider: selectedModel.provider,
+      model_id: selectedModel?.id,
+      model_name: selectedModel?.model,
+      provider: selectedModel?.provider,
       length: getPromptLength(message),
       prompt_number: instance.messages.length + 1,
       ...getTraceProperties(telemetry),
