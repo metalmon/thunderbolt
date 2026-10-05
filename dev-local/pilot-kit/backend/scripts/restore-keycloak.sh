@@ -20,7 +20,10 @@ assume_yes=0
 archive="${1:-$(ls -1t data/keycloak-backup/keycloak-*.tgz 2>/dev/null | head -1)}"
 [[ -n "$archive" && -f "$archive" ]] || { echo "no archive to restore (looked in data/keycloak-backup)" >&2; exit 1; }
 
-volume="$(docker volume ls --quiet --filter 'name=_keycloak_data$' | head -1)"
+# Exactly the project's own volume: a renamed kit folder can leave an orphan behind, and
+# backing up - or worse, restoring over - the wrong one would be silent.
+compose_project="$(sed -n 's/^COMPOSE_PROJECT_NAME=//p' .env 2>/dev/null | head -1)"
+volume="$(docker volume ls --quiet --filter "name=^${compose_project:-volt}_keycloak_data$")"
 [[ -n "$volume" ]] || { echo "Keycloak has no volume yet — start the stand once first (scripts/up.sh)." >&2; exit 1; }
 
 echo "restore $archive  ->  $volume"
