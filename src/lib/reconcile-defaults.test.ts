@@ -15,12 +15,10 @@ import {
   defaultModelProfileGlm53,
   defaultModelProfileGlm53Flash,
   defaultModelProfileOpus5,
-  defaultModelProfiles,
   hashModelProfile,
 } from '../defaults/model-profiles'
 import {
   defaultModelGlm53,
-  defaultModelOpenRouterFree,
   defaultModelGlm53Flash,
   defaultModelOpus5,
   defaultModelsVersion,
