@@ -52,7 +52,8 @@ export const ensureHttps = (raw: string | null | undefined): string | null => {
  * Only allows http/https protocols and blocks internal/private IP addresses.
  */
 /** Fork: one read of the deployment's private-target policy, shared by both checks. */
-const privateTargetAllowed = (url: URL): boolean =>
+/** Fork: shared with the proxy route, which must not upgrade such a target to https. */
+export const privateTargetAllowed = (url: URL): boolean =>
   isAllowedPrivateTarget(
     url,
     parseAllowedPrivateTargets(process.env.VOLT_PROXY_ALLOWED_HOSTS),

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { privateTargetAllowed } from '@/utils/url-validation'
 import type { Auth } from '@/auth/elysia-plugin'
 import { createAuthMacro } from '@/auth/elysia-plugin'
 import { safeErrorHandler } from '@/middleware/error-handling'
@@ -59,6 +60,13 @@ const textResponse = (status: number, body: string): Response =>
 const normaliseTargetUrl = (raw: string): URL | { error: string } => {
   const parsed = URL.canParse(raw) ? new URL(raw) : null
   if (parsed && isAllowedTestProxyTarget(parsed)) {
+    return parsed
+  }
+  // Fork: inside a closed perimeter there is nothing to upgrade to — the model server
+  // speaks plain http on the LAN, and forcing https turns every call into a connection
+  // failure. Only for targets the deployment has explicitly allowed; everything else
+  // keeps the upgrade, because a key must never cross the open internet in the clear.
+  if (parsed && parsed.protocol === 'http:' && privateTargetAllowed(parsed)) {
     return parsed
   }
   const upgraded = ensureHttps(raw)
