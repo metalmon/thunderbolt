@@ -36,5 +36,19 @@ services:
       # VOLTD_URL / VOLTD_ISSUER are deliberately NOT restated here: the backend
       # already reads .env through env_file, and naming them in `environment:`
       # would shadow that file with compose's own (possibly empty) substitution.
+    # voltd runs with `network_mode: host` and listens on 0.0.0.0:8443, so from inside
+    # this container its name has to point at the HOST. Without this the roster call
+    # goes nowhere useful and no agent is ever published:
+    #   - on Docker Desktop the name resolves through the Windows resolver, which reads
+    #     the host's HOSTS file — where install-hosts puts 127.0.0.1, i.e. this container
+    #     itself;
+    #   - on a Linux objekt Docker's DNS does not consult the host's /etc/hosts at all,
+    #     so without real DNS the name does not resolve.
+    # Mapped by its real name rather than host.docker.internal on purpose: voltd's
+    # certificate is issued for that name, and `wss://host.docker.internal:8443` would
+    # fail verification instead. VOLT_TLS_SERVER_NAME is always set when voltd is on —
+    # gen-secrets refuses --voltd without --tls.
+    extra_hosts:
+      - "${VOLT_TLS_SERVER_NAME:-voltd-host.invalid}:host-gateway"
     volumes:
       - ./conf/voltd-keys:/etc/volt/voltd-keys:ro
