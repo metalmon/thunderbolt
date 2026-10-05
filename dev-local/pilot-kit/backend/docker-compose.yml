@@ -1,4 +1,4 @@
-# Thunderbolt pilot kit — air-gapped subset of powersync-service/docker-compose.yml.
+# Volt pilot kit — air-gapped subset of powersync-service/docker-compose.yml.
 # Services: web, tls (profile), backend, keycloak, powersync, postgres.
 # Firecrawl/SearXNG are intentionally NOT included (decision: full stack minus
 # web-search/scrape). Auth is Keycloak SSO (AUTH_MODE=oidc) — no anonymous mode.
