@@ -17,6 +17,8 @@ import { useHandleIntegrationCompletion } from '@/hooks/use-handle-integration-c
 import { preloadChatMessageList } from '@/components/chat/chat-messages-loader'
 import { PageFallback } from '@/loading'
 import { useLocalProviders } from '@/hooks/use-local-providers'
+import { useModelAvailability } from '@/fork/chat/model-availability'
+import { NoModelConfigured } from '@/fork/chat/no-model-configured'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 type ChatHydrateHandlerProps = PropsWithChildren<{
@@ -76,12 +78,19 @@ export const ChatHydrateHandler = ({
 
   useHandleIntegrationCompletion({ saveMessages })
 
+  const modelAvailability = useModelAvailability()
+
   useEffect(() => {
+    // Fork: with an empty catalog there is nothing to hydrate against; the screen
+    // below says so instead.
+    if (modelAvailability !== 'present') {
+      return
+    }
     const controller = new AbortController()
     void hydrateChatStore(controller.signal)
     return () => controller.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, cloudUrl, needsOwnModel])
+  }, [id, cloudUrl, needsOwnModel, modelAvailability])
 
   // Visible feedback while an existing thread hydrates (message load +
   // session setup): sidebar taps navigate here immediately, so this spinner —
@@ -215,6 +224,12 @@ export default function ChatDetailPage() {
       preloadChatMessageList()
     }
   }, [isNew])
+
+  // Fork: the catalog ships empty, so "nothing to chat with" is a real state and gets
+  // its own screen rather than the black pane a null render leaves behind.
+  if (modelAvailability === 'none') {
+    return <NoModelConfigured />
+  }
 
   if (!chatThreadId) {
     return null
