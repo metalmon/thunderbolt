@@ -1,0 +1,80 @@
+/* Pilot login theme — «Вольт».
+ *
+ * Only overrides. Keycloak's own stylesheet loads first (see `styles` in
+ * theme.properties), so an upgrade that changes the base keeps working and this
+ * file stays small enough to read in one go.
+ *
+ * The product name is drawn as text through a pseudo-element rather than shipped
+ * as an image: nothing to version, nothing to scale, and it survives a dark or
+ * high-contrast theme that would wash out a PNG.
+ */
+
+:root {
+  --volt-accent: #c8532b;
+  --volt-accent-hover: #a84324;
+  --volt-ink: #1f1d1b;
+  --volt-paper: #f5f2ed;
+}
+
+/* Replace the KEYCLOAK wordmark with ours. The element keeps its box so the
+   card below does not jump. */
+#kc-header-wrapper {
+  visibility: hidden;
+  position: relative;
+  font-size: 0;
+}
+
+#kc-header-wrapper::after {
+  visibility: visible;
+  content: 'ВОЛЬТ';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--volt-paper);
+}
+
+/* A plain ground instead of the stock photograph: it reproduces predictably on
+   a projector and on the low-grade panels a plant floor actually has. */
+.login-pf body,
+body.login-pf {
+  background: linear-gradient(170deg, #26231f 0%, #15130f 100%) !important;
+}
+
+.card-pf {
+  border-radius: 14px;
+  border: 1px solid rgba(245, 242, 237, 0.08);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+
+/* The one control everybody uses. */
+.pf-c-button.pf-m-primary,
+#kc-login,
+input[type='submit'].btn-primary {
+  background-color: var(--volt-accent) !important;
+  border-color: var(--volt-accent) !important;
+}
+
+.pf-c-button.pf-m-primary:hover,
+#kc-login:hover,
+input[type='submit'].btn-primary:hover {
+  background-color: var(--volt-accent-hover) !important;
+  border-color: var(--volt-accent-hover) !important;
+}
+
+a,
+.pf-c-button.pf-m-link {
+  color: var(--volt-accent);
+}
+
+/* Focus has to stay visible — this is the field people type a password into. */
+input:focus,
+.pf-c-form-control:focus {
+  border-color: var(--volt-accent) !important;
+  box-shadow: 0 0 0 2px rgba(200, 83, 43, 0.35) !important;
+}

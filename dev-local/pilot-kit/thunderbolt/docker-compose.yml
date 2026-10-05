@@ -138,6 +138,30 @@ services:
       KC_PROXY_HEADERS: xforwarded
     volumes:
       - ./conf/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+      # Login/account theme. Inherits Keycloak's own and overrides only the
+      # wordmark, background and accent, so an upgrade cannot break it the way a
+      # forked template would.
+      - ./conf/keycloak/themes:/opt/keycloak/themes:ro
+      # The embedded H2 database, on disk instead of inside the container.
+      #
+      # `start-dev` keeps it under /opt/keycloak/data, so WITHOUT this every
+      # container recreate — an image update, a compose edit, sometimes a host
+      # reboot — silently takes every user the operator created with it, leaving
+      # only the imported realm. On a pilot that is the account list for the whole
+      # site. `--import-realm` only imports a realm that is not already there, so
+      # persisting this changes nothing about the shipped realm.
+      #
+      # A named volume rather than ./data/keycloak beside ./data/postgres: that path
+      # belongs to uid 1000 in the Keycloak image and, unlike Postgres, its entrypoint
+      # never chowns what it finds, so a host directory Docker creates root-owned makes
+      # the container fail to start on a Linux objekt. Docker seeds a named volume from
+      # the image with the right ownership. The accounts therefore live in Docker rather
+      # than in the kit folder: `docker compose down -v` is what discards them.
+      #
+      # The other half of the trade: conf/keycloak/realm.json is read on FIRST boot only.
+      # scripts/gen-secrets.sh refuses to rewrite it once the volume exists, because a
+      # fresh client secret would land in .env and never reach Keycloak.
+      - keycloak_data:/opt/keycloak/data
     ports:
       # Keycloak's PLAIN HTTP port. With the tls profile the browser reaches it as
       # https://<name>:8444 and this one is only the terminator's upstream, so it
@@ -184,3 +208,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+volumes:
+  keycloak_data:
