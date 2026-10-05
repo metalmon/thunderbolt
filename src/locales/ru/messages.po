@@ -4634,15 +4634,3 @@ msgstr "Увеличить"
 #: src/widgets/map/widget.tsx
 msgid "Zoom out"
 msgstr "Уменьшить"
-
-#: src/fork/chat/no-model-configured.tsx
-msgid "No model is set up yet"
-msgstr "Модель ещё не настроена"
-
-#: src/fork/chat/no-model-configured.tsx
-msgid "Add the address of your own model server in Settings — this installation ships without one on purpose, so nothing reaches outside your network."
-msgstr "Укажите адрес вашего сервера моделей в настройках — поставка намеренно идёт без него, чтобы ничего не уходило за пределы вашей сети."
-
-#: src/fork/chat/no-model-configured.tsx
-msgid "Open model settings"
-msgstr "Открыть настройки моделей"
