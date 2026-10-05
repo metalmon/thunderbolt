@@ -9,7 +9,6 @@ import { safeErrorHandler } from '@/middleware/error-handling'
 import { Elysia, t } from 'elysia'
 import { configuredSsoProviderId } from './paths'
 
-const sessionCookieName = 'better-auth.session_token'
 const nonceCookieName = 'thunderbolt_desktop_sso_nonce'
 
 /** Allowed loopback ports — must match OAUTH_PORTS in src-tauri/src/commands.rs */
