@@ -37,13 +37,7 @@ if [[ "$use_voltd" -eq 1 && "$use_tls" -ne 1 ]]; then
   exit 1
 fi
 
-# Keycloak reads realm.json on first boot only, so once its database exists this
-# script would put a fresh client secret in .env that Keycloak never learns —
-# login then fails with nothing in either log to say why. Refuse instead.
-# Asked of Docker rather than built from the directory name: compose derives the
-# project name from the directory but COMPOSE_PROJECT_NAME overrides it, and guessing
-# wrong here would silently turn the check into a no-op.
-# Postgres is the same story: POSTGRES_PASSWORD is applied by initdb and never again,
+# Postgres: POSTGRES_PASSWORD is applied by initdb and never again,
 # and conf/postgres/init-db/ is skipped entirely once the data directory exists. A fresh
 # password here would leave the backend and PowerSync unable to log in — which for
 # PowerSync means sync stops while the application itself looks perfectly healthy.
@@ -57,7 +51,15 @@ if [[ -d data/postgres ]]; then
   exit 1
 fi
 
-keycloak_volume="$(docker volume ls --quiet --filter 'name=_keycloak_data$' | head -1)"
+# Keycloak reads realm.json on first boot only, so once its database exists this script
+# would put a fresh client secret in .env that Keycloak never learns — login then fails
+# with nothing in either log to say why. Refuse instead.
+#
+# The volume is named exactly, from the project name conf/.env.example pins. Matching
+# loosely on the suffix picked the first of several once a renamed folder had left an
+# orphan volume behind, and would have printed the wrong one to delete.
+compose_project="$(sed -n 's/^COMPOSE_PROJECT_NAME=//p' conf/.env.example | head -1)"
+keycloak_volume="$(docker volume ls --quiet --filter "name=^${compose_project:-volt}_keycloak_data$")"
 if [[ -n "$keycloak_volume" ]]; then
   echo "Keycloak already has a database, so conf/keycloak/realm.json would be ignored" >&2
   echo "and the new client secret would never reach it." >&2

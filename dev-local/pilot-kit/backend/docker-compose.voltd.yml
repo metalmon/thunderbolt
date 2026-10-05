@@ -1,4 +1,4 @@
-# Thunderbolt pilot kit — voltd agent auto-discovery (opt-in overlay).
+# Volt pilot kit — voltd agent auto-discovery (opt-in overlay).
 #
 # Merged on top of docker-compose.yml; it adds nothing to the service list, only
 # the backend's voltd wiring. Enabled by two lines `scripts/gen-secrets` writes
