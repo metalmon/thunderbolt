@@ -10,7 +10,8 @@ import { useQuery } from '@powersync/tanstack-react-query'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 
 type UseContextTrackingProps = {
-  model: Model
+  /** Fork: null when the installation has no model; the result is then "unknown". */
+  model: Model | null
   chatThreadId?: string
   currentInput: string
   onOverflow?: () => void
@@ -44,7 +45,8 @@ export const useContextTracking = ({
   const db = useDatabase()
 
   // Derive context window information from model
-  const maxTokens = model.contextWindow
+  // Fork: no model means no known window — the hook already reports that state.
+  const maxTokens = model?.contextWindow ?? null
 
   // Fetch context size from chat thread using React Query
   const { data = [], isLoading } = useQuery({
