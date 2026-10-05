@@ -108,7 +108,9 @@ export type ChatSession = {
    *  in this chat, so a late-arriving discovered default must not replace it.
    *  False when the agent came from the fallback chain. */
   agentChosenByUser: boolean
-  selectedModel: Model
+  /** Fork: null when the installation has no model at all. Only the built-in agent needs
+   *  one — an ACP agent carries its own — so a chat still opens and can be switched to it. */
+  selectedModel: Model | null
   /**
    * Owning project for this chat, or null for a loose chat. Resolved at
    * hydration from the persisted `chat_threads.project_id`, or — for a brand-new
