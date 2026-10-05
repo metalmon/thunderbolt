@@ -397,13 +397,24 @@ export const createUniversalProxyRoutes = (options: CreateUniversalProxyRoutesOp
               // Fork: the upstream rejection says only "Unable to connect. Is the computer
               // able to access the url?" and names no url, which makes a proxy failure
               // impossible to trace from a log — it cost an afternoon here.
-              const describeHop = (cause: unknown): Error =>
-                new Error(
-                  `${cause instanceof Error ? cause.message : String(cause)} (target ${connectUrl}${
+              const describeHop = (cause: unknown): Error => {
+                // Origin and path only: a target URL can carry an API key in its query
+                // string (several providers pass one that way) and this text reaches the
+                // log. Host, port and path are what identify the failing hop anyway.
+                let target = 'an unparseable url'
+                try {
+                  const t = new URL(connectUrl)
+                  target = `${t.origin}${t.pathname}`
+                } catch {
+                  // keep the placeholder
+                }
+                return new Error(
+                  `${cause instanceof Error ? cause.message : String(cause)} (target ${target}${
                     hopDispatcher ? ', pinned' : ''
                   })`,
                   { cause },
                 )
+              }
               const response = await fetchFn(connectUrl, {
                 method: currentMethod,
                 headers: hopHeaders,
