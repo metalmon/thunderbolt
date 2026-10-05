@@ -154,6 +154,22 @@ type RelayCarrier = { voltdRelay?: RelayState }
 const carrierOf = (ws: RelayDownstream): RelayCarrier => ws.data as RelayCarrier
 
 /**
+ * The frame as the client sent it. Elysia parses an inbound message by content type,
+ * so an ACP request — JSON text — arrives here as a plain object; handing that to
+ * `WebSocket.send` stringifies it as `[object Object]`, and the gateway answers the
+ * whole connection with a parse error. The universal proxy's socket undoes the same
+ * parse for the same reason (`proxy/ws.ts`).
+ *
+ * @param message - whatever Elysia handed the message handler
+ */
+export const rawFrame = (message: unknown): Frame => {
+  if (typeof message === 'string' || message instanceof ArrayBuffer || message instanceof Uint8Array) {
+    return message
+  }
+  return typeof message === 'object' && message !== null ? JSON.stringify(message) : String(message)
+}
+
+/**
  * The socket handlers, separate from the route so the parts worth testing — the
  * close-during-await race and the queue budgets — can be driven directly.
  *
@@ -298,7 +314,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
     message(ws: RelayDownstream, message: unknown) {
       const state = carrierOf(ws).voltdRelay
       if (!state || state.closed) return
-      const frame = message as Frame
+      const frame = rawFrame(message)
       if (state.ready && state.upstream) {
         state.upstream.send(frame)
         // Forwarding is not free: a gateway slower than the client turns the
