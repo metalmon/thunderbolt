@@ -74,7 +74,8 @@ export type AgentAdapterContext = {
   chatThread: ChatThread | null
   acpSessionId: string | null
   saveMessages: SaveMessagesFunction
-  selectedModel: Model
+  /** Fork: null when this installation has no model; only the built-in agent needs one. */
+  selectedModel: Model | null
   mcpClients: NamedMCPClient[]
   /** Reconnect a dropped MCP client at the `tools()` boundary; returns a fresh
    *  client or null. Supplied by the MCP provider via the chat store. */
