@@ -394,6 +394,16 @@ export const createUniversalProxyRoutes = (options: CreateUniversalProxyRoutesOp
                 connectUrl = rebuilt.toString()
               }
 
+              // Fork: the upstream rejection says only "Unable to connect. Is the computer
+              // able to access the url?" and names no url, which makes a proxy failure
+              // impossible to trace from a log — it cost an afternoon here.
+              const describeHop = (cause: unknown): Error =>
+                new Error(
+                  `${cause instanceof Error ? cause.message : String(cause)} (target ${connectUrl}${
+                    hopDispatcher ? ', pinned' : ''
+                  })`,
+                  { cause },
+                )
               const response = await fetchFn(connectUrl, {
                 method: currentMethod,
                 headers: hopHeaders,
@@ -403,7 +413,11 @@ export const createUniversalProxyRoutes = (options: CreateUniversalProxyRoutesOp
                 decompress: false,
                 duplex: 'half',
                 ...(hopDispatcher ? { dispatcher: hopDispatcher } : {}),
-              } as RequestInit & { decompress: boolean; duplex: 'half'; dispatcher?: Dispatcher })
+              } as RequestInit & { decompress: boolean; duplex: 'half'; dispatcher?: Dispatcher }).catch(
+                (cause: unknown) => {
+                  throw describeHop(cause)
+                },
+              )
 
               /** Bytes uploaded to upstream. Buffered bodies have a fixed size known
                *  up-front; for streamed bodies we expose a late-read getter so the
