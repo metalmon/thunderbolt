@@ -20,6 +20,8 @@
  */
 
 import { authorizeWsBearer, wsCloseUnauthorized } from '@/auth/ws-bearer-auth'
+import { getCorsOriginsList, getSettings } from '@/config/settings'
+import { authorizeWsSessionCookie } from '@/fork/auth/ws-session-cookie'
 import type { Auth } from '@/auth/elysia-plugin'
 import { noopObservability, type ObservabilityRecorder } from '@/proxy/observability'
 import { classifyWsCloseCode, wsCloseCodes } from '@/proxy/ws'
@@ -191,7 +193,12 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       states.set(ws, state)
 
       const request = (ws.data as unknown as { request?: Request }).request
-      const user: User | null = await authorizeWsBearer(options.auth, request?.headers.get('sec-websocket-protocol') ?? null)
+      const headers = request?.headers ?? new Headers()
+      // Bearer first — that is what the desktop client has. Then the session cookie, which
+      // is all the web client has: its SSO ends in a redirect and never mints a bearer.
+      const user: User | null =
+        (await authorizeWsBearer(options.auth, headers.get('sec-websocket-protocol') ?? null)) ??
+        (await authorizeWsSessionCookie(options.auth, headers, getCorsOriginsList(getSettings())))
       if (state.closed) return
       if (!user || user.isAnonymous) {
         ws.close(wsCloseUnauthorized, 'unauthorized')
