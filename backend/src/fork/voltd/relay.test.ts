@@ -178,6 +178,24 @@ describe('voltd relay handlers', () => {
     expect(upstream.closedWith).toHaveLength(1)
   })
 
+  // Elysia parses an inbound JSON text frame into an object before the handler sees
+  // it. Forwarded as an object, `WebSocket.send` writes `[object Object]` and the
+  // gateway answers the connection with a parse error instead of the handshake.
+  it('forwards an ACP request Elysia has already parsed as the JSON text it was', async () => {
+    FakeUpstream.created = []
+    const { handlers, release } = heldHandlers()
+    const { ws } = downstream()
+
+    const opening = handlers.open(ws)
+    release()
+    await opening
+    const upstream = FakeUpstream.created[0]
+    upstream.onopen?.()
+
+    handlers.message(ws, { jsonrpc: '2.0', id: 0, method: 'initialize' })
+    expect(upstream.sent).toEqual(['{"jsonrpc":"2.0","id":0,"method":"initialize"}'])
+  })
+
   it('queues frames that arrive before the gateway socket is ready, then flushes them in order', async () => {
     FakeUpstream.created = []
     const { handlers, release } = heldHandlers()
