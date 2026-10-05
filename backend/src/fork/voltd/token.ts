@@ -29,8 +29,11 @@ import { SignJWT, calculateJwkThumbprint, exportJWK, importPKCS8, importSPKI, ty
  *  voltd; ES256 is chosen for the smaller key and token. */
 export const voltdSigningAlg = 'ES256'
 
-/** `client_id` claim value. Must appear in voltd's `interactive_clients`. */
-export const voltdClientId = 'thunderbolt'
+/** `client_id` claim value. Must appear in voltd's `interactive_clients` — the two are
+ *  one setting split across two systems: voltd denies a token whose client is declared
+ *  in neither of its client lists, so this value and that list change together or the
+ *  gateway rejects every request. */
+export const voltdClientId = 'volt'
 
 /** voltd's own ceiling (`max_auth_lifetime_secs = 900`). A token asking for more
  *  is refused, so this is a hard clamp rather than a default. */

@@ -188,7 +188,7 @@ describe('createVoltdTokenService', () => {
       audience: 'volt',
     })
     expect(payload.sub).toBe('user-1')
-    expect(payload.client_id).toBe('thunderbolt')
+    expect(payload.client_id).toBe('volt')
     expect(payload.groups).toEqual(['volt-crm'])
     expect(payload.jti).toBeTruthy()
     expect(payload.iat).toBeDefined()
@@ -300,7 +300,7 @@ describe('identity claims for the gateway user list', () => {
     const payload = await verify(token)
     expect('email' in payload).toBe(false)
     // The half the gateway actually verifies is untouched by the optional one.
-    expect(payload.client_id).toBe('thunderbolt')
+    expect(payload.client_id).toBe('volt')
     expect(payload.aud).toBe('volt')
   })
 })
