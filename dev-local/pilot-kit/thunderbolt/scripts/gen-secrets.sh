@@ -37,6 +37,23 @@ if [[ "$use_voltd" -eq 1 && "$use_tls" -ne 1 ]]; then
   exit 1
 fi
 
+# Keycloak reads realm.json on first boot only, so once its database exists this
+# script would put a fresh client secret in .env that Keycloak never learns —
+# login then fails with nothing in either log to say why. Refuse instead.
+# Asked of Docker rather than built from the directory name: compose derives the
+# project name from the directory but COMPOSE_PROJECT_NAME overrides it, and guessing
+# wrong here would silently turn the check into a no-op.
+keycloak_volume="$(docker volume ls --quiet --filter 'name=_keycloak_data$' | head -1)"
+if [[ -n "$keycloak_volume" ]]; then
+  echo "Keycloak already has a database, so conf/keycloak/realm.json would be ignored" >&2
+  echo "and the new client secret would never reach it." >&2
+  echo >&2
+  echo "Either keep the current secrets, or start Keycloak over - which also deletes" >&2
+  echo "every account created on this stand:" >&2
+  echo "  docker compose down && docker volume rm $keycloak_volume" >&2
+  exit 1
+fi
+
 rand_b64() { openssl rand -base64 "$1" | tr -d '\n'; }
 
 better_auth_secret="$(rand_b64 32)"
