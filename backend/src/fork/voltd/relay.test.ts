@@ -153,6 +153,31 @@ describe('voltd relay handlers', () => {
     expect(FakeUpstream.created).toHaveLength(0)
   })
 
+  // Elysia hands each callback its OWN wrapper object (`new ElysiaWS(ws, context)` in
+  // open, message and close alike) around one shared `data`. Every other test here
+  // reuses a single object and so cannot see it: keyed on the wrapper, the state
+  // `open` stored is invisible to `message`, which drops the frame in silence and
+  // leaves the client's ACP handshake to time out.
+  it('forwards frames when every callback gets its own socket wrapper, as Elysia does', async () => {
+    FakeUpstream.created = []
+    const { handlers, release } = heldHandlers()
+    const { ws } = downstream()
+    // One `data` shared by all wrappers — that is the only thing Bun keeps per socket.
+    const wrapper = () => ({ ...ws })
+
+    const opening = handlers.open(wrapper())
+    release()
+    await opening
+    const upstream = FakeUpstream.created[0]
+    upstream.onopen?.()
+
+    handlers.message(wrapper(), 'initialize')
+    expect(upstream.sent).toEqual(['initialize'])
+
+    handlers.close(wrapper())
+    expect(upstream.closedWith).toHaveLength(1)
+  })
+
   it('queues frames that arrive before the gateway socket is ready, then flushes them in order', async () => {
     FakeUpstream.created = []
     const { handlers, release } = heldHandlers()
