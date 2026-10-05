@@ -11,7 +11,9 @@ export const AccountDeleted = () => (
     <div className="flex flex-col items-center gap-8 text-center">
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <AppLogo size={16} />
-        <span>Volt</span>
+        <span>
+          <Trans>Thunderbolt</Trans>
+        </span>
       </div>
 
       <div className="flex flex-col items-center gap-2">
