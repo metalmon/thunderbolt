@@ -1,13 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-Copy our half of the Volt pilot kit (dev-local/pilot-kit/thunderbolt) into a
+Copy our half of the Volt pilot kit (dev-local/pilot-kit/backend) into a
 kit checkout.
 
 .DESCRIPTION
-The kit's `thunderbolt/` folder is our deliverable inside someone else's staging
+The kit's `backend/` folder is our deliverable inside someone else's staging
 tree, so it drifts from this repo the moment either side changes. Everything in
-dev-local/pilot-kit/thunderbolt is authored here and copied there — never edited
+dev-local/pilot-kit/backend is authored here and copied there — never edited
 in place — so this script is the only sanctioned way to update it.
 
 It copies files only; it never deletes anything in the kit, and it never touches
@@ -15,8 +15,8 @@ the kit's images/, conf/certs/, .env or data/. Rebuilding images/*.tar.gz is a
 separate step (see dev-local/pilot-kit/README.md).
 
 .EXAMPLE
-pwsh dev-local/pilot-kit-sync.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\thunderbolt -WhatIf
-pwsh dev-local/pilot-kit-sync.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\thunderbolt
+pwsh dev-local/pilot-kit-sync.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\backend -WhatIf
+pwsh dev-local/pilot-kit-sync.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\backend
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -24,10 +24,10 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-$source = Join-Path $PSScriptRoot "pilot-kit\thunderbolt"
+$source = Join-Path $PSScriptRoot "pilot-kit\backend"
 if (-not (Test-Path $source)) { Write-Error "missing $source"; exit 1 }
 if (-not (Test-Path (Join-Path $KitPath "docker-compose.yml"))) {
-    Write-Error "$KitPath does not look like the kit's thunderbolt folder (no docker-compose.yml)."
+    Write-Error "$KitPath does not look like the kit's backend folder (no docker-compose.yml)."
     exit 1
 }
 
@@ -67,7 +67,7 @@ foreach ($f in $files) {
 Write-Host ""
 if ($skippedRealm) {
     Write-Host "conf/keycloak/realm.json was kept, so any realm change in this commit is NOT" -ForegroundColor Yellow
-    Write-Host "in that kit. Diff it against dev-local/pilot-kit/thunderbolt/conf/keycloak/realm.json" -ForegroundColor Yellow
+    Write-Host "in that kit. Diff it against dev-local/pilot-kit/backend/conf/keycloak/realm.json" -ForegroundColor Yellow
     Write-Host "and apply the change by hand, or in the admin console. Note that Keycloak reads" -ForegroundColor Yellow
     Write-Host "realm.json on first boot only — on a stand that is already up, the console is the" -ForegroundColor Yellow
     Write-Host "only route that takes effect." -ForegroundColor Yellow
