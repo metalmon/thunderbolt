@@ -26,7 +26,8 @@ import { openWebSocketTransport, type WebSocketFactory } from './transports/webs
 import type { AcpTransport } from './types'
 
 const protocolVersion = 1
-const clientName = 'thunderbolt'
+/** See the note in acp-adapter.ts. */
+const clientName = 'volt'
 const clientVersion = '0.2.0'
 const defaultTimeoutMs = 10000
 
