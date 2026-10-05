@@ -1,0 +1,64 @@
+# PowerSync service configuration for the pilot.
+#
+# Every credential here comes from the environment, never from this file: the file is
+# committed and copied onto every kit, while scripts/gen-secrets.sh writes only .env.
+# A hardcoded value would be the same on every pilot — and, worse, would quietly stop
+# matching the Postgres password that gen-secrets rotates, which is a sync outage with
+# no symptom in the application at all (clients keep working offline).
+#
+# `!env` only accepts variables named PS_*; docker-compose.yml builds them from .env.
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_REPLICATION_URI
+      sslmode: disable
+
+storage:
+  type: postgresql
+  uri: !env PS_STORAGE_URI
+  sslmode: disable
+
+port: 8080
+
+sync_rules:
+  content: |
+    bucket_definitions:
+      user_essentials:
+        priority: 1
+        parameters: SELECT request.user_id() as user_id
+        data:
+          - SELECT * FROM powersync.settings WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.models WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.model_profiles WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.devices WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.chat_threads WHERE user_id = bucket.user_id
+      user_data:
+        priority: 2
+        parameters: SELECT request.user_id() as user_id
+        data:
+          - SELECT * FROM powersync.chat_messages WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.tasks WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.prompts WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.skills WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.triggers WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.agents WHERE user_id = bucket.user_id
+          - SELECT * FROM powersync.projects WHERE user_id = bucket.user_id
+
+client_auth:
+  supabase: false
+  audience: ['powersync']
+  jwks:
+    keys:
+      # Symmetric key, shared with the backend's POWERSYNC_JWT_SECRET. `k` is the
+      # base64url form of that secret, which gen-secrets.sh derives into
+      # POWERSYNC_JWT_K — the JWK alphabet is base64url, so re-encoding the secret
+      # by hand is how you get a key that fails to parse.
+      - kty: oct
+        k: !env PS_JWT_K
+        alg: HS256
+        kid: !env PS_JWT_KID
+
+  # Closed perimeter: nothing may be reported outward, and an attempt to would only
+  # show up as outbound connections in somebody's audit.
+  telemetry:
+    disable_telemetry_sharing: true
