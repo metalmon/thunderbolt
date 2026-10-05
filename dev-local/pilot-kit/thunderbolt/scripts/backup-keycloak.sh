@@ -23,7 +23,11 @@ helper=postgres:18-alpine
 volume="$(docker volume ls --quiet --filter 'name=_keycloak_data$' | head -1)"
 [[ -n "$volume" ]] || { echo "Keycloak has no database yet — nothing to back up." >&2; exit 1; }
 
+# 700/600 throughout: the archive is Keycloak's whole database, password hashes of every
+# pilot account included. The default umask would leave it readable to every account on
+# the host, which on an objekt is not just the operator.
 mkdir -p "$dest"
+chmod 700 "$dest" 2>/dev/null || true
 archive="keycloak-$(date +%Y%m%d-%H%M%S).tgz"
 
 # Only restart it if it was up, so running this on a stopped stand leaves it stopped.
@@ -37,10 +41,14 @@ failed=0
 docker run --rm \
   -v "$volume:/kcdata:ro" \
   -v "$(pwd)/$dest:/backup" \
-  "$helper" tar czf "/backup/$archive" -C /kcdata . || failed=1
+  "$helper" sh -c "umask 077 && tar czf '/backup/$archive' -C /kcdata ." || failed=1
 
 [[ "$was_running" == "1" ]] && { echo "starting keycloak ..."; docker compose start keycloak >/dev/null; }
 [[ "$failed" -eq 0 ]] || { rm -f -- "$dest/$archive"; echo "tar failed — no archive written." >&2; exit 1; }
+
+# The umask covers a fresh archive; this also pulls up anything an older version of this
+# script left behind with laxer permissions.
+chmod 600 "$dest"/keycloak-*.tgz 2>/dev/null || true
 
 # shellcheck disable=SC2012  # names are ours and carry no spaces
 ls -1t "$dest"/keycloak-*.tgz 2>/dev/null | tail -n +8 | while read -r old; do rm -f -- "$old"; done
