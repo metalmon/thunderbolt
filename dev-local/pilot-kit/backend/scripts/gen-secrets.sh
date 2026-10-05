@@ -5,6 +5,13 @@
 #
 # Usage: scripts/gen-secrets.sh <public-hostname-or-ip> [--tls] [--voltd] [-f]
 set -euo pipefail
+
+# Everything this script creates holds a secret — .env carries the Postgres and Keycloak
+# admin passwords, the OIDC client secret, the Better Auth secret and the PowerSync
+# signing key. Written at the default umask they would be readable by every account on
+# the host, which on an objekt is not only the operator. mv preserves the mode of the
+# temporary file, so this covers the rewrites below too.
+umask 077
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
@@ -126,6 +133,12 @@ sed -e "s|\"https\?://[^\"]*/v1/api/auth/sso/callback/sso\"|\"${public_url}/v1/a
     -e "s|\"secret\": \"[^\"]*\"|\"secret\": \"${oidc_client_secret}\"|" \
     conf/keycloak/realm.json > conf/keycloak/realm.json.tmp
 mv conf/keycloak/realm.json.tmp conf/keycloak/realm.json
+# The exception to the umask above: this file is bind-mounted into the Keycloak
+# container, which runs as uid 1000 and is not the operator, so a 600 file it cannot
+# read means the realm is never imported and nobody can log in at all. The client secret
+# inside it is also in .env, so what actually protects it is who has a shell on this
+# host — not this mode.
+chmod 644 conf/keycloak/realm.json
 
 if [ "$use_tls" -ne 1 ]; then
   # No terminator in front, so the SPA and Keycloak have to be reachable on the
