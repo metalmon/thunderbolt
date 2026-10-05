@@ -63,7 +63,8 @@ const trackChatReadyOnce = () => {
  * {@link prewarmSystemModel} further no-ops unless `model` is a Tinfoil *system*
  * model). Fire-and-forget.
  */
-const maybePrewarmBuiltInAgent = (agent: Agent, model: Model) => {
+const maybePrewarmBuiltInAgent = (agent: Agent, model: Model | null) => {
+  if (!model) return
   if (agent.type === 'built-in') {
     void prewarmSystemModel(model)
   }
@@ -114,7 +115,7 @@ export const useHydrateChatStore = ({ id, isNew, projectId: newChatProjectId = n
     const thread = await getOrCreateChatThread(
       db,
       id,
-      session.selectedModel.id,
+      session.selectedModel?.id ?? null,
       session.selectedAgent.id,
       // Stamped here rather than at navigation time: the row is created lazily on
       // this first save, so the project must ride the session to reach it.

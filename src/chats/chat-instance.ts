@@ -333,11 +333,13 @@ export const createAgentRoutingFetch = (
 
       const { chatThread, selectedAgent, selectedModel } = session
       const telemetry = isBuiltInAgent(selectedAgent) ? routingState.getTurnTelemetry?.() : undefined
-      telemetry?.setDimensions({
-        modelId: selectedModel.id,
-        modelName: selectedModel.model,
-        provider: selectedModel.provider,
-      })
+      if (selectedModel) {
+        telemetry?.setDimensions({
+          modelId: selectedModel.id,
+          modelName: selectedModel.model,
+          provider: selectedModel.provider,
+        })
+      }
 
       // Save the user message before invoking the adapter. This:
       //   1. Creates the `chat_threads` row on the first message (so the
@@ -351,7 +353,9 @@ export const createAgentRoutingFetch = (
       const requestBody = JSON.parse(init.body as string) as { messages?: ThunderboltUIMessage[] }
       const requestMessages = requestBody.messages ?? []
       const debugTranscriptTraceId = routingState.getDebugTranscriptTraceId?.()
-      if (debugTranscriptTraceId) {
+      // A model-less turn has no model identity to record, and the debug transcript
+      // requires one; it is a developer surface, so skipping it costs nothing.
+      if (debugTranscriptTraceId && selectedModel) {
         const lastUserMessage = requestMessages.findLast((message) => message.role === 'user')
         beginDebugTranscriptTurn({
           threadId: id,
