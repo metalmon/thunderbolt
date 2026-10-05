@@ -54,7 +54,11 @@
     {
       "name": "volt-admins",
       "path": "/volt-admins",
-      "attributes": {},
+      "attributes": {
+        "voltd-profile": [
+          "operator"
+        ]
+      },
       "realmRoles": [],
       "clientRoles": {},
       "subGroups": []
@@ -62,18 +66,50 @@
     {
       "name": "volt-avk",
       "path": "/volt-avk",
-      "attributes": {},
+      "attributes": {
+        "voltd-profile": [
+          "avk"
+        ]
+      },
       "realmRoles": [],
       "clientRoles": {},
       "subGroups": []
     },
     {
-      "name": "volt-kb",
-      "path": "/volt-kb",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {},
-      "subGroups": []
+      "name": "volt-avk-editor",
+      "path": "/volt-avk-editor",
+      "attributes": {
+        "voltd-profile": [
+          "avk_editor"
+        ]
+      }
+    },
+    {
+      "name": "volt-ocr",
+      "path": "/volt-ocr",
+      "attributes": {
+        "voltd-profile": [
+          "ocr"
+        ]
+      }
+    },
+    {
+      "name": "volt-kb-search",
+      "path": "/volt-kb-search",
+      "attributes": {
+        "voltd-profile": [
+          "kb_search"
+        ]
+      }
+    },
+    {
+      "name": "volt-kb-editor",
+      "path": "/volt-kb-editor",
+      "attributes": {
+        "voltd-profile": [
+          "kb_editor"
+        ]
+      }
     }
   ],
   "internationalizationEnabled": true,
