@@ -161,7 +161,7 @@ describe('ChatModelPicker', () => {
     })
 
     const session = useChatStore.getState().sessions.get('thread-1')
-    expect(session?.selectedModel.id).toBe('model-2')
+    expect(session?.selectedModel?.id).toBe('model-2')
   })
 
   it('opens model creation over the current route', async () => {

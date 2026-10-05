@@ -65,9 +65,10 @@ export const createChatThread = async (
     /** Owning project, when the chat was started from one. */
     projectId?: string | null
   },
-  model: Model,
+  /** Fork: null when the installation has no model at all. */
+  model: Model | null,
 ): Promise<void> => {
-  await db.insert(chatThreadsTable).values({ ...data, isEncrypted: model.isConfidential })
+  await db.insert(chatThreadsTable).values({ ...data, isEncrypted: model?.isConfidential ?? 0 })
 }
 
 /**
@@ -111,7 +112,9 @@ export const clearAcpSessionIdsForAgent = async (db: AnyDrizzleDatabase, agentId
 export const getOrCreateChatThread = async (
   db: AnyDrizzleDatabase,
   id: string,
-  modelId: string,
+  /** Fork: null when the installation has no model — the column is nullable, and only the
+   *  built-in agent needs one. */
+  modelId: string | null,
   agentId: string | null = null,
   projectId: string | null = null,
 ): Promise<ChatThread> => {
@@ -121,8 +124,8 @@ export const getOrCreateChatThread = async (
     return thread
   }
 
-  const model = await getModel(db, modelId)
-  if (!model) {
+  const model = modelId === null ? null : await getModel(db, modelId)
+  if (modelId !== null && !model) {
     throw new Error('No model found')
   }
 
