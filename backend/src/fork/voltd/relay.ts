@@ -140,6 +140,19 @@ export type RelayDownstream = {
   close: (code?: number, reason?: string) => void
 }
 
+/** Where the per-connection state lives: on `ws.data`, which Bun keeps for the life
+ *  of the socket, and NOT in a map keyed on the socket object the handler was handed.
+ *
+ *  Elysia builds a fresh `ElysiaWS` wrapper per callback — `new ElysiaWS(ws, context)`
+ *  in `open`, in `message` and in `close` alike — around one shared `data`. Keyed on
+ *  the wrapper, `message` looks up the object `open` never stored and finds nothing,
+ *  so every frame the client sends is dropped without a word and its ACP handshake
+ *  times out thirty seconds later. The universal proxy's own socket stashes its state
+ *  the same way (`wsExtras` in `proxy/ws.ts`) for this exact reason. */
+type RelayCarrier = { voltdRelay?: RelayState }
+
+const carrierOf = (ws: RelayDownstream): RelayCarrier => ws.data as RelayCarrier
+
 /**
  * The socket handlers, separate from the route so the parts worth testing — the
  * close-during-await race and the queue budgets — can be driven directly.
@@ -148,7 +161,6 @@ export type RelayDownstream = {
  */
 export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions) => {
   const factory = options.wsFactory ?? ((url, protocols) => new WebSocket(url, protocols))
-  const states = new WeakMap<object, RelayState>()
   const observability = options.observability ?? noopObservability
   const maxSessions = options.maxSessionsPerUser ?? defaultMaxSessionsPerUser
   /** Live relayed sessions per user id. Only grows while sockets are open. */
@@ -190,7 +202,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
         pending: [],
         pendingBytes: 0,
       }
-      states.set(ws, state)
+      carrierOf(ws).voltdRelay = state
 
       const request = (ws.data as unknown as { request?: Request }).request
       const headers = request?.headers ?? new Headers()
@@ -284,7 +296,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
     },
 
     message(ws: RelayDownstream, message: unknown) {
-      const state = states.get(ws)
+      const state = carrierOf(ws).voltdRelay
       if (!state || state.closed) return
       const frame = message as Frame
       if (state.ready && state.upstream) {
@@ -308,7 +320,8 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
     },
 
     close(ws: RelayDownstream, code?: number) {
-      const state = states.get(ws)
+      const carrier = carrierOf(ws)
+      const state = carrier.voltdRelay
       if (!state) return
       // Set before deleting: `open` may still be mid-await and holds its own
       // reference to this object, which is how it learns not to leave a gateway
@@ -320,7 +333,7 @@ export const createVoltdRelayHandlers = (options: CreateVoltdRelayRoutesOptions)
       state.pendingBytes = 0
       if (state.upstream) safeClose(state.upstream)
       release(state)
-      states.delete(ws)
+      carrier.voltdRelay = undefined
 
       // One event per relayed connection, through the same recorder the universal
       // proxy uses, so the relay is not the one hop with no telemetry.
