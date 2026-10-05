@@ -4,7 +4,6 @@
 
 import { hashValues } from '@/lib/utils'
 import type { ModelProfile } from '@/types'
-import { defaultModelProfileOpenRouterFree } from './openrouter'
 
 export { defaultModelProfileGlm53Flash } from './glm-flash'
 export { defaultModelProfileGlm53 } from './glm'

@@ -46,4 +46,9 @@ declare module '@tauri-apps/plugin-os' {
 
   export const arch: () => Arch
   export function platform(): Platform
+  // Used by the pairing device name (src/fork/agent-pairing/device-identity.ts). The
+  // real package does export this; it has to be repeated here because this ambient
+  // declaration shadows the package's own typings, so anything it omits simply does
+  // not exist as far as the compiler is concerned.
+  export function hostname(): Promise<string | null>
 }
