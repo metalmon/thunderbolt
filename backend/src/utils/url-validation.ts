@@ -118,7 +118,13 @@ export const validateAndPin = async (
   // to a resolved IP protects a shared backend from a user-supplied URL, which is not
   // what this one is.
   if (privateTargetAllowed(parsed)) {
-    return [parsed.toString(), new Headers(extraHeaders)]
+    // No `Host` on this path, exactly as the literal-IP branch below: its presence is
+    // what tells the proxy route "this URL was rewritten to a pinned IP, put the real
+    // hostname back". Here nothing was rewritten, so the route would rebuild the address
+    // out of a hostname that is not an IP and fail to connect.
+    const headers = new Headers(extraHeaders)
+    headers.delete('Host')
+    return [parsed.toString(), headers]
   }
 
   // Fork: same allowlist as validateSafeUrl, applied before the address checks so a
