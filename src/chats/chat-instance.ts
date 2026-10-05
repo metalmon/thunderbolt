@@ -86,7 +86,13 @@ class ModelAccessError extends Error {
 }
 
 /** Resolve current model access for every inference attempt, including regeneration and retries. */
-const requireRunnableModel = (agent: Agent, selectedModel: Model): Model => {
+const requireRunnableModel = (agent: Agent, selectedModel: Model | null): Model | null => {
+  // Fork: the catalog ships empty, so a session can legitimately carry no model.
+  // Only the built-in agent needs one, and it says so itself (built-in-adapter.ts);
+  // an ACP agent brings its own, so there is nothing to validate here.
+  if (!selectedModel) {
+    return null
+  }
   if (!isBuiltInAgent(agent)) {
     return selectedModel
   }
@@ -403,16 +409,19 @@ export const createAgentRoutingFetch = (
     // Refuse inactive agents before saving a prompt or opening a connection.
     await assertAgentActive(selectedAgent)
     requireRunnableModel(selectedAgent, selectedModel)
-    const reasoningEffort = isBuiltInAgent(selectedAgent)
-      ? await (deps.getChatReasoningEffort ?? defaultGetChatReasoningEffort)(id, selectedModel)
-      : undefined
+    const reasoningEffort =
+      isBuiltInAgent(selectedAgent) && selectedModel
+        ? await (deps.getChatReasoningEffort ?? defaultGetChatReasoningEffort)(id, selectedModel)
+        : undefined
     const telemetry =
       operation === 'prompt' && isBuiltInAgent(selectedAgent) ? routingState.getTurnTelemetry?.() : undefined
-    telemetry?.setDimensions({
-      modelId: selectedModel.id,
-      modelName: selectedModel.model,
-      provider: selectedModel.provider,
-    })
+    if (selectedModel) {
+      telemetry?.setDimensions({
+        modelId: selectedModel.id,
+        modelName: selectedModel.model,
+        provider: selectedModel.provider,
+      })
+    }
 
     // Save the user message before invoking the adapter. This:
     //   1. Creates the `chat_threads` row on the first message (so the
@@ -530,7 +539,7 @@ export const createAgentRoutingFetch = (
     }
     const runnableModel = requireRunnableModel(selectedAgent, selectedModel)
     const currentThread = useChatStore.getState().sessions.get(id)?.chatThread ?? chatThread
-    if (isBuiltInAgent(selectedAgent) && !matchesThreadConfidentiality(runnableModel, currentThread)) {
+    if (isBuiltInAgent(selectedAgent) && runnableModel && !matchesThreadConfidentiality(runnableModel, currentThread)) {
       throw new ModelAccessError(t`This model no longer matches the conversation’s privacy setting.`)
     }
     const context: AgentAdapterContext = {
