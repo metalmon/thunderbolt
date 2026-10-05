@@ -58,13 +58,27 @@ scripts/up.sh --tls
 | `claim_path` | `groups` — то же, что `VOLTD_GROUPS_CLAIM` |
 | `interactive_clients` | `["volt"]` — должно совпадать с claim `client_id` в нашем токене |
 | `tls_ca_cert_path` | `/voltd-data/certs/ca.crt.pem` — тот же приватный CA |
-| `[oidc.volt.profile_map]` | `volt-admins = "operator"`, `volt-avk = "avk"`, `volt-kb = "kb"` |
+| `[oidc.volt.profile_map]` | по одной группе на агента: `volt-admins = "operator"`, `volt-avk = "avk"`, `volt-avk-editor = "avk_editor"`, `volt-ocr = "ocr"`, `volt-kb-search = "kb_search"`, `volt-kb-editor = "kb_editor"` |
 
-Группы `volt-admins` / `volt-avk` / `volt-kb` уже заведены в
-`conf/keycloak/realm.json`, и клиент реалма отдаёт их в claim `groups`
-(mapper «Group Membership», `full.path: false`). Пользователей в комплекте нет
-вообще: их создаёт администратор в консоли Keycloak и там же распределяет по
-группам. Секрет клиента реалма тоже не зашит — его выпускает `gen-secrets`
+Шесть групп — по одной на агента — уже заведены в `conf/keycloak/realm.json`, и
+клиент реалма отдаёт их в claim `groups` (mapper «Group Membership»,
+`full.path: false`):
+
+| Группа | Профиль voltd | Агент |
+|---|---|---|
+| `volt-admins` | `operator` | все шесть, плюс админ-права |
+| `volt-avk` | `avk` | `avk` — проверка документов |
+| `volt-avk-editor` | `avk_editor` | `avk_editor` — запись трактовки |
+| `volt-ocr` | `ocr` | `ocr` — разбор сканов |
+| `volt-kb-search` | `kb_search` | `kb_search` — поиск по базе знаний |
+| `volt-kb-editor` | `kb_editor` | `kb_editor` — правка базы знаний |
+
+Один агент выдаётся и отзывается отдельно — достаточно членства в группе, конфиг
+voltd менять не нужно. Кому нужно несколько агентов, тому несколько групп: voltd
+складывает профили по всем значениям claim, а не берёт первое подходящее.
+
+Пользователей в комплекте нет вообще: их создаёт администратор в консоли Keycloak
+и там же распределяет по группам. Секрет клиента реалма тоже не зашит — его выпускает `gen-secrets`
 одновременно в `.env` и в `realm.json`.
 
 Примечание к `certs/README.md`: там написано, что для OIDC-issuer по https с
