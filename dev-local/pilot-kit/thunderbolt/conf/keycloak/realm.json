@@ -82,5 +82,7 @@
     "en"
   ],
   "defaultLocale": "ru",
-  "displayName": "Вольт"
+  "displayName": "Вольт",
+  "loginTheme": "volt",
+  "accountTheme": "volt"
 }
