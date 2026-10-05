@@ -74,7 +74,9 @@ const defaultHandshakeTimeoutMs = 30_000
 /** ACP requires `cwd` on session/new + session/load. Browser clients cannot
  *  know a remote agent's absolute path, so use its launch-relative directory. */
 const sessionCwd = '.'
-const clientName = 'thunderbolt'
+/** What we announce to agents in the ACP handshake. Goes out over the wire and lands in
+ *  somebody else's allowlist (voltd's `interactive_clients`), so it carries our name. */
+const clientName = 'volt'
 const clientVersion = '0.2.0'
 
 /** Callback type the adapter invokes when the agent requests permission. The
