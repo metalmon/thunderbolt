@@ -4,7 +4,6 @@
 
 import { hashValues } from '@/lib/utils'
 import type { ModelProfile } from '@/types'
-import { defaultModelProfileOpenRouterFree } from './openrouter'
 
 export { defaultModelProfileDeepSeekV41Flash } from './deepseek-flash'
 export { defaultModelProfileGlm53 } from './glm'

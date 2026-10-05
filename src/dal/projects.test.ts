@@ -135,7 +135,7 @@ describe('chat membership', () => {
  */
 const seedFixtureModel = async (db: Parameters<typeof createModel>[0]): Promise<Model> => {
   const id = uuidv7()
-  await createModel(db, { id, provider: 'openai-compatible', name: 'Fixture model', model: 'fixture-1' })
+  await createModel(db, { id, provider: 'custom', name: 'Fixture model', model: 'fixture-1' })
   return (await db.select().from(modelsTable).where(eq(modelsTable.id, id)).limit(1))[0] as Model
 }
 
