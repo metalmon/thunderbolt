@@ -124,7 +124,12 @@ describe('ChatSkillsBar', () => {
     fireEvent.click(screen.getByLabelText('Add a skill'))
 
     expect(screen.getByText('Daily Brief')).toBeTruthy()
-    expect(screen.getByText(defaultSkillWeather.label)).toBeTruthy()
+    // `label` is nullable on the Skill type; getByText will not take null. A throw
+    // rather than `?? ''`, which would look for an empty string and pass for the
+    // wrong reason if a default ever lost its label.
+    const weatherLabel = defaultSkillWeather.label
+    if (!weatherLabel) throw new Error('the Weather default skill has no label')
+    expect(screen.getByText(weatherLabel)).toBeTruthy()
   })
 
   // Same fork decision as above: what stays locked on a widget skill is its
