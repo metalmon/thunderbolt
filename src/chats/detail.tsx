@@ -11,6 +11,8 @@ import { v7 as uuidv7 } from 'uuid'
 import { useHandleIntegrationCompletion } from '@/hooks/use-handle-integration-completion'
 import { loadChatMessageList } from '@/components/chat/chat-messages-loader'
 import { PageFallback } from '@/loading'
+import { useModelAvailability } from '@/fork/chat/model-availability'
+import { NoModelConfigured } from '@/fork/chat/no-model-configured'
 
 type ChatHydrateHandlerProps = PropsWithChildren<{
   /** The thread from the route, or null for a chat that doesn't exist yet. */
@@ -41,16 +43,25 @@ const ChatHydrateHandler = ({ children, existingId, projectId, newChatId }: Chat
 
   useHandleIntegrationCompletion({ saveMessages })
 
+  const modelAvailability = useModelAvailability()
+
   useEffect(() => {
+    if (modelAvailability !== 'present') return
     hydrateChatStore()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, modelAvailability])
 
   // Visible feedback while an existing thread hydrates (message load +
   // session setup): sidebar taps navigate here immediately, so this spinner —
   // not a blank pane — is what shows while a long chat loads. New chats skip
   // it: their hydration is a few fast reads, and flashing a second spinner
   // right after the app-boot one reads as a glitch on first load.
+  // Fork: the catalog ships empty, so "nothing to chat with" is a real state and gets
+  // its own screen rather than the black pane a null render leaves behind.
+  if (modelAvailability === 'none') {
+    return <NoModelConfigured />
+  }
+
   if (!isReady) {
     return isNew ? null : <PageFallback />
   }
