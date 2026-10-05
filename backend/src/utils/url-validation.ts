@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { isAllowedPrivateTarget, parseAllowedPrivateTargets } from '@/fork/proxy/allowed-private-targets'
+import {
+  allowsAllPrivateTargets,
+  isAllowedPrivateTarget,
+  parseAllowedPrivateTargets,
+} from '@/fork/proxy/allowed-private-targets'
 import { promises as dnsPromises } from 'node:dns'
 import { isPrivateOrInternalAddress, parseIpAddress } from '@shared/ip-classification'
 
