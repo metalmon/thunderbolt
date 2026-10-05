@@ -181,6 +181,14 @@ services:
       - ./conf/powersync/config.yaml:/config/config.yaml:ro
     environment:
       POWERSYNC_CONFIG_PATH: /config/config.yaml
+      # conf/powersync/config.yaml holds no credentials of its own — it reads these.
+      # `:?` rather than a default on purpose: a kit whose .env was never generated must
+      # fail to start here, not start with a password that cannot work and leave sync
+      # silently dead while the application looks fine.
+      PS_REPLICATION_URI: postgresql://powersync_role:${POWERSYNC_DB_PASSWORD:?run scripts/gen-secrets.sh}@postgres:5432/postgres
+      PS_STORAGE_URI: postgresql://postgres:${POSTGRES_PASSWORD:?run scripts/gen-secrets.sh}@postgres:5432/powersync_storage
+      PS_JWT_K: ${POWERSYNC_JWT_K:?run scripts/gen-secrets.sh}
+      PS_JWT_KID: ${POWERSYNC_JWT_KID:-powersync-dev}
     # Not reached directly by clients — the web/tls proxy serves /powersync
     # same-origin. Loopback-only.
     ports:
@@ -193,6 +201,9 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      # Read by conf/postgres/init-db/01-powersync.sh on first init, to create the
+      # replication role PowerSync connects as.
+      - POWERSYNC_DB_PASSWORD=${POWERSYNC_DB_PASSWORD:?run scripts/gen-secrets.sh}
       - PGPORT=5432
     volumes:
       # postgres:18+ expects the bind mount at /var/lib/postgresql (no /data
