@@ -15,13 +15,11 @@ import {
   defaultModelProfileDeepSeekV41Flash,
   defaultModelProfileGlm53,
   defaultModelProfileOpus55,
-  defaultModelProfiles,
   hashModelProfile,
 } from '../defaults/model-profiles'
 import {
   defaultModelGlm53,
   defaultModelDeepSeekV41Flash,
-  defaultModelOpenRouterFree,
   defaultModelOpus55,
   defaultModelsVersion,
   hashModel,
