@@ -42,7 +42,14 @@ const getRejectedError = async (action: () => Promise<void>): Promise<Error | nu
   }
 }
 
-describe('withSecureFileLock', () => {
+// These assert POSIX file modes, symlink refusal and no-follow open flags — the actual
+// security guarantees of secure-fs. Windows has none of them: Node reports 0666 for every
+// file on NTFS whatever chmod did, so the mode assertions fail there while the code is
+// correct. Skipped on Windows rather than weakened, so Linux — where the CLI's state
+// directory really is multi-user, and where CI runs — keeps the full coverage.
+const describePosix = process.platform === 'win32' ? describe.skip : describe
+
+describePosix('withSecureFileLock', () => {
   it('reclaims a lock whose recorded owner process no longer exists', async () => {
     const path = join(dir, 'credential')
     await writeFile(`${path}.lock`, '2147483647\n')
@@ -110,7 +117,7 @@ describe('withSecureFileLock', () => {
   })
 })
 
-describe('readFileOrNull', () => {
+describePosix('readFileOrNull', () => {
   it('returns null for a non-existent file (expected first-run, not a failure)', async () => {
     expect(await readFileOrNull(join(dir, 'nope'))).toBeNull()
   })
@@ -200,7 +207,7 @@ describe('readFileOrNull', () => {
   })
 })
 
-describe('writeSecureFile', () => {
+describePosix('writeSecureFile', () => {
   it('creates the dir 0700 and the file 0600', async () => {
     const sub = join(dir, 'iroh')
     const path = join(sub, 'identity')
