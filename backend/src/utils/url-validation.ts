@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { isAllowedPrivateTarget, parseAllowedPrivateTargets } from '@/fork/proxy/allowed-private-targets'
 import { promises as dnsPromises } from 'node:dns'
 import { isPrivateOrInternalAddress, parseIpAddress } from '@shared/ip-classification'
 
@@ -46,6 +47,14 @@ export const ensureHttps = (raw: string | null | undefined): string | null => {
  * Validates that a URL is safe to fetch (prevents SSRF attacks).
  * Only allows http/https protocols and blocks internal/private IP addresses.
  */
+/** Fork: one read of the deployment's private-target policy, shared by both checks. */
+const privateTargetAllowed = (url: URL): boolean =>
+  isAllowedPrivateTarget(
+    url,
+    parseAllowedPrivateTargets(process.env.VOLT_PROXY_ALLOWED_HOSTS),
+    allowsAllPrivateTargets(process.env.VOLT_PROXY_ALLOW_PRIVATE),
+  )
+
 export const validateSafeUrl = (url: string): { valid: boolean; error?: string } => {
   try {
     const parsed = new URL(url)
@@ -54,6 +63,12 @@ export const validateSafeUrl = (url: string): { valid: boolean; error?: string }
     }
     const hostname = parsed.hostname.toLowerCase()
     if (hostname === 'localhost' || isPrivateAddress(hostname)) {
+      // Fork: the request is made BY the backend, which stands inside the same perimeter
+      // as the target — and a page served over https cannot reach a plain-http LAN
+      // endpoint any other way. Policy lives in the deployment's configuration.
+      if (privateTargetAllowed(parsed)) {
+        return { valid: true }
+      }
       return { valid: false, error: 'Internal URLs are not allowed' }
     }
     return { valid: true }
@@ -92,6 +107,20 @@ export const validateAndPin = async (
   const literalAddress = parseIpAddress(hostname)
 
   if (isAllowedTestProxyTarget(parsed)) {
+    return [parsed.toString(), new Headers(extraHeaders)]
+  }
+
+  // Fork: a deployment inside its own perimeter reaches its own machines by name; pinning
+  // to a resolved IP protects a shared backend from a user-supplied URL, which is not
+  // what this one is.
+  if (privateTargetAllowed(parsed)) {
+    return [parsed.toString(), new Headers(extraHeaders)]
+  }
+
+  // Fork: same allowlist as validateSafeUrl, applied before the address checks so a
+  // named host is reached by name — pinning it to a resolved IP buys nothing here, and
+  // the operator wrote down the address he means.
+  if (isAllowedPrivateTarget(parsed, parseAllowedPrivateTargets(process.env.VOLT_PROXY_ALLOWED_HOSTS))) {
     return [parsed.toString(), new Headers(extraHeaders)]
   }
 
