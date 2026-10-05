@@ -150,7 +150,10 @@ test('defaultSessionsDir honors THUNDERBOLT_HOME', () => {
   const previous = process.env.THUNDERBOLT_HOME
   process.env.THUNDERBOLT_HOME = '/tmp/thunderbolt-custom-home'
   try {
-    expect(defaultSessionsDir()).toBe('/tmp/thunderbolt-custom-home/acp/sessions')
+    // Built with join rather than written out: on Windows the separator is a
+    // backslash, and the literal pinned a POSIX path, so this failed on every
+    // Windows run while the code under test was right.
+    expect(defaultSessionsDir()).toBe(join('/tmp/thunderbolt-custom-home', 'acp', 'sessions'))
   } finally {
     if (previous === undefined) delete process.env.THUNDERBOLT_HOME
     else process.env.THUNDERBOLT_HOME = previous
