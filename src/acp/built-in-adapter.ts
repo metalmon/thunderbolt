@@ -163,6 +163,11 @@ type TinfoilClientOptions = Pick<
   | 'isSsoMode'
 >
 
+/** Fork: what the built-in agent says when the installation has no model. Thrown rather
+ *  than rendered, so it follows the codebase rule that errors stay English and the
+ *  display boundary translates. */
+const noModelMessage = 'No model is set up. Add one in Settings, or choose an agent — an agent brings its own.'
+
 /** Reasoning depth used when a model carries no explicit profile config. Mirrors
  *  the adaptive default the anthropic path has always used, so deriving the level
  *  never regresses a model that didn't configure one. */
@@ -245,6 +250,10 @@ export const resolvePiModel = async (
   profile: ModelProfile | null,
   options: TinfoilClientOptions = {},
 ): Promise<ResolvedPiModel | null> => {
+  // Fork: the catalog ships empty, so a session can legitimately carry no model — only
+  // this built-in path needs one. `null` is what this function already returns when a
+  // model cannot be resolved, so every caller already handles it.
+  if (!context.selectedModel) return null
   const { model, wrapFetch, api, binding: providerBinding } = await bindModelProvider(context.selectedModel)
   const thinkingLevel = deriveThinkingLevel(profile)
   // Pi strips image blocks from text-only descriptors. Only models known not to
@@ -711,6 +720,11 @@ const fetchViaHarness = async (
   prepareConversation: typeof prepareBuiltInConversation,
   tinfoilOptions: TinfoilClientOptions,
 ): Promise<Response> => {
+  // Fork: a session can carry no model at all — the catalog ships empty and only this
+  // built-in path needs one. Hand it to the legacy fallback, which is the same thing
+  // this function does for any model the harness cannot run.
+  if (!context.selectedModel) return fallback()
+  const selectedModel = context.selectedModel
   const debugTraceId = context.debugTranscriptTraceId
   // Sanctioned route-splitting exception (CLAUDE.md "Route-level Code Splitting").
   // The Pi engine (`pi-*`, `zenfs`, `just-bash`, `@anthropic-ai/sdk`, `openai` —
@@ -726,7 +740,7 @@ const fetchViaHarness = async (
   // unconfigured OpenAI-wire provider falls back to the legacy pipeline so the
   // chat never crashes on a model Pi can't run.
   const config = await prepareConfig({
-    modelId: context.selectedModel.id,
+    modelId: selectedModel.id,
     mcpClients: context.mcpClients,
     reconnectClient: context.reconnectClient,
     httpClient: context.httpClient,
@@ -854,15 +868,13 @@ const fetchViaHarness = async (
         }
       },
       {
-        initial: { modelId: context.selectedModel.id },
+        initial: { modelId: selectedModel.id },
         toolCall: (toolName) => {
           if (toolName === appContextToolName && config.embeddedSurface) {
             return { modelId: context.selectedModel.id, embeddedSurface: config.embeddedSurface }
           }
           const owner = config.mcpToolsMetadata?.[toolName]
-          return owner
-            ? { modelId: context.selectedModel.id, mcpTools: { [toolName]: owner } }
-            : { modelId: context.selectedModel.id }
+          return owner ? { modelId: selectedModel.id, mcpTools: { [toolName]: owner } } : { modelId: selectedModel.id }
         },
         settled: (): UIMessageMetadata => {
           const messageMetadata: UIMessageMetadata = { modelId: context.selectedModel.id }
@@ -909,8 +921,9 @@ export const createBuiltInAdapter = (agent: Agent, options: BuiltInAdapterOption
   const pendingOperations = new Map<Promise<unknown>, string>()
 
   /** Legacy engine — every provider the Pi harness doesn't (yet) serve. */
-  const fetchViaLegacyPipeline = (init: RequestInit, context: AgentAdapterContext): Promise<Response> =>
-    aiFetch({
+  const fetchViaLegacyPipeline = (init: RequestInit, context: AgentAdapterContext): Promise<Response> => {
+    if (!context.selectedModel) throw new Error(noModelMessage)
+    return aiFetch({
       init,
       modelId: context.selectedModel.id,
       reasoningEffort: context.reasoningEffort,
@@ -926,10 +939,15 @@ export const createBuiltInAdapter = (agent: Agent, options: BuiltInAdapterOption
           ? undefined
           : { threadId: context.threadId, traceId: context.debugTranscriptTraceId },
     })
+  }
 
   // Route Pi-serviceable models to the in-browser harness. Tinfoil always takes
   // this route; other providers still fall back when their id/config is unusable.
   const routeFetch = (init: RequestInit, context: AgentAdapterContext): Promise<Response> => {
+    // Fork: this built-in agent is the ONLY path that needs a local model, and the
+    // catalog ships empty. Fail here with something the user can act on — picking an
+    // agent instead costs nothing, and an agent brings its own model.
+    if (!context.selectedModel) throw new Error(noModelMessage)
     if (isPiModelCandidate(context.selectedModel)) {
       return fetchViaHarness(
         init,
