@@ -56,7 +56,7 @@ scripts/up.sh --tls
 | `issuer` | `https://<имя-хоста>/v1` — **ровно** то же, что `VOLTD_ISSUER`, вместе с `/v1` |
 | `audience`, `client_id` | `volt` |
 | `claim_path` | `groups` — то же, что `VOLTD_GROUPS_CLAIM` |
-| `interactive_clients` | `["thunderbolt"]` |
+| `interactive_clients` | `["volt"]` — должно совпадать с claim `client_id` в нашем токене |
 | `tls_ca_cert_path` | `/voltd-data/certs/ca.crt.pem` — тот же приватный CA |
 | `[oidc.volt.profile_map]` | `volt-admins = "operator"`, `volt-avk = "avk"`, `volt-kb = "kb"` |
 

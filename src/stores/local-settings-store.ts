@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { ExternalLinkBehavior } from '@/lib/external-link-behavior'
+import { localSettingsStorageName, migrateLocalSettingsKey } from '@/fork/storage/local-settings-key'
 
 /**
  * Voice engine selection (THU-718). `thunderbolt` uses the hosted enclave STT/TTS
@@ -79,6 +80,10 @@ export const initialLocalSettings: LocalSettingsState = {
   voiceProvider: defaultVoiceProvider,
 }
 
+// Ahead of `persist`'s first read, so an upgrade keeps the settings it finds under the
+// old key instead of starting from defaults.
+migrateLocalSettingsKey()
+
 export const useLocalSettingsStore = create<LocalSettingsStore>()(
   persist(
     (set) => ({
@@ -86,7 +91,7 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
       setLocalSetting: (key, value) => set({ [key]: value }),
     }),
     {
-      name: 'thunderbolt-local-settings',
+      name: localSettingsStorageName,
       // Deep-merge persisted state over defaults so nested fields added in a
       // newer build (e.g. voiceProvider.model/voiceName/personalityPrompt) fall
       // back to their defaults for users upgrading from an older persisted
