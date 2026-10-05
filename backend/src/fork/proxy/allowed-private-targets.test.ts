@@ -56,3 +56,22 @@ describe('link-local stays refused', () => {
     expect(isAllowedPrivateTarget(new URL('http://169.254.1.5:8080/'), named, true)).toBe(true)
   })
 })
+
+describe('the blanket covers only the deployment own network', () => {
+  it('refuses a public host — otherwise a caller using this to skip the https upgrade sends a key in the clear', () => {
+    expect(isAllowedPrivateTarget(new URL('http://api.openai.com/v1/models'), [], true)).toBe(false)
+  })
+
+  it('accepts a single-label container or LAN name', () => {
+    expect(isAllowedPrivateTarget(new URL('http://powersync:8080/probes/liveness'), [], true)).toBe(true)
+  })
+
+  it('accepts loopback and a reserved internal suffix', () => {
+    expect(isAllowedPrivateTarget(new URL('http://localhost:1234/'), [], true)).toBe(true)
+    expect(isAllowedPrivateTarget(new URL('http://models.internal/v1'), [], true)).toBe(true)
+  })
+
+  it('accepts a private literal address', () => {
+    expect(isAllowedPrivateTarget(new URL('http://10.1.2.3:1234/v1'), [], true)).toBe(true)
+  })
+})

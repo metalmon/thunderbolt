@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { isPrivateOrInternalAddress, parseIpAddress } from '@shared/ip-classification'
+
 /**
  * Whether the universal proxy may reach a private address, and which.
  *
@@ -37,6 +39,24 @@ export const parseAllowedPrivateTargets = (raw: string | undefined): readonly st
  * @param allowed - entries from {@link parseAllowedPrivateTargets}
  * @returns true when the host, or host:port, is listed
  */
+
+/**
+ * Whether this host is inside a network the deployment can call its own.
+ *
+ * A literal private/internal IP, loopback by name, a single-label name (a container or a
+ * LAN host — `powersync`, `inference`), or one of the names reserved for internal use.
+ * Everything else — anything with a public-looking domain — is NOT private, which is what
+ * keeps the blanket switch from quietly covering `api.openai.com`.
+ */
+const isPrivateHost = (url: URL): boolean => {
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  if (host === 'localhost') return true
+  const literal = parseIpAddress(host)
+  if (literal) return isPrivateOrInternalAddress(literal)
+  if (!host.includes('.')) return true
+  return /\.(local|internal|lan|home|intranet)$/.test(host)
+}
+
 export const isAllowedPrivateTarget = (
   url: URL,
   allowed: readonly string[],
@@ -47,7 +67,10 @@ export const isAllowedPrivateTarget = (
   // 169.254.x.x, and that range is where a cloud instance keeps its credentials
   // (169.254.169.254). A deployment that genuinely needs one must name it below.
   const linkLocal = host.startsWith('169.254.') || host.startsWith('fe80:')
-  if (allowAllPrivate && !linkLocal) return true
+  // The blanket covers the deployment's OWN network only. Without this it answered yes
+  // for every host, and a caller that uses this to decide "do not upgrade to https"
+  // would then send a public request in the clear.
+  if (allowAllPrivate && !linkLocal && isPrivateHost(url)) return true
   if (allowed.length === 0) return false
   // `url.host` carries the port only when it is non-default, so compare both shapes.
   const hostWithPort = url.port ? `${host}:${url.port}` : url.host.toLowerCase()
