@@ -6,6 +6,7 @@ import { defaultChatTitle } from '@/lib/constants'
 
 import { useDatabase, useHttpClient } from '@/contexts'
 import { useProxyFetchGetter } from '@/lib/proxy-fetch-context'
+import { resolveThreadModel } from '@/fork/chat/selected-model'
 import {
   composeAllAgents,
   getAllAgents,
@@ -13,8 +14,6 @@ import {
   getAvailableModels,
   getChatMessages,
   getChatThread,
-  getDefaultModelForThread,
-  getSelectedModel,
   getSettings,
   getTriggerPromptForThread,
   isChatThreadDeleted,
@@ -220,12 +219,14 @@ export const useHydrateChatStore = ({
       return
     }
 
-    // New IDs are minted locally and have no history. Read the selected model
-    // directly, and start independent reads together instead of gating on settings.
-    const [settings, defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
+    // New IDs are minted locally and have no history, so their reads are skipped
+    // below. Fork: settings is read first rather than inside the group, because
+    // `resolveThreadModel` takes `selected_model` as its fallback.
+    const settings = await getSettings(db, { selected_model: String, selected_agent: String })
+
+    const [defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([
-        getSettings(db, { selected_model: String, selected_agent: String }),
-        isNew ? getSelectedModel(db) : getDefaultModelForThread(db, id),
+        resolveThreadModel(db, id, settings.selectedModel ?? undefined),
         isNew ? null : getChatThread(db, id),
         isNew ? [] : getChatMessages(db, id),
         getAvailableModels(db),
