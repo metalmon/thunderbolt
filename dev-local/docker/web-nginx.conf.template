@@ -6,6 +6,17 @@
 # VOLT_-prefixed var names dodge Kubernetes' auto-injected <SERVICE>_PORT
 # env vars (same rationale as deploy/config/nginx.conf.template upstream).
 
+# The scheme the BROWSER used, which is not the scheme of the hop into this server.
+# Behind the `tls` terminator this one is plain http, so `X-Forwarded-Proto $scheme`
+# overwrote the terminator's `https` and the backend built `ws://` relay URLs that a
+# page loaded over https is not allowed to open ("Mixed Content ... must be available
+# over WSS"). Pass the original through, and fall back to our own scheme when this
+# server is the edge.
+map $http_x_forwarded_proto $volt_forwarded_proto {
+    default $http_x_forwarded_proto;
+    ''      $scheme;
+}
+
 server {
     listen 80;
     root /usr/share/nginx/html;
@@ -25,7 +36,7 @@ server {
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $volt_forwarded_proto;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -52,7 +63,7 @@ server {
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $volt_forwarded_proto;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -72,7 +83,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         # The relay builds the agent's advertised wss:// URL from this, so a
         # missing/wrong value publishes an address the client cannot reach.
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $volt_forwarded_proto;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -93,7 +104,7 @@ server {
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $volt_forwarded_proto;
         proxy_http_version 1.1;
         # Empty Connection = HTTP/1.1 keep-alive; backend uses SSE, not WebSocket.
         # The WebSocket routes under /v1 get their own locations above, each with
@@ -116,7 +127,7 @@ server {
         proxy_set_header Host $proxy_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $volt_forwarded_proto;
         proxy_http_version 1.1;
         proxy_set_header Connection "";
         proxy_buffering off;
