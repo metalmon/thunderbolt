@@ -1,0 +1,21 @@
+/* Account console — «Вольт».
+ *
+ * Only the accent, so the page matches the sign-in screen without reimplementing it.
+ * Keycloak's own v3 stylesheet loads first (see `styles` in theme.properties), and this
+ * overrides the few PatternFly variables that carry the brand colour.
+ */
+
+:root {
+  --pf-v5-global--primary-color--100: #c8532b;
+  --pf-v5-global--primary-color--200: #a84324;
+  --pf-v5-global--link--Color: #c8532b;
+  --pf-v5-global--link--Color--hover: #a84324;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  background-color: #c8532b;
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+  background-color: #a84324;
+}
