@@ -221,7 +221,7 @@ const startServer = async () => {
   const tinfoilKeepWarm = createTinfoilKeepWarm(settings, { logger: log })
 
   // Set up logging
-  log.info('Starting Thunderbolt Server...')
+  log.info('Starting Volt Server...')
   log.info(
     {
       logLevel: settings.logLevel,
