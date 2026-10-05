@@ -60,7 +60,9 @@ export const UpgradeRequired = ({ currentVersion, minVersion }: UpgradeRequiredP
     <div className="flex flex-col items-center gap-8 text-center">
       <div className="flex items-center gap-1.5 text-[length:var(--font-size-sm)] text-muted-foreground">
         <AppLogo size={16} />
-        <span>Thunderbolt</span>
+        <span>
+            <Trans>Thunderbolt</Trans>
+          </span>
       </div>
 
       <div className="flex flex-col items-center gap-2">
