@@ -6,6 +6,7 @@ import { defaultChatTitle } from '@/lib/constants'
 
 import { useDatabase, useHttpClient } from '@/contexts'
 import { useProxyFetchGetter } from '@/lib/proxy-fetch-context'
+import { resolveThreadModel } from '@/fork/chat/selected-model'
 import {
   composeAllAgents,
   getAllAgents,
@@ -13,7 +14,6 @@ import {
   getAvailableModels,
   getChatMessages,
   getChatThread,
-  getDefaultModelForThread,
   getSettings,
   getTriggerPromptForThread,
   isChatThreadDeleted,
@@ -191,7 +191,7 @@ export const useHydrateChatStore = ({ id, isNew, projectId: newChatProjectId = n
 
     const [defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([
-        getDefaultModelForThread(db, id, settings.selectedModel ?? undefined),
+        resolveThreadModel(db, id, settings.selectedModel ?? undefined),
         getChatThread(db, id),
         getChatMessages(db, id),
         getAvailableModels(db),
