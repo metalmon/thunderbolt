@@ -166,7 +166,12 @@ export const openWebSocketTransport = async (options: WebSocketTransportOptions)
     socket.close(normalCloseCode)
   }
 
-  const close = (): void => finish(null)
+  const close = (): void => {
+    // Fork: distinguishes our own teardown from the remote hanging up — the two are
+    // indistinguishable in the error the user sees.
+    console.warn('[acp] socket closed locally')
+    finish(null)
+  }
   const readable = new ReadableStream<AnyMessage>({
     start(controller) {
       readableController = controller
@@ -190,6 +195,9 @@ export const openWebSocketTransport = async (options: WebSocketTransportOptions)
   }
 
   const onClose = (event: WebSocketEventMap['close']): void => {
+    // Fork: the only place the gateway's verdict exists. Without it a failed agent turn
+    // reaches the user as a bare "ACP connection closed" and costs an afternoon to trace.
+    console.warn('[acp] socket closed by the remote', { code: event.code, reason: event.reason })
     finish(
       new TransportTerminationError('remote-close', `ACP transport closed (code ${event.code})`, {
         retryable: !terminalCloseCodes.has(event.code),
