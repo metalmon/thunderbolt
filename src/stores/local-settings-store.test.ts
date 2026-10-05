@@ -4,6 +4,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { defaultVoiceProvider, getLocalSetting, useLocalSettingsStore } from './local-settings-store'
 
 describe('local-settings-store — Gemini Live voiceProvider fields (Task 10)', () => {
@@ -39,7 +40,7 @@ describe('local-settings-store — Gemini Live voiceProvider fields (Task 10)', 
       personalityPrompt: 'Be concise and warm.',
     })
 
-    const persisted = JSON.parse(localStorage.getItem('thunderbolt-local-settings') ?? '{}') as {
+    const persisted = JSON.parse(localStorage.getItem(localSettingsStorageName) ?? '{}') as {
       state: { voiceProvider: typeof defaultVoiceProvider }
     }
 
