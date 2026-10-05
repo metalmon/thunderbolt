@@ -91,6 +91,18 @@ describe('SSO desktop-callback', () => {
       expect(body).toContain('Session not found')
     })
 
+    // Fork: Better Auth turns on secure cookies by itself when the base URL is https,
+    // and then the cookie is `__Secure-`-prefixed. Reading only the bare name sent every
+    // desktop sign-in on a TLS deployment to "Session not found" — the pilot's symptom.
+    it('accepts the __Secure- cookie a TLS deployment issues', async () => {
+      const res = await callbackUrl(
+        17421,
+        'thunderbolt_desktop_sso_nonce=abc; __Secure-better-auth.session_token=rawtoken.sig123',
+      )
+      expect(res.status).toBe(302)
+      expect(res.headers.get('location')).toContain('token=rawtoken.sig123')
+    })
+
     it('redirects to loopback with token', async () => {
       const res = await callbackUrl(
         17421,

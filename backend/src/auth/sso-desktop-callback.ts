@@ -6,8 +6,8 @@ import { randomBytes } from 'crypto'
 import type { Settings } from '@/config/settings'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { Elysia, t } from 'elysia'
+import { readSessionCookie } from '@/fork/auth/session-cookie-name'
 
-const sessionCookieName = 'better-auth.session_token'
 const nonceCookieName = 'thunderbolt_desktop_sso_nonce'
 
 /** Allowed loopback ports — must match OAUTH_PORTS in src-tauri/src/commands.rs */
@@ -25,7 +25,7 @@ const parseCookieValue = (cookieHeader: string, name: string): string | undefine
 }
 
 const errorHtml = (message: string) =>
-  `<html><head><title>Thunderbolt</title></head>` +
+  `<html><head><title>Вольт</title></head>` +
   `<body style="font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f5f5f5">` +
   `<div style="text-align:center;padding:2rem">` +
   `<h2>Authentication Error</h2>` +
@@ -149,7 +149,7 @@ export const createSsoDesktopCallbackRoutes = (settings: Settings) => {
             })
           }
 
-          const encodedToken = parseCookieValue(cookieHeader, sessionCookieName)
+          const encodedToken = readSessionCookie(cookieHeader, parseCookieValue)
           if (!encodedToken) {
             return new Response(errorHtml('Session not found. Please try signing in again from the app.'), {
               status: 401,
