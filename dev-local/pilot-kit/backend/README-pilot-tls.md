@@ -145,10 +145,11 @@ curl -v https://backend.volt.oktaplus.ru:8444/realms/volt/.well-known/openid-con
 
 ## Клиент
 
-Десктоп собирается с `VITE_THUNDERBOLT_CLOUD_URL=https://backend.volt.oktaplus.ru/v1`.
-Значение персистится в `localStorage` (`local-settings-store.ts`), поэтому
-**установка поверх старой не подхватит новый адрес** — на пилоте ставить на
-чистую машину либо чистить `thunderbolt-local-settings`.
+Адрес бэкенда `https://backend.volt.oktaplus.ru/v1` вшивается в сборку десктопа.
+Значение запоминается в `localStorage` (`local-settings-store.ts`), поэтому
+**установка поверх старой не подхватит новый адрес** — на пилоте ставьте на
+чистую машину либо очистите хранилище `volt-local-settings` (а на клиентах
+сборок до 2026-10-05 — `thunderbolt-local-settings`, оно переносится само).
 
 ### Куда какой трафик идёт, и где нужен приватный CA
 

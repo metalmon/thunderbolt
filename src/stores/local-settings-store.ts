@@ -6,6 +6,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { ExternalLinkBehavior } from '@/lib/external-link-behavior'
 import { isRecord } from '@shared/lib/is-record'
+import { localSettingsStorageName, migrateLocalSettingsKey } from '@/fork/storage/local-settings-key'
 
 /**
  * Voice engine selection (THU-718). `thunderbolt` uses the hosted enclave STT/TTS
@@ -81,6 +82,10 @@ export const migrateLocalSettings = (persisted: unknown, version: number): Recor
   return version < 1 && state.theme === 'system' ? { ...state, theme: null } : state
 }
 
+// Ahead of `persist`'s first read, so an upgrade keeps the settings it finds under the
+// old key instead of starting from defaults.
+migrateLocalSettingsKey()
+
 export const useLocalSettingsStore = create<LocalSettingsStore>()(
   persist(
     (set) => ({
@@ -88,7 +93,7 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
       setLocalSetting: (key, value) => set({ [key]: value }),
     }),
     {
-      name: 'thunderbolt-local-settings',
+      name: localSettingsStorageName,
       // See migrateLocalSettings; index.html reads this version too.
       version: 1,
       // zustand types this as the whole store, but merges it over the initial
