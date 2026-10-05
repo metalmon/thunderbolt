@@ -39,7 +39,10 @@
             return null
           }
         }
-        var settings = readState('thunderbolt-local-settings')
+        // Fork: the store persists under its own key and removes the upstream one
+        // (src/fork/storage/local-settings-key.ts). The legacy name stays as a fallback
+        // for a profile whose migration has not run yet.
+        var settings = readState('volt-local-settings') || readState('thunderbolt-local-settings')
         var config = readState('thunderbolt-config')
         var storedTheme = settings?.state?.theme
         // Before version 1, 'system' was the default rather than a choice (migrateLocalSettings).
