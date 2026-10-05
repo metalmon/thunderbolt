@@ -46,14 +46,49 @@ function New-RandomHex([int]$Bytes) {
     return -join ($buf | ForEach-Object { $_.ToString("x2") })
 }
 
+# Postgres applies POSTGRES_PASSWORD at initdb and never again, and
+# conf\postgres\init-db\ is skipped entirely once the data directory exists. A fresh
+# password here would leave the backend and PowerSync unable to log in - which for
+# PowerSync means sync stops while the application itself looks perfectly healthy.
+if (Test-Path (Join-Path $root "data\postgres")) {
+    Write-Host "Postgres already has a data directory (.\data\postgres), so a new password" -ForegroundColor Yellow
+    Write-Host "would not reach it and both the backend and PowerSync would stop being able to" -ForegroundColor Yellow
+    Write-Host "log in. Change a password on a running stand with ALTER USER instead, or start" -ForegroundColor Yellow
+    Write-Host "the stand over - which deletes ALL pilot data:" -ForegroundColor Yellow
+    Write-Host "  docker compose down; Remove-Item -Recurse -Force data\postgres" -ForegroundColor Yellow
+    exit 1
+}
+
+# Keycloak reads realm.json on first boot only, so once its database exists this script
+# would put a fresh client secret in .env that Keycloak never learns - login then fails
+# with nothing in either log to say why. The volume name is asked of Docker rather than
+# built from the directory name, which COMPOSE_PROJECT_NAME can override.
+$keycloakVolume = (docker volume ls --quiet --filter 'name=_keycloak_data$' | Select-Object -First 1)
+if ($keycloakVolume) {
+    Write-Host "Keycloak already has a database, so conf\keycloak\realm.json would be ignored" -ForegroundColor Yellow
+    Write-Host "and the new client secret would never reach it. Either keep the current secrets," -ForegroundColor Yellow
+    Write-Host "or start Keycloak over - which also deletes every account on this stand:" -ForegroundColor Yellow
+    Write-Host "  docker compose down; docker volume rm $keycloakVolume" -ForegroundColor Yellow
+    exit 1
+}
+
 $betterAuthSecret = New-RandomSecret 32
 $powersyncSecret = New-RandomSecret 32
 $postgresPassword = New-RandomSecret 24
+# The role PowerSync replicates as. Hex rather than base64 so it survives a URI: the
+# password is interpolated into postgresql://... in docker-compose.yml, where a `/` or
+# `+` from base64 would have to be percent-encoded.
+$powersyncDbPassword = New-RandomHex 24
 $keycloakAdminPassword = New-RandomSecret 18
 # The realm's client secret is generated too, and written into BOTH .env and
 # realm.json below. The committed placeholder is the same on every copy of the
 # kit, and "remember to change it by hand in two files" is not a control.
 $oidcClientSecret = New-RandomHex 16
+
+# The JWK form of the PowerSync secret, for conf\powersync\config.yaml's `k`. base64URL:
+# the standard alphabet's `+` and `/` are not valid in a JWK, and a key that merely fails
+# to parse would take sync down without touching anything the operator can see.
+$powersyncSecretK = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($powersyncSecret)).TrimEnd('=').Replace('+', '-').Replace('/', '_')
 
 if ($Tls) {
     $publicUrl = "https://$PublicHost"
@@ -71,6 +106,8 @@ $content = $content -replace '(?m)^VOLT_TLS_SERVER_NAME=.*', "VOLT_TLS_SERVER_NA
 $content = $content -replace '(?m)^POSTGRES_PASSWORD=.*', "POSTGRES_PASSWORD=$postgresPassword"
 $content = $content -replace '(?m)^BETTER_AUTH_SECRET=.*', "BETTER_AUTH_SECRET=$betterAuthSecret"
 $content = $content -replace '(?m)^POWERSYNC_JWT_SECRET=.*', "POWERSYNC_JWT_SECRET=$powersyncSecret"
+$content = $content -replace '(?m)^POWERSYNC_JWT_K=.*', "POWERSYNC_JWT_K=$powersyncSecretK"
+$content = $content -replace '(?m)^POWERSYNC_DB_PASSWORD=.*', "POWERSYNC_DB_PASSWORD=$powersyncDbPassword"
 $content = $content -replace '(?m)^KEYCLOAK_ADMIN_PASSWORD=.*', "KEYCLOAK_ADMIN_PASSWORD=$keycloakAdminPassword"
 $content = $content -replace '(?m)^OIDC_CLIENT_SECRET=.*', "OIDC_CLIENT_SECRET=$oidcClientSecret"
 if ($Voltd) {
@@ -80,15 +117,6 @@ if ($Voltd) {
     $content = $content -replace '(?m)^VOLT_BACKEND_EXTRA_CA=.*', "VOLT_BACKEND_EXTRA_CA=/etc/volt/certs/ca.crt.pem"
 }
 Set-Content -Path $envPath -Value $content -NoNewline
-
-# Keep conf\powersync\config.yaml's HS256 key in sync with POWERSYNC_JWT_SECRET
-# (client_auth.jwks.keys[0].k = base64 of the raw secret, re-encoded as UTF8 bytes).
-$secretBytes = [System.Text.Encoding]::UTF8.GetBytes($powersyncSecret)
-$powersyncSecretB64 = [Convert]::ToBase64String($secretBytes)
-$cfgPath = Join-Path $root "conf\powersync\config.yaml"
-$cfg = Get-Content $cfgPath -Raw
-$cfg = $cfg -replace '(?m)^( *k: ).*', "`${1}$powersyncSecretB64"
-Set-Content -Path $cfgPath -Value $cfg -NoNewline
 
 # Point the realm's client at the SAME origin as PUBLIC_URL. Keycloak matches
 # redirect_uri exactly, so a realm left on http://localhost:3000 refuses the SSO
@@ -115,7 +143,7 @@ if (-not $Tls) {
 }
 
 Write-Host "Wrote .env (PUBLIC_URL=$publicUrl, KEYCLOAK_PUBLIC_URL=$keycloakPublicUrl)"
-Write-Host "Synced conf\powersync\config.yaml's HS256 key to the new POWERSYNC_JWT_SECRET."
+Write-Host "PowerSync reads its Postgres URIs and HS256 key from .env - nothing to edit."
 Write-Host "Repointed conf\keycloak\realm.json's redirect URIs at $publicUrl and gave"
 Write-Host "  the volt-app client a fresh secret (same value in .env and realm.json)."
 Write-Host "AI provider key was left as-is — see .env comments."
