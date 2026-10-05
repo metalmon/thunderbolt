@@ -43,6 +43,20 @@ fi
 # Asked of Docker rather than built from the directory name: compose derives the
 # project name from the directory but COMPOSE_PROJECT_NAME overrides it, and guessing
 # wrong here would silently turn the check into a no-op.
+# Postgres is the same story: POSTGRES_PASSWORD is applied by initdb and never again,
+# and conf/postgres/init-db/ is skipped entirely once the data directory exists. A fresh
+# password here would leave the backend and PowerSync unable to log in — which for
+# PowerSync means sync stops while the application itself looks perfectly healthy.
+if [[ -d data/postgres ]]; then
+  echo "Postgres already has a data directory (./data/postgres), so a new password would" >&2
+  echo "not reach it and both the backend and PowerSync would stop being able to log in." >&2
+  echo >&2
+  echo "Change a password on a running stand with ALTER USER instead, or start the whole" >&2
+  echo "stand over - which deletes ALL pilot data:" >&2
+  echo "  docker compose down && rm -rf data/postgres" >&2
+  exit 1
+fi
+
 keycloak_volume="$(docker volume ls --quiet --filter 'name=_keycloak_data$' | head -1)"
 if [[ -n "$keycloak_volume" ]]; then
   echo "Keycloak already has a database, so conf/keycloak/realm.json would be ignored" >&2
@@ -59,11 +73,20 @@ rand_b64() { openssl rand -base64 "$1" | tr -d '\n'; }
 better_auth_secret="$(rand_b64 32)"
 powersync_secret="$(rand_b64 32)"
 postgres_password="$(rand_b64 24)"
+# The role PowerSync replicates as. Hex rather than base64 so it survives a URI: the
+# password is interpolated into postgresql://... in docker-compose.yml, where a `/` or
+# `+` from base64 would have to be percent-encoded.
+powersync_db_password="$(openssl rand -hex 24)"
 keycloak_admin_password="$(rand_b64 18)"
 # The realm's client secret is generated too, and written into BOTH .env and
 # realm.json below. The committed placeholder is the same on every copy of the
 # kit, and "remember to change it by hand in two files" is not a control.
 oidc_client_secret="$(openssl rand -hex 16)"
+
+# The JWK form of the PowerSync secret, for conf/powersync/config.yaml's `k`. base64URL:
+# the standard alphabet's `+` and `/` are not valid in a JWK, and a key that merely fails
+# to parse would take sync down without touching anything the operator can see.
+powersync_secret_k="$(printf '%s' "$powersync_secret" | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
 
 if [[ "$use_tls" -eq 1 ]]; then
   public_url="https://${host}"
@@ -81,17 +104,12 @@ sed -e "s|^PUBLIC_URL=.*|PUBLIC_URL=${public_url}|" \
     -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${postgres_password}|" \
     -e "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=${better_auth_secret}|" \
     -e "s|^POWERSYNC_JWT_SECRET=.*|POWERSYNC_JWT_SECRET=${powersync_secret}|" \
+    -e "s|^POWERSYNC_JWT_K=.*|POWERSYNC_JWT_K=${powersync_secret_k}|" \
+    -e "s|^POWERSYNC_DB_PASSWORD=.*|POWERSYNC_DB_PASSWORD=${powersync_db_password}|" \
     -e "s|^KEYCLOAK_ADMIN_PASSWORD=.*|KEYCLOAK_ADMIN_PASSWORD=${keycloak_admin_password}|" \
     -e "s|^OIDC_CLIENT_SECRET=.*|OIDC_CLIENT_SECRET=${oidc_client_secret}|" \
     .env > .env.tmp
 mv .env.tmp .env
-
-# Keep conf/powersync/config.yaml's HS256 key in sync with POWERSYNC_JWT_SECRET
-# (client_auth.jwks.keys[0].k = base64 of the raw secret).
-powersync_secret_b64="$(printf '%s' "$powersync_secret" | base64 | tr -d '\n')"
-sed -e "s|^\( *k: \).*|\1${powersync_secret_b64}|" \
-    conf/powersync/config.yaml > conf/powersync/config.yaml.tmp
-mv conf/powersync/config.yaml.tmp conf/powersync/config.yaml
 
 # Point the realm's client at the SAME origin as PUBLIC_URL. Keycloak matches
 # redirect_uri exactly, so a realm left on http://localhost:3000 refuses the SSO
