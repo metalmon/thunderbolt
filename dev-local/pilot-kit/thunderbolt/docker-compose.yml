@@ -85,7 +85,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?run scripts/gen-secrets.sh}@postgres:5432/postgres
       # All public-origin URLs derive from PUBLIC_URL so the SPA, /v1 and
       # /powersync stay same-origin behind one host name/tunnel.
       APP_URL: ${PUBLIC_URL:-http://localhost:3000}
@@ -100,7 +100,7 @@ services:
       AUTH_ALLOW_ANONYMOUS: "false"
       AUTH_MODE: oidc
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-volt-app}
-      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-volt-dev-secret}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:?run scripts/gen-secrets.sh}
       # Browser-facing issuer = Keycloak's own public URL (must match KC_HOSTNAME
       # below and the realm's issuer). Internal discovery stays on keycloak:8080.
       OIDC_ISSUER: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/volt
@@ -122,13 +122,14 @@ services:
 
   keycloak:
     restart: unless-stopped
-    # Self-hosted OIDC IdP. start-dev + embedded H2 (fine for a pilot — the
-    # `volt` realm is re-imported from conf/keycloak/realm.json every boot).
+    # Self-hosted OIDC IdP. start-dev + embedded H2 (fine for a pilot). The `volt`
+    # realm is imported from conf/keycloak/realm.json on FIRST boot only — see the
+    # keycloak_data volume below.
     image: quay.io/keycloak/keycloak:26.0
     command: start-dev --import-realm
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?run scripts/gen-secrets.sh}
       KC_HTTP_ENABLED: "true"
       # Own public URL. Must equal the backend's OIDC_ISSUER origin.
       KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
@@ -200,7 +201,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?run scripts/gen-secrets.sh}
       # Read by conf/postgres/init-db/01-powersync.sh on first init, to create the
       # replication role PowerSync connects as.
       - POWERSYNC_DB_PASSWORD=${POWERSYNC_DB_PASSWORD:?run scripts/gen-secrets.sh}
