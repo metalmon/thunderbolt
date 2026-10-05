@@ -8,6 +8,7 @@ import type { ExternalLinkBehavior } from '@/lib/external-link-behavior'
 import { isTauri } from '@/lib/platform'
 import { isRecord } from '@shared/lib/is-record'
 import { z } from 'zod'
+import { localSettingsStorageName, migrateLocalSettingsKey } from '@/fork/storage/local-settings-key'
 
 /**
  * Voice engine selection (THU-718). `thunderbolt` uses the hosted enclave STT/TTS
@@ -79,7 +80,9 @@ type LocalSettingsActions = {
 
 type LocalSettingsStore = LocalSettingsState & LocalSettingsActions
 
-const localSettingsKey = 'thunderbolt-local-settings'
+// Fork: one name for the store and for the cross-tab readers below — the rename to
+// `volt-local-settings` would otherwise leave them watching a key nothing writes.
+const localSettingsKey = localSettingsStorageName
 
 const initialCloudUrl =
   isTauri() && import.meta.env.VITE_AUTH_MODE !== 'sso' ? '' : import.meta.env.VITE_THUNDERBOLT_CLOUD_URL || ''
@@ -127,6 +130,10 @@ export const migrateLocalSettings = (persisted: unknown, version: number): Recor
   return version < 1 && state.theme === 'system' ? { ...state, theme: null } : state
 }
 
+// Ahead of `persist`'s first read, so an upgrade keeps the settings it finds under the
+// old key instead of starting from defaults.
+migrateLocalSettingsKey()
+
 export const useLocalSettingsStore = create<LocalSettingsStore>()(
   persist(
     (set) => ({
@@ -134,7 +141,7 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
       setLocalSetting: (key, value) => set({ [key]: value }),
     }),
     {
-      name: localSettingsKey,
+      name: localSettingsStorageName,
       merge: mergeLocalSettings,
       // See migrateLocalSettings; index.html reads this version too.
       version: 1,
