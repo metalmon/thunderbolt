@@ -8,8 +8,8 @@ import { resolveAppName } from '@shared/branding'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { Elysia, t } from 'elysia'
 import { configuredSsoProviderId } from './paths'
+import { readSessionCookie } from '@/fork/auth/session-cookie-name'
 
-const sessionCookieName = 'better-auth.session_token'
 const nonceCookieName = 'thunderbolt_desktop_sso_nonce'
 
 /** Allowed loopback ports — must match OAUTH_PORTS in src-tauri/src/commands.rs */
@@ -170,7 +170,7 @@ export const createSsoDesktopCallbackRoutes = (settings: Settings, fetchFn: type
             return redirectToApp(`error=${encodeURIComponent(query.error)}`)
           }
 
-          const encodedToken = parseCookieValue(cookieHeader, sessionCookieName)
+          const encodedToken = readSessionCookie(cookieHeader, parseCookieValue)
           if (!encodedToken) {
             return new Response(errorPage('Session not found. Please try signing in again from the app.'), {
               status: 401,
