@@ -10,7 +10,7 @@
 # Terminates https on the deployment's public name and forwards everything to
 # the web container, which already reverse-proxies /v1 (backend) and /powersync
 # same-origin. One origin therefore serves the SPA, the desktop client's API
-# base (VITE_THUNDERBOLT_CLOUD_URL = https://<name>/v1) and the sync stream.
+# base (the baked cloud URL, https://<name>/v1) and the sync stream.
 #
 # Response headers (COEP/COOP/CSP/Referrer-Policy) come from the web container's
 # per-location security-headers snippet and pass through untouched. Do NOT add
