@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-Refresh everything in the pilot kit's thunderbolt/ folder that goes stale when
+Refresh everything in the pilot kit's backend/ folder that goes stale when
 master moves: the desktop installers, the two container images, and our config.
 
 .DESCRIPTION
@@ -19,8 +19,8 @@ missing whatever the other branches carry, and a backend image built off fork/de
 has no src/fork/voltd/** at all — the only symptom is a 404 on the discovery routes.
 
 .EXAMPLE
-pwsh dev-local/pilot-kit-refresh.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\thunderbolt -RunId 37223264780
-pwsh dev-local/pilot-kit-refresh.ps1 -KitPath E:\...\thunderbolt -RunId 37223264780 -Skip images
+pwsh dev-local/pilot-kit-refresh.ps1 -KitPath E:\zeroclaw\_local\pilot-kit\backend -RunId 37223264780
+pwsh dev-local/pilot-kit-refresh.ps1 -KitPath E:\...\backend -RunId 37223264780 -Skip images
 #>
 [CmdletBinding()]
 param(
@@ -29,7 +29,7 @@ param(
     #   gh run list -R metalmon/thunderbolt --workflow build-all.yml
     [string]$RunId,
     [ValidateSet('desktop', 'images', 'config')] [string[]]$Skip = @(),
-    # Where the installers live. The kit moved them out of `thunderbolt/desktop`
+    # Where the installers live. The kit moved them out of `backend/desktop`
     # into a top-level `volt-client/` — pointing at the old path simply recreates
     # it as a 160 MB duplicate of what the operator already carries.
     [string]$ClientPath,
@@ -40,7 +40,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 
 if (-not (Test-Path (Join-Path $KitPath "docker-compose.yml"))) {
-    Write-Error "$KitPath does not look like the kit's thunderbolt folder (no docker-compose.yml)."
+    Write-Error "$KitPath does not look like the kit's backend folder (no docker-compose.yml)."
     exit 1
 }
 
