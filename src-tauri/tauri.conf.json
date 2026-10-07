@@ -43,7 +43,10 @@
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
-        "languages": ["Russian", "English"],
+        "languages": [
+          "Russian",
+          "English"
+        ],
         "template": "installer.nsi",
         "installerHooks": "installer-hooks.nsi",
         "installerIcon": "icons/icon.ico",
@@ -78,7 +81,10 @@
     },
     "android": {
       "versionCode": 1018
-    }
+    },
+    "publisher": "Окта Плюс",
+    "shortDescription": "Volt: клиент ИИ-ассистента",
+    "longDescription": "Volt, клиент ИИ-ассистента. Окта Плюс, info@oktaplus.ru"
   },
   "plugins": {
     "deep-link": {
