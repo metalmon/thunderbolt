@@ -85,7 +85,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
+          # Ubuntu 22.04 on purpose: its glibc 2.35 is the floor for Astra Linux 1.8 /
+          # Debian 12 (glibc 2.36); a 24.04 build needs GLIBC_2.38 and does not start there.
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             build_name: 'Linux'
           - os: macos-latest
@@ -216,7 +218,7 @@ jobs:
           echo "APPLE_TEAM_ID=$APPLE_TEAM_ID" >> $GITHUB_ENV
 
       - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-24.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -229,11 +231,11 @@ jobs:
           # so the AppImage self-extracts instead of self-mounting via FUSE.
 
       - name: Set up pinned linuxdeploy
-        if: matrix.os == 'ubuntu-24.04'
+        if: matrix.os == 'ubuntu-22.04'
         uses: ./.github/actions/setup-linuxdeploy
 
       - name: build Tauri app for Linux
-        if: matrix.os == 'ubuntu-24.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           bun install --frozen-lockfile
           bun tauri build --features native_fetch
@@ -315,7 +317,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
       - name: Upload Linux artifacts to GitHub Release
-        if: matrix.os == 'ubuntu-24.04'
+        if: matrix.os == 'ubuntu-22.04'
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         with:
           tag_name: v${{ inputs.version }}

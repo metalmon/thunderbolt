@@ -51,7 +51,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
+          # Ubuntu 22.04 on purpose: its glibc 2.35 is the floor for Astra Linux 1.8 /
+          # Debian 12 (glibc 2.36); a 24.04 build needs GLIBC_2.38 and does not start there.
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             build_name: Linux x64
           - os: windows-latest
