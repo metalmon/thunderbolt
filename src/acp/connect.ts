@@ -28,6 +28,7 @@ import { selectEnabledSkillDefinitions } from '@/skills/skill-tool'
 import { connectAcpAdapter, type AcpAdapterDeps } from './acp-adapter'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
 import { createBuiltInAdapter, type BuiltInAdapterOptions } from './built-in-adapter'
+import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
 
 /** Connection-scoped context handed to {@link connectToAgent}. Deliberately
  *  carries only what's needed to OPEN a connection — per-thread fields travel
@@ -53,7 +54,7 @@ const getEnabledSkills = async () => {
  *  stored secret) resolves to `null` — only an explicit `bearer` authMethod
  *  carries a token onto the transport. */
 const resolveAgentAuthToken = async (agentId: string): Promise<string | null> => {
-  const secret = await getAgentSecrets(getDb(), agentId)
+  const secret = await getAgentSecrets(getDb(), agentId, getCurrentAgentOwner())
   return secret?.authMethod === 'bearer' ? secret.apiKey : null
 }
 

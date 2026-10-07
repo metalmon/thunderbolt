@@ -40,6 +40,7 @@ import type { Agent } from '@/types/acp'
 import { canManageForkCustomAgent } from '@/fork/agents/manage-anonymous-agent'
 import { acpEndpointLabel, agentProvenanceLine } from './agent-provenance'
 import type { TestAcpConnectionFn } from './add-custom-agent-form'
+import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
 
 /** On-demand probe result: the panel never polls on open — Status starts at
  *  `idle` and reflects the last explicit "Test connection" run. `error` holds
@@ -99,6 +100,8 @@ export const AgentDetail = ({
   const agentName = agent.name
   const Icon = iconForAgent(agent)
   const flavor = agentFlavor(agent)
+  // Fork: only the owner's rows reach this panel now (owner-scoped reads), so this gate
+  // is a second line; the anonymous relaxation goes away once anonymous builds are retired.
   const isEditable = flavor === 'custom' && canManageForkCustomAgent(agent.userId, currentUserId, isAnonymous)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [removeError, setRemoveError] = useState<string | null>(null)
@@ -321,7 +324,7 @@ const CustomBody = ({
       return
     }
     setTestResult('testing')
-    const secret = await getAgentSecrets(db, agent.id)
+    const secret = await getAgentSecrets(db, agent.id, getCurrentAgentOwner())
     const authToken = secret?.authMethod === 'bearer' ? secret.apiKey : null
     const probe = await testAcpConnection({ url: agent.url, authToken })
     const testedAt = new Date().toISOString()

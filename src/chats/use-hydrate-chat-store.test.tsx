@@ -5,6 +5,8 @@
 import { setupTestDatabase, teardownTestDatabase, resetTestDatabase } from '@/dal/test-utils'
 import { getCurrentSession, resetStore } from '@/test-utils/chat-store-mocks'
 import { createQueryTestWrapper } from '@/test-utils/react-query'
+import { createMockAuthClient } from '@/test-utils/auth-client'
+import { AuthProvider } from '@/contexts'
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { useHydrateChatStore } from './use-hydrate-chat-store'
@@ -110,12 +112,25 @@ const createTestMessage = (overrides?: Partial<ThunderboltUIMessage>): Thunderbo
 /**
  * Wrapper that includes Router context for useNavigate and MCPProvider
  */
+// Fork: hydration resolves the owner of the custom agents from the session, so the
+// hook needs an auth provider; 'u1' owns the agent rows these tests create.
+const mockAuthClient = createMockAuthClient({
+  session: { user: { id: 'u1', email: 'u1@example.test', name: 'U1', isAnonymous: false } },
+})
+
 const TestWrapper = ({ children }: { children: ReactNode }) => {
   const queryWrapper = createQueryTestWrapper()
   return createElement(
     BrowserRouter,
     null,
-    createElement(queryWrapper, null, createElement(MCPProvider, null, children)),
+    createElement(
+      queryWrapper,
+      null,
+      createElement(AuthProvider, {
+        authClient: mockAuthClient,
+        children: createElement(MCPProvider, null, children),
+      }),
+    ),
   )
 }
 

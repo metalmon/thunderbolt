@@ -4,9 +4,10 @@
 
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 
-import { getAgentSecrets, setAgentBearerToken } from '@/dal'
+import { createAgent, getAgentSecrets, setAgentBearerToken } from '@/dal'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { createTestProvider } from '@/test-utils/test-provider'
@@ -15,6 +16,7 @@ import { getClock } from '@/testing-library'
 import { AgentTokenField } from './agent-token-field'
 
 const AGENT_ID = 'agent-1'
+const ownerId = 'user-1'
 
 describe('AgentTokenField', () => {
   beforeAll(async () => {
@@ -23,6 +25,19 @@ describe('AgentTokenField', () => {
 
   afterAll(async () => {
     await teardownTestDatabase()
+  })
+
+  // Fork: secrets are reachable only through the owner's agent row.
+  beforeEach(async () => {
+    setCurrentAgentOwner(ownerId)
+    await createAgent(getDb(), {
+      id: AGENT_ID,
+      name: 'Agent',
+      type: 'remote-acp',
+      transport: 'websocket',
+      url: 'wss://example/ws',
+      userId: ownerId,
+    })
   })
 
   afterEach(async () => {
@@ -39,7 +54,7 @@ describe('AgentTokenField', () => {
 
   it('shows the populated indicator and a Clear affordance when a bearer token is stored, never the raw value', async () => {
     const db = getDb()
-    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token')
+    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token', ownerId)
 
     render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
 
@@ -58,13 +73,13 @@ describe('AgentTokenField', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     })
 
-    const secret = await getAgentSecrets(db, AGENT_ID)
+    const secret = await getAgentSecrets(db, AGENT_ID, ownerId)
     expect(secret).toEqual({ apiKey: 'new-token-value', authMethod: 'bearer' })
   })
 
   it('clears the stored token', async () => {
     const db = getDb()
-    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token')
+    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token', ownerId)
 
     render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
 
@@ -73,7 +88,7 @@ describe('AgentTokenField', () => {
       fireEvent.click(clearButton)
     })
 
-    const secret = await getAgentSecrets(db, AGENT_ID)
+    const secret = await getAgentSecrets(db, AGENT_ID, ownerId)
     expect(secret).toEqual({ apiKey: null, authMethod: null })
   })
 })
@@ -87,6 +102,19 @@ describe('AgentTokenField — reactivity', () => {
     await teardownTestDatabase()
   })
 
+  // Fork: secrets are reachable only through the owner's agent row.
+  beforeEach(async () => {
+    setCurrentAgentOwner(ownerId)
+    await createAgent(getDb(), {
+      id: AGENT_ID,
+      name: 'Agent',
+      type: 'remote-acp',
+      transport: 'websocket',
+      url: 'wss://example/ws',
+      userId: ownerId,
+    })
+  })
+
   afterEach(async () => {
     cleanup()
     await resetTestDatabase()
@@ -94,7 +122,7 @@ describe('AgentTokenField — reactivity', () => {
 
   it('flips to the populated indicator in place when the row changes and PowerSync notifies', async () => {
     const { triggerChange } = renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, {
-      tables: ['agents_secrets'],
+      tables: ['agents', 'agents_secrets'],
     })
     // Let the hook's async resolveTables()-then-subscribe effect chain settle
     // before triggering a change, or the PowerSync mock has no subscription yet.
@@ -104,7 +132,7 @@ describe('AgentTokenField — reactivity', () => {
 
     expect(screen.queryByRole('button', { name: 'Remove token' })).not.toBeInTheDocument()
 
-    await setAgentBearerToken(getDb(), AGENT_ID, 'externally-written-token')
+    await setAgentBearerToken(getDb(), AGENT_ID, 'externally-written-token', ownerId)
     await act(async () => {
       triggerChange(['agents_secrets'])
       await getClock().runAllAsync()
@@ -114,7 +142,7 @@ describe('AgentTokenField — reactivity', () => {
   })
 
   it('shows the populated indicator in the same mounted field right after clicking Save', async () => {
-    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents_secrets'] })
+    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents', 'agents_secrets'] })
 
     fireEvent.change(screen.getByLabelText('Access token'), { target: { value: 'typed-token' } })
     await act(async () => {
@@ -127,8 +155,8 @@ describe('AgentTokenField — reactivity', () => {
   })
 
   it('hides the Clear affordance in the same mounted field right after clicking Remove token', async () => {
-    await setAgentBearerToken(getDb(), AGENT_ID, 'pre-existing-token')
-    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents_secrets'] })
+    await setAgentBearerToken(getDb(), AGENT_ID, 'pre-existing-token', ownerId)
+    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents', 'agents_secrets'] })
 
     const clearButton = await waitForElement(() => screen.queryByRole('button', { name: 'Remove token' }))
     await act(async () => {

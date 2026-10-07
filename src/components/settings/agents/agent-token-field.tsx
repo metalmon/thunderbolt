@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useDatabase } from '@/contexts'
 import { getAgentSecretsQuery, setAgentBearerToken } from '@/dal'
+import { useCurrentAgentOwner } from '@/fork/agents/agent-owner'
 
 /**
  * Write-only bearer-token field for a custom agent's detail panel: shows
@@ -27,10 +28,11 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const secretsQueryKey = ['agent-secrets', agentId]
+  const ownerId = useCurrentAgentOwner()
+  const secretsQueryKey = ['agent-secrets', agentId, ownerId]
   const { data: secretRows = [] } = useQuery({
     queryKey: secretsQueryKey,
-    query: toCompilableQuery(getAgentSecretsQuery(db, agentId)),
+    query: toCompilableQuery(getAgentSecretsQuery(db, agentId, ownerId)),
   })
   const secret = secretRows[0]
   const populated = secret?.apiKey != null && secret.authMethod === 'bearer'
@@ -44,7 +46,7 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
     setError(null)
     setPending(true)
     try {
-      await setAgentBearerToken(db, agentId, trimmed)
+      await setAgentBearerToken(db, agentId, trimmed, ownerId)
       setDraft('')
       // The write is to a local-only table PowerSync's mock doesn't auto-notify
       // (and real cross-device notification would only race the UI); refresh
@@ -63,7 +65,7 @@ export const AgentTokenField = ({ agentId }: { agentId: string }) => {
     setError(null)
     setPending(true)
     try {
-      await setAgentBearerToken(db, agentId, null)
+      await setAgentBearerToken(db, agentId, null, ownerId)
       setDraft('')
       await queryClient.invalidateQueries({ queryKey: secretsQueryKey })
     } catch (clearError) {

@@ -4,7 +4,7 @@
 
 import { defaultChatTitle } from '@/lib/constants'
 
-import { useDatabase, useHttpClient } from '@/contexts'
+import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { useProxyFetchGetter } from '@/lib/proxy-fetch-context'
 import { resolveThreadModel } from '@/fork/chat/selected-model'
 import {
@@ -20,6 +20,7 @@ import {
   saveMessagesWithContextUpdate,
   saveStreamingAssistantMessage,
 } from '@/dal'
+import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { getOrCreateChatThread, updateChatThread } from '@/dal/chat-threads'
 import { selectBuiltInAgentEnabled, useConfigStore } from '@/api/config-store'
 import { builtInAgent } from '@/defaults/agents'
@@ -72,6 +73,7 @@ const maybePrewarmBuiltInAgent = (agent: Agent, model: Model | null) => {
 
 export const useHydrateChatStore = ({ id, isNew, projectId: newChatProjectId = null }: UseHydrateChatStoreParams) => {
   const db = useDatabase()
+  const authClient = useAuth()
   const httpClient = useHttpClient()
   const getProxyFetch = useProxyFetchGetter()
   const navigate = useNavigate()
@@ -189,6 +191,11 @@ export const useHydrateChatStore = ({ id, isNew, projectId: newChatProjectId = n
 
     // If the session does not exist, create it below
     const settings = await getSettings(db, { selected_model: String, selected_agent: String })
+    // Fork: custom agents are read through their owner. The module store is the
+    // common case; while it is still empty (this route's effect can run before the
+    // app shell's) fall back to asking the auth client, so a thread never silently
+    // resolves to the built-in agent just because hydration won the race.
+    const ownerId = getCurrentAgentOwner() ?? (await authClient.getSession()).data?.user?.id ?? null
 
     const [defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([
@@ -197,7 +204,7 @@ export const useHydrateChatStore = ({ id, isNew, projectId: newChatProjectId = n
         getChatMessages(db, id),
         getAvailableModels(db),
         getTriggerPromptForThread(db, id),
-        getAllAgents(db),
+        getAllAgents(db, ownerId),
         getAllSystemAgents(db),
       ])
 

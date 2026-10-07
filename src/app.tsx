@@ -75,6 +75,7 @@ import { type ComponentProps, Suspense, lazy, useEffect, useState } from 'react'
 import { markAppMounted } from '@/lib/init-timing'
 import { takeDeviceApprovalReturn } from '@/lib/device-approval-return'
 import { LazyMotion } from 'framer-motion'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -159,6 +160,11 @@ const useBootstrapSystemAgents = () => {
   const cloudUrl = useLocalSettingsStore((s) => s.cloudUrl)
 
   const isRealUser = !!session?.user && session.user.isAnonymous !== true
+  // Fork: custom-agent rows are scoped to the session user (see agent-owner.ts).
+  const sessionUserId = session?.user?.id ?? null
+  useEffect(() => {
+    setCurrentAgentOwner(sessionUserId)
+  }, [sessionUserId])
 
   useEffect(() => {
     if (!isRealUser || !cloudUrl) {

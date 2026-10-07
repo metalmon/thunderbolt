@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getDb } from '@/db/database'
-import { agentsSystemTable, agentsTable, chatThreadsTable } from '@/db/tables'
+import { agentsSecretsTable, agentsSystemTable, agentsTable, chatThreadsTable } from '@/db/tables'
 import { builtInAgent } from '@/defaults/agents'
 import { HttpError, type HttpClient, type ResponsePromise } from '@/lib/http'
 import { refreshSystemAgents } from '@/db/seeding/seed-agents'
@@ -11,7 +11,18 @@ import { clearAdapterCache, getOrConnectAdapter } from '@/acp/adapter-cache'
 import type { AgentAdapter } from '@/types/acp'
 import type { AgentDiscoveryResponse } from '@shared/acp-types'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
-import { composeAllAgents, createAgent, deleteAgent, getAgentSecrets, setAgentBearerToken, setAgentSecrets, updateAgent } from './agents'
+import { eq } from 'drizzle-orm'
+import {
+  composeAllAgents,
+  createAgent,
+  deleteAgent,
+  getAgentSecrets,
+  getAgentSecretsQuery,
+  getAllAgents,
+  setAgentBearerToken,
+  setAgentSecrets,
+  updateAgent,
+} from './agents'
 import { getChatThread } from './chat-threads'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from './test-utils'
 import type { Agent } from '@/types/acp'
@@ -138,7 +149,7 @@ describe('agents DAL', () => {
         userId: 'u1',
       })
 
-      await updateAgent(getDb(), 'a1', { name: 'Renamed', enabled: 0 })
+      await updateAgent(getDb(), 'a1', { name: 'Renamed', enabled: 0 }, 'u1')
 
       const row = await getDb().select().from(agentsTable).get()
       expect(row?.name).toBe('Renamed')
@@ -146,7 +157,7 @@ describe('agents DAL', () => {
     })
 
     it('refuses to edit the built-in agent', async () => {
-      await expect(updateAgent(getDb(), builtInAgent.id, { name: 'nope' })).rejects.toThrow(/built-in/)
+      await expect(updateAgent(getDb(), builtInAgent.id, { name: 'nope' }, 'u1')).rejects.toThrow(/built-in/)
     })
 
     it('no-ops on an empty patch (does not touch DB)', async () => {
@@ -158,7 +169,7 @@ describe('agents DAL', () => {
         url: 'wss://x',
         userId: 'u1',
       })
-      await updateAgent(getDb(), 'a2', {})
+      await updateAgent(getDb(), 'a2', {}, 'u1')
       const row = await getDb().select().from(agentsTable).get()
       expect(row?.name).toBe('Untouched')
     })
@@ -174,7 +185,7 @@ describe('agents DAL', () => {
       })
       const cached = await seedCachedAdapter('a-url')
 
-      await updateAgent(getDb(), 'a-url', { url: 'wss://new/ws' })
+      await updateAgent(getDb(), 'a-url', { url: 'wss://new/ws' }, 'u1')
 
       expect(cached.disconnectCount()).toBe(1)
     })
@@ -196,7 +207,7 @@ describe('agents DAL', () => {
           { id: 'thread-other', agentId: 'other-agent', acpSessionId: 'session-other' },
         ])
 
-      await updateAgent(getDb(), 'a-sessions', { url: 'wss://new/ws' })
+      await updateAgent(getDb(), 'a-sessions', { url: 'wss://new/ws' }, 'u1')
 
       expect((await getChatThread(getDb(), 'thread-a1'))?.acpSessionId).toBeNull()
       expect((await getChatThread(getDb(), 'thread-a2'))?.acpSessionId).toBeNull()
@@ -217,11 +228,16 @@ describe('agents DAL', () => {
         .insert(chatThreadsTable)
         .values({ id: 'thread-same-wire', agentId: 'a-name', acpSessionId: 'session-same-wire' })
 
-      await updateAgent(getDb(), 'a-name', {
-        name: 'After',
-        transport: 'websocket',
-        url: 'wss://keep/ws',
-      })
+      await updateAgent(
+        getDb(),
+        'a-name',
+        {
+          name: 'After',
+          transport: 'websocket',
+          url: 'wss://keep/ws',
+        },
+        'u1',
+      )
 
       expect(cached.disconnectCount()).toBe(0)
       expect((await getChatThread(getDb(), 'thread-same-wire'))?.acpSessionId).toBe('session-same-wire')
@@ -239,7 +255,7 @@ describe('agents DAL', () => {
         userId: 'u1',
       })
 
-      await deleteAgent(getDb(), 'a-del')
+      await deleteAgent(getDb(), 'a-del', 'u1')
 
       const row = await getDb().select().from(agentsTable).get()
       expect(row).toBeDefined()
@@ -247,7 +263,7 @@ describe('agents DAL', () => {
     })
 
     it('refuses to delete the built-in agent', async () => {
-      await expect(deleteAgent(getDb(), builtInAgent.id)).rejects.toThrow(/built-in/)
+      await expect(deleteAgent(getDb(), builtInAgent.id, 'u1')).rejects.toThrow(/built-in/)
     })
 
     it('disposes the agent warm ACP connection on delete', async () => {
@@ -261,7 +277,7 @@ describe('agents DAL', () => {
       })
       const cached = await seedCachedAdapter('a-disp')
 
-      await deleteAgent(getDb(), 'a-disp')
+      await deleteAgent(getDb(), 'a-disp', 'u1')
 
       expect(cached.disconnectCount()).toBe(1)
     })
@@ -276,11 +292,13 @@ describe('agents DAL', () => {
         url: 'wss://g/a',
         userId: 'u1',
       })
-      await setAgentSecrets(db, 'del-1', { apiKey: 'zc_x', authMethod: 'bearer' })
+      await setAgentSecrets(db, 'del-1', { apiKey: 'zc_x', authMethod: 'bearer' }, 'u1')
 
-      await deleteAgent(db, 'del-1')
+      await deleteAgent(db, 'del-1', 'u1')
 
-      expect(await getAgentSecrets(db, 'del-1')).toEqual({ apiKey: null, authMethod: null })
+      // The tombstoned row is nobody's any more, so read the local table directly.
+      const wiped = await db.select().from(agentsSecretsTable).where(eq(agentsSecretsTable.agentId, 'del-1')).get()
+      expect(wiped).toMatchObject({ apiKey: null, authMethod: null })
     })
   })
 
@@ -345,26 +363,42 @@ describe('agents DAL', () => {
 
   describe('agent secrets', () => {
     it('round-trips apiKey and authMethod via setAgentSecrets/getAgentSecrets', async () => {
-      await setAgentSecrets(getDb(), 'agent-x', { apiKey: 'sk-test', authMethod: 'bearer' })
+      await createAgent(getDb(), {
+        id: 'agent-x',
+        name: 'agent-x',
+        type: 'remote-acp',
+        transport: 'websocket',
+        url: 'wss://example/ws',
+        userId: 'u1',
+      })
+      await setAgentSecrets(getDb(), 'agent-x', { apiKey: 'sk-test', authMethod: 'bearer' }, 'u1')
 
-      const round1 = await getAgentSecrets(getDb(), 'agent-x')
+      const round1 = await getAgentSecrets(getDb(), 'agent-x', 'u1')
       expect(round1).toEqual({ apiKey: 'sk-test', authMethod: 'bearer' })
 
       // Partial update preserves the other column.
-      await setAgentSecrets(getDb(), 'agent-x', { apiKey: 'sk-rotated' })
+      await setAgentSecrets(getDb(), 'agent-x', { apiKey: 'sk-rotated' }, 'u1')
 
-      const round2 = await getAgentSecrets(getDb(), 'agent-x')
+      const round2 = await getAgentSecrets(getDb(), 'agent-x', 'u1')
       expect(round2).toEqual({ apiKey: 'sk-rotated', authMethod: 'bearer' })
     })
 
     it('returns null when no secrets row exists for the agent', async () => {
-      const result = await getAgentSecrets(getDb(), 'unknown-agent')
+      const result = await getAgentSecrets(getDb(), 'unknown-agent', 'u1')
       expect(result).toBeNull()
     })
 
     it('inserts a fresh row when none exists', async () => {
-      await setAgentSecrets(getDb(), 'new-agent', { authMethod: 'oauth' })
-      const result = await getAgentSecrets(getDb(), 'new-agent')
+      await createAgent(getDb(), {
+        id: 'new-agent',
+        name: 'new-agent',
+        type: 'remote-acp',
+        transport: 'websocket',
+        url: 'wss://example/ws',
+        userId: 'u1',
+      })
+      await setAgentSecrets(getDb(), 'new-agent', { authMethod: 'oauth' }, 'u1')
+      const result = await getAgentSecrets(getDb(), 'new-agent', 'u1')
       expect(result).toEqual({ apiKey: null, authMethod: 'oauth' })
     })
   })
@@ -382,9 +416,9 @@ describe('agents DAL', () => {
       })
       const cached = await seedCachedAdapter('bearer-1')
 
-      await setAgentBearerToken(db, 'bearer-1', 'zc_abc123')
+      await setAgentBearerToken(db, 'bearer-1', 'zc_abc123', 'u1')
 
-      const secrets = await getAgentSecrets(db, 'bearer-1')
+      const secrets = await getAgentSecrets(db, 'bearer-1', 'u1')
       expect(secrets).toEqual({ apiKey: 'zc_abc123', authMethod: 'bearer' })
       expect(cached.disconnectCount()).toBe(1)
     })
@@ -399,12 +433,12 @@ describe('agents DAL', () => {
         url: 'wss://example/ws',
         userId: 'u1',
       })
-      await setAgentSecrets(db, 'bearer-clear', { apiKey: 'zc_old', authMethod: 'bearer' })
+      await setAgentSecrets(db, 'bearer-clear', { apiKey: 'zc_old', authMethod: 'bearer' }, 'u1')
       const cached = await seedCachedAdapter('bearer-clear')
 
-      await setAgentBearerToken(db, 'bearer-clear', null)
+      await setAgentBearerToken(db, 'bearer-clear', null, 'u1')
 
-      const secrets = await getAgentSecrets(db, 'bearer-clear')
+      const secrets = await getAgentSecrets(db, 'bearer-clear', 'u1')
       expect(secrets).toEqual({ apiKey: null, authMethod: null })
       expect(cached.disconnectCount()).toBe(1)
     })
@@ -673,5 +707,64 @@ describe('agents DAL', () => {
       const rows = await getDb().select().from(agentsSystemTable).all()
       expect(rows).toHaveLength(1)
     })
+  })
+})
+
+// Fork: custom-agent rows are scoped to their owner. The local database outlives
+// sign-outs, so on a shared device another user's agents (and the pairing tokens
+// next to them) are still on disk; they must be invisible and unusable, not just
+// unmanageable.
+describe('agents DAL — owner scope (fork)', () => {
+  const mine = {
+    id: 'a-mine',
+    name: 'Mine',
+    type: 'remote-acp' as const,
+    transport: 'websocket' as const,
+    url: 'wss://mine/ws',
+    userId: 'u-me',
+  }
+  const theirs = { ...mine, id: 'a-theirs', name: 'Theirs', url: 'wss://theirs/ws', userId: 'u-other' }
+
+  beforeEach(async () => {
+    await createAgent(getDb(), mine)
+    await createAgent(getDb(), theirs)
+    await setAgentSecrets(getDb(), 'a-theirs', { apiKey: 'their-token', authMethod: 'bearer' }, 'u-other')
+  })
+
+  it('getAllAgents lists only the owner rows, and nothing without an owner', async () => {
+    const forMe = await getAllAgents(getDb(), 'u-me')
+    expect(forMe.map((a) => a.id)).toEqual(['a-mine'])
+    const forNobody = await getAllAgents(getDb(), null)
+    expect(forNobody).toEqual([])
+  })
+
+  it('updateAgent leaves a row that belongs to someone else untouched', async () => {
+    const changed = await updateAgent(getDb(), 'a-theirs', { name: 'Hijacked', url: 'wss://evil/ws' }, 'u-me')
+    expect(changed).toBe(false)
+    const row = await getDb().select().from(agentsTable).where(eq(agentsTable.id, 'a-theirs')).get()
+    expect(row?.name).toBe('Theirs')
+    expect(row?.url).toBe('wss://theirs/ws')
+  })
+
+  it('deleteAgent neither tombstones nor strips the secrets of a row that belongs to someone else', async () => {
+    await deleteAgent(getDb(), 'a-theirs', 'u-me')
+    const row = await getDb().select().from(agentsTable).where(eq(agentsTable.id, 'a-theirs')).get()
+    expect(row?.deletedAt).toBeNull()
+    expect(await getAgentSecrets(getDb(), 'a-theirs', 'u-other')).toEqual({
+      apiKey: 'their-token',
+      authMethod: 'bearer',
+    })
+  })
+
+  it('secrets are only readable and writable through the owner', async () => {
+    expect(await getAgentSecrets(getDb(), 'a-theirs', 'u-me')).toBeNull()
+    expect(await getAgentSecrets(getDb(), 'a-theirs', null)).toBeNull()
+    await setAgentBearerToken(getDb(), 'a-theirs', 'planted', 'u-me')
+    expect(await getAgentSecrets(getDb(), 'a-theirs', 'u-other')).toEqual({
+      apiKey: 'their-token',
+      authMethod: 'bearer',
+    })
+    const rows = await getAgentSecretsQuery(getDb(), 'a-theirs', 'u-me')
+    expect(rows).toEqual([])
   })
 })

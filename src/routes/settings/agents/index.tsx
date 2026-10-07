@@ -100,14 +100,16 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
           onClose={closePanel}
           onRemoved={closePanel}
           onUpdate={async (patch) => {
-            const wireIdentityChanged = await updateAgent(db, activeAgent.id, patch)
+            const wireIdentityChanged = await updateAgent(db, activeAgent.id, patch, currentUserId)
             if (wireIdentityChanged) {
               // Refresh any live chat sessions pointed at this agent so their next
               // send reconnects against the new endpoint (THU-695).
               useChatStore.getState().applyAgentWireIdentityChange({ ...activeAgent, ...patch })
             }
           }}
-          onDelete={() => deleteAgent(db, activeAgent.id)}
+          onDelete={async () => {
+            await deleteAgent(db, activeAgent.id, currentUserId)
+          }}
           testAcpConnection={testAcpConnection}
         />
       )

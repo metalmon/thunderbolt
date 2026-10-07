@@ -53,7 +53,7 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
       userId: currentUserId,
     })
     if (payload.authToken) {
-      await setAgentSecrets(db, id, { apiKey: payload.authToken, authMethod: 'bearer' })
+      await setAgentSecrets(db, id, { apiKey: payload.authToken, authMethod: 'bearer' }, currentUserId)
     }
     await queryClient.invalidateQueries({ queryKey: ['agents'] })
     if (payload.transport === 'iroh') {

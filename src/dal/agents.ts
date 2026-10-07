@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { and, asc, eq, isNull, sql } from 'drizzle-orm'
 import { toCompilableQuery } from '@powersync/drizzle-driver'
 import { useQuery } from '@powersync/tanstack-react-query'
 import { useDatabase } from '@/contexts'
+import { useCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { selectBuiltInAgentEnabled, useConfigStore } from '@/api/config-store'
 import { disposeAdapter } from '@/acp/adapter-cache'
 import type { AnyDrizzleDatabase } from '../db/database-interface'
@@ -57,20 +58,31 @@ export const systemRowToAgent = (row: AgentSystemRow): Agent => ({
   userId: null,
 })
 
-/** Query for all non-deleted custom agents (synced via PowerSync), alpha by name. */
-export const getAllAgents = (db: AnyDrizzleDatabase) =>
-  db.select().from(agentsTable).where(isNull(agentsTable.deletedAt)).orderBy(asc(agentsTable.name))
+/** Fork: the row predicate every custom-agent read and write goes through. A row is
+ *  reachable only by its owner; with no owner (no session yet) nothing matches, by
+ *  construction rather than by a sentinel value. */
+const ownedBy = (ownerId: string | null) => (ownerId === null ? sql`1 = 0` : eq(agentsTable.userId, ownerId))
+
+/** Query for the owner's non-deleted custom agents (synced via PowerSync), alpha by name.
+ *  Rows of other users that the local database still holds are not returned. */
+export const getAllAgents = (db: AnyDrizzleDatabase, ownerId: string | null) =>
+  db
+    .select()
+    .from(agentsTable)
+    .where(and(isNull(agentsTable.deletedAt), ownedBy(ownerId)))
+    .orderBy(asc(agentsTable.name))
 
 /** Query for all local-only system agents, alpha by name. */
 export const getAllSystemAgents = (db: AnyDrizzleDatabase) =>
   db.select().from(agentsSystemTable).orderBy(asc(agentsSystemTable.name))
 
-/** Live hook for custom (synced) agents. Returns `Agent[]` in visual order. */
+/** Live hook for the current owner's custom (synced) agents. Returns `Agent[]` in visual order. */
 export const useAgents = (): Agent[] => {
   const db = useDatabase()
+  const ownerId = useCurrentAgentOwner()
   const { data = [] } = useQuery({
-    queryKey: ['agents'],
-    query: toCompilableQuery(getAllAgents(db)),
+    queryKey: ['agents', ownerId],
+    query: toCompilableQuery(getAllAgents(db, ownerId)),
   })
   return data.map(customRowToAgent)
 }
@@ -161,19 +173,22 @@ const connectionInvalidatingFields = ['url', 'transport', 'type'] as const satis
  *
  *  Returns whether the persisted wire identity changed so callers can refresh
  *  any active in-memory chat sessions for the agent. */
-export const updateAgent = async (db: AnyDrizzleDatabase, id: string, patch: UpdateAgentPatch): Promise<boolean> => {
+export const updateAgent = async (
+  db: AnyDrizzleDatabase,
+  id: string,
+  patch: UpdateAgentPatch,
+  ownerId: string | null,
+): Promise<boolean> => {
   if (id === builtInAgent.id) {
     throw new Error(`updateAgent: refusing to edit built-in agent "${id}"`)
   }
   if (Object.keys(patch).length === 0) {
     return false
   }
+  const target = and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt), ownedBy(ownerId))
   const patchTouchesWire = connectionInvalidatingFields.some((field) => patch[field] !== undefined)
   if (!patchTouchesWire) {
-    await db
-      .update(agentsTable)
-      .set(patch)
-      .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt)))
+    await db.update(agentsTable).set(patch).where(target)
     return false
   }
 
@@ -181,16 +196,13 @@ export const updateAgent = async (db: AnyDrizzleDatabase, id: string, patch: Upd
     const existing = await tx
       .select({ type: agentsTable.type, transport: agentsTable.transport, url: agentsTable.url })
       .from(agentsTable)
-      .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt)))
+      .where(target)
       .get()
     const wireIdentityChanged =
       existing !== undefined &&
       connectionInvalidatingFields.some((field) => patch[field] !== undefined && patch[field] !== existing[field])
 
-    await tx
-      .update(agentsTable)
-      .set(patch)
-      .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt)))
+    await tx.update(agentsTable).set(patch).where(target)
 
     if (wireIdentityChanged) {
       await clearAcpSessionIdsForAgent(tx, id)
@@ -206,26 +218,50 @@ export const updateAgent = async (db: AnyDrizzleDatabase, id: string, patch: Upd
   return invalidatesConnection
 }
 
-/** Soft delete a custom agent. Never hard-delete — sets `deletedAt` and lets
- *  PowerSync replicate the tombstone. Built-ins/system rows are not in this
- *  table and cannot be removed. Disposes the agent's warm ACP connection so a
- *  deleted agent leaves no live transport behind. */
-export const deleteAgent = async (db: AnyDrizzleDatabase, id: string): Promise<void> => {
+/** Soft delete one of the owner's custom agents. Never hard-delete — sets `deletedAt`
+ *  and lets PowerSync replicate the tombstone. Built-ins/system rows are not in this
+ *  table and cannot be removed. Disposes the agent's warm ACP connection so a deleted
+ *  agent leaves no live transport behind. Returns whether a row was deleted. */
+export const deleteAgent = async (db: AnyDrizzleDatabase, id: string, ownerId: string | null): Promise<boolean> => {
   if (id === builtInAgent.id) {
     throw new Error(`deleteAgent: refusing to delete built-in agent "${id}"`)
+  }
+  // Not the owner's row (or already gone): nothing happens, and the caller learns so.
+  if (!(await isOwnedAgent(db, id, ownerId))) {
+    return false
   }
   await db
     .update(agentsTable)
     .set({ deletedAt: nowIso() })
-    .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt)))
+    .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt), ownedBy(ownerId)))
 
-  await setAgentSecrets(db, id, { apiKey: null, authMethod: null })
+  await writeAgentSecrets(db, id, { apiKey: null, authMethod: null })
   await disposeAdapter(id)
+  return true
 }
 
-/** Read credentials for an agent from the local-only secrets table.
- *  Returns `null` when no row exists for `id`. */
-export const getAgentSecrets = async (db: AnyDrizzleDatabase, id: string): Promise<AgentSecrets | null> => {
+/** Fork: does a live custom agent `id` belong to `ownerId`? The gate in front of
+ *  every secrets read and write: the local-only secrets table has no owner column,
+ *  so ownership is borrowed from the agent row. */
+const isOwnedAgent = async (db: AnyDrizzleDatabase, id: string, ownerId: string | null): Promise<boolean> => {
+  const row = await db
+    .select({ id: agentsTable.id })
+    .from(agentsTable)
+    .where(and(eq(agentsTable.id, id), isNull(agentsTable.deletedAt), ownedBy(ownerId)))
+    .get()
+  return row !== undefined
+}
+
+/** Read credentials for one of the owner's agents from the local-only secrets table.
+ *  Returns `null` when no row exists for `id` or the agent is not the owner's. */
+export const getAgentSecrets = async (
+  db: AnyDrizzleDatabase,
+  id: string,
+  ownerId: string | null,
+): Promise<AgentSecrets | null> => {
+  if (!(await isOwnedAgent(db, id, ownerId))) {
+    return null
+  }
   const row = await db.select().from(agentsSecretsTable).where(eq(agentsSecretsTable.agentId, id)).get()
   if (!row) {
     return null
@@ -233,11 +269,20 @@ export const getAgentSecrets = async (db: AnyDrizzleDatabase, id: string): Promi
   return { apiKey: row.apiKey, authMethod: row.authMethod }
 }
 
-/** Reactive query for an agent's local-only secrets row. Drive with `useQuery` +
- *  `toCompilableQuery` (same idiom as `getAllAgents`) to observe whether a
- *  bearer token is set without ever reading its value into component state. */
-export const getAgentSecretsQuery = (db: AnyDrizzleDatabase, id: string) =>
-  db.select().from(agentsSecretsTable).where(eq(agentsSecretsTable.agentId, id))
+/** Reactive query for the secrets row of one of the owner's agents. Drive with
+ *  `useQuery` + `toCompilableQuery` (same idiom as `getAllAgents`) to observe
+ *  whether a bearer token is set without ever reading its value into component
+ *  state. Joined through the agent row so another user's token never surfaces. */
+export const getAgentSecretsQuery = (db: AnyDrizzleDatabase, id: string, ownerId: string | null) =>
+  db
+    .select({
+      agentId: agentsSecretsTable.agentId,
+      apiKey: agentsSecretsTable.apiKey,
+      authMethod: agentsSecretsTable.authMethod,
+    })
+    .from(agentsSecretsTable)
+    .innerJoin(agentsTable, eq(agentsTable.id, agentsSecretsTable.agentId))
+    .where(and(eq(agentsSecretsTable.agentId, id), isNull(agentsTable.deletedAt), ownedBy(ownerId)))
 
 /** Upsert credentials for an agent.
  *
@@ -248,7 +293,17 @@ export const setAgentSecrets = async (
   db: AnyDrizzleDatabase,
   id: string,
   secrets: Partial<AgentSecrets>,
+  ownerId: string | null,
 ): Promise<void> => {
+  if (!(await isOwnedAgent(db, id, ownerId))) {
+    return
+  }
+  await writeAgentSecrets(db, id, secrets)
+}
+
+/** The unguarded write behind `setAgentSecrets`; `deleteAgent` uses it after its
+ *  own owner check. */
+const writeAgentSecrets = async (db: AnyDrizzleDatabase, id: string, secrets: Partial<AgentSecrets>): Promise<void> => {
   const existing = await db.select().from(agentsSecretsTable).where(eq(agentsSecretsTable.agentId, id)).get()
 
   if (existing) {
@@ -280,7 +335,11 @@ export const setAgentBearerToken = async (
   db: AnyDrizzleDatabase,
   id: string,
   token: string | null,
+  ownerId: string | null,
 ): Promise<void> => {
-  await setAgentSecrets(db, id, token ? { apiKey: token, authMethod: 'bearer' } : { apiKey: null, authMethod: null })
+  if (!(await isOwnedAgent(db, id, ownerId))) {
+    return
+  }
+  await writeAgentSecrets(db, id, token ? { apiKey: token, authMethod: 'bearer' } : { apiKey: null, authMethod: null })
   await disposeAdapter(id)
 }
