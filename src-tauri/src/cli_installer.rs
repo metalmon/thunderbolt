@@ -179,8 +179,7 @@ async fn fetch(client: &reqwest::Client, url: &str) -> Result<reqwest::Response,
         .map_err(|e| CliInstallError::Download(e.to_string()))?;
     if response.status() == reqwest::StatusCode::NOT_FOUND {
         return Err(CliInstallError::NotPublished(
-            "This release has no prebuilt Thunderbolt CLI yet. Build it from source instead."
-                .to_string(),
+            "This release has no prebuilt Volt CLI yet. Build it from source instead.".to_string(),
         ));
     }
     if !response.status().is_success() {
@@ -197,7 +196,7 @@ async fn fetch(client: &reqwest::Client, url: &str) -> Result<reqwest::Response,
 pub async fn install_cli(version: &str) -> Result<CliInstallResult, CliInstallError> {
     let target = resolve_target(std::env::consts::OS, std::env::consts::ARCH).ok_or_else(|| {
         CliInstallError::Unsupported(
-            "No prebuilt Thunderbolt CLI is published for this platform. Build it from source instead."
+            "No prebuilt Volt CLI is published for this platform. Build it from source instead."
                 .to_string(),
         )
     })?;

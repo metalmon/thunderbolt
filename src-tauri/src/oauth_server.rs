@@ -14,12 +14,12 @@ pub struct OAuthCallbackPayload {
     pub url: String,
 }
 
-const RESPONSE_HTML: &str = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\n\r\n<html>\
-<head><title>Thunderbolt</title></head>\
+const RESPONSE_HTML: &str = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\n\r\n<html lang=\"ru\">\
+<head><meta charset=\"utf-8\"><title>Volt</title></head>\
 <body style=\"font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f5f5f5\">\
 <div style=\"text-align:center;padding:2rem\">\
-<h2>Authentication Complete</h2>\
-<p>You can close this tab and return to Thunderbolt.</p>\
+<h2>Вход выполнен</h2>\
+<p>Эту вкладку можно закрыть и вернуться в Volt.</p>\
 </div>\
 </body>\
 </html>";
