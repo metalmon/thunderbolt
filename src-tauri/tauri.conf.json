@@ -39,7 +39,15 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "deb",
+      "rpm",
+      "appimage",
+      "app",
+      "dmg",
+      "nsis",
+      "updater"
+    ],
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
