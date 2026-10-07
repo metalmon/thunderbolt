@@ -45,8 +45,7 @@
       "appimage",
       "app",
       "dmg",
-      "nsis",
-      "updater"
+      "nsis"
     ],
     "createUpdaterArtifacts": true,
     "windows": {
