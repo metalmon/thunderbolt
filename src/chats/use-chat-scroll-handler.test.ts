@@ -5,7 +5,7 @@
 import type { ThunderboltUIMessage } from '@/types'
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, mock } from 'bun:test'
-import { lastMessageContentSignal, useChatScrollHandler } from './use-chat-scroll-handler'
+import { answerOutgrewReserve, lastMessageContentSignal, useChatScrollHandler } from './use-chat-scroll-handler'
 
 type MessagePart = ThunderboltUIMessage['parts'][number]
 
@@ -733,5 +733,22 @@ describe('useChatScrollHandler', () => {
       expect(mockScrollToBottom).toHaveBeenCalledWith(true)
       expect(mockResetUserScroll).not.toHaveBeenCalled()
     })
+  })
+})
+
+describe('answerOutgrewReserve', () => {
+  const message = (offsetHeight: number, minHeight: string) =>
+    ({ offsetHeight, style: { minHeight } }) as unknown as HTMLElement
+
+  it('an answer shorter than the reserve still fits the pinned view', () => {
+    expect(answerOutgrewReserve(message(400, '72dvh'), 1000)).toBe(false)
+  })
+
+  it('an answer taller than the reserve has pushed itself below the fold', () => {
+    expect(answerOutgrewReserve(message(900, '72dvh'), 1000)).toBe(true)
+  })
+
+  it('a message with no reserve is left to the existing bottom-follow path', () => {
+    expect(answerOutgrewReserve(message(900, ''), 1000)).toBe(false)
   })
 })
