@@ -51,6 +51,21 @@ export const lastMessageContentSignal = (messages: ThunderboltUIMessage[]): stri
 
 const userMessageViewportOffsetPx = 20 // Breathing room from top
 
+/**
+ * True when a message is taller than the reserve its min-height holds — the answer
+ * has outgrown the room kept under the pinned question. The reserve is authored in
+ * viewport units (see `lastMessageMinHeight`), so it resolves against the window.
+ * A message without a reserve reads as not overflowing, which leaves threads that
+ * never pin on their existing bottom-follow path.
+ */
+export const answerOutgrewReserve = (
+  element: Pick<HTMLElement, 'offsetHeight'> & { style: Pick<CSSStyleDeclaration, 'minHeight'> },
+  viewportHeight: number = window.innerHeight,
+): boolean => {
+  const reserve = /^([\d.]+)(?:dvh|vh)$/.exec(element.style.minHeight.trim())
+  return reserve ? element.offsetHeight > (parseFloat(reserve[1]) / 100) * viewportHeight : false
+}
+
 type UseChatScrollHandlerProps = {
   useAutoScroll?: typeof useAutoScroll_default
   useChat?: typeof useChat_default
@@ -68,6 +83,7 @@ export const useChatScrollHandler = ({
 
   const prevStatusRef = useRef(status)
   const hasScrolledForFirstTokenRef = useRef(false)
+  const hasFollowedOverflowRef = useRef(false)
 
   // Smallest correct "content grew" signal instead of the messages array identity, so the
   // auto-scroll effect re-runs on visible growth rather than on every SDK message clone.
@@ -91,6 +107,7 @@ export const useChatScrollHandler = ({
 
   const onSubmitScroll = useEffectEvent(() => {
     hasScrolledForFirstTokenRef.current = false
+    hasFollowedOverflowRef.current = false
 
     if (!shouldUseViewportPositioning(messages.length)) {
       // First exchange: the user just sent from the bottom of an (empty) thread,
@@ -117,6 +134,31 @@ export const useChatScrollHandler = ({
       }
     }
   })
+
+  // Once a streamed answer outgrows the reserve held under the pinned question,
+  // the pin cannot hold anyway: the element is taller than its min-height, so the
+  // text the reader is waiting for has gone below the fold. Hand the viewport back
+  // to bottom-follow for the rest of the turn — `useAutoScroll` already scrolls on
+  // the next content growth once follow is engaged.
+  const followOnceAnswerOutgrowsReserve = useEffectEvent(() => {
+    if (!isStreaming || hasFollowedOverflowRef.current) {
+      return
+    }
+    const last = messages[messages.length - 1]
+    if (last?.role !== 'assistant') {
+      return
+    }
+    const element = document.querySelector<HTMLElement>(`[data-message-id="${last.id}"]`)
+    if (!element || !answerOutgrewReserve(element)) {
+      return
+    }
+    hasFollowedOverflowRef.current = true
+    resetUserScroll()
+  })
+
+  useEffect(() => {
+    followOnceAnswerOutgrowsReserve()
+  }, [contentSignal])
 
   const onFirstTokenScroll = useEffectEvent(() => {
     if (!shouldUseViewportPositioning(messages.length)) {
