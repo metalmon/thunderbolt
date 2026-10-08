@@ -185,14 +185,27 @@ export class TrayManager {
           ],
         })
 
-        this.tray = await tauriTray.TrayIcon.new({
-          icon: await tauriApp?.defaultWindowIcon(),
-          // macOS template mode: alpha-only render that inverts with the menu
-          // bar. No-op on Windows/Linux (they show the icon as-is).
-          iconAsTemplate: true,
-          tooltip: 'Volt',
-          menu,
-        })
+        // A fixed id, and reuse of an existing icon, because the guard above
+        // lives in a static field of this JS context: reloading the webview
+        // builds a fresh context while the icon created by the previous one
+        // stays registered on the Rust side, menu and all. Without an id every
+        // reload added one more live icon to the notification area.
+        const trayId = 'volt-main'
+        const existing = await tauriTray.TrayIcon.getById(trayId).catch(() => null)
+        if (existing) {
+          await existing.setMenu(menu)
+          this.tray = existing
+        } else {
+          this.tray = await tauriTray.TrayIcon.new({
+            id: trayId,
+            icon: await tauriApp?.defaultWindowIcon(),
+            // macOS template mode: alpha-only render that inverts with the menu
+            // bar. No-op on Windows/Linux (they show the icon as-is).
+            iconAsTemplate: true,
+            tooltip: 'Volt',
+            menu,
+          })
+        }
       } catch (error) {
         console.error('Failed to create tray:', error)
       }
