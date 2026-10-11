@@ -98,7 +98,7 @@ export const isInteractiveTarget = (target: EventTarget | null | undefined): boo
 export const resizeDirectionFromPointerEvent = (event: PointerEvent): ResizeDirection | null =>
   edgeDirectionAt(event.clientX, event.clientY, window.innerWidth, window.innerHeight)
 
-/** True on the Linux Tauri desktop build, where the window is frameless and native edge-resize is dead (see design doc). */
+/** True on the Linux Tauri desktop build, where the window is frameless and native edge-resize is dead. */
 export const canLinuxEdgeResize = (): boolean => isTauri() && getPlatform() === 'linux'
 
 /**
