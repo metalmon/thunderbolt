@@ -22,6 +22,11 @@
 #   - fork/anon-agent-manage after voice — a self-contained, removable seam that
 #     relaxes custom-agent management for anonymous (local-only) accounts; lifts
 #     out cleanly once stable/synced accounts land;
+#   - fork/linux-window-resize after fork/hooks — thin-seam branch: Linux edge/corner
+#     resize for frameless windows (additive src/fork/window-resize/** + one import
+#     and call in src/app.tsx + core:window:allow-start-resize-dragging in
+#     capabilities/default.json). Applies after fork/hooks, which also edits
+#     app.tsx and capabilities; rerere replays the seam merge.
 #   - fork/sandbox-host before fork/dev — adds frame-src to tauri.conf CSP (fork/dev
 #     also edits that block: worker-src); rerere replays the two-line CSP merge.
 #   - fork/spinner near the end (after the content-editing branches) — it swaps
@@ -51,6 +56,7 @@ $ForkBranches = @(
     "fork/rebrand",
     "fork/lingui-ru",
     "fork/hooks",
+    "fork/linux-window-resize",
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
@@ -71,6 +77,7 @@ $ForkMainRangeBranches = @(
     "fork/rebrand",
     "fork/lingui-ru",
     "fork/hooks",
+    "fork/linux-window-resize",
     "fork/voice-gemini-live",
     "fork/anon-agent-manage",
     "fork/sandbox-host",
