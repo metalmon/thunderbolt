@@ -83,13 +83,20 @@ describe('isInteractiveTarget', () => {
 })
 
 describe('startLinuxEdgeResize', () => {
+  let originalInnerWidth: number
+  let originalInnerHeight: number
+
   beforeEach(() => {
+    originalInnerWidth = window.innerWidth
+    originalInnerHeight = window.innerHeight
     document.addEventListener('pointerdown', startLinuxEdgeResize)
   })
 
   afterEach(() => {
     document.removeEventListener('pointerdown', startLinuxEdgeResize)
     mock.restore()
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
   })
 
   it('starts a native resize drag for an edge press with the exact direction', () => {
