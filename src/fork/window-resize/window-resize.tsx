@@ -8,7 +8,7 @@ import { canLinuxEdgeResize, startLinuxEdgeResize } from './edge-resize'
 /**
  * Fork: restore frameless window edge/corner resize on Linux, where the
  * WebKit webview swallows the native edge button-press (tauri #8519) and the
- * tao hit-test never starts a resize (see the design doc). Listens once on
+ * tao hit-test never starts a resize. Listens once on
  * the document (capture) and forwards edge presses to the tauri native
  * resize path. No-op on every other platform.
  */
