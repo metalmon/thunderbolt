@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it } from 'bun:test'
-import { edgeDirectionAt } from './edge-resize'
+import { edgeDirectionAt, isInteractiveTarget, resizeDirectionFromPointerEvent } from './edge-resize'
 
 const width = 1400
 const height = 900
@@ -38,5 +38,39 @@ describe('edgeDirectionAt', () => {
   it('honours a custom zone', () => {
     expect(edgeDirectionAt(10, 400, width, height, 12)).toBe('West')
     expect(edgeDirectionAt(12, 400, width, height, 12)).toBeNull()
+  })
+})
+
+describe('resizeDirectionFromPointerEvent', () => {
+  it('maps clientX/clientY to a direction via the viewport size', () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
+    const edge = new PointerEvent('pointerdown', { clientX: width - 3, clientY: 300 })
+    const interior = new PointerEvent('pointerdown', { clientX: 400, clientY: 300 })
+    expect(resizeDirectionFromPointerEvent(edge)).toBe('East')
+    expect(resizeDirectionFromPointerEvent(interior)).toBeNull()
+  })
+})
+
+describe('isInteractiveTarget', () => {
+  it('skips nothing for non-element targets', () => {
+    expect(isInteractiveTarget(null)).toBe(false)
+  })
+
+  it('detects interactive controls and their descendants', () => {
+    const button = document.createElement('button')
+    const span = document.createElement('span')
+    button.appendChild(span)
+    document.body.appendChild(button)
+    expect(isInteractiveTarget(button)).toBe(true)
+    expect(isInteractiveTarget(span)).toBe(true)
+    document.body.removeChild(button)
+  })
+
+  it('allows plain containers', () => {
+    const div = document.createElement('div')
+    document.body.appendChild(div)
+    expect(isInteractiveTarget(div)).toBe(false)
+    document.body.removeChild(div)
   })
 })
