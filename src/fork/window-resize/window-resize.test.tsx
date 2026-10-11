@@ -2,16 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { cleanup, renderHook } from '@testing-library/react'
 import * as tauriWindow from '@tauri-apps/api/window'
 import * as platformModule from '@/lib/platform'
 import { useLinuxEdgeResize } from './window-resize'
 
 describe('useLinuxEdgeResize', () => {
+  let originalInnerWidth: number
+  let originalInnerHeight: number
+
+  beforeEach(() => {
+    originalInnerWidth = window.innerWidth
+    originalInnerHeight = window.innerHeight
+  })
+
   afterEach(() => {
     cleanup()
     mock.restore()
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
   })
 
   const makeEdgeEvent = () =>
