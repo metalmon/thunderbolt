@@ -62,22 +62,25 @@ changes. Order matters (later branches build on earlier ones):
 4. `fork/hooks` — thin import-plus-call seams in upstream files: ZeroClaw wiring
    and the acp-stop-busy fix (MPL, invasive). All ZeroClaw behaviour lives in
    `fork/additive`'s files.
-5. `fork/voice-gemini-live` — adds only the Gemini Live engine into upstream's
+5. `fork/linux-window-resize` — Linux edge/corner resize for frameless windows:
+   additive `src/fork/window-resize/**` + one import/call in `src/app.tsx` +
+   `core:window:allow-start-resize-dragging` in capabilities.
+6. `fork/voice-gemini-live` — adds only the Gemini Live engine into upstream's
    voice router + backend relay route + `voice.tsx` seams.
-6. `fork/anon-agent-manage` — relaxes custom-agent management for anonymous
+7. `fork/anon-agent-manage` — relaxes custom-agent management for anonymous
    (local-only) accounts; self-contained, removable.
-7. `fork/sandbox-host` — `frame-src` in the Tauri CSP; own-CSP origin for
+8. `fork/sandbox-host` — `frame-src` in the Tauri CSP; own-CSP origin for
    sandboxed artifact HTML.
-8. `fork/spinner` — swaps lucide `Loader2` for the Volt `<Spinner>` (build alias).
-9. `fork/perf` — GPU-smooth panel/overlay animation tweaks.
-10. `fork/chat-scroll` — hold the last-message viewport reserve after settle.
-11. `fork/hide-integrations` — TEMPORARY, removable: hides Google/Microsoft
+9. `fork/spinner` — swaps lucide `Loader2` for the Volt `<Spinner>` (build alias).
+10. `fork/perf` — GPU-smooth panel/overlay animation tweaks.
+11. `fork/chat-scroll` — hold the last-message viewport reserve after settle.
+12. `fork/hide-integrations` — TEMPORARY, removable: hides Google/Microsoft
     integrations until the backend has OAuth creds.
-12. `fork/docx-viewer` — paginated docx-preview renderer instead of upstream's
+13. `fork/docx-viewer` — paginated docx-preview renderer instead of upstream's
     mammoth-in-iframe.
-13. `fork/perm-title-interim` — localizes the "Approve {tool}?" title; self-
+14. `fork/perm-title-interim` — localizes the "Approve {tool}?" title; self-
     disables once ZeroClaw localizes.
-14. `fork/dev` — local dev/build fixes + fork tooling and docs; applied last so
+15. `fork/dev` — local dev/build fixes + fork tooling and docs; applied last so
     its overrides win.
 
 Per-branch apply-order rationale lives as comments in
