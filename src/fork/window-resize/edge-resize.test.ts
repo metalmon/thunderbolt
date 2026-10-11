@@ -49,6 +49,19 @@ describe('edgeDirectionAt', () => {
 })
 
 describe('resizeDirectionFromPointerEvent', () => {
+  let originalInnerWidth: number
+  let originalInnerHeight: number
+
+  beforeEach(() => {
+    originalInnerWidth = window.innerWidth
+    originalInnerHeight = window.innerHeight
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
+  })
+
   it('maps clientX/clientY to a direction via the viewport size', () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
