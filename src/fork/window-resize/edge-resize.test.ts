@@ -2,8 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { describe, expect, it } from 'bun:test'
-import { edgeDirectionAt, isInteractiveTarget, resizeDirectionFromPointerEvent } from './edge-resize'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import * as tauriWindow from '@tauri-apps/api/window'
+import * as platformModule from '@/lib/platform'
+import {
+  edgeDirectionAt,
+  isInteractiveTarget,
+  resizeDirectionFromPointerEvent,
+  startLinuxEdgeResize,
+} from './edge-resize'
 
 const width = 1400
 const height = 900
@@ -72,5 +79,65 @@ describe('isInteractiveTarget', () => {
     document.body.appendChild(div)
     expect(isInteractiveTarget(div)).toBe(false)
     document.body.removeChild(div)
+  })
+})
+
+describe('startLinuxEdgeResize', () => {
+  beforeEach(() => {
+    document.addEventListener('pointerdown', startLinuxEdgeResize)
+  })
+
+  afterEach(() => {
+    document.removeEventListener('pointerdown', startLinuxEdgeResize)
+    mock.restore()
+  })
+
+  it('starts a native resize drag for an edge press with the exact direction', () => {
+    spyOn(platformModule, 'isTauri').mockImplementation(() => true)
+    spyOn(platformModule, 'getPlatform').mockImplementation(() => 'linux' as never)
+    const startResizeDragging = mock()
+    spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1400 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 })
+    const div = document.createElement('div')
+    document.body.appendChild(div)
+    const event = new PointerEvent('pointerdown', { clientX: 1397, clientY: 300, bubbles: true, cancelable: true })
+    div.dispatchEvent(event)
+
+    expect(startResizeDragging).toHaveBeenCalledTimes(1)
+    expect(startResizeDragging).toHaveBeenCalledWith('East')
+    expect(event.defaultPrevented).toBe(true)
+    document.body.removeChild(div)
+  })
+
+  it('does nothing on non-Linux platforms', () => {
+    spyOn(platformModule, 'isTauri').mockImplementation(() => true)
+    spyOn(platformModule, 'getPlatform').mockImplementation(() => 'windows' as never)
+    const startResizeDragging = mock()
+    spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
+
+    const event = new PointerEvent('pointerdown', { clientX: 1397, clientY: 300, cancelable: true })
+    document.dispatchEvent(event)
+
+    expect(startResizeDragging).not.toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(false)
+  })
+
+  it('does nothing when the press lands on an interactive control', () => {
+    spyOn(platformModule, 'isTauri').mockImplementation(() => true)
+    spyOn(platformModule, 'getPlatform').mockImplementation(() => 'linux' as never)
+    const startResizeDragging = mock()
+    spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1400 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 })
+    const button = document.createElement('button')
+    document.body.appendChild(button)
+    const event = new PointerEvent('pointerdown', { clientX: 1397, clientY: 300, bubbles: true, cancelable: true })
+    button.dispatchEvent(event)
+
+    expect(startResizeDragging).not.toHaveBeenCalled()
+    document.body.removeChild(button)
   })
 })
