@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getCurrentWindow } from '@tauri-apps/api/window'
+import { getPlatform, isTauri } from '@/lib/platform'
+
 /** Hit zone (CSS px) inside each window edge that starts a native resize drag. */
 export const edgeResizeZone = 6
 
@@ -94,3 +97,23 @@ export const isInteractiveTarget = (target: EventTarget | null | undefined): boo
 /** Direction for a DOM pointer event, using the current viewport as the window bounds. */
 export const resizeDirectionFromPointerEvent = (event: PointerEvent): ResizeDirection | null =>
   edgeDirectionAt(event.clientX, event.clientY, window.innerWidth, window.innerHeight)
+
+/** True on the Linux Tauri desktop build, where the window is frameless and native edge-resize is dead (see design doc). */
+export const canLinuxEdgeResize = (): boolean => isTauri() && getPlatform() === 'linux'
+
+/**
+ * Document-level pointerdown handler: when the press lands within the edge
+ * band (and not on an interactive control), hand the drag to the tauri
+ * native resize path (`startResizeDragging`).
+ */
+export const startLinuxEdgeResize = (event: PointerEvent): void => {
+  if (!canLinuxEdgeResize()) {
+    return
+  }
+  const direction = resizeDirectionFromPointerEvent(event)
+  if (!direction || isInteractiveTarget(event.target)) {
+    return
+  }
+  event.preventDefault()
+  void getCurrentWindow().startResizeDragging(direction)
+}
