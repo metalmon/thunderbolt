@@ -20,30 +20,60 @@ implement the logic in `src/fork/**`.
 
 ## Thin-hook rule
 
-An invasive edit is one import + one `forkX(...)` call, nothing more. All
-behavior lives in `src/fork/**`. Example: `src/acp/acp-adapter.ts` calls
-`forkAcpTurnStart(sessionId)`; the ref-map / citation logic lives in
-`src/fork/zeroclaw/*`. Exception: i18n `t()` wrapping is irreducibly invasive
-— it is contained on its own branch, not eliminated.
+An invasive edit is one import + one call, nothing more. All behavior lives in
+`src/fork/**`. Example: `src/acp/acp-adapter.ts` imports `buildCanvasWireMeta` /
+`getCanvasAction` from `@/fork/zeroclaw/canvas-action-message`; the canvas logic
+lives in `src/fork/zeroclaw/*`. Exception: i18n `t()` wrapping is irreducibly
+invasive — it is contained on its own branch, not eliminated.
 
 ## Branch structure
 
-Patches live on branches based on `main` (assembled onto `master` by
-`dev-local/rebuild-master.ps1`):
+Remotes: `origin` = `thunderbird/thunderbolt` (upstream, MPL-2.0); `fork` =
+`metalmon/thunderbolt` (ours). Three kinds of local branch:
 
-- `fork/additive` — ZeroClaw ACP additive IP (new files in `src/fork/zeroclaw/**`,
-  `zeroclaw-integration/**`; fork IP, currently MPL-headered). New files only.
-- `fork/i18n` — i18next infra + `t()` wrapping + render-time default translation
-  (MPL, invasive; the primary rebase-forward target when upstream advances).
-- `fork/i18n-locales` — RU/EN locale catalogs (additive, fork IP). Stacks on
-  `fork/i18n` (its content fills the `locales/**` skeleton i18n creates).
-- `fork/hooks` — thin import-plus-call seams in upstream files: ZeroClaw wiring
-  + the acp-stop-busy fix (MPL, invasive). All ZeroClaw behaviour lives in
-  `fork/additive`'s files.
-- `fork/dev` — local dev/build fixes + fork tooling & docs (not upstreamed; applied last).
+- `main` — pristine mirror of `origin/main` (fast-forward only; **never commit
+  product work here**).
+- `fork/*` — single-concern patch branches, each based on `main`.
+- `master` — the assembled product (`main` + cherry-pick of every `fork/*`).
+  Build, test and deploy this; push it to `fork master`.
 
-Apply order (rebuild): `fork/additive → fork/i18n → fork/i18n-locales → fork/hooks → fork/dev`.
-The canonical list lives in `dev-local/fork-branches.ps1`.
+`dev-local/rebuild-master.ps1` assembles `master` from `dev-local/fork-branches.ps1`.
+**`fork-branches.ps1` is the single source of truth for the branch set and its
+apply order** — edit that list (not the script) when the set changes. Apply order
+matters; current order:
+
+1. `fork/additive` — new fork-owned files (`src/fork/zeroclaw/**`,
+   `zeroclaw-integration/**`); never conflicts.
+2. `fork/rebrand` — Thunderbolt → Volt/Вольт in visible strings, bundle
+   identity, updater channel.
+3. `fork/lingui-ru` — the fork's i18n. As of 0.1.129 it rides upstream's own
+   Lingui: adds the RU catalog, edits the `src/i18n` registry, and restricts the
+   OFFERED/negotiable set to `en`/`ru` (other catalogs stay shipped for type
+   compatibility but are never activated). The retired i18next branches
+   `fork/i18n` + `fork/i18n-locales` (frozen at 0.1.124) are archaeology only.
+4. `fork/hooks` — thin import-plus-call seams in upstream files: ZeroClaw
+   wiring + the acp-stop-busy fix (MPL, invasive). All ZeroClaw behaviour lives
+   in `fork/additive`'s files.
+5. `fork/voice-gemini-live` — adds only the Gemini Live engine into upstream's
+   voice router + backend relay route + `voice.tsx` seams.
+6. `fork/anon-agent-manage` — relaxes custom-agent management for anonymous
+   (local-only) accounts; self-contained, removable.
+7. `fork/sandbox-host` — `frame-src` in the Tauri CSP; own-CSP origin for
+   sandboxed artifact HTML.
+8. `fork/spinner` — swaps lucide `Loader2` for the Volt `<Spinner>` (build
+   alias).
+9. `fork/perf` — GPU-smooth panel/overlay animation tweaks.
+10. `fork/chat-scroll` — hold the last-message viewport reserve after settle.
+11. `fork/hide-integrations` — TEMPORARY, removable: hides Google/Microsoft
+    integrations until the backend has OAuth creds.
+12. `fork/docx-viewer` — paginated docx-preview renderer instead of upstream's
+    mammoth-in-iframe.
+13. `fork/perm-title-interim` — localizes the "Approve {tool}?" title; self-
+    disables once ZeroClaw localizes.
+14. `fork/dev` — local dev/build fixes + fork tooling & docs; applied last so
+    its overrides win.
+
+Per-branch apply-order rationale lives as comments in `dev-local/fork-branches.ps1`.
 
 ## Upstream sync workflow
 
