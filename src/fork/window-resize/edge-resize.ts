@@ -65,3 +65,32 @@ export const edgeDirectionAt = (
   }
   return null
 }
+
+const skippedSelector = [
+  'button',
+  '[role="button"]',
+  'a',
+  'input',
+  'textarea',
+  'select',
+  '[role="menuitem"]',
+  '[role="switch"]',
+  '[role="checkbox"]',
+  '[role="radio"]',
+].join(', ')
+
+/**
+ * True when the pressed target is (or sits inside) an interactive control,
+ * so a resize gesture never hijacks a click on a real control that happens
+ * to sit flush against the window edge (e.g. the custom title-bar buttons).
+ */
+export const isInteractiveTarget = (target: EventTarget | null | undefined): boolean => {
+  if (!(target instanceof Element)) {
+    return false
+  }
+  return target.closest(skippedSelector) !== null
+}
+
+/** Direction for a DOM pointer event, using the current viewport as the window bounds. */
+export const resizeDirectionFromPointerEvent = (event: PointerEvent): ResizeDirection | null =>
+  edgeDirectionAt(event.clientX, event.clientY, window.innerWidth, window.innerHeight)
