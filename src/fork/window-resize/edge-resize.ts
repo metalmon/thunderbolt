@@ -5,8 +5,34 @@
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { getPlatform, isTauri } from '@/lib/platform'
 
-/** Hit zone (CSS px) inside each window edge that starts a native resize drag. */
+/**
+ * Hit zone (CSS px) inside each window edge that starts a native resize drag.
+ *
+ * Not an arbitrary number: it mirrors the resize border a GTK window manager draws
+ * for a decorated window (fly-wm, Mutter and Xfwm all sit in the 5-8 px range across
+ * their default themes), so a frameless Volt window feels the same as every other
+ * window on the desktop. There is no API that reports the WM's own value to a
+ * webview, so matching the convention is the closest honest anchor available.
+ */
 export const edgeResizeZone = 6
+
+/**
+ * The same band for a coarse pointer. A finger cannot be placed to 6 px, and the
+ * platform guidance everyone follows puts the smallest comfortable touch target far
+ * above that — this is the narrowest band that is still catchable by touch without
+ * swallowing presses meant for the content underneath.
+ */
+export const edgeResizeZoneCoarse = 12
+
+/**
+ * Pick the band from how precisely the user can actually point, which is the property
+ * the number is really about. Falls back to the fine value where `matchMedia` is
+ * unavailable, since every desktop this ships to has a mouse.
+ */
+export const resolveEdgeResizeZone = (): number =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches
+    ? edgeResizeZoneCoarse
+    : edgeResizeZone
 
 /**
  * Window resize direction, mirroring Tauri's internal `ResizeDirection`.
@@ -96,7 +122,34 @@ export const isInteractiveTarget = (target: EventTarget | null | undefined): boo
 
 /** Direction for a DOM pointer event, using the current viewport as the window bounds. */
 export const resizeDirectionFromPointerEvent = (event: PointerEvent): ResizeDirection | null =>
-  edgeDirectionAt(event.clientX, event.clientY, window.innerWidth, window.innerHeight)
+  edgeDirectionAt(event.clientX, event.clientY, window.innerWidth, window.innerHeight, resolveEdgeResizeZone())
+
+/**
+ * CSS cursor for each direction. Without this the edges are invisible affordances —
+ * the window resizes, but only for someone who already knows it does.
+ */
+const cursorByDirection: Record<ResizeDirection, string> = {
+  East: 'ew-resize',
+  West: 'ew-resize',
+  North: 'ns-resize',
+  South: 'ns-resize',
+  NorthWest: 'nwse-resize',
+  SouthEast: 'nwse-resize',
+  NorthEast: 'nesw-resize',
+  SouthWest: 'nesw-resize',
+}
+
+/** The resize cursor for a position, or null when it is not on an edge. */
+export const edgeCursorAt = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  zone = resolveEdgeResizeZone(),
+): string | null => {
+  const direction = edgeDirectionAt(x, y, width, height, zone)
+  return direction ? cursorByDirection[direction] : null
+}
 
 /** True on the Linux Tauri desktop build, where the window is frameless and native edge-resize is dead. */
 export const canLinuxEdgeResize = (): boolean => isTauri() && getPlatform() === 'linux'
