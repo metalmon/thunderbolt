@@ -26,3 +26,53 @@ export const forkBootLog = (line: string): void => {
     // Swallowed on purpose: see above.
   })
 }
+
+/**
+ * Fork: forward render-time failures to the same sink.
+ *
+ * The step log proved the boot sequence completes, which means a blank window is a
+ * *rendering* failure — and those surface as an uncaught error or a rejected promise
+ * that nobody can read on this platform. Installed as early as the module graph
+ * allows, so it catches a throw during the first render.
+ *
+ * Also reports what the root element actually contains a few seconds in: "root is
+ * empty" versus "root has content but paints black" are different bugs, and telling
+ * them apart from the outside is otherwise impossible.
+ */
+export const installBootErrorSink = (): void => {
+  if (!isTauri()) {
+    return
+  }
+  window.addEventListener('error', (event) => {
+    forkBootLog(`window.onerror: ${event.message} @ ${event.filename}:${event.lineno}`)
+  })
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason as { stack?: string; message?: string } | undefined
+    forkBootLog(`unhandledrejection: ${reason?.stack ?? reason?.message ?? String(event.reason)}`)
+  })
+  for (const delayMs of [3000, 10000, 30000]) {
+    setTimeout(() => {
+      const root = document.getElementById('root')
+      forkBootLog(
+        `render@${delayMs}ms: root=${root ? `${root.childElementCount} children, ${root.innerHTML.length} chars` : 'MISSING'}` +
+          ` visible=${document.visibilityState} bodyBg=${getComputedStyle(document.body).backgroundColor}`,
+      )
+    }, delayMs)
+  }
+}
+
+/**
+ * Fork: like {@link forkBootLog}, but only for a state that has actually changed.
+ *
+ * Render paths can run many times a second; a log line there would drown the very
+ * sequence it is meant to clarify. Keyed on the message, so a flapping state is still
+ * reported each time it flips.
+ */
+let lastLogged = ''
+export const forkBootLogOnce = (line: string): void => {
+  if (line === lastLogged) {
+    return
+  }
+  lastLogged = line
+  forkBootLog(line)
+}
