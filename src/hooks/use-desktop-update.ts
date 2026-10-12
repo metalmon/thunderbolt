@@ -6,6 +6,7 @@ import { useEffect, useCallback } from 'react'
 import { create } from 'zustand'
 import type { Update } from '@tauri-apps/plugin-updater'
 import { isDesktop } from '@/lib/platform'
+import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
 import { getPowerSyncInstance } from '@/db/powersync/sync-state'
 import { setPostUpdateFlag, clearPostUpdateFlag } from '@/lib/post-update-redirect'
 
@@ -126,7 +127,7 @@ export const useDesktopUpdate = (): DesktopUpdateState => {
   const downloadProgress = useUpdateStore((s) => s.downloadProgress)
 
   const checkForUpdates = useCallback(async () => {
-    if (!isDesktop()) {
+    if (!isDesktop() || !isUpdaterEnabled()) {
       return
     }
 
@@ -236,7 +237,7 @@ export const useDesktopUpdate = (): DesktopUpdateState => {
   // is set inside the timeout so an early unmount re-arms the check on the
   // next mount instead of silently swallowing it for the session.
   useEffect(() => {
-    if (!isDesktop() || didAutoCheck) {
+    if (!isDesktop() || !isUpdaterEnabled() || didAutoCheck) {
       return
     }
 
