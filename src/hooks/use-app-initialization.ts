@@ -495,6 +495,7 @@ const executeInitializationSteps = async (httpClient?: HttpClient): Promise<Hand
     sync_enabled: getLocalSetting('syncEnabled'),
     platform: getPlatform(),
   }
+  forkBootLog('init: returning success')
 
   return {
     success: true,
