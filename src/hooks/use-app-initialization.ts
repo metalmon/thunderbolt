@@ -491,6 +491,7 @@ const executeInitializationSteps = async (httpClient?: HttpClient): Promise<Hand
     platform: getPlatform(),
   }
   performance.mark('thunderbolt:core-ready')
+  forkBootLog('init: returning success')
 
   return {
     success: true,
