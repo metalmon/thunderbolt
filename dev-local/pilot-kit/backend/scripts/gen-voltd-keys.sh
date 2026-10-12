@@ -42,5 +42,16 @@ docker run --rm --user "$(id -u):$(id -g)" \
 
 chmod 600 "$out/signing.key.pem"
 chmod 644 "$out/signing.pub.pem"
+
+# Run under sudo, the keys end up owned by root and the backend container (which
+# runs as uid 1000) cannot read the private half. There is no error anywhere when
+# that happens: readVoltdTokenConfig() returns null, the voltd plugin registers
+# neither its routes nor the agent provider, and GET /agents answers 200 with an
+# empty list — which the client treats as authoritative and deletes its agents.
+# Hand the keys back to the invoking user so that cannot happen.
+if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_UID:-}" ]; then
+  chown "$SUDO_UID:${SUDO_GID:-$SUDO_UID}" "$out/signing.key.pem" "$out/signing.pub.pem"
+  echo "Keys handed back to uid $SUDO_UID (they were created as root)."
+fi
 echo "Wrote $out/signing.key.pem (0600) and $out/signing.pub.pem."
 echo "Keep the private key off the flash drive after the pilot, like certs/out/ca.key.pem."
