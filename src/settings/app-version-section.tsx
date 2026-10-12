@@ -16,6 +16,7 @@ import {
 } from '@/hooks/use-desktop-update'
 import { downloadLinks } from '@/lib/download-links'
 import { getPlatform, isDesktop, isMobile, isTauri } from '@/lib/platform'
+import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
 
 // A whole sentence per phase and per shape, rather than a translated prefix glued
 // to the raw error with a hardcoded `: ` and `.`. The separator and the full stop
