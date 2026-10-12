@@ -121,6 +121,7 @@ jobs:
           RUSTC_WRAPPER: '' # src-tauri/.cargo/config.toml points at sccache, absent here
           NO_STRIP: true
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
@@ -243,6 +244,7 @@ jobs:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
         run: bun tauri android build --apk --features native_fetch --target aarch64
 
       - name: Build debug APK (unsigned fallback)
@@ -251,6 +253,7 @@ jobs:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
         run: bun tauri android build --apk --debug --features native_fetch --target aarch64
 
       - name: Collect APK
