@@ -11,6 +11,7 @@ import { useDesktopUpdate, type DesktopUpdateState, type UpdateStatus } from '@/
 import { Button } from '@/components/ui/button'
 import { NotificationCard } from '@/components/ui/notification-card'
 import { isDesktop } from '@/lib/platform'
+import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
 
 const statusConfig = {
   initial: { icon: CheckCircle, message: null, showActions: false },
@@ -94,5 +95,5 @@ export const UpdateNotificationContent = ({ desktop, updateState }: UpdateNotifi
 export const UpdateNotification = () => {
   const updateState = useDesktopUpdate()
 
-  return <UpdateNotificationContent desktop={isDesktop()} updateState={updateState} />
+  return <UpdateNotificationContent desktop={isDesktop() && isUpdaterEnabled()} updateState={updateState} />
 }

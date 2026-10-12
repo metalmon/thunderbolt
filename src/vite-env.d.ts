@@ -16,6 +16,7 @@ interface ImportMetaEnv {
   readonly VITE_ORG_ESCROW_PUBLIC_KEY?: string
   readonly VITE_GOOGLE_BASE_URL?: string
   readonly VITE_MICROSOFT_BASE_URL?: string
+  readonly VITE_UPDATER_ENABLED?: 'true' | 'false'
 }
 
 // .po catalogs are compiled to JS message objects by @lingui/vite-plugin.

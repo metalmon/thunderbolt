@@ -11,6 +11,7 @@ import { SectionCard } from '@/components/ui/section-card'
 import { useDesktopUpdate, type UpdateErrorPhase, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { downloadLinks } from '@/lib/download-links'
 import { getPlatform, isDesktop, isMobile, isTauri } from '@/lib/platform'
+import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
 
 // A whole sentence per phase and per shape, rather than a translated prefix glued
 // to the raw error with a hardcoded `: ` and `.`. The separator and the full stop
@@ -62,7 +63,7 @@ export const AppVersionSection = () => {
   const appVersion = import.meta.env.VITE_APP_VERSION ?? 'unknown'
   const desktop = isDesktop()
   const mobile = isMobile()
-  const showCheckButton = isTauri() && (desktop || mobile)
+  const showCheckButton = isTauri() && (desktop || mobile) && isUpdaterEnabled()
 
   const { status, update, error, errorPhase, downloadProgress, checkForUpdates } = useDesktopUpdate()
   const checkDisabled = desktop && (status === 'checking' || status === 'downloading' || status === 'ready')
