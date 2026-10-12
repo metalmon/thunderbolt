@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import { create, useStore, type StoreApi } from 'zustand'
 import type { Update } from '@tauri-apps/plugin-updater'
 import { isDesktop } from '@/lib/platform'
+import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
 import { getPowerSyncInstance } from '@/db/powersync/sync-state'
 import { setPostUpdateFlag, clearPostUpdateFlag } from '@/lib/post-update-redirect'
 
@@ -174,7 +175,11 @@ export const desktopUpdatesEnabled = ({
   desktop = isDesktop(),
   development = import.meta.env.DEV,
   nativeDebug = import.meta.env.TAURI_ENV_DEBUG,
-} = {}): boolean => desktop && !development && !nativeDebug
+  // Fork: a perimeter build ships without an update endpoint, so the build flag
+  // switches the whole updater off here — upstream already routes every update
+  // surface through this one value.
+  updaterEnabled = isUpdaterEnabled(),
+} = {}): boolean => desktop && !development && !nativeDebug && updaterEnabled
 
 /** Own the update lifecycle across every UI surface, admitting native work synchronously. */
 export const createDesktopUpdateStore = (services: UpdateServices) => {
