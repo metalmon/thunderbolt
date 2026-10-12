@@ -488,6 +488,7 @@ const executeInitializationSteps = async (httpClient?: HttpClient): Promise<Hand
     platform: getPlatform(),
   }
   trackEvent('app_init_timing', initTimingPayload)
+  forkBootLog('init: returning success')
 
   return {
     success: true,
