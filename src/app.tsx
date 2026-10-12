@@ -72,6 +72,7 @@ import { preloadInBackground } from '@/lib/after-paint'
 import { takeDeviceApprovalReturn } from '@/lib/device-approval-return'
 import { LazyMotion } from 'framer-motion'
 import { ProjectRedirect } from '@/projects/project-redirect'
+import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -357,6 +358,9 @@ export const App = () => {
     const powerSyncInstance = getPowerSyncInstance()
 
     if (!initData || !powerSyncInstance) {
+      // Fork: a spinner that never goes away is the whole bug being chased, and the
+      // two reasons for it need telling apart from outside the process.
+      forkBootLogOnce(`loading: initData=${!!initData} powerSync=${!!powerSyncInstance}`)
       return <Loading />
     }
 
