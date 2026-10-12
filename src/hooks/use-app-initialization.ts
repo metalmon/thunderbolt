@@ -37,7 +37,8 @@ import { defaultSkillsVersion } from '@/defaults/skills'
 import { defaultTasksVersion } from '@/defaults/tasks'
 import { TrayManager } from '@/lib/tray'
 import type { InitData } from '@/types'
-import type { HandleResult } from '@/types/handle-errors'
+import { forkBootLog } from '@/fork/boot-log/boot-log'
+import type { HandleError, HandleResult } from '@/types/handle-errors'
 import type { PostHog } from 'posthog-js'
 import { sql } from 'drizzle-orm'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -180,12 +181,14 @@ export const runEncryptionInit = async (client: HttpClient): Promise<void> => {
 const time = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
   const initRun = getInitRun()
   const startedAt = performance.now()
+  forkBootLog(`${label}: start`)
   try {
     return await fn()
   } finally {
     const durationMs = performance.now() - startedAt
     recordInitStep(label, durationMs, initRun)
     console.info(`[init] ${label}: ${Math.round(durationMs)}ms`)
+    forkBootLog(`${label}: ${Math.round(durationMs)}ms`)
   }
 }
 
@@ -222,6 +225,7 @@ const executeInitializationSteps = async (httpClient?: HttpClient): Promise<Hand
   beginInitRun()
   const totalStartedAt = performance.now()
   console.info('[init] start')
+  forkBootLog('start')
 
   // Step 0: Fire-and-forget `/config` fetch. On success `fetchConfig` hydrates
   // `useConfigStore` (persisted to localStorage), so subsequent boots read the
