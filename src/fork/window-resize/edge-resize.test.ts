@@ -5,12 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import * as tauriWindow from '@tauri-apps/api/window'
 import * as platformModule from '@/lib/platform'
-import {
-  edgeDirectionAt,
-  isInteractiveTarget,
-  resizeDirectionFromPointerEvent,
-  startLinuxEdgeResize,
-} from './edge-resize'
+import { edgeCursorAt, edgeDirectionAt, edgeResizeZone, edgeResizeZoneCoarse, isInteractiveTarget, resizeDirectionFromPointerEvent, resolveEdgeResizeZone, startLinuxEdgeResize } from './edge-resize'
 
 const width = 1400
 const height = 900
@@ -159,5 +154,48 @@ describe('startLinuxEdgeResize', () => {
 
     expect(startResizeDragging).not.toHaveBeenCalled()
     document.body.removeChild(button)
+  })
+})
+
+describe('edgeCursorAt', () => {
+  const w = 800
+  const h = 600
+
+  it('gives each edge the cursor the platform uses for it', () => {
+    expect(edgeCursorAt(2, h / 2, w, h, 6)).toBe('ew-resize')
+    expect(edgeCursorAt(w - 2, h / 2, w, h, 6)).toBe('ew-resize')
+    expect(edgeCursorAt(w / 2, 2, w, h, 6)).toBe('ns-resize')
+    expect(edgeCursorAt(w / 2, h - 2, w, h, 6)).toBe('ns-resize')
+  })
+
+  it('gives opposite corners the same diagonal, as a window frame does', () => {
+    expect(edgeCursorAt(2, 2, w, h, 6)).toBe('nwse-resize')
+    expect(edgeCursorAt(w - 2, h - 2, w, h, 6)).toBe('nwse-resize')
+    expect(edgeCursorAt(w - 2, 2, w, h, 6)).toBe('nesw-resize')
+    expect(edgeCursorAt(2, h - 2, w, h, 6)).toBe('nesw-resize')
+  })
+
+  it('is null in the interior, so the app keeps its own cursor', () => {
+    expect(edgeCursorAt(w / 2, h / 2, w, h, 6)).toBeNull()
+    expect(edgeCursorAt(6, 6, w, h, 6)).toBeNull()
+  })
+})
+
+describe('resolveEdgeResizeZone', () => {
+  const originalMatchMedia = window.matchMedia
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia
+  })
+
+  it('widens the band for a coarse pointer — a finger cannot hit 6px', () => {
+    window.matchMedia = ((query: string) => ({ matches: query === '(pointer: coarse)' })) as typeof window.matchMedia
+    expect(resolveEdgeResizeZone()).toBe(edgeResizeZoneCoarse)
+    expect(edgeResizeZoneCoarse).toBeGreaterThan(edgeResizeZone)
+  })
+
+  it('keeps the fine band for a mouse', () => {
+    window.matchMedia = (() => ({ matches: false })) as unknown as typeof window.matchMedia
+    expect(resolveEdgeResizeZone()).toBe(edgeResizeZone)
   })
 })
