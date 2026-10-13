@@ -24,11 +24,16 @@ type UseBootstrapSystemAgentsOptions = {
  * the table, or the response names none), with the refreshed agent list and the
  * user's synced choices, so unstarted chats re-resolve against both.
  */
-const syncDiscoveredDefault = async (db: AnyDrizzleDatabase, defaultAgent: Agent | null, signal: AbortSignal) => {
+const syncDiscoveredDefault = async (
+  db: AnyDrizzleDatabase,
+  defaultAgent: Agent | null,
+  signal: AbortSignal,
+  ownerId: string | null,
+) => {
   const includeBuiltIn = selectBuiltInAgentEnabled(useConfigStore.getState().config)
   const [settings, agents] = await Promise.all([
     getSettings(db, { selected_agent: String, selected_model: String }),
-    loadAllAgents(db, { includeBuiltIn }),
+    loadAllAgents(db, { includeBuiltIn }, ownerId),
   ])
   if (signal.aborted) {
     return
@@ -96,9 +101,9 @@ export const useBootstrapSystemAgents = ({ refresh = refreshSystemAgents }: UseB
         return
       }
       if (result.refreshed) {
-        await syncDiscoveredDefault(db, result.defaultAgent, signal)
+        await syncDiscoveredDefault(db, result.defaultAgent, signal, userId ?? null)
       } else if (result.reason === 'unauthenticated') {
-        await syncDiscoveredDefault(db, null, signal)
+        await syncDiscoveredDefault(db, null, signal, userId ?? null)
       }
     }
     run().catch((error) => console.error('Failed to apply agent discovery', error))
