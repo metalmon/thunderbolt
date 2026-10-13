@@ -128,7 +128,7 @@ describe('ChatSkillsBar', () => {
     // rather than `?? ''`, which would look for an empty string and pass for the
     // wrong reason if a default ever lost its label.
     const weatherLabel = defaultSkillWeather.label
-    if (!weatherLabel) throw new Error('the Weather default skill has no label')
+    if (!weatherLabel) {throw new Error('the Weather default skill has no label')}
     expect(screen.getByText(weatherLabel)).toBeTruthy()
   })
 
