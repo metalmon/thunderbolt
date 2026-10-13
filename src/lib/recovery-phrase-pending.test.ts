@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import {
   clearRecoveryPhrasePending,
@@ -10,7 +11,10 @@ import {
   markRecoveryPhrasePending,
 } from './recovery-phrase-pending'
 
-const storageKey = 'thunderbolt-local-settings'
+// Fork: the store persists under our own key (see the module's note on why the
+// rename and the one-time move are the same change), so pin the constant rather
+// than upstream's literal.
+const storageKey = localSettingsStorageName
 
 describe('recovery-phrase pending flag', () => {
   beforeEach(() => {
