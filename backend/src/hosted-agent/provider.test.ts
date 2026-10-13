@@ -36,8 +36,8 @@ describe('createHostedAgentProvider', () => {
     ])
   })
 
-  it('falls back to a default name and null description/icon', () => {
-    const [descriptor] = createHostedAgentProvider().list(request, createTestSettings({ agentEnabled: true }))
+  it('falls back to a default name and null description/icon', async () => {
+    const [descriptor] = await createHostedAgentProvider().list(request, createTestSettings({ agentEnabled: true }))
     expect(descriptor.name).toBe('Assistant')
     expect(descriptor.description).toBeNull()
     expect(descriptor.icon).toBeNull()
