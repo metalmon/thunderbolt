@@ -5,7 +5,7 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, it } from 'bun:test'
-import { CANVAS_BRIDGE_METHODS } from './canvas-bridge-protocol'
+import { canvasBridgeMethods } from './canvas-bridge-protocol'
 import {
   buildJsonRpcError,
   buildJsonRpcResult,
@@ -95,7 +95,7 @@ describe('buildToolResultNotification', () => {
   it('builds a ui/notifications/tool-result notification carrying content and structuredContent', () => {
     expect(buildToolResultNotification({ content: 'hi', structuredContent: { a: 1 } })).toEqual({
       jsonrpc: '2.0',
-      method: CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_RESULT,
+      method: canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_RESULT,
       params: { content: 'hi', structuredContent: { a: 1 } },
     })
   })
@@ -105,7 +105,7 @@ describe('buildToolInputNotification', () => {
   it('builds a ui/notifications/tool-input notification carrying arguments', () => {
     expect(buildToolInputNotification({ arguments: { x: 1 } })).toEqual({
       jsonrpc: '2.0',
-      method: CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_INPUT,
+      method: canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_INPUT,
       params: { arguments: { x: 1 } },
     })
   })

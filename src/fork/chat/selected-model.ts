@@ -26,7 +26,7 @@ export const resolveThreadModel = async (
   try {
     return await getDefaultModelForThread(db, threadId, fallbackModelId)
   } catch (error) {
-    if (error instanceof Error && error.message === 'No system model found') return null
+    if (error instanceof Error && error.message === 'No system model found') {return null}
     throw error
   }
 }

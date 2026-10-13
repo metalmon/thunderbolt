@@ -31,8 +31,8 @@ import { createContext, type ReactNode, useCallback, useContext, useEffect, useM
 import { buildCanvasActionMessage } from './canvas-action-message'
 import { composeCanvasCallId } from './canvas-call-id'
 import { buildJsonRpcError, buildJsonRpcResult } from './canvas-bridge-host'
-import { CANVAS_BRIDGE_METHODS, type JsonRpcNotification, type JsonRpcRequest } from './canvas-bridge-protocol'
-import { CANVAS_JSONRPC_ERRORS, classifyCanvasRequest } from './canvas-errors'
+import { canvasBridgeMethods, type JsonRpcNotification, type JsonRpcRequest } from './canvas-bridge-protocol'
+import { canvasJsonRpcErrors, classifyCanvasRequest } from './canvas-errors'
 import { createNonceRateLimiter, findResolvedPending, type PendingCall } from './canvas-pending'
 import { computeLatestByUri } from './canvas-registry'
 
@@ -114,7 +114,7 @@ const rejectPendingWithNonce = (
   const [stale, live] = [pending.filter((p) => p.nonce === nonce), pending.filter((p) => p.nonce !== nonce)]
   for (const call of stale) {
     const resolver = resolversRef.current.get(call.callId)
-    resolver?.post(buildJsonRpcError(resolver.jsonRpcId, CANVAS_JSONRPC_ERRORS.TOOL_FAILED.code, message))
+    resolver?.post(buildJsonRpcError(resolver.jsonRpcId, canvasJsonRpcErrors.TOOL_FAILED.code, message))
     resolversRef.current.delete(call.callId)
   }
   return live
@@ -190,8 +190,8 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
         resolver.post(
           buildJsonRpcError(
             resolver.jsonRpcId,
-            CANVAS_JSONRPC_ERRORS.TOOL_FAILED.code,
-            CANVAS_JSONRPC_ERRORS.TOOL_FAILED.message,
+            canvasJsonRpcErrors.TOOL_FAILED.code,
+            canvasJsonRpcErrors.TOOL_FAILED.message,
           ),
         )
       } else {
@@ -225,7 +225,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
     }
     for (const call of unresolved) {
       const resolver = resolversRef.current.get(call.callId)
-      resolver?.post(buildJsonRpcError(resolver.jsonRpcId, CANVAS_JSONRPC_ERRORS.TOOL_FAILED.code, 'no result'))
+      resolver?.post(buildJsonRpcError(resolver.jsonRpcId, canvasJsonRpcErrors.TOOL_FAILED.code, 'no result'))
       resolversRef.current.delete(call.callId)
     }
     setPending((prev) => prev.filter((p) => resolvedCallIds.has(p.callId)))
@@ -251,7 +251,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       return
     }
 
-    if (msg.method === CANVAS_BRIDGE_METHODS.UI_INITIALIZE) {
+    if (msg.method === canvasBridgeMethods.UI_INITIALIZE) {
       if (!isJsonRpcRequest(msg)) {
         return
       }
@@ -266,7 +266,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       return
     }
 
-    if (msg.method === CANVAS_BRIDGE_METHODS.TOOLS_CALL) {
+    if (msg.method === canvasBridgeMethods.TOOLS_CALL) {
       if (!isJsonRpcRequest(msg)) {
         return
       }
@@ -316,7 +316,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
         })
         if (result.status === 'rejected') {
           frame.post(
-            buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.code, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.message),
+            buildJsonRpcError(msg.id, canvasJsonRpcErrors.RATE_LIMITED.code, canvasJsonRpcErrors.RATE_LIMITED.message),
           )
         }
         return
@@ -329,7 +329,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       return
     }
 
-    if (msg.method === CANVAS_BRIDGE_METHODS.UI_PROMPT) {
+    if (msg.method === canvasBridgeMethods.UI_PROMPT) {
       const prompt = readPromptParam(msg.params)
       if (activeCanvasRef === null || !prompt) {
         return
@@ -365,7 +365,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
         const result = enqueue(message, { queueable: true, stillValid: () => frame.nonce === liveNonceRef.current })
         if (result.status === 'rejected' && isJsonRpcRequest(msg)) {
           frame.post(
-            buildJsonRpcError(msg.id, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.code, CANVAS_JSONRPC_ERRORS.RATE_LIMITED.message),
+            buildJsonRpcError(msg.id, canvasJsonRpcErrors.RATE_LIMITED.code, canvasJsonRpcErrors.RATE_LIMITED.message),
           )
         }
         return

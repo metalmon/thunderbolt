@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'bun:test'
 import type { ThunderboltUIMessage } from '@/types'
-import { CANVAS_META_KEY } from './canvas-negotiation'
+import { canvasMetaKey } from './canvas-negotiation'
 import {
   buildCanvasActionMessage,
   buildCanvasWireMeta,
@@ -50,20 +50,20 @@ describe('canvas-action-message', () => {
     expect(getCanvasAction(message)).toEqual(promptAction)
   })
 
-  it('nests the wire meta under CANVAS_META_KEY with toolCall/uri/callId', () => {
+  it('nests the wire meta under canvasMetaKey with toolCall/uri/callId', () => {
     expect(buildCanvasWireMeta(toolOnlyAction)).toEqual({
-      [CANVAS_META_KEY]: { toolCall: toolOnlyAction.toolCall, uri: toolOnlyAction.uri, callId: toolOnlyAction.callId },
+      [canvasMetaKey]: { toolCall: toolOnlyAction.toolCall, uri: toolOnlyAction.uri, callId: toolOnlyAction.callId },
     })
   })
 
-  it('nests the wire meta under CANVAS_META_KEY with prompt/uri/callId', () => {
+  it('nests the wire meta under canvasMetaKey with prompt/uri/callId', () => {
     expect(buildCanvasWireMeta(promptAction)).toEqual({
-      [CANVAS_META_KEY]: { prompt: promptAction.prompt, uri: promptAction.uri, callId: promptAction.callId },
+      [canvasMetaKey]: { prompt: promptAction.prompt, uri: promptAction.uri, callId: promptAction.callId },
     })
   })
 
   it('omits toolCall/prompt keys entirely when absent, rather than nulling them', () => {
-    const wireMeta = buildCanvasWireMeta(promptAction)[CANVAS_META_KEY] as Record<string, unknown>
+    const wireMeta = buildCanvasWireMeta(promptAction)[canvasMetaKey] as Record<string, unknown>
     expect('toolCall' in wireMeta).toBe(false)
   })
 
