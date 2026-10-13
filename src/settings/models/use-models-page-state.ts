@@ -14,7 +14,8 @@ import { useDatabase } from '@/contexts'
 import { useLocalProviders } from '@/hooks/use-local-providers'
 import { deleteModel, getAllModels, getAvailableModels, resetModelToDefault, updateModel } from '@/dal'
 import { useChatStore } from '@/chats/chat-store'
-import { defaultModels } from '@shared/defaults/models'
+import { useConfigStore } from '@/api/config-store'
+import { pickModelsDefaults } from '@/lib/pick-defaults'
 import type { EditModelSubmission } from './edit-model-form'
 import { initialModelsPageState, modelsPageReducer, type ModelPanel, type ModelsPageAction } from './page-state'
 import { modelRequiresServer } from './model-policy'
@@ -72,11 +73,29 @@ export const useModelsPageState = () => {
     },
     onSuccess: refreshModels,
   })
+  /**
+   * The defaults a reset can restore to.
+   *
+   * Resolved through `pickModelsDefaults`, i.e. `max(bundle, OTA)` — the same pick
+   * `use-app-initialization` feeds to reconcile, so "reset" restores the row to the
+   * value reconcile would write. Reading the bundled array directly was wrong on this
+   * fork, which ships `defaultModels` EMPTY (system models arrive from the backend):
+   * the lookup could never match, and every reset took the fallback branch below.
+   */
+  const restorableDefaults = pickModelsDefaults(useConfigStore((store) => store.config.defaults?.models)).data
+  const defaultFor = (id: string) => restorableDefaults.find((candidate) => candidate.id === id)
+
   const resetMutation = useMutation({
     mutationFn: async (id: string) => {
-      const defaultModel = defaultModels.find((candidate) => candidate.id === id)
+      const defaultModel = defaultFor(id)
       if (!defaultModel) {
-        await deleteModel(db, id)
+        // Nothing to restore to. The row still carries a `defaultHash` — that is what
+        // offers Reset at all — but its default is no longer shipped. Upstream deleted
+        // the row here; that soft-deletes the model and HARD-deletes its stored API key,
+        // its profile and its prompts, which is not something an action labelled "reset"
+        // may do. Retiring a default is reconcile's job (`cleanupRemovedDefaults`), not
+        // this button's. `canResetModel` keeps the affordance hidden in this state, so
+        // reaching here means the row changed under an open panel.
         return
       }
       await resetModelToDefault(db, id, defaultModel)
@@ -139,6 +158,8 @@ export const useModelsPageState = () => {
     closeEditPanel: (modelId: string) => changePanel({ kind: 'detail', modelId }),
     submitEdit,
     isEditPending: editMutation.isPending,
+    /** Whether a reset can actually restore this row — false once its default stops shipping. */
+    canResetModel: (modelId: string) => defaultFor(modelId) !== undefined,
     requestDelete: (modelId: string | null) =>
       modelId ? dispatch({ type: 'DELETE_REQUESTED', modelId }) : dispatch({ type: 'DELETE_DISMISSED' }),
     confirmDelete: () => {
