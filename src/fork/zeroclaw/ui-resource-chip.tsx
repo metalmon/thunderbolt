@@ -31,7 +31,7 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
   const ref = uiResourceOfPart(part)
   const { t } = useLingui()
   const { state, showArtifact, close } = useContentView()
-  const { getEntry, hasAutoOpened, markAutoOpened, clearDismissed } = useCanvasRegistry()
+  const { threadId, getEntry, hasAutoOpened, markAutoOpened, clearDismissed } = useCanvasRegistry()
 
   const uri = ref?.uri ?? ''
   const html = ref?.html ?? ''
@@ -45,7 +45,7 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
 
   const open = () => {
     clearDismissed(uri)
-    showArtifact({ html, title, artifactId })
+    showArtifact({ html, title, artifactId, chatThreadId: threadId })
   }
 
   const downloadHtml = () => {
@@ -59,13 +59,13 @@ export const UiResourceChip = ({ part }: { part: ToolOrDynamicToolUIPart }) => {
       return
     }
     if (state.type === 'artifact' && state.data.artifactId === artifactId && state.data.html !== html) {
-      showArtifact({ html, title, artifactId })
+      showArtifact({ html, title, artifactId, chatThreadId: threadId })
       return
     }
     if (!hasAutoOpened(uri) && !entry?.dismissed) {
       markAutoOpened(uri)
       if (state.type === null) {
-        showArtifact({ html, title, artifactId })
+        showArtifact({ html, title, artifactId, chatThreadId: threadId })
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

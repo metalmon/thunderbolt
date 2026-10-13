@@ -163,8 +163,13 @@ const carrierOf = (ws: RelayDownstream): RelayCarrier => ws.data as RelayCarrier
  * @param message - whatever Elysia handed the message handler
  */
 export const rawFrame = (message: unknown): Frame => {
-  if (typeof message === 'string' || message instanceof ArrayBuffer || message instanceof Uint8Array) {
+  if (typeof message === 'string' || message instanceof ArrayBuffer) {
     return message
+  }
+  if (message instanceof Uint8Array) {
+    // TS 5.7 made Uint8Array generic over its backing buffer, and `send` takes only
+    // ArrayBuffer-backed views. A frame off the socket is never SharedArrayBuffer-backed.
+    return message as Uint8Array<ArrayBuffer>
   }
   return typeof message === 'object' && message !== null ? JSON.stringify(message) : String(message)
 }
