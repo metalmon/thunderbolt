@@ -11,7 +11,7 @@ import type { SurfaceHighlightedElement } from '@/components/embedded'
 
 import { Button } from '@/components/ui/button'
 import { MousePointerClick } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { type ComponentProps, useCallback, useRef, useState } from 'react'
 
 /**
  * An artifact you can point at.
@@ -36,6 +36,9 @@ export type SelectableArtifactProps = {
   /** Attach the chosen passages to the composer as quote chips. */
   onAsk: (passages: string[]) => void
   onContextChange?: (context: ArtifactContext) => void
+  /** Fork: the canvas action channel rides the same frame — forwarded verbatim. */
+  onBridgeMessage?: ComponentProps<typeof SandboxedHtmlFrame>['onBridgeMessage']
+  nonceRef?: ComponentProps<typeof SandboxedHtmlFrame>['nonceRef']
 }
 
 export const SelectableArtifact = ({
@@ -46,6 +49,8 @@ export const SelectableArtifact = ({
   onError,
   onAsk,
   onContextChange,
+  onBridgeMessage,
+  nonceRef,
 }: SelectableArtifactProps) => {
   const [selection, setSelection] = useState<ArtifactTextSelection | null>(null)
 
@@ -89,6 +94,8 @@ export const SelectableArtifact = ({
         onSelectionChange={setSelection}
         onQueryReady={handleQueryReady}
         onContextChange={onContextChange}
+        onBridgeMessage={onBridgeMessage}
+        nonceRef={nonceRef}
       />
 
       {mode.kind === 'idle' && selection?.rect && <SelectionPopover rect={selection.rect} onAsk={askAboutSelection} />}
