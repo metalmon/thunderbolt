@@ -4,7 +4,7 @@
 
 import { defaultChatTitle } from '@/lib/constants'
 
-import { useDatabase, useHttpClient } from '@/contexts'
+import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { useProxyFetchGetter } from '@/lib/proxy-fetch-context'
 import { resolveThreadModel } from '@/fork/chat/selected-model'
 import {
@@ -22,6 +22,7 @@ import {
 } from '@/dal'
 import { customRowToAgent, systemRowToAgent } from '@/dal/agents'
 import { isHostedAgent } from '@/defaults/agents'
+import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { getOrCreateChatThread, updateChatThread } from '@/dal/chat-threads'
 import { selectBuiltInAgentEnabled, useConfigStore } from '@/api/config-store'
 import { markChatReady } from '@/lib/init-timing'
@@ -102,6 +103,7 @@ export const useHydrateChatStore = ({
   onCreated,
 }: UseHydrateChatStoreParams) => {
   const db = useDatabase()
+  const authClient = useAuth()
   const httpClient = useHttpClient()
   const getProxyFetch = useProxyFetchGetter()
   const navigate = useNavigate()
@@ -224,6 +226,11 @@ export const useHydrateChatStore = ({
     // below. Fork: settings is read first rather than inside the group, because
     // `resolveThreadModel` takes `selected_model` as its fallback.
     const settings = await getSettings(db, { selected_model: String, selected_agent: String })
+    // Fork: custom agents are read through their owner. The module store is the
+    // common case; while it is still empty (this route's effect can run before the
+    // app shell's) fall back to asking the auth client, so a thread never silently
+    // resolves to the built-in agent just because hydration won the race.
+    const ownerId = getCurrentAgentOwner() ?? (await authClient.getSession()).data?.user?.id ?? null
 
     const [defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([
@@ -232,7 +239,7 @@ export const useHydrateChatStore = ({
         isNew ? [] : getChatMessages(db, id),
         getAvailableModels(db),
         isNew ? null : getTriggerPromptForThread(db, id),
-        getAllAgents(db),
+        getAllAgents(db, ownerId),
         getAllSystemAgents(db),
       ])
 

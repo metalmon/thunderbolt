@@ -4,6 +4,7 @@
 
 import type { AuthClient } from '@/contexts'
 import { createAgent } from '@/dal'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import type { EntityActionIntent } from '@/search/actions/types'
@@ -50,6 +51,8 @@ describe('AgentsSettingsPage palette action intents', () => {
   beforeEach(async () => {
     await resetTestDatabase()
     localStorage.clear()
+    // Fork: the page lists the current owner's agents; app.tsx sets this from the session.
+    setCurrentAgentOwner(authedSession.user.id)
   })
 
   afterEach(() => {

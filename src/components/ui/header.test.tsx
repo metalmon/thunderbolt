@@ -5,6 +5,7 @@
 import { useConfigStore } from '@/api/config-store'
 import { useChatStore } from '@/chats/chat-store'
 import { createAgent } from '@/dal'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { agentsSystemTable } from '@/db/tables'
@@ -132,6 +133,8 @@ describe('Header', () => {
   })
 
   beforeEach(() => {
+    // Fork: the picker lists the current owner's agents; app.tsx sets this from the session.
+    setCurrentAgentOwner('user-1')
     forceMobileViewport()
     useConfigStore.setState({ config: {}, configLoaded: true })
   })

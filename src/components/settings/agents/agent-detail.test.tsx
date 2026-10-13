@@ -6,7 +6,8 @@ import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, describe, expect, it, mock } from 'bun:test'
 
-import { setAgentBearerToken } from '@/dal'
+import { createAgent, setAgentBearerToken } from '@/dal'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { createTestProvider } from '@/test-utils/test-provider'
@@ -194,7 +195,17 @@ describe('AgentDetail — connection test', () => {
   })
 
   it('probes with the stored bearer token', async () => {
-    await setAgentBearerToken(getDb(), 'agent-1', 'stored-token')
+    // Fork: secrets resolve through the owner's agent row, so the row and the owner must exist.
+    setCurrentAgentOwner('user-1')
+    await createAgent(getDb(), {
+      id: 'agent-1',
+      name: 'My Agent',
+      type: 'remote-acp',
+      transport: 'websocket',
+      url: 'wss://example.com/ws',
+      userId: 'user-1',
+    })
+    await setAgentBearerToken(getDb(), 'agent-1', 'stored-token', 'user-1')
     const probe = mock(async () => ({ success: true as const, capabilities: {} }))
     renderDetail(customAgent(), { testAcpConnection: probe })
 
