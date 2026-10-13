@@ -87,7 +87,16 @@ Per-branch apply-order rationale lives as comments in `dev-local/fork-branches.p
    add and no longer does — a dropped hunk is otherwise silent, and the branch still
    builds often enough to pass. Read the list: each entry is upstream now providing
    the line, a deliberate adaptation, or a loss, and only the third is a bug.
-5. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+5. **Before reassembling, run `pwsh dev-local/orphaned-fork-content.ps1`** (defaults to
+   auditing `fork/master`, the last master anyone installed). It reports fork content the
+   reference master carries that the branch set does not reproduce — work committed
+   straight to `master`, or parked on a branch outside this list, which the rebuild is
+   about to delete. It conflicts with nothing and the rebuild reports success, so this is
+   the only moment the loss is visible. Move anything real onto the branch that owns the
+   file first.
+6. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+7. Re-run the orphan check against the rebuilt master (`-Current master`) and read every
+   line: upstream superseding it, a deliberate drop, or a loss — only the third is a bug.
 
 ⚠ **A fork branch does not type-check on its own, by design** — it may reference files
 a branch applied *earlier* owns (`fork/sandbox-host` reads `src/fork/zeroclaw/**`;
