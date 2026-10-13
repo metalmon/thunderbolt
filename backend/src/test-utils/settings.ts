@@ -113,5 +113,6 @@ export const createTestSettings = (overrides: Partial<Settings> = {}): Settings 
   agentTimezone: 'UTC',
   allowAnonymousAgentDiscovery: false,
   minAppVersion: '',
+  geminiApiKey: '',
   ...overrides,
 })
