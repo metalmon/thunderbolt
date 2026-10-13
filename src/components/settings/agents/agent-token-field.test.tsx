@@ -14,7 +14,7 @@ import { renderWithReactivity, waitForElement } from '@/test-utils/powersync-rea
 import { getClock } from '@/testing-library'
 import { AgentTokenField } from './agent-token-field'
 
-const AGENT_ID = 'agent-1'
+const agentId = 'agent-1'
 
 describe('AgentTokenField', () => {
   beforeAll(async () => {
@@ -31,7 +31,7 @@ describe('AgentTokenField', () => {
   })
 
   it('shows the empty placeholder and no Clear affordance when no token is stored', () => {
-    render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
+    render(<AgentTokenField agentId={agentId} />, { wrapper: createTestProvider() })
 
     expect(screen.getByPlaceholderText('Paste the agent access token')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Remove token' })).not.toBeInTheDocument()
@@ -39,9 +39,9 @@ describe('AgentTokenField', () => {
 
   it('shows the populated indicator and a Clear affordance when a bearer token is stored, never the raw value', async () => {
     const db = getDb()
-    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token')
+    await setAgentBearerToken(db, agentId, 'super-secret-token')
 
-    render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
+    render(<AgentTokenField agentId={agentId} />, { wrapper: createTestProvider() })
 
     expect(await screen.findByPlaceholderText('Token set')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Remove token' })).toBeInTheDocument()
@@ -51,29 +51,29 @@ describe('AgentTokenField', () => {
 
   it('saves a typed draft as the bearer token', async () => {
     const db = getDb()
-    render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
+    render(<AgentTokenField agentId={agentId} />, { wrapper: createTestProvider() })
 
     fireEvent.change(screen.getByLabelText('Access token'), { target: { value: 'new-token-value' } })
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     })
 
-    const secret = await getAgentSecrets(db, AGENT_ID)
+    const secret = await getAgentSecrets(db, agentId)
     expect(secret).toEqual({ apiKey: 'new-token-value', authMethod: 'bearer' })
   })
 
   it('clears the stored token', async () => {
     const db = getDb()
-    await setAgentBearerToken(db, AGENT_ID, 'super-secret-token')
+    await setAgentBearerToken(db, agentId, 'super-secret-token')
 
-    render(<AgentTokenField agentId={AGENT_ID} />, { wrapper: createTestProvider() })
+    render(<AgentTokenField agentId={agentId} />, { wrapper: createTestProvider() })
 
     const clearButton = await screen.findByRole('button', { name: 'Remove token' })
     await act(async () => {
       fireEvent.click(clearButton)
     })
 
-    const secret = await getAgentSecrets(db, AGENT_ID)
+    const secret = await getAgentSecrets(db, agentId)
     expect(secret).toEqual({ apiKey: null, authMethod: null })
   })
 })
@@ -93,7 +93,7 @@ describe('AgentTokenField — reactivity', () => {
   })
 
   it('flips to the populated indicator in place when the row changes and PowerSync notifies', async () => {
-    const { triggerChange } = renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, {
+    const { triggerChange } = renderWithReactivity(<AgentTokenField agentId={agentId} />, {
       tables: ['agents_secrets'],
     })
     // Let the hook's async resolveTables()-then-subscribe effect chain settle
@@ -104,7 +104,7 @@ describe('AgentTokenField — reactivity', () => {
 
     expect(screen.queryByRole('button', { name: 'Remove token' })).not.toBeInTheDocument()
 
-    await setAgentBearerToken(getDb(), AGENT_ID, 'externally-written-token')
+    await setAgentBearerToken(getDb(), agentId, 'externally-written-token')
     await act(async () => {
       triggerChange(['agents_secrets'])
       await getClock().runAllAsync()
@@ -114,7 +114,7 @@ describe('AgentTokenField — reactivity', () => {
   })
 
   it('shows the populated indicator in the same mounted field right after clicking Save', async () => {
-    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents_secrets'] })
+    renderWithReactivity(<AgentTokenField agentId={agentId} />, { tables: ['agents_secrets'] })
 
     fireEvent.change(screen.getByLabelText('Access token'), { target: { value: 'typed-token' } })
     await act(async () => {
@@ -127,8 +127,8 @@ describe('AgentTokenField — reactivity', () => {
   })
 
   it('hides the Clear affordance in the same mounted field right after clicking Remove token', async () => {
-    await setAgentBearerToken(getDb(), AGENT_ID, 'pre-existing-token')
-    renderWithReactivity(<AgentTokenField agentId={AGENT_ID} />, { tables: ['agents_secrets'] })
+    await setAgentBearerToken(getDb(), agentId, 'pre-existing-token')
+    renderWithReactivity(<AgentTokenField agentId={agentId} />, { tables: ['agents_secrets'] })
 
     const clearButton = await waitForElement(() => screen.queryByRole('button', { name: 'Remove token' }))
     await act(async () => {
