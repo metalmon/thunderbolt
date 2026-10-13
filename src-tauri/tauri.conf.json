@@ -39,6 +39,9 @@
     "active": true,
     "targets": "all",
     "createUpdaterArtifacts": true,
+    "publisher": "Окта Плюс",
+    "shortDescription": "Volt: клиент ИИ-ассистента",
+    "longDescription": "Volt, клиент ИИ-ассистента. Окта Плюс, info@oktaplus.ru",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
