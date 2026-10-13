@@ -123,7 +123,7 @@ const getSyncedTail = (session: ChatSession, saved: ChatMessage[]): ThunderboltU
  * managed models). Fire-and-forget.
  */
 const maybePrewarmBuiltInAgent = (agent: Agent, model: Model | null) => {
-  if (!model) return
+  if (!model) {return}
   if (agent.type === 'built-in') {
     void prewarmTinfoilModel(model)
   }

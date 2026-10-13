@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
+import type {
+  defaultModels} from '@shared/defaults/models';
 import {
   defaultModelImageSupport,
   defaultModelNemotron3Super,
   defaultModelOpus55,
-  defaultModels,
   defaultModelsVersion,
 } from '@shared/defaults/models'
 import { pickModelsDefaults } from './pick-defaults'
