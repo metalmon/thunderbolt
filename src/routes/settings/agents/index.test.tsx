@@ -5,6 +5,7 @@
 import type { AuthClient } from '@/contexts'
 import { useConfigStore } from '@/api/config-store'
 import { createAgent, getAllAgents } from '@/dal'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { createMockAuthClient } from '@/test-utils/auth-client'
@@ -54,6 +55,8 @@ describe('AgentsSettingsPage — availability', () => {
   beforeEach(async () => {
     await resetTestDatabase()
     localStorage.clear()
+    // Fork: the page lists the current owner's agents; app.tsx sets this from the session.
+    setCurrentAgentOwner(authedSession.user.id)
   })
 
   afterEach(() => {
@@ -132,6 +135,8 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
   beforeEach(async () => {
     await resetTestDatabase()
     localStorage.clear()
+    // Fork: the page lists the current owner's agents; app.tsx sets this from the session.
+    setCurrentAgentOwner(authedSession.user.id)
   })
 
   afterEach(() => {
@@ -159,7 +164,7 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
 
     expect(enrollIroh).toHaveBeenCalledTimes(1)
     expect(enrollIroh).toHaveBeenCalledWith()
-    expect((await getAllAgents(getDb())).some((agent) => agent.url === irohTarget)).toBe(true)
+    expect((await getAllAgents(getDb(), authedSession.user.id)).some((agent) => agent.url === irohTarget)).toBe(true)
   })
 
   it('still creates the agent when enrollment fails', async () => {
@@ -174,7 +179,7 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
       await getClock().runAllAsync()
     })
 
-    expect((await getAllAgents(getDb())).some((agent) => agent.url === irohTarget)).toBe(true)
+    expect((await getAllAgents(getDb(), authedSession.user.id)).some((agent) => agent.url === irohTarget)).toBe(true)
   })
 
   it('does not block the add on a never-resolving enrollment', async () => {
@@ -186,7 +191,7 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
       await getClock().runAllAsync()
     })
 
-    expect((await getAllAgents(getDb())).some((agent) => agent.url === irohTarget)).toBe(true)
+    expect((await getAllAgents(getDb(), authedSession.user.id)).some((agent) => agent.url === irohTarget)).toBe(true)
     expect(screen.queryByPlaceholderText(/paste an iroh ticket/i)).not.toBeInTheDocument()
   })
 
@@ -235,6 +240,8 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
     })
 
     expect(enrollIroh).not.toHaveBeenCalled()
-    expect((await getAllAgents(db)).find((agent) => agent.id === 'existing-iroh-agent')?.name).toBe('Renamed Bridge')
+    expect(
+      (await getAllAgents(db, authedSession.user.id)).find((agent) => agent.id === 'existing-iroh-agent')?.name,
+    ).toBe('Renamed Bridge')
   })
 })
