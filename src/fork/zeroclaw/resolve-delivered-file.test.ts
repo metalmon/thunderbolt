@@ -33,7 +33,7 @@ describe('resolveDocumentResultTarget', () => {
 
   test('missing name falls back to the basename', () => {
     const target = resolveDocumentResultTarget({ fileId: uri })
-    if (target.kind !== 'local-file') throw new Error('expected a resolved local-file target')
+    if (target.kind !== 'local-file') {throw new Error('expected a resolved local-file target')}
     expect(target.displayName).toBe('a1b2c3d4e5f6.pdf')
     expect(target.sideviewId).toContain('a1b2c3d4e5f6.pdf')
     expect(target.sideviewId).toContain(localFileId)

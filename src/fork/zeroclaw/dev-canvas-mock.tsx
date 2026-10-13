@@ -29,16 +29,16 @@ import { useEffect, useRef } from 'react'
 import { isToolOrDynamicToolUIPart, type ToolUIPart } from 'ai'
 import type { ThunderboltUIMessage } from '@/types'
 import { getCanvasAction, type CanvasActionMeta } from './canvas-action-message'
-import { CANVAS_TOOLCALL_PREFIX } from './canvas-call-id'
+import { canvasToolCallPrefix } from './canvas-call-id'
 
 /** Delay before the mock answers a pending canvas `tools/call`, long enough to observe the pending state in the UI. */
-export const DEV_CANVAS_MOCK_DELAY_MS = 600
+export const devCanvasMockDelayMs = 600
 
 /** A canvas action found on a `messages` entry, awaiting its synthetic tool result. */
 export type UnresolvedCanvasAction = { messageId: string; action: CanvasActionMeta }
 
 /** The wire `toolCallId` a synthetic mock result must carry to match `pending.callId`. */
-const mockToolCallId = (callId: string): string => `${CANVAS_TOOLCALL_PREFIX}${callId}`
+const mockToolCallId = (callId: string): string => `${canvasToolCallPrefix}${callId}`
 
 /**
  * Scan `messages` for canvas-originated user turns whose `tools/call` has no matching completed
@@ -109,7 +109,7 @@ type SetMessages = (updater: (prev: ThunderboltUIMessage[]) => ThunderboltUIMess
 
 /**
  * Watches `messages` for canvas actions awaiting a `tools/call` result and answers each one,
- * once, after {@link DEV_CANVAS_MOCK_DELAY_MS}, with a synthetic `output-available` tool part
+ * once, after {@link devCanvasMockDelayMs}, with a synthetic `output-available` tool part
  * (see {@link buildMockCanvasResultMessage}). Per-`callId` timers live in a ref so a `messages`
  * update that arrives before a timer fires (e.g. the real backend streaming a delta) never
  * cancels/reschedules it — each canvas action is answered exactly once. All outstanding timers
@@ -140,7 +140,7 @@ export const useDevCanvasActionMock = (messages: ThunderboltUIMessage[], setMess
       const timer = setTimeout(() => {
         timersRef.current.delete(action.callId)
         setMessages((prev) => [...prev, buildMockCanvasResultMessage(action)])
-      }, DEV_CANVAS_MOCK_DELAY_MS)
+      }, devCanvasMockDelayMs)
       timersRef.current.set(action.callId, timer)
     }
   }, [messages, setMessages])

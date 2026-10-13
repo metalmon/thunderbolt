@@ -12,7 +12,7 @@
  * carrying a `metadata.canvasAction` marker. The ACP adapter (thin hook in
  * `src/acp/acp-adapter.ts`) reads that marker off the outbound request's last
  * message and re-derives it as `_meta["io.modelcontextprotocol/ui"]` on the
- * wire `session/prompt` call — see `./canvas-negotiation` for `CANVAS_META_KEY`.
+ * wire `session/prompt` call — see `./canvas-negotiation` for `canvasMetaKey`.
  *
  * `callId` here is ALREADY COMPOSED by the caller (`<nonce>:<appId>`, see
  * `./canvas-call-id`'s `composeCanvasCallId`) — nothing in this module composes
@@ -32,7 +32,7 @@
 import { isToolOrDynamicToolUIPart, type ToolUIPart } from 'ai'
 import type { ThunderboltUIMessage, UIMessageMetadata } from '@/types'
 import { parseCanvasToolCallId } from './canvas-call-id'
-import { CANVAS_META_KEY } from './canvas-negotiation'
+import { canvasMetaKey } from './canvas-negotiation'
 import { isUiResourcePart } from './ui-resource-part'
 
 /** A canvas-originated action, carried on a chat message's `metadata.canvasAction`. */
@@ -79,14 +79,14 @@ export const getCanvasAction = (message: CanvasCarrierMessage): CanvasActionMeta
 
 /**
  * Derive the outbound ACP `_meta` fragment for a canvas action, nested under
- * {@link CANVAS_META_KEY}. Optional fields (`toolCall`, `prompt`) are omitted
+ * {@link canvasMetaKey}. Optional fields (`toolCall`, `prompt`) are omitted
  * entirely when absent rather than sent as `undefined`/`null`.
  *
  * @param action - the canvas action attached to the outbound message
  * @returns the `_meta` object to spread onto the `session/prompt` request
  */
 export const buildCanvasWireMeta = (action: CanvasActionMeta): Record<string, unknown> => ({
-  [CANVAS_META_KEY]: {
+  [canvasMetaKey]: {
     ...(action.toolCall ? { toolCall: action.toolCall } : {}),
     ...(action.prompt ? { prompt: action.prompt } : {}),
     uri: action.uri,

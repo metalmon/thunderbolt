@@ -4,7 +4,7 @@
 
 /* src/fork/zeroclaw/canvas-pending.test.ts */
 import { describe, expect, it } from 'bun:test'
-import { composeCanvasCallId, CANVAS_TOOLCALL_PREFIX } from './canvas-call-id'
+import { composeCanvasCallId, canvasToolCallPrefix } from './canvas-call-id'
 import { createNonceRateLimiter, findResolvedPending, type PendingCall } from './canvas-pending'
 
 const msg = (parts: unknown[]) => ({ id: 'm', role: 'assistant', parts }) as never
@@ -46,14 +46,14 @@ describe('findResolvedPending', () => {
 
   it('matches a completed tool part by parsed (nonce, appCallId)', () => {
     const messages = [
-      msg([toolPart(`${CANVAS_TOOLCALL_PREFIX}${callId}`, 'output-available', { output: { ok: true } })]),
+      msg([toolPart(`${canvasToolCallPrefix}${callId}`, 'output-available', { output: { ok: true } })]),
     ]
     const resolved = findResolvedPending(messages as never, [pending])
     expect(resolved).toEqual([{ pending, output: { ok: true }, failed: false }])
   })
 
   it('reports failed for an output-error part', () => {
-    const messages = [msg([toolPart(`${CANVAS_TOOLCALL_PREFIX}${callId}`, 'output-error', { errorText: 'boom' })])]
+    const messages = [msg([toolPart(`${canvasToolCallPrefix}${callId}`, 'output-error', { errorText: 'boom' })])]
     const resolved = findResolvedPending(messages as never, [pending])
     expect(resolved).toEqual([{ pending, output: 'boom', failed: true }])
   })
@@ -61,7 +61,7 @@ describe('findResolvedPending', () => {
   it('ignores a part whose parsed nonce differs (stale/cross-frame)', () => {
     const otherNonceCallId = composeCanvasCallId('other-nonce', 'app-1')
     const messages = [
-      msg([toolPart(`${CANVAS_TOOLCALL_PREFIX}${otherNonceCallId}`, 'output-available', { output: { ok: true } })]),
+      msg([toolPart(`${canvasToolCallPrefix}${otherNonceCallId}`, 'output-available', { output: { ok: true } })]),
     ]
     const resolved = findResolvedPending(messages as never, [pending])
     expect(resolved).toEqual([])
@@ -70,7 +70,7 @@ describe('findResolvedPending', () => {
   it('ignores a non-canvas or still-pending tool part', () => {
     const messages = [
       msg([
-        toolPart(`${CANVAS_TOOLCALL_PREFIX}${callId}`, 'output-available', { output: {} }),
+        toolPart(`${canvasToolCallPrefix}${callId}`, 'output-available', { output: {} }),
         { type: 'tool-other', toolCallId: 'plain-id', state: 'output-available', output: {} },
       ]),
     ]

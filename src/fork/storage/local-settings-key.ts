@@ -24,11 +24,11 @@ export const localSettingsStorageName = 'volt-local-settings'
  * and losing local preferences is not worth failing a boot over.
  */
 export const migrateLocalSettingsKey = (storage: Storage | undefined = globalThis.localStorage) => {
-  if (!storage) return
+  if (!storage) {return}
   try {
-    if (storage.getItem(localSettingsStorageName) !== null) return
+    if (storage.getItem(localSettingsStorageName) !== null) {return}
     const legacy = storage.getItem(legacyName)
-    if (legacy === null) return
+    if (legacy === null) {return}
     storage.setItem(localSettingsStorageName, legacy)
     storage.removeItem(legacyName)
   } catch {

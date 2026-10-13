@@ -5,12 +5,12 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, it } from 'bun:test'
-import { CANVAS_META_KEY, buildCanvasCapabilityMeta, supportsCanvasCapability } from './canvas-negotiation'
+import { canvasMetaKey, buildCanvasCapabilityMeta, supportsCanvasCapability } from './canvas-negotiation'
 
 describe('buildCanvasCapabilityMeta', () => {
   it('advertises host support for the Canvas Action Channel', () => {
     expect(buildCanvasCapabilityMeta()).toEqual({
-      [CANVAS_META_KEY]: { supported: true },
+      [canvasMetaKey]: { supported: true },
     })
   })
 })
@@ -21,12 +21,12 @@ describe('supportsCanvasCapability', () => {
   })
 
   it('rejects a present namespace whose flag is false', () => {
-    expect(supportsCanvasCapability({ [CANVAS_META_KEY]: { supported: false } })).toBe(false)
+    expect(supportsCanvasCapability({ [canvasMetaKey]: { supported: false } })).toBe(false)
   })
 
   it('rejects a malformed namespace value', () => {
-    expect(supportsCanvasCapability({ [CANVAS_META_KEY]: 'yes' })).toBe(false)
-    expect(supportsCanvasCapability({ [CANVAS_META_KEY]: null })).toBe(false)
+    expect(supportsCanvasCapability({ [canvasMetaKey]: 'yes' })).toBe(false)
+    expect(supportsCanvasCapability({ [canvasMetaKey]: null })).toBe(false)
   })
 
   it('returns false when the namespace or _meta itself is absent', () => {

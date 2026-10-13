@@ -10,7 +10,7 @@
  * downstream code and the in-iframe bridge script depend on the literal
  * values, not just the constant identifiers, so never rename the strings.
  */
-export const CANVAS_BRIDGE_METHODS = {
+export const canvasBridgeMethods = {
   UI_INITIALIZE: 'ui/initialize',
   TOOLS_CALL: 'tools/call',
   UI_PROMPT: 'ui/prompt',
