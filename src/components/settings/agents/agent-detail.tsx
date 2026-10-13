@@ -40,6 +40,7 @@ import { useLibrarySkills } from '@/skills/use-skills'
 import type { Agent } from '@/types/acp'
 import { acpEndpointLabel, agentProvenanceLine } from './agent-provenance'
 import type { TestAcpConnectionFn } from './add-custom-agent-form'
+import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
 
 /** On-demand probe result: the panel never polls on open — Status starts at
  *  `idle` and reflects the last explicit "Test connection" run. `error` holds
@@ -320,7 +321,7 @@ const CustomBody = ({
       return
     }
     setTestResult('testing')
-    const secret = await getAgentSecrets(db, agent.id)
+    const secret = await getAgentSecrets(db, agent.id, getCurrentAgentOwner())
     const authToken = secret?.authMethod === 'bearer' ? secret.apiKey : null
     const probe = await testAcpConnection({ url: agent.url, authToken })
     const testedAt = new Date().toISOString()
