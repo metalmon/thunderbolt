@@ -138,7 +138,9 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
   }, [isStreaming, chatError, triggerNotification])
 
   // Settings → Models reaches only the built-in agent; external agents run their own model.
-  const builtInModel = isBuiltInAgent(selectedAgent) ? selectedModel : undefined
+  // Fork: `?? undefined` because our `selectedModel` is nullable — upstream's
+  // shape expects `Model | undefined`, and a `null` slips past it.
+  const builtInModel = isBuiltInAgent(selectedAgent) ? (selectedModel ?? undefined) : undefined
 
   // Re-deliver a failed turn's attachments as text/images (auto on a detected
   // content-rejection, or via the buttons below). Gate auto-fire on a settled error.
