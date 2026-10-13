@@ -6,6 +6,8 @@ import { i18n } from '@/i18n'
 import { createModel, getModel } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
+import { modelsTable } from '@/db/tables'
+import { eq } from 'drizzle-orm'
 import { stubJsonResponse } from '@/test-utils/http'
 import { renderWithReactivity, waitForElement } from '@/test-utils/powersync-reactivity-test'
 import { getClock } from '@/testing-library'
@@ -279,6 +281,36 @@ describe('model card action menu', () => {
     expect(await screen.findByText('Edit')).toBeInTheDocument()
     expect(screen.getByText('Delete')).toBeInTheDocument()
     expect(screen.queryByText(i18n._(systemModelMenuMessage))).not.toBeInTheDocument()
+  })
+
+  it('offers no reset once the default a row came from stops shipping', async () => {
+    const db = getDb()
+    const id = uuidv7()
+    const seeded = {
+      id,
+      provider: 'openai' as const,
+      name: 'Seeded Model',
+      model: 'gpt-4',
+      isSystem: 1 as const,
+      enabled: 1 as const,
+    }
+    await createModel(db, seeded)
+    // A `defaultHash` that no longer matches the row is what offers Reset: the row was
+    // written by reconcile from some defaults set and has since drifted. This build ships
+    // no bundled defaults, so there is nothing to restore it to — and the old fallback
+    // deleted the model (plus its stored key, profile and prompts) instead.
+    await db
+      .update(modelsTable)
+      .set({ defaultHash: 'hash-of-a-default-that-no-longer-ships' })
+      .where(eq(modelsTable.id, id))
+
+    renderModelsPage()
+    await waitForElement(() => screen.queryByText('Seeded Model'))
+    fireEvent.click(screen.getByRole('button', { name: 'Open Seeded Model' }))
+
+    expect(await screen.findByTestId('panel-kind')).toHaveTextContent('detail')
+    expect(screen.queryByText('Customized model')).not.toBeInTheDocument()
+    expect(await getModel(db, id)).toBeTruthy()
   })
 
   it('explains instead of offering Edit/Delete for built-in models', async () => {
