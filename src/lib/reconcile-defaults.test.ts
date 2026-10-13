@@ -1099,6 +1099,9 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
   test('newer bundle updates server-owned model metadata excluded from the user-edit hash', async () => {
     const db = getDb()
+    // Any fixture row carries the server-owned fields this asserts on; upstream used
+    // its own confidential default, which this fork's bundle no longer ships.
+    const seeded = fixtureModels[2]
     await reconcileDefaults(db, {
       models: { version: defaultModelsVersion, data: [...fixtureModels] },
       profiles: fixtureProfiles,

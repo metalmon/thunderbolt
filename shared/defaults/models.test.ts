@@ -5,7 +5,10 @@
 import { describe, expect, test } from 'bun:test'
 import { hashValues } from '../lib/hash'
 import {
+  defaultModelDeepSeekV41Flash,
   defaultModelGlm53,
+  defaultModelImageSupport,
+  defaultModelOpus55,
   defaultModels,
   defaultModelsVersion,
   hashModel,
