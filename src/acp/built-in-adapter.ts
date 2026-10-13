@@ -253,7 +253,9 @@ export const resolvePiModel = async (
   // Fork: the catalog ships empty, so a session can legitimately carry no model — only
   // this built-in path needs one. `null` is what this function already returns when a
   // model cannot be resolved, so every caller already handles it.
-  if (!context.selectedModel) return null
+  if (!context.selectedModel) {
+    return null
+  }
   const { model, wrapFetch, api, binding: providerBinding } = await bindModelProvider(context.selectedModel)
   const thinkingLevel = deriveThinkingLevel(profile)
   // Pi strips image blocks from text-only descriptors. Only models known not to
@@ -723,7 +725,9 @@ const fetchViaHarness = async (
   // Fork: a session can carry no model at all — the catalog ships empty and only this
   // built-in path needs one. Hand it to the legacy fallback, which is the same thing
   // this function does for any model the harness cannot run.
-  if (!context.selectedModel) return fallback()
+  if (!context.selectedModel) {
+    return fallback()
+  }
   const selectedModel = context.selectedModel
   const debugTraceId = context.debugTranscriptTraceId
   // Sanctioned route-splitting exception (CLAUDE.md "Route-level Code Splitting").
@@ -922,7 +926,9 @@ export const createBuiltInAdapter = (agent: Agent, options: BuiltInAdapterOption
 
   /** Legacy engine — every provider the Pi harness doesn't (yet) serve. */
   const fetchViaLegacyPipeline = (init: RequestInit, context: AgentAdapterContext): Promise<Response> => {
-    if (!context.selectedModel) throw new Error(noModelMessage)
+    if (!context.selectedModel) {
+      throw new Error(noModelMessage)
+    }
     return aiFetch({
       init,
       modelId: context.selectedModel.id,
@@ -947,7 +953,9 @@ export const createBuiltInAdapter = (agent: Agent, options: BuiltInAdapterOption
     // Fork: this built-in agent is the ONLY path that needs a local model, and the
     // catalog ships empty. Fail here with something the user can act on — picking an
     // agent instead costs nothing, and an agent brings its own model.
-    if (!context.selectedModel) throw new Error(noModelMessage)
+    if (!context.selectedModel) {
+      throw new Error(noModelMessage)
+    }
     if (isPiModelCandidate(context.selectedModel)) {
       return fetchViaHarness(
         init,
