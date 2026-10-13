@@ -25,7 +25,7 @@
     "security": {
       "csp": {
         "default-src": "'self' tauri: asset:",
-        "frame-src": "'self' sandbox: http://sandbox.localhost",
+        "frame-src": "'self' https: sandbox: http://sandbox.localhost",
         "connect-src": "'self' ipc: http://ipc.localhost https: wss: blob: ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*",
         "img-src": "'self' asset: data: blob: https: https://api.thunderbolt.io https://cdn.agentclientprotocol.com",
         "font-src": "'self' data:",
