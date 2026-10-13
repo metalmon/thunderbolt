@@ -16,7 +16,7 @@
  */
 
 /** ACP extension namespace for MCP-UI `ui://` resource (Canvas Action Channel) support. */
-export const CANVAS_META_KEY = 'io.modelcontextprotocol/ui'
+export const canvasMetaKey = 'io.modelcontextprotocol/ui'
 
 type AcpMeta = { readonly [key: string]: unknown } | null | undefined
 
@@ -31,7 +31,7 @@ const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
  * @returns namespaced `_meta` fragment the host sends on session setup
  */
 export const buildCanvasCapabilityMeta = (): Record<string, unknown> => ({
-  [CANVAS_META_KEY]: { supported: true },
+  [canvasMetaKey]: { supported: true },
 })
 
 /**
@@ -41,6 +41,6 @@ export const buildCanvasCapabilityMeta = (): Record<string, unknown> => ({
  * @returns whether the agent accepts `ui://` resources on the action channel
  */
 export const supportsCanvasCapability = (meta: AcpMeta): boolean => {
-  const canvas = meta?.[CANVAS_META_KEY]
+  const canvas = meta?.[canvasMetaKey]
   return isRecord(canvas) && canvas.supported === true
 }
