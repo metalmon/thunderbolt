@@ -5,7 +5,7 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, it } from 'bun:test'
-import { CANVAS_BRIDGE_METHODS } from './canvas-bridge-protocol'
+import { canvasBridgeMethods } from './canvas-bridge-protocol'
 import { buildCanvasBridgeScript } from './canvas-bridge-script'
 
 describe('canvas-bridge-script', () => {
@@ -17,12 +17,12 @@ describe('canvas-bridge-script', () => {
 
   it('emits the exact SEP-1865 wire method-name literals', () => {
     const script = buildCanvasBridgeScript('n1')
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.UI_INITIALIZE)
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.TOOLS_CALL)
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.UI_PROMPT)
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_INITIALIZED)
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_INPUT)
-    expect(script).toContain(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_RESULT)
+    expect(script).toContain(canvasBridgeMethods.UI_INITIALIZE)
+    expect(script).toContain(canvasBridgeMethods.TOOLS_CALL)
+    expect(script).toContain(canvasBridgeMethods.UI_PROMPT)
+    expect(script).toContain(canvasBridgeMethods.UI_NOTIFICATIONS_INITIALIZED)
+    expect(script).toContain(canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_INPUT)
+    expect(script).toContain(canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_RESULT)
   })
 
   it('installs window.mcpApp and posts via parent.postMessage', () => {

@@ -44,7 +44,7 @@ export type PairOverAcpInputs = {
 type JsonRpcError = { code?: number; message?: string; data?: { reason?: string } }
 
 /** Internal signal: the server does not know this pairing method — try the other. */
-const METHOD_UNKNOWN = Symbol('method-unknown')
+const methodUnknown = Symbol('method-unknown')
 
 const defaultTimeoutMs = 15000
 
@@ -62,7 +62,7 @@ const classifyError = (error: JsonRpcError): PairingErrorKind => {
 
 /** One pairing attempt over a fresh socket with a single JSON-RPC request.
  *  Resolves the token, or rejects with a `PairingError` — except an
- *  unknown-method refusal, which rejects with the `METHOD_UNKNOWN` symbol so
+ *  unknown-method refusal, which rejects with the `methodUnknown` symbol so
  *  the caller can retry the legacy method. */
 const attemptPair = (
   factory: (url: string) => WebSocketLike,
@@ -139,7 +139,7 @@ const attemptPair = (
       if (msg.error) {
         const error = msg.error
         if (isMethodUnknown(error)) {
-          finish(() => reject(METHOD_UNKNOWN))
+          finish(() => reject(methodUnknown))
           return
         }
         finish(() => reject(new PairingError(classifyError(error), error.message ?? 'Pairing failed')))
@@ -178,7 +178,7 @@ export const pairOverAcp = async (inputs: PairOverAcpInputs): Promise<PairResult
   try {
     return await attemptPair(factory, inputs.url, 'volt/pair', inputs.code, device, timeoutMs)
   } catch (error) {
-    if (error !== METHOD_UNKNOWN) {
+    if (error !== methodUnknown) {
       throw error
     }
   }
@@ -186,7 +186,7 @@ export const pairOverAcp = async (inputs: PairOverAcpInputs): Promise<PairResult
   try {
     return await attemptPair(factory, inputs.url, 'zeroclaw/pair', inputs.code, device, timeoutMs)
   } catch (error) {
-    if (error === METHOD_UNKNOWN) {
+    if (error === methodUnknown) {
       throw new PairingError('rejected', 'The agent does not support code pairing')
     }
     throw error
