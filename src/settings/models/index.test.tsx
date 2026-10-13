@@ -359,7 +359,9 @@ describe('model card action menu', () => {
     await waitForElement(() => screen.queryByText('Seeded Model'))
     fireEvent.click(screen.getByRole('button', { name: 'Open Seeded Model' }))
 
-    expect(await screen.findByTestId('panel-kind')).toHaveTextContent('detail')
+    // The ⋯ button lives in the detail panel, so finding it proves the panel is open —
+    // without it, the absence assertion below would pass on an unrendered panel.
+    await screen.findByLabelText('More')
     expect(screen.queryByText('Customized model')).not.toBeInTheDocument()
     expect(await getModel(db, id)).toBeTruthy()
   })
