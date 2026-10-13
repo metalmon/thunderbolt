@@ -200,6 +200,18 @@ export const defaultModelImageSupport: Readonly<Record<string, ImageSupport>> = 
   [defaultModelGlm53.id]: 'unsupported',
 }
 
+/**
+ * The rows the table above describes, which is NOT `defaultModels`: this fork
+ * ships that empty (system models arrive from the backend), so resolving a fixed
+ * rule through the bundle would make every one of them unreachable. The rules are
+ * facts about these models, independent of whether we bundle them.
+ */
+const imageSupportKnownModels: ReadonlyArray<SharedModel> = [
+  defaultModelOpus55,
+  defaultModelDeepSeekV41Flash,
+  defaultModelGlm53,
+]
+
 /** Vendors whose Thunderbolt-hosted models all accept images. */
 const imageCapableManagedVendors: ReadonlySet<string> = new Set(['anthropic', 'openai', 'google'])
 
@@ -210,11 +222,11 @@ const imageCapableManagedVendors: ReadonlySet<string> = new Set(['anthropic', 'o
  * needs detection, which only the app can do.
  */
 export const staticImageSupport = (model: ImageSupportModel): ImageSupport | undefined => {
-  const shipped = defaultModels.find(
+  const known = imageSupportKnownModels.find(
     (candidate) => candidate.provider === model.provider && candidate.model === model.model,
   )
-  if (shipped) {
-    return defaultModelImageSupport[shipped.id]
+  if (known) {
+    return defaultModelImageSupport[known.id]
   }
   if (model.provider === 'anthropic') {
     return 'supported'

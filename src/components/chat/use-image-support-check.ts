@@ -35,7 +35,8 @@ export const isImageAttachment = (attachment: Pick<AttachmentData, 'mimeType'>):
 const noCheck: ImageSupportCheck = { notice: undefined, tryAnyway: undefined }
 
 type UseImageSupportCheckOptions = {
-  model: Model
+  /** Fork: null when the installation has no model — only the built-in agent needs one. */
+  model: Model | null
   /** Images attached in the composer but not sent yet. */
   attachments: AttachmentData[]
   /** The thread so far. A live agent session resends its earlier images on every
@@ -70,17 +71,22 @@ export const useImageSupportCheck = ({
 }: UseImageSupportCheckOptions): ImageSupportCheck => {
   const getProxyFetch = useProxyFetchGetter()
   const queryClient = useQueryClient()
-  const queryKey = ['image-support', imageSupportKey(model)]
+  const queryKey = ['image-support', model ? imageSupportKey(model) : 'no-model']
   const hasDraftImage = attachments.some(isImageAttachment)
   const hasHistoryImage = useMemo(
     () => messages.some((message) => getAttachments(message).some(isImageAttachment)),
     [messages],
   )
-  const isCheckNeeded = enabled && (hasDraftImage || (hasHistoryImage && hasDraft))
+  // No model means nothing to check: an ACP agent brings its own and handles its own files.
+  const isCheckNeeded = enabled && model !== null && (hasDraftImage || (hasHistoryImage && hasDraft))
 
   const query = useQuery({
     queryKey,
     queryFn: async () => {
+      if (!model) {
+        // Unreachable: `enabled` below is false without a model. Narrows it for the rest.
+        throw new Error('image-support check ran without a model')
+      }
       try {
         return await detect(model, getProxyFetch)
       } catch (error) {
@@ -89,7 +95,7 @@ export const useImageSupportCheck = ({
       }
     },
     enabled: isCheckNeeded,
-    initialData: () => getKnownImageSupport(model),
+    initialData: () => (model ? getKnownImageSupport(model) : undefined),
     staleTime: Infinity,
     retry: false,
     // A failed check has no data, so Query treats it as stale regardless of
@@ -99,7 +105,8 @@ export const useImageSupportCheck = ({
     refetchOnReconnect: false,
   })
 
-  if (!isCheckNeeded) {
+  // `!model` is implied by `isCheckNeeded`; stated so the rest reads a non-null model.
+  if (!isCheckNeeded || !model) {
     return noCheck
   }
   if (!query.data) {
