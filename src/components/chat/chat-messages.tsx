@@ -136,7 +136,7 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
     regenerate,
     error: chatError,
     active: hasError && !isStreaming,
-    model: isBuiltInAgent(selectedAgent) ? selectedModel : undefined,
+    model: isBuiltInAgent(selectedAgent) ? (selectedModel ?? undefined) : undefined,
   })
 
   // Manual override for the latest turn's attachments: re-deliver a single file
