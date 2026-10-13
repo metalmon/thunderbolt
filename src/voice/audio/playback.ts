@@ -16,10 +16,10 @@
  * with gaps. Committing each chunk to the audio timeline the instant it arrives
  * starves the WebView audio stack between bursts on constrained devices
  * (mobile), and the underrun surfaces as a tonal buzz. Instead we HOLD (buffer
- * silently) until `PREBUFFER_SEC` of real audio has accumulated, then
+ * silently) until `prebufferSec` of real audio has accumulated, then
  * batch-schedule it — so the playhead always leads arrivals by a cushion of
  * buffered data. If playout drains mid-turn we re-hold for a smaller
- * `RESUME_SEC` refill (a brief stall shouldn't re-add full onset latency); a
+ * `resumeSec` refill (a brief stall shouldn't re-add full onset latency); a
  * large gap is treated as a fresh turn and re-arms the full prefill.
  */
 import type { AudioChunk } from '@/voice/engine/types'
@@ -29,13 +29,13 @@ import type { AudioChunk } from '@/voice/engine/types'
  *  the low end — a backend WebSocket has far less jitter than a PSTN trunk —
  *  but above LAN, since mobile WebView playout has looser timing. Adds this
  *  much latency to speech onset; the floor at which mobile stops glitching. */
-const PREBUFFER_SEC = 0.25
+const prebufferSec = 0.25
 /** Smaller refill after a mid-turn underrun (kutsu `resume_ms`) so a brief
  *  stall doesn't re-add the full prefill latency. */
-const RESUME_SEC = 0.12
+const resumeSec = 0.12
 /** A drain gap larger than this is a new turn, not a mid-turn stall: re-arm the
  *  full prefill and don't count it as an underrun. */
-const COLD_GAP_SEC = 1.0
+const coldGapSec = 1.0
 
 export type PlaybackQueue = {
   /** Schedule a chunk to play after whatever is already queued. */
@@ -67,7 +67,7 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
   // Jitter-buffer state.
   const pending: AudioChunk[] = [] // buffered, not yet scheduled (held for prefill)
   let playing = false // true once a prefill target was met and we're draining
-  let fillTargetSec = PREBUFFER_SEC // current prefill target (prebuffer vs resume)
+  let fillTargetSec = prebufferSec // current prefill target (prebuffer vs resume)
   let nextStartTime = 0 // audio-clock time the next scheduled chunk starts at
   let holdTimer: ReturnType<typeof setTimeout> | null = null
   let underruns = 0
@@ -127,16 +127,16 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
     } else if (nextStartTime <= ctx.currentTime) {
       // The audio timeline drained while we thought we were playing.
       const gap = ctx.currentTime - nextStartTime
-      const cold = gap > COLD_GAP_SEC
+      const cold = gap > coldGapSec
       if (!cold) {
         underruns++
         console.warn(
-          `[voice-playback] underrun #${underruns}: playhead gap ${(gap * 1000).toFixed(0)}ms — re-buffering ${(RESUME_SEC * 1000).toFixed(0)}ms`,
+          `[voice-playback] underrun #${underruns}: playhead gap ${(gap * 1000).toFixed(0)}ms — re-buffering ${(resumeSec * 1000).toFixed(0)}ms`,
         )
       }
       // Cold gap = fresh turn (full prefill); warm gap = mid-turn stall (resume).
       playing = false
-      fillTargetSec = cold ? PREBUFFER_SEC : RESUME_SEC
+      fillTargetSec = cold ? prebufferSec : resumeSec
       armHoldTimer()
       return
     }
@@ -178,7 +178,7 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
     active.clear()
     // Barge-in / reset: re-arm a full prefill for the next turn (kutsu `clear`).
     playing = false
-    fillTargetSec = PREBUFFER_SEC
+    fillTargetSec = prebufferSec
     nextStartTime = 0
   }
 
