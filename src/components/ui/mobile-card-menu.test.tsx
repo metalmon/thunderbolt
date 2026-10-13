@@ -22,7 +22,7 @@ describe('MobileCardMenu', () => {
     // `closest` is typed Element | null, and reading .className below needs it narrowed.
     // A throw rather than a non-null assertion, so a component that stops rendering the
     // drawer says so instead of failing on an unrelated line.
-    if (!drawer) throw new Error('no [data-slot="drawer-content"] ancestor')
+    if (!drawer) {throw new Error('no [data-slot="drawer-content"] ancestor')}
     expect(drawer).toHaveClass('w-full')
     // eece0f367 made these surfaces opaque on purpose: animating opacity over a
     // backdrop blur is expensive on weak hardware. Assert the DECISION — solid
