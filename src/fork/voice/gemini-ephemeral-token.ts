@@ -12,8 +12,8 @@ import { geminiLiveApiVersion } from '@shared/gemini-live-endpoint'
 const authTokensUrl = (model: string): string =>
   `https://generativelanguage.googleapis.com/${geminiLiveApiVersion(model)}/auth_tokens`
 
-const TOKEN_EXPIRE_MS = 30 * 60 * 1000
-const NEW_SESSION_EXPIRE_MS = 60 * 1000
+const tokenExpireMs = 30 * 60 * 1000
+const newSessionExpireMs = 60 * 1000
 
 /** Thrown when minting a Gemini Live ephemeral token fails, either because the
  *  API rejected the request or because the response could not be parsed. */
@@ -45,8 +45,8 @@ export const mintGeminiEphemeralToken = async (params: MintGeminiEphemeralTokenP
   }
 
   const nowMs = now()
-  const expireTime = new Date(nowMs + TOKEN_EXPIRE_MS).toISOString()
-  const newSessionExpireTime = new Date(nowMs + NEW_SESSION_EXPIRE_MS).toISOString()
+  const expireTime = new Date(nowMs + tokenExpireMs).toISOString()
+  const newSessionExpireTime = new Date(nowMs + newSessionExpireMs).toISOString()
 
   const response = await fetchImpl(authTokensUrl(model), {
     method: 'POST',
