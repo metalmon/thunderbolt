@@ -3,11 +3,11 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thunderbolt - OAuth Callback</title>
+    <title>Volt - вход</title>
     <style>
       body {
         font-family:
@@ -59,8 +59,8 @@
   </head>
   <body>
     <div class="container">
-      <h1>Completing Authentication...</h1>
-      <p>Please wait while we complete the authentication process.</p>
+      <h1>Завершаем вход...</h1>
+      <p>Подождите, пока завершится вход.</p>
       <div class="spinner"></div>
       <div id="error" class="error" style="display: none"></div>
     </div>
@@ -138,11 +138,11 @@
         })
 
         // Update UI
-        document.querySelector('h1').textContent = 'Authentication Successful!'
-        document.querySelector('p').textContent = 'You can close this window and return to Thunderbolt.'
+        document.querySelector('h1').textContent = 'Вход выполнен'
+        document.querySelector('p').textContent = 'Это окно можно закрыть и вернуться в Volt.'
         document.querySelector('.spinner').style.display = 'none'
       } else {
-        document.getElementById('error').textContent = 'Invalid callback parameters'
+        document.getElementById('error').textContent = 'Неверные параметры ответа сервера входа'
         document.getElementById('error').style.display = 'block'
         document.querySelector('.spinner').style.display = 'none'
       }
