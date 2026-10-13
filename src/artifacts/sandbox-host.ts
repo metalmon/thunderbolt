@@ -52,9 +52,9 @@ const registerDesktop = async ({ html, csp }: SandboxContent): Promise<SandboxHa
 
 // ── Web (service worker) ─────────────────────────────────────────────────────────
 
-const SANDBOX_SW_URL = '/sandbox-sw.js'
-const SANDBOX_PATH_PREFIX = '/__sandbox__/'
-const SW_CHANNEL = 'sandbox-host'
+const sandboxSwUrl = '/sandbox-sw.js'
+const sandboxPathPrefix = '/__sandbox__/'
+const swChannel = 'sandbox-host'
 
 let swReady: Promise<ServiceWorker> | null = null
 
@@ -68,7 +68,7 @@ const ensureSandboxSw = (): Promise<ServiceWorker> => {
     if (!('serviceWorker' in navigator)) {
       throw new Error('Service workers are unavailable; cannot host sandboxed content on this platform.')
     }
-    const registration = await navigator.serviceWorker.register(SANDBOX_SW_URL)
+    const registration = await navigator.serviceWorker.register(sandboxSwUrl)
     await navigator.serviceWorker.ready
     // `clients.claim()` in the SW makes it control already-open pages; wait for that
     // so the very first artifact's fetch is intercepted rather than hitting the network.
@@ -98,7 +98,7 @@ const postToSw = async (message: Record<string, unknown>): Promise<void> => {
         reject(new Error('Sandbox service worker did not acknowledge.'))
       }
     }
-    worker.postMessage({ channel: SW_CHANNEL, ...message }, [channel.port2])
+    worker.postMessage({ channel: swChannel, ...message }, [channel.port2])
   })
 }
 
@@ -106,7 +106,7 @@ const registerWeb = async ({ html, csp }: SandboxContent): Promise<SandboxHandle
   const id = crypto.randomUUID()
   await postToSw({ type: 'store', id, html, csp })
   return {
-    url: `${SANDBOX_PATH_PREFIX}${id}`,
+    url: `${sandboxPathPrefix}${id}`,
     revoke: () => {
       void postToSw({ type: 'revoke', id }).catch(() => {})
     },
