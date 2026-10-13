@@ -7,7 +7,7 @@ import { useReducedMotion } from 'framer-motion'
 import { type ComponentProps, useId } from 'react'
 
 /** The Volt logo bolt silhouette (from `assets/logo.svg`), in a 0 0 32 32 box. */
-const BOLT_PATH =
+const boltPath =
   'M23.296 1.48 13.172 7.44a.5.5 0 0 0-.191.205L7.904 17.852a.444.444 0 0 0 .398.642h4.458L7.477 29.645c-.12.254.209.48.402.276l15.849-16.735c.566-.598.142-1.583-.681-1.583h-4.282l4.945-9.734c.134-.263-.16-.54-.414-.389Z'
 
 type SpinnerProps = ComponentProps<'svg'> & {
@@ -50,10 +50,10 @@ export const Spinner = ({ size = 24, className, ...props }: SpinnerProps) => {
       {...props}
     >
       <clipPath id={clipId}>
-        <path d={BOLT_PATH} />
+        <path d={boltPath} />
       </clipPath>
       {/* Dim bolt silhouette — always visible, so the mark reads even mid-charge. */}
-      <path d={BOLT_PATH} className="fill-current opacity-20" />
+      <path d={boltPath} className="fill-current opacity-20" />
       {/* Bright charge, clipped to the bolt, sweeping bottom→top on a steady beat.
           Reduced motion: hold a static half-charge instead of animating. */}
       <g clipPath={`url(#${clipId})`}>
