@@ -123,8 +123,11 @@ export const composeAllAgents = (
 export const loadAllAgents = async (
   db: AnyDrizzleDatabase,
   options: { includeBuiltIn?: boolean } = {},
+  /** Fork: custom rows are owner-scoped, so the caller says whose list this is. Passed
+   *  explicitly rather than read from the session here, to keep the DAL free of app state. */
+  ownerId: string | null = null,
 ): Promise<Agent[]> => {
-  const [systemRows, customRows] = await Promise.all([getAllSystemAgents(db), getAllAgents(db)])
+  const [systemRows, customRows] = await Promise.all([getAllSystemAgents(db), getAllAgents(db, ownerId)])
   return composeAllAgents(systemRows.map(systemRowToAgent), customRows.map(customRowToAgent), options)
 }
 
