@@ -70,6 +70,10 @@ export const isGenuineClose = (prevArtifactId: string | null, stateType: string 
   prevArtifactId !== null && stateType === null
 
 type RegistryValue = {
+  /** The conversation these artifacts belong to, so a chip can hand it to the
+   *  artifact view — which carries it rather than reading the route, because
+   *  `/apps/:appId` has no `chatThreadId` param. */
+  threadId: string
   getEntry: (uri: string) => CanvasEntry | undefined
   hasAutoOpened: (uri: string) => boolean
   markAutoOpened: (uri: string) => void
@@ -124,6 +128,7 @@ export const CanvasRegistryProvider = ({
 
   const value = useMemo<RegistryValue>(
     () => ({
+      threadId,
       getEntry,
       hasAutoOpened: (uri) => autoOpened.current.has(uri),
       markAutoOpened: (uri) => autoOpened.current.add(uri),
@@ -137,7 +142,7 @@ export const CanvasRegistryProvider = ({
           return next
         }),
     }),
-    [getEntry],
+    [getEntry, threadId],
   )
 
   return <CanvasRegistryContext.Provider value={value}>{children}</CanvasRegistryContext.Provider>
