@@ -17,6 +17,12 @@ pub struct OAuthCallbackPayload {
     pub url: String,
 }
 
+/// The only page this fork shows OUTSIDE its own webview: after the RFC 8252 loopback
+/// redirect the system browser lands here, not the app. Lingui cannot reach it — the
+/// markup is served by a bare TcpListener — and the server has no view of the locale the
+/// app runs in, so the copy in oauth_complete.html is fixed Russian rather than negotiated.
+/// That matches the deployments this fork ships to; revisit if it ever serves a
+/// non-Russian perimeter.
 const RESPONSE_HEADERS: &str = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nConnection: close\r\n\r\n";
 
 /// Embed the shared logo so the one-shot callback page needs no asset requests.
