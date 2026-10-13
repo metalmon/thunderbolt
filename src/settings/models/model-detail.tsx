@@ -25,11 +25,14 @@ type ModelDetailProps = {
   onEdit: () => void
   onDelete: () => void
   onReset: () => void
+  /** False when the row's default no longer ships, so there is nothing to restore to.
+   *  Hides the reset affordance rather than offering one that cannot act. */
+  canReset: boolean
   onClose: () => void
 }
 
 /** Read-only detail panel for one model: provider identity, config fields, and the ⋯ actions menu. */
-export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: ModelDetailProps) => {
+export const ModelDetail = ({ model, onEdit, onDelete, onReset, canReset, onClose }: ModelDetailProps) => {
   const { i18n, t } = useLingui()
   const appName = useAppName()
 
@@ -79,7 +82,7 @@ export const ModelDetail = ({ model, onEdit, onDelete, onReset, onClose }: Model
         </>
       )}
 
-      {isModelModified(model) && (
+      {isModelModified(model) && canReset && (
         <>
           <DetailDivider />
           <ModificationIndicator
