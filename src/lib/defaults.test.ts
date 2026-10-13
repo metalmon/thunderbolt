@@ -5,7 +5,7 @@
 import type { SharedModel } from '@shared/defaults/models'
 import { describe, expect, test } from 'bun:test'
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
-import { defaultModelGlm53, defaultModelGlm53Flash, defaultModelOpus5, defaultModels, hashModel } from '@shared/defaults/models'
+import { defaultModelDeepSeekV41Flash, defaultModelGlm53, defaultModelOpus55, defaultModels, hashModel } from '@shared/defaults/models'
 
 /**
  * Model fixtures. `hashModel`'s behaviour is what these tests are about, and this
@@ -13,7 +13,7 @@ import { defaultModelGlm53, defaultModelGlm53Flash, defaultModelOpus5, defaultMo
  * The structural test below still reads the real catalog, because "whatever we
  * ship must be well-formed" stays true of an empty list.
  */
-const fixtureModels = [defaultModelOpus5, defaultModelGlm53Flash, defaultModelGlm53] as const
+const fixtureModels = [defaultModelOpus55, defaultModelDeepSeekV41Flash, defaultModelGlm53] as const
 import { defaultSettings, hashSetting } from '../defaults/settings'
 
 describe('defaults', () => {
