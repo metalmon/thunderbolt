@@ -6,8 +6,11 @@ name: Build All Platforms
 #
 # Output:
 #   - workflow_dispatch  → always uploads downloadable workflow artifacts.
-#   - push tag v*.*.*    → additionally publishes a GitHub Release with every
-#                          bundle attached (built from the tagged commit).
+#   - push tag v*.*.*    → additionally publishes a DRAFT GitHub Release with every
+#                          bundle attached (built from the tagged commit). Draft so
+#                          one build serves both acceptance and release; promote with
+#                          `gh release edit <tag> --draft=false` once it has been
+#                          installed and checked.
 #
 # Signing (all optional — absent secrets degrade gracefully, they never fail the
 # build):
@@ -302,12 +305,21 @@ jobs:
           echo "Release assets:"
           ls -la release
 
+      # Published as a DRAFT on purpose: a tag build is the only path that produces a
+      # Release, so without this the choice is "publish before anyone has run the
+      # binary" or "build everything twice — once to test, once to release". A draft
+      # gives us one build whose assets are downloadable by the repo's own writers,
+      # and nothing is visible to anyone else until the build has actually been
+      # installed and accepted. Promote it with:
+      #   gh release edit <tag> --repo metalmon/thunderbolt --draft=false
+      # Re-running the tag build replaces the draft, so a failed acceptance costs a
+      # re-tag, not a retracted release.
       - name: Publish release
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          draft: false
+          draft: true
           prerelease: false
           fail_on_unmatched_files: false
           files: release/*
