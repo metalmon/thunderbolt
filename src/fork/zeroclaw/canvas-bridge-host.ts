@@ -4,7 +4,7 @@
 
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
-import { CANVAS_BRIDGE_METHODS, isJsonRpcMessage } from './canvas-bridge-protocol'
+import { canvasBridgeMethods, isJsonRpcMessage } from './canvas-bridge-protocol'
 import type { JsonRpcNotification, JsonRpcRequest, JsonRpcResponse } from './canvas-bridge-protocol'
 
 /**
@@ -78,7 +78,7 @@ export const buildToolResultNotification = (params: {
   structuredContent?: unknown
 }): JsonRpcNotification => ({
   jsonrpc: '2.0',
-  method: CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_RESULT,
+  method: canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_RESULT,
   params,
 })
 
@@ -89,6 +89,6 @@ export const buildToolResultNotification = (params: {
  */
 export const buildToolInputNotification = (params: { arguments?: unknown }): JsonRpcNotification => ({
   jsonrpc: '2.0',
-  method: CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_INPUT,
+  method: canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_INPUT,
   params,
 })

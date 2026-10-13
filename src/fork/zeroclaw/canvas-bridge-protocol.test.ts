@@ -5,7 +5,7 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { describe, expect, it } from 'bun:test'
-import { CANVAS_BRIDGE_METHODS, isJsonRpcMessage } from './canvas-bridge-protocol'
+import { canvasBridgeMethods, isJsonRpcMessage } from './canvas-bridge-protocol'
 
 describe('canvas-bridge-protocol', () => {
   describe('isJsonRpcMessage', () => {
@@ -37,14 +37,14 @@ describe('canvas-bridge-protocol', () => {
     })
   })
 
-  describe('CANVAS_BRIDGE_METHODS', () => {
+  describe('canvasBridgeMethods', () => {
     it('exposes the exact SEP-1865 wire method-name strings', () => {
-      expect(CANVAS_BRIDGE_METHODS.UI_INITIALIZE).toBe('ui/initialize')
-      expect(CANVAS_BRIDGE_METHODS.TOOLS_CALL).toBe('tools/call')
-      expect(CANVAS_BRIDGE_METHODS.UI_PROMPT).toBe('ui/prompt')
-      expect(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_INITIALIZED).toBe('ui/notifications/initialized')
-      expect(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_INPUT).toBe('ui/notifications/tool-input')
-      expect(CANVAS_BRIDGE_METHODS.UI_NOTIFICATIONS_TOOL_RESULT).toBe('ui/notifications/tool-result')
+      expect(canvasBridgeMethods.UI_INITIALIZE).toBe('ui/initialize')
+      expect(canvasBridgeMethods.TOOLS_CALL).toBe('tools/call')
+      expect(canvasBridgeMethods.UI_PROMPT).toBe('ui/prompt')
+      expect(canvasBridgeMethods.UI_NOTIFICATIONS_INITIALIZED).toBe('ui/notifications/initialized')
+      expect(canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_INPUT).toBe('ui/notifications/tool-input')
+      expect(canvasBridgeMethods.UI_NOTIFICATIONS_TOOL_RESULT).toBe('ui/notifications/tool-result')
     })
   })
 })
