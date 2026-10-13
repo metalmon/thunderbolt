@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useChatStore } from '@/chats/chat-store'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { getSettings } from '@/dal'
 import { loadAllAgents } from '@/dal/agents'
@@ -60,6 +61,15 @@ export const useBootstrapSystemAgents = ({ refresh = refreshSystemAgents }: UseB
   // Signing in switches the session to a different user id, which re-runs this:
   // a real account sees more agents than an anonymous one.
   const userId = session?.user?.id
+
+  // Fork: custom-agent rows are scoped to the session user (see
+  // `@/fork/agents/agent-owner`). This hook is where the session id is already
+  // observed, so it is also where the owner is published — the local database
+  // outlives sign-outs, and without an owner the previous user's custom agents
+  // stay visible on a shared device.
+  useEffect(() => {
+    setCurrentAgentOwner(userId ?? null)
+  }, [userId])
 
   useEffect(() => {
     if (!userId || !cloudUrl) {
