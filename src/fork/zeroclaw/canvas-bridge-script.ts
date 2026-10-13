@@ -4,7 +4,7 @@
 
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
-import { CANVAS_BRIDGE_METHODS } from './canvas-bridge-protocol'
+import { canvasBridgeMethods } from './canvas-bridge-protocol'
 
 /**
  * Builds the `<script>` tag injected into a sandboxed artifact iframe so
@@ -34,13 +34,13 @@ import { CANVAS_BRIDGE_METHODS } from './canvas-bridge-protocol'
  * this script must never disturb that race.
  *
  * The returned string contains no runtime import: it is serialized into a
- * cross-origin iframe that has none of our modules, so `CANVAS_BRIDGE_METHODS`
+ * cross-origin iframe that has none of our modules, so `canvasBridgeMethods`
  * is read only at BUILD time, here, to interpolate its literal wire values.
  */
 export const buildCanvasBridgeScript = (nonce: string): string => `<script>
 (function () {
   var NONCE = ${JSON.stringify(nonce)};
-  var METHODS = ${JSON.stringify(CANVAS_BRIDGE_METHODS)};
+  var METHODS = ${JSON.stringify(canvasBridgeMethods)};
   var nextId = 1;
   var pending = {};
   var handlers = {};
