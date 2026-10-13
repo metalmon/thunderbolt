@@ -97,5 +97,6 @@ export const createTestSettings = (overrides: Partial<Settings> = {}): Settings 
   agentIcon: '',
   allowAnonymousAgentDiscovery: false,
   minAppVersion: '',
+  geminiApiKey: '',
   ...overrides,
 })
