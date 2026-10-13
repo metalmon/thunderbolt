@@ -333,7 +333,7 @@ export const ChatPromptInput = forwardRef<ChatPromptInputRef, ChatPromptInputPro
     const removeQuote = usePendingQuotesStore((s) => s.removeQuote)
     const setQuotes = usePendingQuotesStore((s) => s.setQuotes)
     const clearQuotes = usePendingQuotesStore((s) => s.clearQuotes)
-    const modelName = selectedModel.name
+    const modelName = selectedModel?.name ?? ''
     const imageSupport = useImageSupportCheck({
       model: selectedModel,
       attachments,
