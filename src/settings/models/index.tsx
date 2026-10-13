@@ -80,6 +80,7 @@ const ModelsPage = () => {
           onEdit={() => page.openEditPanel(activeModel.id)}
           onDelete={() => page.requestDelete(activeModel.id)}
           onReset={() => page.resetModel(activeModel.id)}
+          canReset={page.canResetModel(activeModel.id)}
           onClose={page.closePanel}
         />
       )
