@@ -858,7 +858,7 @@ const fetchViaHarness = async (
         initial: { modelId: selectedModel.id },
         toolCall: (toolName) => {
           if (toolName === appContextToolName && config.embeddedSurface) {
-            return { modelId: context.selectedModel.id, embeddedSurface: config.embeddedSurface }
+            return { modelId: selectedModel.id, embeddedSurface: config.embeddedSurface }
           }
           const owner = config.mcpToolsMetadata?.[toolName]
           return owner
