@@ -208,7 +208,6 @@ describe('Model Profiles DAL', () => {
   describe('resetModelProfileToDefault', () => {
     it('should restore default values for a known model', async () => {
       const db = getDb()
-      const { defaultModelProfileOpenRouterFree } = await import('@/defaults/model-profiles')
 
       // Insert the actual default model first to satisfy FK constraint
       await db.insert(modelsTable).values({
@@ -269,7 +268,6 @@ describe('Model Profiles DAL', () => {
   describe('createDefaultModelProfile', () => {
     it('should create a profile for a known default model', async () => {
       const db = getDb()
-      const { defaultModelProfileOpenRouterFree, hashModelProfile } = await import('@/defaults/model-profiles')
 
       await db.insert(modelsTable).values({
         id: defaultModelOpenRouterFree.id,
