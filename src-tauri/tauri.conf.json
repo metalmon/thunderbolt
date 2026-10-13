@@ -39,7 +39,15 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "_targets": "Explicit, not \"all\" — `msi` is deliberately absent: WiX's light.exe fails on a Cyrillic `publisher` and takes the whole Windows job down with it, NSIS installer included, and the kit has only ever shipped the NSIS setup. `updater` is NOT a target either — those artifacts come from `createUpdaterArtifacts`, and naming it here failed config validation on every platform before a single bundle was built.",
+    "targets": [
+      "deb",
+      "rpm",
+      "appimage",
+      "app",
+      "dmg",
+      "nsis"
+    ],
     "createUpdaterArtifacts": true,
     "publisher": "Окта Плюс",
     "shortDescription": "Volt: клиент ИИ-ассистента",
