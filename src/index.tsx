@@ -81,11 +81,11 @@ if (!redirecting) {
   // nothing reflows. The pinned size is invisible anyway (the window is minimized)
   // and is released the instant the window returns to a real size. This replaces
   // the per-element animation patches: with no reflow there is nothing to animate.
-  const MINIMIZE_VIEWPORT_WIDTH = 400
+  const minimizeViewportWidth = 400
   let lastNormalWidth = window.innerWidth
   let lastNormalHeight = window.innerHeight
   window.addEventListener('resize', () => {
-    if (window.innerWidth < MINIMIZE_VIEWPORT_WIDTH) {
+    if (window.innerWidth < minimizeViewportWidth) {
       root.style.width = `${lastNormalWidth}px`
       root.style.height = `${lastNormalHeight}px`
       return
