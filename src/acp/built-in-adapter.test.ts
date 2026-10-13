@@ -1336,7 +1336,7 @@ describe('real Pi web-budget payload', () => {
  *  each use. */
 const fixtureModel = (context: AgentAdapterContext): Model => {
   const model = context.selectedModel
-  if (!model) throw new Error('this adapter fixture is built with a model')
+  if (!model) {throw new Error('this adapter fixture is built with a model')}
   return model
 }
 
