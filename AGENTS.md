@@ -82,7 +82,24 @@ Per-branch apply-order rationale lives as comments in `dev-local/fork-branches.p
    upstream's changes.
 3. Rebase only the branches it flags onto `origin/main`; resolve conflicts
    once (rerere caches them).
-4. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+4. **After each branch, run `pwsh dev-local/rebase-verify.ps1 -Branch <b> -OldTip <pre-rebase tip>`**
+   (the old tip is in `git reflog <branch>`). It prints every line the branch used to
+   add and no longer does — a dropped hunk is otherwise silent, and the branch still
+   builds often enough to pass. Read the list: each entry is upstream now providing
+   the line, a deliberate adaptation, or a loss, and only the third is a bug.
+5. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+
+⚠ **A fork branch does not type-check on its own, by design** — it may reference files
+a branch applied *earlier* owns (`fork/sandbox-host` reads `src/fork/zeroclaw/**`;
+the `wrapArtifactHtml` theme argument comes from `fork/hooks`). "Cannot find module"
+and "expected 1 arguments" on an isolated branch are therefore expected noise, not
+damage. Judge the result on the assembled `master`, never on a branch alone — chasing
+`tsc` on one branch has twice now led to rewriting code that was never broken.
+
+⚠ **Never resolve a conflict inside a function body by keeping both sides.** Union
+merging is right for import blocks and wrong everywhere else: it silently produced two
+renderings of the same component in one JSX tree, a doc comment with no opening, and a
+duplicated React import — all of which looked like a lost rebase until read closely.
 
 ## Environment (Windows)
 
