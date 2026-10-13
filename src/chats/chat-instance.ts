@@ -1093,13 +1093,12 @@ export const createChatInstance = (
       // appended call would be bypassed by all of them. `retryCount` is bumped
       // synchronously by the retry branch below before its setTimeout, so comparing
       // against the snapshot taken here reports whether a retry was scheduled.
-      const retryBefore = retryCount
-      try {
-        await runFinishLogic()
-      } finally {
-        sendQueue.onTurnSettled(retryCount > retryBefore)
-      }
-      async function runFinishLogic() {
+      // Audit (AI-SDK Chat entry points that start makeRequest WITHOUT enqueue):
+      // addToolResult/resumeStream are dead code here; the SDK's post-onFinish
+      // auto-continue fires use-chat-automation's regenerate, which is now itself
+      // routed through the send queue (use-chat-automation.tsx), closing the
+      // previously-flagged concurrent-turn bypass.
+      const runFinishLogic = async () => {
         const finishedTurn = currentTurn
         const resetRetryStateIfUnswapped = () => {
           if (currentTurn !== finishedTurn) {
@@ -1337,6 +1336,13 @@ export const createChatInstance = (
             }
           }
         }
+      }
+
+      const retryBefore = retryCount
+      try {
+        await runFinishLogic()
+      } finally {
+        sendQueue.onTurnSettled(retryCount > retryBefore)
       }
     }),
     // Retry logic lives in onFinish (the SDK's finally block), not here.

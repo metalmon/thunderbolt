@@ -833,7 +833,9 @@ const ChatPromptInputComponent = forwardRef<ChatPromptInputRef, ChatPromptInputP
     const handleShowOverflowModal = useCallback(
       (model: Model | null, length: number, prompt_number: number) => {
         setShowOverflowModal(true)
-        if (!model) return
+        if (!model) {
+          return
+        }
         trackEvent('chat_send_prompt_overflow', {
           model_id: model.id,
           model_name: model.model,
