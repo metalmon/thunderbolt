@@ -160,6 +160,23 @@ reintroduce the scroll bug. Don't panic-remove it on rebase.
 `transparent` (plus the other macOS chrome settings, by convention). If you add a new
 macOS-specific window property, put it in `tauri.macos.conf.json`, not the base config.
 
+## Windows bundle: `msi` and the Cyrillic publisher are mutually exclusive
+
+`bundle.targets` is an explicit list, deliberately **without `msi`**. The installer
+identity sets `publisher` to «Окта Плюс», and WiX's `light.exe` fails on a Cyrillic
+publisher — which does not merely skip the MSI, it fails the whole Windows job and takes
+the NSIS installer down with it. The kit has only ever shipped the NSIS setup, so the MSI
+was built and discarded even when it worked.
+
+`updater` is **not** a bundle target either: those artifacts come from
+`createUpdaterArtifacts`, and naming it in the list fails config validation on every
+platform before a single bundle is built.
+
+Both the list and the publisher were lost once — a rebuild regenerated `master` from the
+patch branches while they had only ever lived on `master`. They now sit on fork/dev and
+fork/rebrand respectively, and must land together: the publisher without the list breaks
+the Windows build.
+
 ## Localization override — model-facing text shown in the UI IS translated (fork)
 
 Volt is RU-first inside a closed perimeter, so the upstream rule **"Model-facing
