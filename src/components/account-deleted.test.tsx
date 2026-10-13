@@ -37,9 +37,13 @@ describe('AccountDeleted', () => {
       expect(screen.getByText('Your account has been deleted and local data has been cleared.')).toBeInTheDocument()
     })
 
-    it('renders Volt branding', () => {
+    // The brand reaches the user through the RU/EN catalogs (msgstr-only swap), so the
+    // component's message id stays the upstream name — and `src/testing-library.ts` mocks
+    // the Lingui macros to render the English SOURCE. Asserting "Volt" here tested the
+    // mock, not the product, and only passed because this branch applies last.
+    it('renders the brand heading', () => {
       renderComponent()
-      expect(screen.getByText('Volt')).toBeInTheDocument()
+      expect(screen.getByText('Thunderbolt')).toBeInTheDocument()
     })
 
     it('renders Back to App button', () => {
