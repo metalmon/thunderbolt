@@ -12,7 +12,7 @@
 
 import '@/testing-library'
 
-import { defaultModels } from '@shared/defaults/models'
+import { defaultModelOpus55 } from '@shared/defaults/models'
 import { inferenceModelHeader } from '@shared/inference-usage'
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { clearImageSupportCache, setCachedImageSupport } from '@/ai/image-support'
@@ -298,7 +298,8 @@ describe('resolvePiModel — managed Anthropic', () => {
   // pi-ai 0.82.1 has no claude-opus-5-5. Without the alias the shipped Opus row
   // would resolve to null and silently drop every chat to the legacy pipeline.
   it('takes the Pi path for the shipped Opus row with Opus 5 catalog metadata and its own wire slug', async () => {
-    const shippedOpus = defaultModels.find(({ vendor }) => vendor === 'anthropic')!
+    // Named directly: this fork ships `defaultModels` empty, so searching it finds nothing.
+    const shippedOpus = defaultModelOpus55
     const model = { ...shippedOpus, apiKey: null } as Model
     const context = { selectedModel: model, getProxyFetch: () => noopFetch } as AgentAdapterContext
 
