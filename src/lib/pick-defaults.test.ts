@@ -3,13 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
-import type {
-  defaultModels} from '@shared/defaults/models';
-import {
-  defaultModelOpenRouterFree,
-  defaultModelOpus55,
-  defaultModelsVersion,
-} from '@shared/defaults/models'
+import type { defaultModels } from '@shared/defaults/models'
+import { defaultModelOpenRouterFree, defaultModelOpus55, defaultModelsVersion } from '@shared/defaults/models'
 import { pickModelsDefaults } from './pick-defaults'
 
 const serverPayload = (version: number) => ({
@@ -83,11 +78,8 @@ describe('pickModelsDefaults', () => {
 
   test('bundle wins when server payload has zero overlap with bundled ids (wholesale replacement)', () => {
     // Guards `cleanupRemovedDefaults` from treating every bundle-known row as
-    // retired. On this fork the bundle is EMPTY, so the rule also means a payload
-    // can never arrive on its own: a model is only ever seeded when the BUILD
-    // bundles a profile for its id (see `bundledProfileModelIds` in
-    // reconcile-defaults), which is why relaxing this for an empty bundle would
-    // promise models the pipeline then drops anyway.
+    // retired. The rule is about protecting rows that exist, so it applies only
+    // while the bundle ships some — see the empty-bundle case below.
     const disjointPayload = {
       version: defaultModelsVersion + 5,
       data: [
@@ -114,5 +106,31 @@ describe('pickModelsDefaults', () => {
     const picked = pickModelsDefaults(partialOverlap, fixtureBundle)
     expect(picked.version).toBe(defaultModelsVersion + 1)
     expect(picked.data).toBe(partialOverlap.data)
+  })
+  test('server wins on a build that bundles no models at all (the deployment publishes the lineup)', () => {
+    // This fork ships an empty `defaultModels`: which models a pilot offers is a
+    // deployment decision, so the server supplies them. There are no bundled rows for
+    // the overlap rule to protect, and testing overlap against an empty set would
+    // reject every payload — muting the only channel that can deliver a lineup.
+    const emptyBundle = { version: defaultModelsVersion, data: [] as const }
+    const published = {
+      version: defaultModelsVersion + 1,
+      data: [
+        { ...defaultModelOpus55, id: 'pilot-model-1', name: 'Pilot Model 1' },
+        { ...defaultModelOpus55, id: 'pilot-model-2', name: 'Pilot Model 2' },
+      ],
+    }
+    const picked = pickModelsDefaults(published, emptyBundle)
+    expect(picked.version).toBe(defaultModelsVersion + 1)
+    expect(picked.data).toBe(published.data)
+  })
+
+  test('an empty bundle with no server payload stays empty rather than failing', () => {
+    // The normal state today: nothing published yet. Reconcile must get a well-formed
+    // empty set and write nothing, which is what keeps the app running without one.
+    const emptyBundle = { version: defaultModelsVersion, data: [] as const }
+    const picked = pickModelsDefaults(undefined, emptyBundle)
+    expect(picked.version).toBe(defaultModelsVersion)
+    expect(picked.data).toEqual([])
   })
 })

@@ -24,13 +24,19 @@ type ServerModelsDefaults = { version: number; data: SharedModel[] }
  * Sanity guards on the server payload (fall back to bundle when tripped):
  *   - version is a finite number strictly higher than the bundle's;
  *   - `data` is a non-empty array;
- *   - **at least one id in `data` overlaps with the bundle's `defaultModels`**.
- *     Without this, `cleanupRemovedDefaults` would treat every bundle-known
- *     row as retired (none appear in the server's `currentModelIds`) and
- *     soft-delete the lot, while the filtered reconcile pass would insert
- *     nothing (OTA-only-new ids have no bundled profile). Bundle acts as the
- *     floor: OTA can update or retire ids the bundle knows, but not wipe
- *     wholesale.
+ *   - **at least one id in `data` overlaps with the bundle's `defaultModels`**,
+ *     *when the bundle ships any*. Without it, `cleanupRemovedDefaults` would
+ *     treat every bundle-known row as retired (none appear in the server's
+ *     `currentModelIds`) and soft-delete the lot. Bundle acts as the floor: OTA
+ *     can update or retire ids the bundle knows, but not wipe wholesale.
+ *
+ *     A build that ships NO bundled models (this fork — its lineup is a
+ *     deployment decision, so the server supplies it) has no such rows to
+ *     protect, and an overlap test against an empty set rejects every payload.
+ *     The guard is therefore conditioned on the bundle being non-empty, which
+ *     is what keeps the channel usable for a pilot that publishes its own set.
+ *     Upstream behaviour is unchanged: with a non-empty bundle the rule applies
+ *     exactly as before.
  */
 export const pickModelsDefaults = (
   server: ServerModelsDefaults | undefined,
@@ -50,7 +56,9 @@ export const pickModelsDefaults = (
     server.data.length > 0
   ) {
     const bundledIds = new Set(bundle.data.map((m) => m.id))
-    if (server.data.some((m) => bundledIds.has(m.id))) {
+    // No bundled rows means nothing for the overlap rule to protect (see the
+    // docstring) — refusing here would mute the channel instead of guarding it.
+    if (bundledIds.size === 0 || server.data.some((m) => bundledIds.has(m.id))) {
       return { version: server.version, data: server.data }
     }
     // Payload is well-formed but has zero overlap with the bundle. Either the
