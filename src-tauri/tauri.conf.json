@@ -24,13 +24,12 @@
     "security": {
       "csp": {
         "default-src": "'self' tauri: asset:",
-        "frame-src": "'self' https:",
+        "frame-src": "'self' sandbox: http://sandbox.localhost",
         "connect-src": "'self' ipc: http://ipc.localhost https: wss: ws://localhost:8000 http://localhost:8000 ws://localhost:8080 http://localhost:8080 ws://127.0.0.1:8839 ws://127.0.0.1:8840 http://localhost:11434",
         "img-src": "'self' asset: data: https://api.thunderbolt.io",
         "font-src": "'self' data:",
         "style-src": "'self' 'unsafe-inline'",
-        "script-src": "'self' 'wasm-unsafe-eval'",
-        "frame-src": "'self' sandbox: http://sandbox.localhost"
+        "script-src": "'self' 'wasm-unsafe-eval'"
       }
     },
     "withGlobalTauri": true
