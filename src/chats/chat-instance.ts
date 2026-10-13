@@ -888,13 +888,7 @@ export const createChatInstance = (
       // auto-continue fires use-chat-automation's regenerate, which is now itself
       // routed through the send queue (use-chat-automation.tsx), closing the
       // previously-flagged concurrent-turn bypass.
-      const retryBefore = retryCount
-      try {
-        await runFinishLogic()
-      } finally {
-        sendQueue.onTurnSettled(retryCount > retryBefore)
-      }
-      async function runFinishLogic() {
+      const runFinishLogic = async () => {
         const finishedTurn = currentTurn
         const resetRetryStateIfUnswapped = () => {
           if (currentTurn !== finishedTurn) {
@@ -1107,6 +1101,13 @@ export const createChatInstance = (
         } else {
           markRetriesExhausted(finishedTurn, retryReason)
         }
+      }
+
+      const retryBefore = retryCount
+      try {
+        await runFinishLogic()
+      } finally {
+        sendQueue.onTurnSettled(retryCount > retryBefore)
       }
     },
     // Retry logic lives in onFinish (the SDK's finally block), not here.
