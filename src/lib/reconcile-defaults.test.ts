@@ -6,7 +6,7 @@ import { deleteModel, getAllModels, updateSettings } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
-import { eq } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import type { AnyColumn } from 'drizzle-orm'
 import type { AnySQLiteTable } from 'drizzle-orm/sqlite-core'
 import { modelProfilesTable, modelsTable, promptsTable, settingsTable, skillsTable, tasksTable } from '../db/tables'
@@ -999,6 +999,31 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const row = await db.select().from(settingsTable).where(eq(settingsTable.key, modelsVersionKey)).get()
     return row?.value == null ? null : Number(row.value)
   }
+
+  test('seeds a server-published lineup on a build that bundles no profiles', async () => {
+    // What a pilot deployment does: ship no models in the build and publish the lineup
+    // from the server. The model↔profile pairing rule would otherwise drop every one of
+    // them (no bundled profile carries their ids), so the set would be adopted and then
+    // silently discarded. A model without a profile row is the normal case here anyway —
+    // `createDefaultModelProfile` no-ops for every user-added model too.
+    const db = getDb()
+    const published = [
+      { ...defaultModelOpus55, id: 'pilot-model-1', name: 'Pilot Model 1' },
+      { ...defaultModelOpus55, id: 'pilot-model-2', name: 'Pilot Model 2' },
+    ]
+    const publishedVersion = defaultModelsVersion + 1
+
+    await reconcileDefaults(db, {
+      initialSyncCompleted: false,
+      models: { version: publishedVersion, data: published },
+      profiles: [],
+    })
+
+    const seeded = await db.select().from(modelsTable).where(isNull(modelsTable.deletedAt))
+    expect(seeded.map((row) => row.id).sort()).toEqual(['pilot-model-1', 'pilot-model-2'])
+    // Marker advances, so the returning-boot fast path is not wedged by dropped ids.
+    expect(await readStoredModelsVersion()).toBe(publishedVersion)
+  })
 
   test('fresh install applies bundle defaults and stamps the applied version', async () => {
     const db = getDb()
