@@ -5,7 +5,7 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 /** Volt derives the ACP `toolCallId` of a canvas-origin tool call as `canvas:<callId>`. */
-export const CANVAS_TOOLCALL_PREFIX = 'canvas:'
+export const canvasToolCallPrefix = 'canvas:'
 
 /**
  * Wire `callId` for a canvas-proxied tool call: `<artifactNonce>:<appCallId>`.
@@ -23,10 +23,10 @@ export const composeCanvasCallId = (artifactNonce: string, appCallId: string): s
  * Returns null for any non-canvas or malformed id.
  */
 export const parseCanvasToolCallId = (toolCallId: string): { nonce: string; appCallId: string } | null => {
-  if (!toolCallId.startsWith(CANVAS_TOOLCALL_PREFIX)) {
+  if (!toolCallId.startsWith(canvasToolCallPrefix)) {
     return null
   }
-  const rest = toolCallId.slice(CANVAS_TOOLCALL_PREFIX.length)
+  const rest = toolCallId.slice(canvasToolCallPrefix.length)
   const sep = rest.indexOf(':')
   if (sep <= 0 || sep === rest.length - 1) {
     return null
