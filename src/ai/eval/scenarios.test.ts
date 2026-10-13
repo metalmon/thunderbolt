@@ -7,9 +7,8 @@ import {
   defaultModelDeepSeekV41Flash,
   defaultModelGlm53,
   defaultModelOpus55,
-  defaultModels,
 } from '@shared/defaults/models'
-import { deriveEvalModelMatrix, evalModelSlugs, evalModels, getScenarios } from './scenarios'
+import { deriveEvalModelMatrix, evalModelSlugs, evalModels, evalReferenceModels, getScenarios } from './scenarios'
 
 describe('eval model matrix', () => {
   test('tracks every shipped default model with a stable slug and production engine', () => {
@@ -21,9 +20,9 @@ describe('eval model matrix', () => {
   })
 
   test('fails loudly when a shipped model has no stable slug', () => {
-    const newDefault = { ...defaultModels[0], id: 'new-model-id', name: 'New Model' }
+    const newDefault = { ...defaultModelOpus55, id: 'new-model-id', name: 'New Model' }
 
-    expect(() => deriveEvalModelMatrix([...defaultModels, newDefault], evalModelSlugs)).toThrow(
+    expect(() => deriveEvalModelMatrix([...evalReferenceModels, newDefault], evalModelSlugs)).toThrow(
       'Missing eval slug for default model "New Model" (new-model-id)',
     )
   })
