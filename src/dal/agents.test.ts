@@ -326,7 +326,8 @@ describe('agents DAL', () => {
     it('loads the built-in agent, then system rows, then custom rows', async () => {
       await seedSystemAndCustomRows()
 
-      const agents = await loadAllAgents(getDb())
+      // Custom rows are owner-scoped, so the load names the owner the fixture seeded.
+      const agents = await loadAllAgents(getDb(), {}, 'u1')
 
       expect(agents.map((agent) => agent.id)).toEqual([builtInAgent.id, 'hosted-agent', 'custom-agent'])
     })
@@ -334,9 +335,19 @@ describe('agents DAL', () => {
     it('leaves the built-in agent out when the deployment disables it', async () => {
       await seedSystemAndCustomRows()
 
-      const agents = await loadAllAgents(getDb(), { includeBuiltIn: false })
+      const agents = await loadAllAgents(getDb(), { includeBuiltIn: false }, 'u1')
 
       expect(agents.map((agent) => agent.id)).toEqual(['hosted-agent', 'custom-agent'])
+    })
+
+    it('omits the rows of another user — the local database outlives a sign-out', async () => {
+      await seedSystemAndCustomRows()
+
+      // Someone else signed in on this device. The previous user's row is still in the
+      // local database ("keep data on device"), and must not appear in their list.
+      const agents = await loadAllAgents(getDb(), {}, 'u2')
+
+      expect(agents.map((agent) => agent.id)).toEqual([builtInAgent.id, 'hosted-agent'])
     })
 
     it('clamps a custom row whose plaintext type was rewritten to managed-http', async () => {
@@ -345,7 +356,7 @@ describe('agents DAL', () => {
       const rewrittenType = 'managed-http' as CustomAgentType
       await getDb().update(agentsTable).set({ type: rewrittenType }).where(eq(agentsTable.id, 'custom-agent'))
 
-      const agents = await loadAllAgents(getDb())
+      const agents = await loadAllAgents(getDb(), {}, 'u1')
 
       expect(agents.find((agent) => agent.id === 'custom-agent')?.type).toBe('remote-acp')
     })
