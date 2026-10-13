@@ -26,9 +26,17 @@ $ErrorActionPreference = "Stop"
 # so disable hooks for EVERY git subprocess this script spawns via GIT_CONFIG_*
 # env (transient — scoped to this process, not a persistent repo/global config).
 $env:HUSKY = "0"
-$env:GIT_CONFIG_COUNT = "1"
+# Also disable HEAD reflog writes for the assembly. A rebuild moves HEAD ~500 times
+# and the reflog is append-only: on Windows a scanner holding `.git/logs/HEAD` open for
+# a moment makes git report `cannot update the ref 'HEAD': Permission denied` and
+# `fatal: cherry-pick failed` AFTER the commit object is already written — the pick
+# landed, the sequence stopped, and the next run looks like lost commits. The reflog
+# for a branch regenerated from its sources is worth nothing anyway.
+$env:GIT_CONFIG_COUNT = "2"
 $env:GIT_CONFIG_KEY_0 = "core.hooksPath"
 $env:GIT_CONFIG_VALUE_0 = "/dev/null"
+$env:GIT_CONFIG_KEY_1 = "core.logAllRefUpdates"
+$env:GIT_CONFIG_VALUE_1 = "false"
 
 # Canonical branch list + apply order live in one place; dot-source it.
 . "$PSScriptRoot/fork-branches.ps1"
