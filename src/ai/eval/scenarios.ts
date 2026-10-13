@@ -50,8 +50,8 @@ export const deriveEvalModelMatrix = (
 // carry the slugs, external judges, and baselines. Point it at those explicitly rather
 // than the shipped defaults, so swapping the picker catalog never breaks the eval matrix.
 export const evalReferenceModels: ReadonlyArray<SharedModel> = [
-  defaultModelOpus5,
-  defaultModelGlm53Flash,
+  defaultModelOpus55,
+  defaultModelDeepSeekV41Flash,
   defaultModelGlm53,
 ]
 
