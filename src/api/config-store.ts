@@ -39,6 +39,21 @@ export type AppConfig = {
   defaults?: {
     models?: {
       version: number
+      /**
+       * TODO (fork): nothing reads this yet — decide how a deployment names its
+       * default model.
+       *
+       * The selected-model tiebreaker (`getSelectedModelQuery` in `@/dal/models`)
+       * pins the BUNDLED `defaultModelId` constant, which on this fork names a model
+       * the build does not ship. Harmless today — it is only an `ORDER BY`
+       * preference, so the pick falls through to name order — but it means a pilot
+       * that publishes its lineup here cannot say which of those models is the
+       * default one, and the first by name wins instead.
+       *
+       * Wiring it needs a signature change: the DAL query has no business reading
+       * this store, so the preferred id should arrive as a parameter (defaulting to
+       * the bundled constant) from the callers that do have config access.
+       */
       defaultModelId: string
       data: SharedModel[]
     }
