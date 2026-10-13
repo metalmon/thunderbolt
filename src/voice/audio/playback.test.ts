@@ -8,7 +8,7 @@ import type { AudioChunk } from '@/voice/engine/types'
 
 import { createPlaybackQueue } from './playback'
 
-const RATE = 24000
+const sampleRate = 24000
 
 /** A minimal fake AudioContext with a manually-driven clock, recording the
  *  start time of every scheduled source so tests can assert the buffer's
@@ -54,8 +54,8 @@ const makeFakeCtx = () => {
 
 /** A chunk of `seconds` of (silent) audio at 24 kHz. */
 const chunk = (seconds: number): AudioChunk => ({
-  pcm: new Float32Array(Math.round(seconds * RATE)),
-  sampleRate: RATE,
+  pcm: new Float32Array(Math.round(seconds * sampleRate)),
+  sampleRate: sampleRate,
 })
 
 let warn: ReturnType<typeof spyOn>

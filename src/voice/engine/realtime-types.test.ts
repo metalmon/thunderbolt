@@ -51,7 +51,7 @@ describe('RealtimeEngine types', () => {
     const events: RealtimeEvent[] = []
     for await (const event of e.events()) {
       events.push(event)
-      if (events.length === 2) break
+      if (events.length === 2) {break}
     }
 
     expect(events.length).toBe(2)

@@ -314,7 +314,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
   })
 
   test('drain watcher returns to `listening` and terminates under fake timers', async () => {
-    let states: SessionState[] = []
+    const states: SessionState[] = []
     const { engine } = makeEngine({
       events: () =>
         (async function* () {
