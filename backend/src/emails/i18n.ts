@@ -32,6 +32,7 @@ import { messages as es } from './locales/es/messages'
 import { messages as fr } from './locales/fr/messages'
 import { messages as ja } from './locales/ja/messages'
 import { messages as ptBR } from './locales/pt-BR/messages'
+import { messages as ru } from './locales/ru/messages'
 
 const catalogs: Record<AppLocale, Messages> = {
   en,
@@ -40,6 +41,7 @@ const catalogs: Record<AppLocale, Messages> = {
   es,
   'pt-BR': ptBR,
   ja,
+  ru,
   'en-XA': enXA,
 }
 
