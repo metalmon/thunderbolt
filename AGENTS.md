@@ -99,7 +99,33 @@ damage. Judge the result on the assembled `master`, never on a branch alone — 
 ⚠ **Never resolve a conflict inside a function body by keeping both sides.** Union
 merging is right for import blocks and wrong everywhere else: it silently produced two
 renderings of the same component in one JSX tree, a doc comment with no opening, and a
-duplicated React import — all of which looked like a lost rebase until read closely.
+duplicated React import — all of which looked like a lost rebase until read closely. Where upstream
+MOVED code the fork wraps (a body re-indented into a wrapper, a `return` relocated into
+a new `switch` case), git sees a deletion plus an addition — so "both sides" means "the
+body twice". Re-derive the fork's transform onto upstream's NEW body instead: stage `:2:`
+is upstream's side, `:3:` the branch being replayed, and `git show <sha> -- <path> | grep
+'^@@'` lists what the fork's commit actually did. `git checkout --theirs/--ours` is not a
+shortcut — it replaces the WHOLE file and drops upstream's unconflicted changes in it.
+Run `bunx prettier --check <file>` after any scripted resolution: an unparseable result
+otherwise survives the whole rebuild in silence.
+
+⚠ **After rebasing a branch, suspect `.git/rr-cache` before you suspect a lost rebase.**
+rerere keys resolutions on the conflict's shape, so an entry recorded BEFORE a branch was
+rebased can replay against a shape that no longer exists — and it reports success. That is
+what produced the duplicated-import/two-renderings damage above, invisible in the rebuild
+log and surfacing only as a `tsc` parse error (and an `i18n:check` failure, because lingui
+could not parse the file). Cure: `grep -rl '<distinctive string>' .git/rr-cache/*/postimage`,
+`rm -rf` that entry's directory, rebuild — git then merges it cleanly on its own.
+
+⚠ **`cannot update the ref 'HEAD': ... Permission denied` followed by `fatal: cherry-pick
+failed` is a lie about the commit.** The object is already written; only the append to
+`.git/logs/HEAD` failed (Windows, ~500 HEAD moves, a 1 MB append-only file). The sequence
+stops mid-assembly and the next run reads like silently dropped commits. `rebuild-master.ps1`
+deletes that file up front — `core.logAllRefUpdates=false` alone does NOT work, because git
+appends to a reflog that already exists.
+
+**Proving a rebuild lost nothing:** `sum(git rev-list --count main..<each branch>)` must
+equal `git rev-list --count main..master`.
 
 ## Environment (Windows)
 
