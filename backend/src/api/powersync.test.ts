@@ -20,6 +20,7 @@ const powersyncSettings: Settings = {
   defaultModels: '',
   defaultModelsVersion: '',
   miniAppTokenExpirySeconds: 300,
+  geminiApiKey: '',
   fireworksApiKey: '',
   anthropicApiKey: '',
   anthropicBaseUrl: 'https://api.anthropic.com',
