@@ -18,6 +18,7 @@ import { createPowerSyncRoutes } from './powersync'
 const powersyncSettings: Settings = {
   miniApps: '',
   miniAppTokenExpirySeconds: 300,
+  geminiApiKey: '',
   fireworksApiKey: '',
   anthropicApiKey: '',
   anthropicBaseUrl: 'https://api.anthropic.com',
