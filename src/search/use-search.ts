@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from '@powersync/tanstack-react-query'
+import { useAgents } from '@/dal'
+import { dropForeignAgentHits } from '@/fork/agents/owned-search-hits'
 import { planSearchQuery, toLikePattern, type SearchQueryPlan } from './query-plan'
 import { searchEntities } from './registry'
 import { bm25Sql, bodyColumnIndex } from './search-sql'
@@ -133,8 +135,12 @@ export const useSearch: UseSearch = (query) => {
     placeholderData: (previousData) => previousData,
   })
 
+  // Fork: the FTS index is built by triggers over the whole `agents` table, so it also
+  // knows rows of other users still on this device; only the owner's agents may surface.
+  const ownedAgentIds = new Set(useAgents().map((agent) => agent.id))
+
   if (!enabled) {
     return { results: [], isLoading: false }
   }
-  return { results: (data ?? []).map(toResult), isLoading }
+  return { results: dropForeignAgentHits((data ?? []).map(toResult), ownedAgentIds), isLoading }
 }
