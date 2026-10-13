@@ -516,9 +516,22 @@ export const reconcileDefaults = async (db: AnyDrizzleDatabase, overrides?: Reco
     // those ids out and log the drop; cleanup still uses the unfiltered set
     // so a genuinely-shipped-elsewhere row (present locally via sync from a
     // newer-bundle peer) stays alive.
+    //
+    // A build that bundles NO profiles at all is the exception: the rule would drop
+    // every OTA model, so there is nothing left for it to protect. It is also not the
+    // runtime requirement the wording suggests — `createDefaultModelProfile` already
+    // no-ops for every user-added model, so a model with no profile row is the normal
+    // case, and every profile column is an optional tuning knob (`src/ai/fetch.ts`
+    // reads the profile as nullable). This fork ships no profiles because it ships no
+    // models: the lineup is a deployment decision, published by the server.
     const bundledProfileModelIds = new Set(bundledProfiles.map((p) => p.modelId))
-    const modelsForReconcile = modelsSource.data.filter((m) => bundledProfileModelIds.has(m.id))
-    const droppedOtaModelIds = modelsSource.data.filter((m) => !bundledProfileModelIds.has(m.id)).map((m) => m.id)
+    const pairingApplies = bundledProfileModelIds.size > 0
+    const modelsForReconcile = pairingApplies
+      ? modelsSource.data.filter((m) => bundledProfileModelIds.has(m.id))
+      : modelsSource.data
+    const droppedOtaModelIds = pairingApplies
+      ? modelsSource.data.filter((m) => !bundledProfileModelIds.has(m.id)).map((m) => m.id)
+      : []
     if (droppedOtaModelIds.length > 0) {
       console.warn(
         `[reconcileDefaults] Dropped ${droppedOtaModelIds.length} OTA model(s) without a bundled profile: ` +
