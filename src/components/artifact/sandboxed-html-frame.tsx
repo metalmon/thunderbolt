@@ -97,6 +97,7 @@ export type SandboxedHtmlFrameProps = {
    * looks like now, not what it looked like at load.
    */
   onContextChange?: (context: ArtifactContext) => void
+  /**
    * Fork hook (Canvas Action Channel): fired for each validated Wire A JSON-RPC
    * request/notification the in-iframe canvas bridge script posts to the host.
    * `frame.post` sends a message back into this same iframe — e.g. a JSON-RPC
@@ -205,13 +206,15 @@ export const SandboxedHtmlFrame = ({
    * and resolves empty instead of pointing at the previous artifact's DOM.
    *
    * The nonce alone could not do this: it comes from `useState` and is stable
-   * for the component's lifetime, while `srcDoc` recomputes when the HTML
-   * changes. The boundary is `srcDoc`.
+   * for the component's lifetime, while the registered `src` recomputes when the
+   * HTML changes. The boundary is `src` (upstream's is `srcDoc` — this fork serves
+   * the frame from the sandbox host rather than inlining the document).
    */
   const onQueryReadyRef = useRef(onQueryReady)
   onQueryReadyRef.current = onQueryReady
   // One registry per frame, shared with the message handler below so replies
   // route through a single listener rather than one per request.
+  const [src, setSrc] = useState<string | null>(null)
   const [pending] = useState(() => createPendingRequests())
   useEffect(() => {
     onQueryReadyRef.current?.(async (point) => {
@@ -238,13 +241,12 @@ export const SandboxedHtmlFrame = ({
       const parsed = artifactElementAtSchema.safeParse(result)
       return parsed.success ? parsed.data.element : null
     })
-  }, [nonce, srcDoc, pending])
+  }, [nonce, src, pending])
   const onBridgeMessageRef = useRef(onBridgeMessage)
   onBridgeMessageRef.current = onBridgeMessage
 
   // Register the wrapped HTML with the sandbox host; the resulting URL is what the
   // iframe loads. Re-register when the document changes; revoke on change/unmount.
-  const [src, setSrc] = useState<string | null>(null)
   const [contentHeight, setContentHeight] = useState<number | null>(null)
   useEffect(() => {
     let handle: SandboxHandle | null = null
@@ -331,13 +333,15 @@ export const SandboxedHtmlFrame = ({
     return () => {
       window.removeEventListener('message', handleMessage)
       // A caller awaiting an answer when the document reloads gets an empty one
-      // rather than a promise that never settles. `srcDoc` is a dependency for
+      // rather than a promise that never settles. `src` is a dependency for
       // exactly that reason: the nonce is stable for the component's lifetime, so
       // keying only on it meant a reload never re-ran this and a query issued
-      // against the old document sat until its timeout.
+      // against the old document sat until its timeout. (Upstream keys on
+      // `srcDoc`; this fork serves the frame from the sandbox host, so the
+      // registered URL is the value that changes on a reload.)
       pending.abortAll()
     }
-  }, [nonce, srcDoc, pending])
+  }, [nonce, src, pending])
 
   const style = autoHeight ? { height: contentHeight ?? defaultAutoHeightPx } : undefined
   const frameClass = cn('w-full border-0 bg-white', autoHeight ? '' : 'h-full', className)
