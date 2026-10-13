@@ -22,9 +22,9 @@ const openIds = (messages: ModelMessage[]): string[] => {
   const open = new Set<string>()
   for (const m of messages) {
     if (m.role === 'assistant' && Array.isArray(m.content)) {
-      for (const p of m.content as any[]) if (p.type === 'tool-call') open.add(p.toolCallId)
+      for (const p of m.content as any[]) {if (p.type === 'tool-call') {open.add(p.toolCallId)}}
     }
-    if (m.role === 'tool') for (const p of m.content as any[]) if (p.type === 'tool-result') open.delete(p.toolCallId)
+    if (m.role === 'tool') {for (const p of m.content as any[]) {if (p.type === 'tool-result') {open.delete(p.toolCallId)}}}
   }
   return [...open]
 }
@@ -114,7 +114,7 @@ describe('ensureToolResults', () => {
       // Tool WITHOUT execute → SDK emits the call but produces no result.
       tools: { do_thing: { description: 'd', inputSchema: z.object({ q: z.string() }) } as any },
     })
-    for await (const _ of attempt1.textStream) void _
+    for await (const _ of attempt1.textStream) {void _}
     const response = await attempt1.response
     // Sanity: the response really is orphaned (tool-call, no tool-result).
     expect(response.messages.some((m) => m.role === 'tool')).toBe(false)
@@ -156,7 +156,7 @@ describe('ensureToolResults', () => {
           captured = error
         },
       })
-      for await (const _ of r.textStream) void _
+      for await (const _ of r.textStream) {void _}
       try {
         await r.response
       } catch {
