@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'bun:test'
 import { renderHtmlOutput, type RenderHtmlPart } from '@/artifacts/render-html-tool'
-import { composeCanvasCallId, CANVAS_TOOLCALL_PREFIX } from './canvas-call-id'
+import { composeCanvasCallId, canvasToolCallPrefix } from './canvas-call-id'
 import { buildMockCanvasResultMessage, findUnresolvedCanvasActions } from './dev-canvas-mock'
 import type { CanvasActionMeta } from './canvas-action-message'
 import type { ThunderboltUIMessage } from '@/types'
@@ -33,7 +33,7 @@ describe('buildMockCanvasResultMessage', () => {
     const message = buildMockCanvasResultMessage(toolAction)
     expect(message.role).toBe('assistant')
     const part = message.parts[0] as unknown as { type: string; toolCallId: string; state: string; output: unknown }
-    expect(part.toolCallId).toBe(`${CANVAS_TOOLCALL_PREFIX}${toolAction.callId}`)
+    expect(part.toolCallId).toBe(`${canvasToolCallPrefix}${toolAction.callId}`)
     expect(part.state).toBe('output-available')
     expect(part.output).toEqual({ success: true, tool: 'mock_tool', echo: { a: 1 } })
   })
@@ -68,7 +68,7 @@ describe('findUnresolvedCanvasActions', () => {
   })
 
   it('ignores an action once a matching tool part (real or synthetic) exists', () => {
-    const toolCallId = `${CANVAS_TOOLCALL_PREFIX}${toolAction.callId}`
+    const toolCallId = `${canvasToolCallPrefix}${toolAction.callId}`
     const messages = [
       userMsg('m1', toolAction),
       assistantMsg('m2', [{ type: 'tool-canvas', toolCallId, state: 'output-available', output: {} }]),

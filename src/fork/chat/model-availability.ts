@@ -36,7 +36,7 @@ export const useModelAvailability = (): ModelAvailability => {
     let cancelled = false
     const check = async () => {
       const models = await getAvailableModels(db)
-      if (!cancelled) setAvailability(models.length > 0 ? 'present' : 'none')
+      if (!cancelled) {setAvailability(models.length > 0 ? 'present' : 'none')}
     }
     // A failed read is not "no models": leave it 'checking' so the caller keeps its
     // loading state rather than telling the operator to add a model he may already have.
