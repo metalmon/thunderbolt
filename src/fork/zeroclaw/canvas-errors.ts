@@ -14,7 +14,7 @@
  * Messages are protocol-facing (sent to the `ui://` iframe app), so they
  * stay in English and are not run through i18n.
  */
-export const CANVAS_JSONRPC_ERRORS = {
+export const canvasJsonRpcErrors = {
   /** A tool call the app proxied through us failed, or its owning frame is gone (F1 no-hang / F7 reload). */
   TOOL_FAILED: { code: -32000, message: 'tool failed' },
   /** No `ui://` canvas is currently open in the side panel. */
@@ -56,16 +56,16 @@ export const classifyCanvasRequest = (input: {
   hasToolName: boolean
 }): CanvasRequestDecision => {
   if (!input.hasCanvas) {
-    return { kind: 'reject', error: CANVAS_JSONRPC_ERRORS.NO_CANVAS }
+    return { kind: 'reject', error: canvasJsonRpcErrors.NO_CANVAS }
   }
   if (input.isReadOnly) {
-    return { kind: 'reject', error: CANVAS_JSONRPC_ERRORS.READ_ONLY }
+    return { kind: 'reject', error: canvasJsonRpcErrors.READ_ONLY }
   }
   if (!input.rateAllowed) {
-    return { kind: 'reject', error: CANVAS_JSONRPC_ERRORS.RATE_LIMITED }
+    return { kind: 'reject', error: canvasJsonRpcErrors.RATE_LIMITED }
   }
   if (!input.hasToolName) {
-    return { kind: 'reject', error: CANVAS_JSONRPC_ERRORS.INVALID_PARAMS }
+    return { kind: 'reject', error: canvasJsonRpcErrors.INVALID_PARAMS }
   }
   return { kind: 'proceed' }
 }

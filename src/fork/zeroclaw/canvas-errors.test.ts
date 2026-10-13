@@ -4,15 +4,15 @@
 
 /* src/fork/zeroclaw/canvas-errors.test.ts */
 import { describe, expect, it } from 'bun:test'
-import { CANVAS_JSONRPC_ERRORS, classifyCanvasRequest } from './canvas-errors'
+import { canvasJsonRpcErrors, classifyCanvasRequest } from './canvas-errors'
 
-describe('CANVAS_JSONRPC_ERRORS', () => {
+describe('canvasJsonRpcErrors', () => {
   it('preserves the pre-existing JSON-RPC codes', () => {
-    expect(CANVAS_JSONRPC_ERRORS.TOOL_FAILED.code).toBe(-32000)
-    expect(CANVAS_JSONRPC_ERRORS.NO_CANVAS.code).toBe(-32001)
-    expect(CANVAS_JSONRPC_ERRORS.READ_ONLY.code).toBe(-32003)
-    expect(CANVAS_JSONRPC_ERRORS.RATE_LIMITED.code).toBe(-32005)
-    expect(CANVAS_JSONRPC_ERRORS.INVALID_PARAMS.code).toBe(-32602)
+    expect(canvasJsonRpcErrors.TOOL_FAILED.code).toBe(-32000)
+    expect(canvasJsonRpcErrors.NO_CANVAS.code).toBe(-32001)
+    expect(canvasJsonRpcErrors.READ_ONLY.code).toBe(-32003)
+    expect(canvasJsonRpcErrors.RATE_LIMITED.code).toBe(-32005)
+    expect(canvasJsonRpcErrors.INVALID_PARAMS.code).toBe(-32602)
   })
 })
 
@@ -26,40 +26,40 @@ describe('classifyCanvasRequest', () => {
   it('rejects with NO_CANVAS when there is no active canvas, regardless of the other gates', () => {
     expect(classifyCanvasRequest({ ...base, hasCanvas: false })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.NO_CANVAS,
+      error: canvasJsonRpcErrors.NO_CANVAS,
     })
     // NO_CANVAS wins even when every other gate would also fail.
     expect(
       classifyCanvasRequest({ hasCanvas: false, isReadOnly: true, rateAllowed: false, hasToolName: false }),
-    ).toEqual({ kind: 'reject', error: CANVAS_JSONRPC_ERRORS.NO_CANVAS })
+    ).toEqual({ kind: 'reject', error: canvasJsonRpcErrors.NO_CANVAS })
   })
 
   it('rejects with READ_ONLY when the canvas is a read-only snapshot, ahead of rate-limit/param checks', () => {
     expect(classifyCanvasRequest({ ...base, isReadOnly: true })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.READ_ONLY,
+      error: canvasJsonRpcErrors.READ_ONLY,
     })
     expect(classifyCanvasRequest({ ...base, isReadOnly: true, rateAllowed: false, hasToolName: false })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.READ_ONLY,
+      error: canvasJsonRpcErrors.READ_ONLY,
     })
   })
 
   it('rejects with RATE_LIMITED only once hasCanvas and !isReadOnly hold, ahead of the param check', () => {
     expect(classifyCanvasRequest({ ...base, rateAllowed: false })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.RATE_LIMITED,
+      error: canvasJsonRpcErrors.RATE_LIMITED,
     })
     expect(classifyCanvasRequest({ ...base, rateAllowed: false, hasToolName: false })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.RATE_LIMITED,
+      error: canvasJsonRpcErrors.RATE_LIMITED,
     })
   })
 
   it('rejects with INVALID_PARAMS only when every earlier gate has passed', () => {
     expect(classifyCanvasRequest({ ...base, hasToolName: false })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.INVALID_PARAMS,
+      error: canvasJsonRpcErrors.INVALID_PARAMS,
     })
   })
 
@@ -69,7 +69,7 @@ describe('classifyCanvasRequest', () => {
     )
     expect(classifyCanvasRequest({ hasCanvas: true, isReadOnly: true, rateAllowed: true, hasToolName: true })).toEqual({
       kind: 'reject',
-      error: CANVAS_JSONRPC_ERRORS.READ_ONLY,
+      error: canvasJsonRpcErrors.READ_ONLY,
     })
   })
 })
