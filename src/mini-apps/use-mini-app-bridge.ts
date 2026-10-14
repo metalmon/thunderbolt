@@ -40,7 +40,7 @@ import {
 } from '@shared/mini-app-protocol'
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { useActiveLocale } from '@/i18n/use-active-locale'
-import { useResolvedTheme } from '@/lib/theme-provider'
+import { useResolvedAppearance } from '@/fork/theme/resolved-appearance'
 import { getPlatform, isIosPlatform, isTauri } from '@/lib/platform'
 import { createPendingRequests, elementAtTimeoutMs } from '@/components/embedded'
 import { useHttpClient } from '@/contexts'
@@ -320,7 +320,11 @@ export const useMiniAppBridge = ({ app, onChatOpen }: UseMiniAppBridgeOptions) =
   const answerDownloadRef = useRef<((answer: DownloadAnswer) => void) | null>(null)
   // When the app may next ask, after a prompt that was declined or expired.
   const downloadCooldownUntilRef = useRef(0)
-  const theme = useResolvedTheme()
+  /* Fork: the appearance, not just light/dark. `useResolvedTheme` resolves the
+   * `paper` setting through the OS media query, so a paper user on a dark OS was
+   * handed `dark` and the embedded app rendered dark inside a warm sand client.
+   * See src/fork/theme/resolved-appearance.ts. */
+  const theme = useResolvedAppearance()
   const locale = useActiveLocale()
   const setTools = useMiniAppStore((state) => state.setTools)
   const setContextReader = useMiniAppStore((state) => state.setContextReader)
