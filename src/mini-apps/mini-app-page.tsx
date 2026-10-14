@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Trans } from '@lingui/react/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import ChatUI from '@/components/chat/chat-ui'
 import { ChatHydrateHandler } from '@/chats/detail'
 import { Button } from '@/components/ui/button'
@@ -41,6 +41,7 @@ const sidePanelSize = '34%'
 const asideSlide = { duration: 0.3, ease: [0.32, 0.72, 0, 1] as const }
 
 const MiniAppView = ({ app }: { app: MiniAppDefinition }) => {
+  const { t } = useLingui()
   const {
     isChatOpen,
     openChatId,
@@ -216,18 +217,34 @@ const MiniAppView = ({ app }: { app: MiniAppDefinition }) => {
                 the app being ready — missing exactly when a failed or slow app
                 made getting back out most urgent. */}
             {showFloatingControls && (
+              /* Icons alone, no labels: these float OVER a customer app, and two
+                 worded pills cover whatever the app put in that corner — its own
+                 paging, its totals, its last row. The label survives as the
+                 accessible name and the tooltip, so nothing is lost but the
+                 footprint. */
               <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                <Button onClick={startPicking} variant="secondary" size="lg" className="shadow-lg rounded-full">
-                  <MousePointerClick className="size-[var(--icon-size-sm)]" />
-                  <Trans>Select</Trans>
+                <Button
+                  onClick={startPicking}
+                  variant="secondary"
+                  size="icon-lg"
+                  className="shadow-lg rounded-full"
+                  aria-label={t`Select`}
+                  title={t`Select`}
+                >
+                  <MousePointerClick className="size-[var(--icon-size-default)]" />
                 </Button>
                 {/* Not while an aside is up either: the chat would open
                     underneath it, out of sight. Closing the aside is the way
                     to what is beneath. */}
                 {!isSidePaneShown && splitFits && (
-                  <Button onClick={() => openChat()} size="lg" className="shadow-lg rounded-full">
-                    <MessageSquare className="size-[var(--icon-size-sm)]" />
-                    <Trans>Chat</Trans>
+                  <Button
+                    onClick={() => openChat()}
+                    size="icon-lg"
+                    className="shadow-lg rounded-full"
+                    aria-label={t`Chat`}
+                    title={t`Chat`}
+                  >
+                    <MessageSquare className="size-[var(--icon-size-default)]" />
                   </Button>
                 )}
               </div>
