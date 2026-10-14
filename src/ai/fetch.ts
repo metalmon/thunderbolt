@@ -57,6 +57,7 @@ import type { Model, ModelProfile, Skill, ThunderboltUIMessage, UIMessageMetadat
 import type { SourceMetadata } from '@/types/source'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
+import { omitDefaultToolChoice } from '@/fork/ai/omit-default-tool-choice'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import type { HttpClient } from '@/lib/http'
 import { v7 as uuidv7 } from 'uuid'
@@ -489,6 +490,11 @@ export const createModel = async (modelConfig: Model, getProxyFetch: () => Fetch
           baseURL: `${cloudUrl}/openrouter`,
           apiKey: 'thunderbolt-managed',
           fetch: wrappedFetch,
+          // Fork: the managed lane fronts an arbitrary OpenAI-compatible
+          // deployment gateway, and not every one of them digests `tool_choice`.
+          // See src/fork/ai/omit-default-tool-choice.ts — dropping `auto` is a
+          // no-op per the spec.
+          transformRequestBody: omitDefaultToolChoice,
         })
         return openrouterSystem(modelConfig.model)
       }
