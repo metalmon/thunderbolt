@@ -48,12 +48,20 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
   const { auth, rateLimit } = options
   const fetchFn = options.fetchFn ?? globalThis.fetch
   const now = options.now ?? Date.now
-  const keys = options.apiKeys ?? parseKeys(process.env.OPENROUTER_API_KEYS)
-  const baseUrl = (options.baseUrl ?? process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1').replace(
-    /\/$/,
-    '',
-  )
-  const freeRpm = options.freeRpm ?? Number(process.env.OPENROUTER_FREE_RPM ?? '10')
+  /*
+   * New names, old ones kept as fallbacks. A rename cannot be a cut: the pilot
+   * is already deployed with `OPENROUTER_*` in its environment, and renaming
+   * without a fallback would leave it without a key — which surfaces as "the
+   * model stopped answering", with not one line saying why.
+   */
+  const env = (next: string, legacy: string): string | undefined => process.env[next] ?? process.env[legacy]
+  const keys = options.apiKeys ?? parseKeys(env('MANAGED_UPSTREAM_API_KEYS', 'OPENROUTER_API_KEYS'))
+  const baseUrl = (
+    options.baseUrl ??
+    env('MANAGED_UPSTREAM_BASE_URL', 'OPENROUTER_BASE_URL') ??
+    'https://openrouter.ai/api/v1'
+  ).replace(/\/$/, '')
+  const freeRpm = options.freeRpm ?? Number(env('MANAGED_UPSTREAM_RPM', 'OPENROUTER_FREE_RPM') ?? '10')
   const referer = options.referer ?? process.env.OPENROUTER_REFERER
   const title = options.title ?? process.env.OPENROUTER_TITLE ?? 'Thunderbolt'
 
@@ -165,15 +173,36 @@ export const createOpenrouterRoutes = (options: CreateOpenrouterRoutesOptions) =
     return textResponse(429, 'All keys rate-limited', { 'Retry-After': '60' })
   }
 
-  return new Elysia({ prefix: '/openrouter' })
+  /*
+   * Two paths, one state.
+   *
+   * `/managed` is the honest name: this lane has long served any OpenAI-compatible
+   * deployment upstream, not just OpenRouter. `/openrouter` stays as an alias
+   * because it is baked into ALREADY INSTALLED clients — a system model's
+   * `baseURL` is assembled on their side (`src/ai/fetch.ts`), so retiring the old
+   * path would leave the pilot without a model until everyone reinstalls.
+   *
+   * Both paths reach one `proxy` closed over shared key rotation and throttle
+   * buckets. Two Elysia instances would mean two independent states, i.e. twice
+   * the rate limit for whoever knows both addresses.
+   */
+  return new Elysia()
     .onError(safeErrorHandler)
     .use(createAuthMacro(auth))
     .guard({ auth: true }, (g) => {
+      // The handler is written inline and the branches are not collapsed into
+      // one variable — both because of Elysia's inference: `rateLimit ? g.use(…) : g`
+      // yields a union of two different types that `.all` can no longer be
+      // called on, and an extracted function does not match the inferred
+      // context type.
       if (rateLimit) {
         return g
           .use(rateLimit)
-          .all('/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
+          .all('/managed/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
+          .all('/openrouter/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
       }
-      return g.all('/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
+      return g
+        .all('/managed/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
+        .all('/openrouter/*', (ctx) => proxy(ctx.request, ctx.params['*'] ?? '', ctx.user.id), { parse: 'none' })
     })
 }
