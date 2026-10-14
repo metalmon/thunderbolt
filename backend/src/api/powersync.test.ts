@@ -17,6 +17,8 @@ import { createPowerSyncRoutes } from './powersync'
 
 const powersyncSettings: Settings = {
   miniApps: '',
+  defaultModels: '',
+  defaultModelsVersion: '',
   miniAppTokenExpirySeconds: 300,
   fireworksApiKey: '',
   anthropicApiKey: '',
