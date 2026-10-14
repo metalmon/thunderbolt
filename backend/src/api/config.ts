@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Settings } from '@/config/settings'
+import { parseDeploymentModels } from '@/fork/models/deployment-models'
 import { safeErrorHandler } from '@/middleware/error-handling'
 import { defaultModelId, defaultModels, defaultModelsVersion } from '@shared/defaults/models'
 import { Elysia } from 'elysia'
@@ -17,8 +18,26 @@ import { Elysia } from 'elysia'
  * by comparing versions, so shipped defaults changes don't require a client
  * release. See "Reconciled defaults and version bumps" in AGENTS.md.
  */
-export const createConfigRoutes = (settings: Settings) =>
-  new Elysia({ prefix: '/config' }).onError(safeErrorHandler).get('/', () => ({
+export const createConfigRoutes = (settings: Settings) => {
+  /*
+   * Fork: the deployment model set is parsed ONCE, at route construction.
+   *
+   * `/config` is unauthenticated, so parsing per request would let any caller
+   * drive the log volume — the same reason the Mini App registry is parsed when
+   * its route is built rather than inside the handler.
+   */
+  const deployment = parseDeploymentModels({
+    raw: settings.defaultModels,
+    version: settings.defaultModelsVersion,
+    bundledVersion: defaultModelsVersion,
+  })
+  /* The default model id comes from the published set: the bundled constant
+   * names a row that set does not contain. */
+  const models = deployment
+    ? { version: deployment.version, defaultModelId: deployment.data[0]?.id ?? defaultModelId, data: deployment.data }
+    : { version: defaultModelsVersion, defaultModelId, data: defaultModels }
+
+  return new Elysia({ prefix: '/config' }).onError(safeErrorHandler).get('/', () => ({
     // Compatibility shim, not a live flag. E2EE is unconditionally on, but
     // pre-cutover bundles gate `encodeForUpload` on `config.e2eeEnabled`, and
     // `updateConfig` replaces the whole config object — so omitting this key
@@ -54,11 +73,6 @@ export const createConfigRoutes = (settings: Settings) =>
     },
     // Omit when unset so the frontend treats it as "no enforcement" without parsing an empty string as semver.
     minAppVersion: settings.minAppVersion || undefined,
-    defaults: {
-      models: {
-        version: defaultModelsVersion,
-        defaultModelId,
-        data: defaultModels,
-      },
-    },
+    defaults: { models },
   }))
+}
