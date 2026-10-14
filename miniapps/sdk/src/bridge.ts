@@ -75,7 +75,7 @@ export type MiniAppContext = {
   selection?: unknown
 }
 
-export type Theme = 'light' | 'dark'
+export type Theme = 'light' | 'dark' | 'paper'
 
 /** Surface the app is embedded in. Lets a layout adapt rather than just shrink. */
 export type Platform = 'web' | 'desktop' | 'ios' | 'android'
