@@ -983,8 +983,12 @@ export type MiniAppInitializeResult = {
   auth?: MiniAppAuthToken
 }
 
-/** The host's current appearance, so the guest can match it. */
-export type MiniAppTheme = 'light' | 'dark'
+/** The host's current appearance, so the guest can match it.
+ *
+ * Fork (metalmon): `paper` is a third appearance, not a shade of light — a fixed
+ * warm theme (`.paper` in `src/index.css`). It has to travel, or a guest renders
+ * light against a warm sand client; see src/fork/theme/resolved-appearance.ts. */
+export type MiniAppTheme = 'light' | 'dark' | 'paper'
 
 /**
  * Surface the frame is embedded in.
