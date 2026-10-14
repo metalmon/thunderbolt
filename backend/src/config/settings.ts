@@ -210,6 +210,10 @@ const settingsSchema = z
      * and secret distribution stops being a deploy-time detail.
      */
     miniApps: z.string().default(''),
+    // Fork: the deployment's model set and its declared version; parsing and
+    // rationale live in `backend/src/fork/models/deployment-models.ts`.
+    defaultModels: z.string().default(''),
+    defaultModelsVersion: z.string().default(''),
     /**
      * Lifetime of a Mini App identity token. Short by intent — the guest asks
      * for a new one as it nears expiry, so the blast radius of a leaked token is
@@ -622,6 +626,10 @@ const parseSettings = (): Settings => {
             },
           })
         : ''),
+    // Fork: both are handed over raw — parsing and every explained refusal live
+    // in `parseDeploymentModels`, so "the set never arrived" is never silent.
+    defaultModels: process.env.DEFAULT_MODELS,
+    defaultModelsVersion: process.env.DEFAULT_MODELS_VERSION,
     // Handed to the schema raw, so its `z.coerce.number().int().positive()`
     // rejects a typo loudly at boot — `Number(...) || 300` turned
     // `MINI_APP_TOKEN_EXPIRY_SECONDS=5m` into NaN and then silently into the
