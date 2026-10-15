@@ -1,0 +1,39 @@
+# TLS-вход для веб-панели: отдельный порт на том же имени.
+#
+# Почему порт, а не путь внутри адреса Вольта: происхождение — это схема, имя И
+# порт, поэтому отдельный порт даёт панели собственное происхождение, не требуя
+# ни нового имени в сертификате, ни записи в DNS. По пути (`/apps/crm/`) панель
+# оказалась бы тем же происхождением, что и само приложение, и проверка
+# происхождения в протоколе панели потеряла бы смысл.
+#
+# ⚠ Ни одного `add_header` в этом файле. Три заголовка встраивания ставит сама
+# панель, а `add_header` внутри `location` отменяет всё унаследованное — в nginx
+# это не добавление, а замена всего набора. Здесь мы их только пропускаем.
+
+server {
+    listen ${VOLT_MINIAPP_PORT} ssl;
+    http2 on;
+    server_name ${VOLT_TLS_SERVER_NAME};
+
+    ssl_certificate     /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1h;
+
+    # Разметка панели отдаётся с `no-store`, а ресурсы — со штампом содержимого в
+    # ссылке, поэтому кэш здесь не нужен и только мешает обновлению.
+    location / {
+        proxy_pass http://${VOLT_MINIAPP_HOST}:80;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port ${VOLT_MINIAPP_PORT};
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
