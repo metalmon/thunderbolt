@@ -13,6 +13,30 @@ services:
       # Подставляется в заголовок frame-ancestors при запуске контейнера, то есть
       # смена адреса пилота НЕ требует пересборки образа.
       VOLT_ORIGIN: https://${VOLT_TLS_SERVER_NAME}
+    # Панель отдаёт статические файлы и не ходит никуда сама. В сети по умолчанию
+    # рядом с ней живут Postgres, Keycloak и бэкенд — ей там делать нечего, а
+    # доступ туда она получила бы даром. Своя сеть, общая только с терминатором,
+    # оставляет ей ровно один путь: принять запрос от него.
+    networks:
+      - miniapps
+    # Образ внутри — nginx, которому для работы хватает чтения. Каталоги, куда
+    # он всё же пишет (разворачивание шаблона конфигурации, кэш, pid-файл),
+    # отдаём памятью: тогда запись в сам образ невозможна в принципе.
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+      - /etc/nginx/conf.d
+    cap_drop:
+      - ALL
+    cap_add:
+      # nginx роняет привилегии на своего пользователя после привязки к порту.
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
 
   # Вторая панель ставится так же: свой образ, свой порт на терминаторе.
   # panel-competitive-sheet:
@@ -20,14 +44,30 @@ services:
   #   image: volt-panel-competitive-sheet:pilot
   #   environment:
   #     VOLT_ORIGIN: https://${VOLT_TLS_SERVER_NAME}
+  #   networks: [miniapps]
+  #   read_only: true
+  #   tmpfs: [/var/cache/nginx, /var/run, /tmp, /etc/nginx/conf.d]
+  #   cap_drop: [ALL]
+  #   cap_add: [CHOWN, SETGID, SETUID]
+  #   security_opt: [no-new-privileges:true]
 
-# ── и в службу `tls` добавляется один порт ────────────────────────────────────
+networks:
+  miniapps:
+    driver: bridge
+
+# ── и в службу `tls` добавляется ──────────────────────────────────────────────
 #
+#   networks:
+#     - default        # как было: web, keycloak, демон
+#     - miniapps       # ← добавить: единственный, кто видит панели
 #   ports:
 #     - "${VOLT_TLS_HTTP_PORT:-80}:80"
 #     - "${VOLT_TLS_HTTPS_PORT:-443}:443"
 #     - "127.0.0.1:${VOLT_TLS_KEYCLOAK_ADMIN_PORT:-8445}:8445"
-#     - "${VOLT_MINIAPP_CRM_PORT:-5191}:5191"          # ← вот эта строка
+#     - "${VOLT_MINIAPP_CRM_PORT:-5191}:5191"          # ← и эту строку
+#
+# ⚠ Как только у службы появляется список `networks`, сеть по умолчанию в него
+# надо вписать явно: иначе терминатор потеряет web и Keycloak.
 #
 # Второго nginx заводить не нужно: это тот же терминатор, просто ещё один
 # слушатель. Блок для него — `tls-miniapps.conf.template` рядом.
