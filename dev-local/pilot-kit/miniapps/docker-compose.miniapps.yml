@@ -1,0 +1,33 @@
+# Веб-панели пилота. Вклеивается в состав комплекта (`backend/docker-compose.yml`).
+#
+# Наружу панель не публикуется: единственный путь к ней — TLS-вход, как и у
+# всего остального в пилоте. Поэтому у службы нет `ports`, а терминатор зовёт её
+# по имени службы внутри сети.
+
+services:
+  panel-crm:
+    restart: unless-stopped
+    image: volt-panel-crm:pilot
+    environment:
+      # Адрес самого Вольта — тот, кому разрешено показывать панель в кадре.
+      # Подставляется в заголовок frame-ancestors при запуске контейнера, то есть
+      # смена адреса пилота НЕ требует пересборки образа.
+      VOLT_ORIGIN: https://${VOLT_TLS_SERVER_NAME}
+
+  # Вторая панель ставится так же: свой образ, свой порт на терминаторе.
+  # panel-competitive-sheet:
+  #   restart: unless-stopped
+  #   image: volt-panel-competitive-sheet:pilot
+  #   environment:
+  #     VOLT_ORIGIN: https://${VOLT_TLS_SERVER_NAME}
+
+# ── и в службу `tls` добавляется один порт ────────────────────────────────────
+#
+#   ports:
+#     - "${VOLT_TLS_HTTP_PORT:-80}:80"
+#     - "${VOLT_TLS_HTTPS_PORT:-443}:443"
+#     - "127.0.0.1:${VOLT_TLS_KEYCLOAK_ADMIN_PORT:-8445}:8445"
+#     - "${VOLT_MINIAPP_CRM_PORT:-5191}:5191"          # ← вот эта строка
+#
+# Второго nginx заводить не нужно: это тот же терминатор, просто ещё один
+# слушатель. Блок для него — `tls-miniapps.conf.template` рядом.
