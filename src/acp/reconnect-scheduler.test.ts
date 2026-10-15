@@ -335,4 +335,49 @@ describe('ReconnectScheduler', () => {
     expect(error).toHaveBeenCalledTimes(2)
     scheduler.dispose()
   })
+
+  /**
+   * The browser's rule, installed by hand.
+   *
+   * A timer is an operation of the window, and WebIDL checks the receiver's
+   * brand: called with anything else as `this` it throws "Illegal invocation".
+   * Bun has no such check, which is why every other test here passed while the
+   * scheduler was storing the bare reference and calling it as its own method —
+   * reconnect was dead in the app from the first attempt and green in CI.
+   *
+   * Take the wrapper out of the constructor and this test goes red.
+   */
+  it('reaches the timers the way a browser requires, not through its own receiver', async () => {
+    const realSet = globalThis.setTimeout
+    const realClear = globalThis.clearTimeout
+    const windowRule =
+      <T extends (...args: never[]) => unknown>(real: T) =>
+      function (this: unknown, ...args: Parameters<T>): ReturnType<T> {
+        if (this !== undefined && this !== globalThis) {
+          throw new TypeError('Illegal invocation')
+        }
+        return real(...args) as ReturnType<T>
+      }
+    globalThis.setTimeout = windowRule(realSet) as typeof setTimeout
+    globalThis.clearTimeout = windowRule(realClear) as typeof clearTimeout
+
+    try {
+      const reconnect = mock(async () => undefined)
+      // No timer options: the defaults are the whole point of this test.
+      const scheduler = new ReconnectScheduler({ isVisible: () => true, isOnline: () => true })
+      scheduler.register('agent', reconnect)
+
+      await getClock().tickAsync(0)
+      await flush()
+
+      expect(reconnect).toHaveBeenCalledTimes(1)
+      // And the other half of the pair: cancelling clears through the global too.
+      scheduler.register('agent', reconnect)
+      scheduler.unregister('agent')
+      scheduler.dispose()
+    } finally {
+      globalThis.setTimeout = realSet
+      globalThis.clearTimeout = realClear
+    }
+  })
 })
