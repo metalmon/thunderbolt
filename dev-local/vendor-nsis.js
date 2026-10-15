@@ -1,3 +1,19 @@
+// Пересборка вендоренного шаблона установщика NSIS.
+//
+// ЗАПУСКАТЬ ЧЕРЕЗ bun, не node: файл на CommonJS, а в package.json репозитория
+// стоит "type": "module", поэтому node падает на `require is not defined`.
+//
+//   bun dev-local/vendor-nsis.js <путь к апстримному installer.nsi>
+//
+// Апстримный шаблон берётся по закреплённой версии CLI, например:
+//   https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.12.1/
+//     crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi
+//
+// ⚠ Сверять версию при КАЖДОМ обновлении Tauri. Отставший шаблон ломает сборку
+// не на своей правке, а на чужом макросе: на 2.12 это `!insertmacro: macro named
+// "RestartManager_StartSession" not found!` — макрос CheckIfAppIsRunning перешёл
+// на Restart Manager, а заголовок Win\RestartManager.nsh подключает шаблон.
+
 const fs = require('fs')
 let s = fs.readFileSync(process.argv[2], 'utf8')
 
@@ -70,8 +86,8 @@ s = s.replace(
 )
 
 const header = [
-  '; FORK (Volt) - VENDORED copy of Tauri 2.11.2 NSIS installer.nsi',
-  '; (crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi @ tag tauri-cli-v2.11.2),',
+  '; FORK (Volt) - VENDORED copy of Tauri 2.12.1 NSIS installer.nsi',
+  '; (crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi @ tag tauri-cli-v2.12.1),',
   '; wired via bundle.windows.nsis.template. ONLY delta vs upstream: a DISPLAYNAME',
   '; override so the human-visible name is Cyrillic everywhere (wizard title,',
   '; Start-menu + Desktop shortcuts, "Programs and Features"), while the MACHINE name',
