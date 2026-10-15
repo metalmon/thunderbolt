@@ -75,8 +75,14 @@ export class ReconnectScheduler {
     this.isVisible =
       options.isVisible ?? (() => typeof document === 'undefined' || document.visibilityState === 'visible')
     this.isOnline = options.isOnline ?? (() => typeof navigator === 'undefined' || navigator.onLine)
-    this.setTimer = options.setTimer ?? setTimeout
-    this.clearTimer = options.clearTimer ?? clearTimeout
+    // Called through the instance (`this.setTimer(...)`), so the receiver is the
+    // scheduler. A browser timer is an operation of the window: WebIDL checks the
+    // receiver's brand and throws "Illegal invocation" for anything else, which
+    // killed every reconnect at the first attempt while the tests — Bun, where a
+    // foreign receiver is legal — stayed green. Wrapped, the call reaches the
+    // global the way a bare `setTimeout(...)` does.
+    this.setTimer = options.setTimer ?? ((handler, timeout) => globalThis.setTimeout(handler, timeout))
+    this.clearTimer = options.clearTimer ?? ((id) => globalThis.clearTimeout(id))
     this.visibilityTarget = options.visibilityTarget ?? (typeof document === 'undefined' ? undefined : document)
     this.onlineTarget = options.onlineTarget ?? (typeof window === 'undefined' ? undefined : window)
     this.visibilityTarget?.addEventListener('visibilitychange', this.handleWakeEvent)
