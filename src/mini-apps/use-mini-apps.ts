@@ -24,6 +24,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react'
 import { useHttpClient } from '@/contexts'
+import { isRegistryAbsent } from '@/fork/mini-apps/registry-absent'
 import type { HttpClient } from '@/lib/http'
 import { parseMiniAppRegistry, type MiniAppDefinition } from './registry'
 
@@ -108,6 +109,15 @@ const loadMiniApps = (httpClient: HttpClient): Promise<void> => {
       }
       setState({ apps: registry.apps, loading: false, failed: false })
     } catch (error) {
+      // A backend with no such route is a deployment that runs no apps, not a
+      // failure: report it as the empty registry it is, and keep `inFlight` so
+      // the next mount does not ask again — the route cannot appear mid-session.
+      if (isRegistryAbsent(error)) {
+        if (era === generation) {
+          setState({ apps: [], loading: false, failed: false })
+        }
+        return
+      }
       // Logged rather than swallowed: an empty sidebar is otherwise
       // indistinguishable from a deployment that configures no apps, and the
       // person debugging that has nothing to go on.
