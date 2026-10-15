@@ -163,6 +163,27 @@ describe('useMiniApps', () => {
     expect(requests).toBe(1)
   })
 
+  /** A backend older than mini apps has no such route. That is an empty
+   *  registry, not a failure — and asking it again changes nothing, so the one
+   *  request must not become one per mount. */
+  it('reads a missing route as a deployment with no apps, and asks only once', async () => {
+    let requests = 0
+    const client = clientWith(() => {
+      requests += 1
+      return new Response('Not Found', { status: 404 })
+    })
+
+    const first = setup(client)
+    await settle()
+    expect(first.result.current).toMatchObject({ loading: false, failed: false, apps: [] })
+    first.unmount()
+
+    const second = setup(client)
+    await settle()
+    expect(second.result.current).toMatchObject({ loading: false, failed: false, apps: [] })
+    expect(requests).toBe(1)
+  })
+
   /** A transient failure must not cost the session its apps — holding the
    *  in-flight promise after a rejection left the tab empty until a reload. */
   it('retries on the next mount after a failure', async () => {
