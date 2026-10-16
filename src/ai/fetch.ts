@@ -46,6 +46,7 @@ import { handleAppVersionUnsupported } from '@/lib/app-version-unsupported'
 import { handleSessionRejected } from '@/lib/session-rejected'
 import { isSsoMode } from '@/lib/auth-mode'
 import { getAuthToken } from '@/lib/auth-token'
+import { createManagedLaneModel } from '@/fork/ai/managed-lane'
 import { classifyErrorKind, createChatErrorResponse } from '@/lib/error-utils'
 import { fetch as baseFetch } from '@/lib/fetch'
 import { isLoopbackHost } from '@/lib/mcp-url-validation'
@@ -58,7 +59,6 @@ import type { Model, ModelProfile, Skill, ThunderboltUIMessage, UIMessageMetadat
 import type { SourceMetadata } from '@/types/source'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
-import { omitDefaultToolChoice } from '@/fork/ai/omit-default-tool-choice'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import type { HttpClient } from '@/lib/http'
 import { v7 as uuidv7 } from 'uuid'
@@ -435,50 +435,14 @@ export const createModel = async (modelConfig: Model, getProxyFetch: () => Fetch
       })
       return openaiCompatible(modelConfig.model)
     }
+    // Fork: the deployment's own model, served with the key held on the server.
+    case 'managed':
+      return createManagedLaneModel(modelConfig.model)
     case 'openrouter': {
+      // Fork: a client installed before the lane got its own provider carries
+      // `openrouter` rows with `isSystem: 1`. They keep the legacy path.
       if (modelConfig.isSystem) {
-        // Fork: system OpenRouter models proxy through the backend, which injects
-        // the server key (rotating across a pool). Placeholder apiKey satisfies
-        // the SDK; the wrapped fetch carries the real Thunderbolt session token
-        // so the route's auth guard passes (Bearer for token auth, cookies for
-        // SSO web). No HPKE client (unlike Tinfoil) — plain OpenAI-compatible.
-        //
-        // On the web demo cloudUrl is same-origin-relative (e.g. "/v1"); the AI
-        // SDK builds request URLs with `new URL()`, which rejects a relative
-        // base ("Failed to construct 'URL'"). Resolve to absolute against the
-        // page origin — desktop cloudUrl is already absolute and passes through.
-        const rawCloudUrl = getLocalSetting('cloudUrl')
-        const cloudUrl = URL.canParse(rawCloudUrl)
-          ? rawCloudUrl
-          : new URL(rawCloudUrl, window.location.origin).toString().replace(/\/$/, '')
-        const sso = isSsoMode()
-        const token = getAuthToken()
-        const wrappedFetch: typeof fetch = Object.assign(
-          async (input: RequestInfo | URL, init?: RequestInit) => {
-            const headers = new Headers(init?.headers)
-            const upstreamInit: RequestInit = { ...init, headers }
-            if (sso && !token) {
-              upstreamInit.credentials = 'include'
-              headers.delete('authorization')
-            } else if (token) {
-              headers.set('Authorization', `Bearer ${token}`)
-            }
-            return fetch(input, upstreamInit)
-          },
-          { preconnect: fetch.preconnect },
-        )
-        const openrouterSystem = createOpenAICompatible({
-          name: 'openrouter',
-          baseURL: `${cloudUrl}/openrouter`,
-          apiKey: 'thunderbolt-managed',
-          fetch: wrappedFetch,
-          // Fork: the managed lane fronts an arbitrary OpenAI-compatible
-          // deployment gateway, and not every one of them digests `tool_choice`.
-          // See src/fork/ai/omit-default-tool-choice.ts — dropping `auto` is a
-          // no-op per the spec.
-          transformRequestBody: omitDefaultToolChoice,
-        })
-        return openrouterSystem(modelConfig.model)
+        return createManagedLaneModel(modelConfig.model, 'openrouter')
       }
       const conn = resolveOpenAiCompatConnection(modelConfig, getProxyFetch)
       if (!conn) {
