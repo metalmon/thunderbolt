@@ -48,7 +48,9 @@ export const providerRequiresUrl = (provider: Model['provider']): boolean =>
  *  Thunderbolt is server-authenticated; custom (OpenAI-compatible) endpoints
  *  treat the key as optional. */
 export const providerRequiresApiKey = (provider: Model['provider']): boolean =>
-  provider !== 'thunderbolt' && provider !== 'custom'
+  // Fork: `managed` is server-authenticated by definition — the key is held
+  // on the backend and never reaches a client.
+  provider !== 'thunderbolt' && provider !== 'custom' && provider !== 'managed'
 
 /**
  * Models that require an API key but don't have one yet need configuration.
