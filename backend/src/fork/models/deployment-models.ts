@@ -33,7 +33,7 @@ const flag = (fallback: 0 | 1) => z.coerce.number().int().min(0).max(1).default(
 const modelSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  provider: z.enum(['openai', 'custom', 'openrouter', 'thunderbolt', 'anthropic', 'tinfoil']),
+  provider: z.enum(['managed', 'openai', 'custom', 'openrouter', 'thunderbolt', 'anthropic', 'tinfoil']),
   model: z.string().min(1),
   url: z.string().nullable().default(null),
   isSystem: flag(1),
