@@ -337,7 +337,21 @@ export const App = () => {
   // the WebView's default white background from flashing before the theme loads.
   useEffect(() => {
     if (isTauri()) {
-      import('@tauri-apps/api/window').then(({ getCurrentWindow }) => getCurrentWindow().show()).catch(console.error)
+      import('@tauri-apps/api/window')
+        .then(async ({ getCurrentWindow }) => {
+          const win = getCurrentWindow()
+          await win.show()
+          // Fork: заявить окно панели задач ЯВНО. До tao 0.37.1 библиотека сама
+          // звала set_skip_taskbar при создании окна, и вызов с `false` означал
+          // AddTab(hwnd) - регистрацию окна в панели задач. В 0.37.1 этот вызов
+          // делается, только когда окно прячут, а окно создаётся скрытым
+          // (visible: false, чтобы не мигать белым до темы). Скрытое окно в
+          // панель задач само не попадает, и кнопка пропала на всех Windows -
+          // ровно та, ради которой брали 0.37.1. Зовём после show(): AddTab на
+          // скрытом окне не держится.
+          await win.setSkipTaskbar(false)
+        })
+        .catch(console.error)
     }
   }, [])
 
