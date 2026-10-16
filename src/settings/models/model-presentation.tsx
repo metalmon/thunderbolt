@@ -22,6 +22,7 @@ import type { Model } from '@/types'
 // `customProviderLabel`).
 export const providerLabels: Record<Model['provider'], string> = {
   thunderbolt: 'Volt',
+  managed: 'Volt',
   tinfoil: 'Tinfoil',
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
@@ -29,9 +30,22 @@ export const providerLabels: Record<Model['provider'], string> = {
   custom: 'Custom',
 }
 
-/** System-managed Tinfoil is a Thunderbolt product; Tinfoil is only its transport. */
+/**
+ * System-managed Tinfoil is a Thunderbolt product; Tinfoil is only its transport.
+ *
+ * Fork: `managed` is the same shape — the deployment's own model, served with
+ * the key held on the server (`src/fork/ai/managed-lane.ts`). A *system*
+ * `openrouter` row is the lane's older spelling, still carried by clients
+ * installed before it had a provider of its own, and it brands the same way.
+ * A model the user added with their own OpenRouter key is `isSystem: 0` and
+ * keeps the OpenRouter brand, correctly.
+ */
 const isThunderboltManagedModel = (model: Pick<Model, 'provider' | 'isSystem'>): boolean =>
-  model.provider === 'thunderbolt' || (model.provider === 'tinfoil' && model.isSystem === 1)
+  model.provider === 'thunderbolt' ||
+  model.provider === 'managed' ||
+  (model.provider === 'tinfoil' && model.isSystem === 1) ||
+  // Fork: rows written before the lane got its own provider.
+  (model.provider === 'openrouter' && model.isSystem === 1)
 
 const ModelProviderIcon = ({ model }: { model: Pick<Model, 'provider' | 'isSystem'> }) => {
   if (isThunderboltManagedModel(model)) {

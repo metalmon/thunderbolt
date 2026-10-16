@@ -19,11 +19,18 @@ import type { Model } from '@/types'
 import { ConnectionTestSection } from './connection-test-section'
 import { providerAutoFetchesCatalog, shouldDisableAddModel } from './model-policy'
 import { customProviderLabel, providerLabels } from './model-presentation'
-import type { AddModelFormValues } from './use-add-model-form'
+import type { AddableProvider, AddModelFormValues } from './use-add-model-form'
 
 /** Provider picker options, derived from the exhaustive labels Record so a new
- *  provider added to `Model['provider']` shows up here by construction. */
-const providerOptions = Object.keys(providerLabels) as Model['provider'][]
+ *  provider added to `Model['provider']` shows up here by construction.
+ *
+ *  Fork: except `managed`. The lane with the key on the server is declared by
+ *  the deployment (`DEFAULT_MODELS`), not added by hand — a row a user typed
+ *  there would point at a backend path only the operator can furnish, and fail
+ *  at the first message. */
+const providerOptions = (Object.keys(providerLabels) as Model['provider'][]).filter(
+  (p): p is AddableProvider => p !== 'managed',
+)
 
 type AddModelFormProps = {
   form: UseFormReturn<AddModelFormValues>
@@ -39,7 +46,7 @@ type AddModelFormProps = {
   submitError: string | null
   onSubmit: (values: AddModelFormValues) => void
   onCancel: () => void
-  onProviderChange: (provider: Model['provider']) => void
+  onProviderChange: (provider: AddableProvider) => void
   onCatalogInvalidated: () => void
   onSelectModel: (id: string) => void
   onTestConnection: () => void
@@ -92,7 +99,7 @@ export const AddModelForm = ({
               </FormLabel>
               <FormControl>
                 <Select
-                  onValueChange={(value: Model['provider']) => {
+                  onValueChange={(value: AddableProvider) => {
                     onProviderChange(value)
                   }}
                   value={field.value}

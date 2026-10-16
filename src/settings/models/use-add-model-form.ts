@@ -26,6 +26,16 @@ const modelNameRequired = msg`Model name is required.`
 const urlRequiredForCustom = msg`URL is required for Custom providers`
 const apiKeyRequired = msg`API Key is required for this provider`
 
+/**
+ * A provider a person may pick by hand.
+ *
+ * Fork: everything but `managed`. The lane with the key on the server is
+ * declared by the deployment (`DEFAULT_MODELS`); a row typed into this form
+ * would point at a backend path only the operator can furnish. The schema
+ * below already refuses it — this type says the same thing out loud.
+ */
+export type AddableProvider = Exclude<Model['provider'], 'managed'>
+
 /** Built per render so the validation copy follows the active catalog — see the
  *  "Localization" section in AGENTS.md. */
 export const createAddModelFormSchema = (i18n: I18n) =>
@@ -213,7 +223,7 @@ export const useAddModelForm = ({ isOpen, onClose, onMutationStart }: UseAddMode
     form.clearErrors()
   }
 
-  const changeProvider = (nextProvider: Model['provider']) => {
+  const changeProvider = (nextProvider: AddableProvider) => {
     catalog.invalidateCatalog()
     form.setValue('provider', nextProvider, { shouldValidate: false, shouldDirty: true })
     dispatch({ type: 'MODEL_SELECTED', modelId: '' })
