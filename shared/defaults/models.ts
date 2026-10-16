@@ -18,7 +18,7 @@ import { hashValues } from '../lib/hash'
  */
 export type SharedModel = {
   id: string
-  provider: 'openai' | 'custom' | 'openrouter' | 'thunderbolt' | 'anthropic' | 'tinfoil' | 'otari'
+  provider: 'openai' | 'custom' | 'openrouter' | 'thunderbolt' | 'anthropic' | 'tinfoil' | 'otari' | 'managed'
   name: string
   model: string
   url: string | null

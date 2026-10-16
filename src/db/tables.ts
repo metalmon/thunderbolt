@@ -124,7 +124,7 @@ export const modelsTable = sqliteTable(
     id: text('id').primaryKey(),
     providerConnectionId: text('provider_connection_id'),
     provider: text('provider', {
-      enum: ['openai', 'custom', 'openrouter', 'thunderbolt', 'anthropic', 'tinfoil', 'otari'],
+      enum: ['openai', 'custom', 'openrouter', 'thunderbolt', 'anthropic', 'tinfoil', 'otari', 'managed'],
     }),
     name: text('name'),
     model: text('model'),
