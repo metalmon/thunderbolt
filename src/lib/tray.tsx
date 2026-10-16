@@ -185,27 +185,30 @@ export class TrayManager {
           ],
         })
 
-        // A fixed id, and reuse of an existing icon, because the guard above
-        // lives in a static field of this JS context: reloading the webview
-        // builds a fresh context while the icon created by the previous one
-        // stays registered on the Rust side, menu and all. Without an id every
-        // reload added one more live icon to the notification area.
+        // Fork: снять прежний значок и создать заново, а не переиспользовать.
+        //
+        // Защита выше живёт в статическом поле ЭТОГО контекста сценария, а
+        // перезагрузка вебвью (она штатная - например, после входа через
+        // единый вход) строит новый контекст, пока значок, созданный прежним,
+        // остаётся зарегистрированным на стороне Rust. Без постоянного имени
+        // каждая перезагрузка добавляла в область уведомлений ещё один живой
+        // значок; с именем и пересозданием значок всегда ровно один.
+        //
+        // NB: мёртвое меню трея - это НЕ отсюда. Пункты не срабатывали из-за
+        // ошибки самого Tauri 2.12.1 (#16229): описание пункта с действием,
+        // переданное прямо в Menu.new, теряло канал, и щелчок уходил в никуда.
+        // Починено апстримом в 2.12.2 (PR #16231), мы берём 2.12.4.
         const trayId = 'volt-main'
-        const existing = await tauriTray.TrayIcon.getById(trayId).catch(() => null)
-        if (existing) {
-          await existing.setMenu(menu)
-          this.tray = existing
-        } else {
-          this.tray = await tauriTray.TrayIcon.new({
-            id: trayId,
-            icon: await tauriApp?.defaultWindowIcon(),
-            // macOS template mode: alpha-only render that inverts with the menu
-            // bar. No-op on Windows/Linux (they show the icon as-is).
-            iconAsTemplate: true,
-            tooltip: 'Thunderbolt',
-            menu,
-          })
-        }
+        await tauriTray.TrayIcon.removeById(trayId).catch(() => {})
+        this.tray = await tauriTray.TrayIcon.new({
+          id: trayId,
+          icon: await tauriApp?.defaultWindowIcon(),
+          // macOS template mode: alpha-only render that inverts with the menu
+          // bar. No-op on Windows/Linux (they show the icon as-is).
+          iconAsTemplate: true,
+          tooltip: 'Thunderbolt',
+          menu,
+        })
       } catch (error) {
         console.error('Failed to create tray:', error)
       }
