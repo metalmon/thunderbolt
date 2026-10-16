@@ -45,6 +45,9 @@
           "url": "http://localhost:*"
         },
         {
+          "url": "https://backend.volt.oktaplus.ru"
+        },
+        {
           "url": "https://tunder.ru.tuna.am"
         },
         {
