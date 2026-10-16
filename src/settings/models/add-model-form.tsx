@@ -20,7 +20,13 @@ import type { Model } from '@/types'
 import { ConnectionTestSection } from './connection-test-section'
 import { providerAutoFetchesCatalog, shouldDisableAddModel } from './model-policy'
 import { getProviderLabel, providerPickerOrder } from './model-presentation'
-import type { AddModelFormValues } from './use-add-model-form'
+import type { AddableProvider, AddModelFormValues } from './use-add-model-form'
+
+/** Fork: `managed` is left out of the picker. The lane with the key on the server
+ *  is declared by the deployment (`DEFAULT_MODELS`), not added by hand — a row a
+ *  user typed there would point at a backend path only the operator can furnish,
+ *  and fail at the first message. */
+const providerOptions = providerPickerOrder.filter((p): p is AddableProvider => p !== 'managed')
 
 type AddModelFormProps = {
   form: UseFormReturn<AddModelFormValues>
@@ -36,7 +42,7 @@ type AddModelFormProps = {
   submitError: string | null
   onSubmit: (values: AddModelFormValues) => void
   onCancel: () => void
-  onProviderChange: (provider: Model['provider']) => void
+  onProviderChange: (provider: AddableProvider) => void
   onCatalogInvalidated: () => void
   onSelectModel: (id: string) => void
   onTestConnection: () => void
@@ -90,7 +96,7 @@ export const AddModelForm = ({
               </FormLabel>
               <FormControl>
                 <Select
-                  onValueChange={(value: Model['provider']) => {
+                  onValueChange={(value: AddableProvider) => {
                     onProviderChange(value)
                   }}
                   value={field.value}
@@ -99,7 +105,7 @@ export const AddModelForm = ({
                     <SelectValue placeholder={t`Select provider`} />
                   </SelectTrigger>
                   <SelectContent>
-                    {providerPickerOrder.map((provider) => (
+                    {providerOptions.map((provider) => (
                       <SelectItem key={provider} value={provider}>
                         {getProviderLabel(i18n, provider, appName)}
                       </SelectItem>
