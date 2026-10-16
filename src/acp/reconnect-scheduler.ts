@@ -29,6 +29,16 @@ type RecentSuccess = {
 
 type EventTargetLike = Pick<EventTarget, 'addEventListener' | 'removeEventListener'>
 
+/**
+ * Ровно то, что нужно планировщику: завести таймер и снять его. Не `typeof
+ * setTimeout` - у того в типах Node есть ещё `__promisify__`, и обёртка,
+ * которой мы привязываем вызов к глобальному объекту, такому типу не
+ * соответствует. Тесты подставляют сюда свои заглушки, и узкий тип описывает
+ * договор честнее широкого.
+ */
+type SetTimer = (handler: () => void, timeout: number) => ReturnType<typeof setTimeout>
+type ClearTimer = (id: ReturnType<typeof setTimeout>) => void
+
 export type ReconnectSchedulerOptions = {
   baseDelayMs?: number
   maxDelayMs?: number
@@ -38,8 +48,8 @@ export type ReconnectSchedulerOptions = {
   random?: () => number
   isVisible?: () => boolean
   isOnline?: () => boolean
-  setTimer?: typeof setTimeout
-  clearTimer?: typeof clearTimeout
+  setTimer?: SetTimer
+  clearTimer?: ClearTimer
   visibilityTarget?: EventTargetLike
   onlineTarget?: EventTargetLike
 }
@@ -56,8 +66,8 @@ export class ReconnectScheduler {
   private readonly random: () => number
   private readonly isVisible: () => boolean
   private readonly isOnline: () => boolean
-  private readonly setTimer: typeof setTimeout
-  private readonly clearTimer: typeof clearTimeout
+  private readonly setTimer: SetTimer
+  private readonly clearTimer: ClearTimer
   private readonly visibilityTarget?: EventTargetLike
   private readonly onlineTarget?: EventTargetLike
   private readonly records = new Map<string, ReconnectRecord>()
