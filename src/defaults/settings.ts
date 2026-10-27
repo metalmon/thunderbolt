@@ -284,7 +284,7 @@ export const defaultSettings: ReadonlyArray<Setting> = [
  * The paired snapshot test in `settings.test.ts` fails on any change to this
  * file's defaults without a matching version bump.
  */
-export const defaultSettingsVersion = 7
+export const defaultSettingsVersion = 8
 
 /**
  * Whether the bundle ships no value for a setting, leaving something else to
