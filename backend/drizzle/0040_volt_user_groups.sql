@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "groups" text[] DEFAULT '{}' NOT NULL;
