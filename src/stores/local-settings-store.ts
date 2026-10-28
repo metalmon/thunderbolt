@@ -41,7 +41,12 @@ export type VoiceProviderConfig = {
 }
 
 export const defaultVoiceProvider: VoiceProviderConfig = {
-  kind: 'thunderbolt',
+  // Fork: the `thunderbolt` lane reaches `/v1/audio/*` through our backend, so an
+  // autonomous install cannot use it — and leaving it as the default would mean
+  // voice reads as configured while silently never working. `openai-compatible`
+  // with an empty `baseUrl` is inert until the user names their own endpoint,
+  // which is the honest starting state for a build that has no backend.
+  kind: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL ? 'thunderbolt' : 'openai-compatible',
   baseUrl: '',
   apiKey: '',
   geminiApiKey: '',
