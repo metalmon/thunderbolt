@@ -37,10 +37,36 @@ pub async fn toggle_dock_icon(app_handle: tauri::AppHandle, show: bool) -> Resul
 /// saved, so the set of things that can be launched has to be closed. Everything
 /// else is revealed in the file manager instead — the user still gets the file,
 /// nothing is executed on their behalf.
+///
+/// Deliberately absent, though they are documents by any ordinary reading:
+/// - `doc`, `xls`, `ppt` — the legacy formats carry macros, and the file came
+///   from a chat attachment or an agent;
+/// - `svg` — opens in a browser and can carry script, so "view a picture" would
+///   mean running someone's markup.
 const OPENABLE_EXTENSIONS: &[&str] = &[
-    "pdf", "docx", "doc", "xlsx", "xls", "pptx", "ppt", "odt", "ods", "odp", "rtf", "txt", "md", "csv", "json", "png",
-    "jpg", "jpeg", "gif", "webp", "svg",
+    "pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp", "rtf", "txt", "md", "csv", "json", "png", "jpg", "jpeg", "gif",
+    "webp",
 ];
+
+/// Mark a saved file as coming from the internet zone, the way a browser marks a
+/// download (Windows only — the stream is an NTFS feature).
+///
+/// This is what makes Office open it in Protected View and SmartScreen weigh in:
+/// the bytes arrived over the network through a chat or an agent, so they deserve
+/// the same treatment as anything else downloaded. Best effort by design — FAT
+/// and exFAT volumes (a USB stick) carry no alternate streams, and failing to
+/// mark a file is not a reason to fail the save the user asked for.
+fn mark_as_downloaded(path: &std::path::Path) {
+    #[cfg(windows)]
+    {
+        let stream = format!("{}:Zone.Identifier", path.display());
+        let _ = std::fs::write(stream, "[ZoneTransfer]\r\nZoneId=3\r\n");
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = path;
+    }
+}
 
 /// Save bytes to a location the user picks, then open or reveal the result.
 ///
@@ -82,6 +108,7 @@ pub async fn save_document_as(
         .map_err(|e| format!("the save dialog returned a path this platform cannot use: {e}"))?;
 
     std::fs::write(&path, &contents).map_err(|e| e.to_string())?;
+    mark_as_downloaded(&path);
 
     let openable = path
         .extension()
