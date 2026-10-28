@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getDefaultModelForThread } from '@/dal'
+import { getDefaultModelForThread, getSelectedModel } from '@/dal'
 import type { AnyDrizzleDatabase } from '@/db/database-interface'
 import type { Model } from '@/types'
 
@@ -18,15 +18,13 @@ import type { Model } from '@/types'
  * broken database, a corrupt row — still throws, because a chat that silently opens
  * model-less on a real failure is harder to diagnose than one that fails loudly.
  */
-export const resolveThreadModel = async (
-  db: AnyDrizzleDatabase,
-  threadId: string,
-  fallbackModelId?: string,
-): Promise<Model | null> => {
+export const resolveThreadModel = async (db: AnyDrizzleDatabase, threadId: string | null): Promise<Model | null> => {
   try {
-    return await getDefaultModelForThread(db, threadId, fallbackModelId)
+    return threadId === null ? await getSelectedModel(db) : await getDefaultModelForThread(db, threadId)
   } catch (error) {
-    if (error instanceof Error && error.message === 'No system model found') {return null}
+    if (error instanceof Error && error.message === 'No system model found') {
+      return null
+    }
     throw error
   }
 }
