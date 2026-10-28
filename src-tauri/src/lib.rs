@@ -80,6 +80,10 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             fork_page_fetch::fork_resolve_host,
             fork_page_fetch::fork_fetch_pinned,
             commands::save_bytes_to_path,
+            fork_boot_log::fork_boot_log,
+            sandbox::store_sandbox_content,
+            sandbox::revoke_sandbox_content,
+            commands::save_document_as,
         ]);
 
     #[cfg(debug_assertions)]
