@@ -6,6 +6,7 @@ import { getAllAgents, useAllAgents } from '@/dal'
 import { getDb } from '@/db/database'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { createMockAuthClient } from '@/test-utils/auth-client'
+import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { createTestProvider } from '@/test-utils/test-provider'
 import { getClock } from '@/testing-library'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
@@ -28,6 +29,7 @@ describe('CreateAgentDetailPanel', () => {
 
   afterEach(async () => {
     cleanup()
+    setCurrentAgentOwner(null)
     await resetTestDatabase()
   })
 
@@ -37,6 +39,9 @@ describe('CreateAgentDetailPanel', () => {
       session: { user: { id: 'user-1', email: 'user@example.com', name: 'User', isAnonymous: false } },
     })
     const TestProvider = createTestProvider({ authClient })
+    // Fork: custom-agent reads are scoped to the signed-in owner (the app shell
+    // sets this from the session). Without it the new row is invisible by design.
+    setCurrentAgentOwner('user-1')
 
     render(
       <>
