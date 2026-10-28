@@ -155,8 +155,17 @@ msgid_plural "Completed # steps in {duration}"
 msgstr[0] "{duration}で# ステップ完了"
 
 #: src/components/chat/artifact-message-part.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "{title} — shown in side panel"
 msgstr "{title} — サイドパネルに表示中"
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "{title} — superseded, updated below"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "{title} — updated"
+msgstr ""
 
 #. js-lingui:icu=%7Btotal%2C+plural%2C+one+%7BImported+%23+row.+The+app+may+take+a+moment+to+reflect+new+chats.%7D+other+%7BImported+%23+rows.+The+app+may+take+a+moment+to+reflect+new+chats.%7D%7D&pluralize_on=total
 #: src/settings/preferences.tsx
@@ -220,6 +229,11 @@ msgstr "概要"
 #: src/settings/devices.tsx
 msgid "Accepts connections from your devices"
 msgstr "お使いのデバイスからの接続を受け付けます"
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Access token"
+msgstr ""
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Access token required"
@@ -332,6 +346,10 @@ msgstr "最初のサーバーを追加"
 msgid "Add Your First Task"
 msgstr "最初のタスクを追加"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Add your Gemini API key in Settings → Voice to use voice on this device."
+msgstr ""
+
 #. placeholder {0}: formatters.date(passkey.createdAt)
 #: src/settings/passkeys.tsx
 #~ msgid "Added {0}"
@@ -371,6 +389,14 @@ msgid "All skills are pinned"
 msgstr "すべてのスキルがピン留めされています"
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr "この種類の操作を常に許可"
 
@@ -397,6 +423,10 @@ msgstr "このエージェントからのすべてを常に許可"
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
 msgstr "常に確認する"
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
+msgstr ""
 
 #: src/lib/sso-error-messages.ts
 msgid "An account with this email already exists but is not verified, so it cannot be linked to this sign-in. Ask your administrator for help."
@@ -464,6 +494,11 @@ msgstr "このプロジェクトのすべてのチャットに適用されます
 #: src/settings/devices.tsx
 msgid "Approve"
 msgstr "承認"
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Approve {deviceName}"
@@ -677,6 +712,14 @@ msgstr ""
 msgid "Chat actions"
 msgstr "チャットの操作"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font"
+msgstr ""
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font size"
+msgstr ""
+
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Chat name"
 msgstr "チャット名"
@@ -765,8 +808,8 @@ msgid "Choose model"
 msgstr "モデルを選択"
 
 #: src/widgets/ask/display.tsx
-msgid "Choose one"
-msgstr "1 つ選択"
+#~ msgid "Choose one"
+#~ msgstr "1 つ選択"
 
 #: src/widgets/connect-integration/widget.tsx
 #~ msgid "Choose your email provider {displayReason}"
@@ -842,6 +885,7 @@ msgstr "クリップボードを利用できません。上のフレーズを選
 #: src/components/ui/responsive-modal.tsx
 #: src/components/ui/sheet.tsx
 #: src/components/window-controls.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Close"
 msgstr "閉じる"
 
@@ -872,6 +916,10 @@ msgstr "コード"
 #: src/components/device-approval.tsx
 msgid "Code didn't work"
 msgstr "コードが使えませんでした"
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Collapse reasoning"
+msgstr ""
 
 #: src/layout/sidebar/sidebar-header.tsx
 msgid "Collapse Sidebar"
@@ -953,6 +1001,10 @@ msgstr "接続済み"
 msgid "Connected — synthesis succeeded."
 msgstr "接続しました — 音声合成に成功しました。"
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr "{connectedProviderName} カレンダーに接続済み"
@@ -987,6 +1039,11 @@ msgstr "接続しています…"
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Connection"
 msgstr "接続"
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "Connection code"
+msgstr ""
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Connection error"
@@ -1113,6 +1170,10 @@ msgstr "QR コードを読み取れませんでした"
 msgid "Could not read the import file."
 msgstr "インポートファイルを読み取れませんでした。"
 
+#: src/fork/documents/docx-preview.tsx
+msgid "Could not render {fileName}. Use the download button to open it."
+msgstr ""
+
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
 msgstr "ペアリングコードを表示できませんでした。"
@@ -1153,6 +1214,10 @@ msgstr "更新を確認できませんでした: {error}"
 msgid "Couldn't check for updates."
 msgstr "更新を確認できませんでした。"
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
+msgstr ""
+
 #: src/settings/app-version-section.tsx
 #~ msgid "Couldn't download the update"
 #~ msgstr "更新をダウンロードできませんでした"
@@ -1185,6 +1250,10 @@ msgstr ""
 msgid "Couldn't pin {name}."
 msgstr "{name} をピン留めできませんでした。"
 
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Couldn't reach the agent. Check the address."
+msgstr ""
+
 #: src/settings/encryption/use-remove-passkey.ts
 msgid "Couldn't remove the passkey. Please try again."
 msgstr "パスキーを削除できませんでした。もう一度お試しください。"
@@ -1200,6 +1269,10 @@ msgstr "更新を適用するための再起動ができませんでした: {err
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update."
 msgstr "更新を適用するための再起動ができませんでした。"
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Couldn't save {field}. Please try again."
+msgstr ""
 
 #: src/components/settings/agents/editable-field.tsx
 msgid "Couldn't save the {fieldName}. Please try again."
@@ -1456,6 +1529,10 @@ msgstr "アカウントを削除しますか？"
 msgid "Deleting…"
 msgstr "削除しています…"
 
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Delivered"
+msgstr ""
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Dense drizzle"
 msgstr "強い霧雨"
@@ -1608,8 +1685,24 @@ msgstr "完了"
 
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/update-notification.tsx
+#: src/fork/documents/file-chip.tsx
+#: src/fork/zeroclaw/delivered-file-card.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Download"
 msgstr "ダウンロード"
+
+#. placeholder {0}: ref.filename
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Download {0}"
+msgstr ""
+
+#: src/widgets/document-result/pdf-sidebar-viewer.tsx
+msgid "Download {fileName}"
+msgstr ""
+
+#: src/fork/documents/file-chip.tsx
+msgid "Download and open"
+msgstr ""
 
 #: src/search/commands/use-commands.ts
 msgid "Download app"
@@ -1647,6 +1740,10 @@ msgstr "ドロップ"
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Drop file to attach"
 msgstr "ファイルをドロップして添付"
+
+#: src/settings/voice.tsx
+msgid "e.g. Speak concisely and warmly, like a helpful coworker."
+msgstr ""
 
 #: src/settings/models/add-model-form.tsx
 msgid "e.g., GPT-4 Turbo"
@@ -1777,6 +1874,10 @@ msgstr "wss:// または ws:// の URL、あるいは iroh チケットを入力
 #: src/settings/models/connection-test-section.tsx
 msgid "Enter an API key to test the connection before saving."
 msgstr "保存する前に接続をテストするには、API キーを入力してください。"
+
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "Enter connection code"
+msgstr ""
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Enter recovery phrase"
@@ -1945,6 +2046,10 @@ msgstr "旗"
 msgid "Foggy"
 msgstr "霧"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Font for reading chat messages."
+msgstr ""
+
 #: src/projects/emoji-catalog.ts
 msgid "Food & drink"
 msgstr "食べ物と飲み物"
@@ -1952,6 +2057,22 @@ msgstr "食べ物と飲み物"
 #. placeholder {0}: app.name
 #: src/mini-apps/mini-app-chat-badge.tsx
 msgid "From {0}"
+msgstr ""
+
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini API key"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini Live (realtime)"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini Live voice character."
 msgstr ""
 
 #: src/settings/encryption/change-recovery-key-section.tsx
@@ -2029,8 +2150,12 @@ msgid "Good morning"
 msgstr "おはようございます"
 
 #: src/widgets/ask/display.tsx
-msgid "Got it, working on that next."
-msgstr "承知しました。次に取り組みます。"
+#~ msgid "Got it, working on that next."
+#~ msgstr "承知しました。次に取り組みます。"
+
+#: src/settings/voice.tsx
+msgid "Half-cascade (STT → LLM → TTS)"
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Haptic Feedback"
@@ -2076,6 +2201,10 @@ msgstr "QR を隠す"
 #: src/settings/devices.tsx
 msgid "Hide QR code for {deviceName}"
 msgstr "{deviceName} の QR コードを隠す"
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Hide the model's live thinking while it generates."
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "How {appName} salutes you"
@@ -2244,11 +2373,23 @@ msgstr "すべてのデバイスでデータを同期します。すべてエン
 msgid "Keep your data synced across devices."
 msgstr "デバイス間でデータを同期しましょう。"
 
+#: src/settings/voice.tsx
+msgid "Key is valid — Gemini Live is reachable."
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr ""
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
 msgid "Language"
 msgstr "言語"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Large"
+msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Last seen {lastSeen}"
@@ -2361,6 +2502,10 @@ msgstr "ログアウト"
 msgid "Logging out…"
 msgstr "ログアウトしています…"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Lora"
+msgstr ""
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Mainly clear"
 msgstr "おおむね晴れ"
@@ -2385,6 +2530,10 @@ msgstr "最大化"
 #: src/settings/connections/connections-list.tsx
 msgid "MCP servers"
 msgstr "MCP サーバー"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Medium"
+msgstr ""
 
 #: src/components/sidebar-footer.tsx
 #: src/search/commands/navigation.ts
@@ -2422,6 +2571,7 @@ msgstr "CSRF ステートがありません。認可をやり直してくださ�
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/settings/models/model-detail.tsx
+#: src/settings/voice.tsx
 msgid "Model"
 msgstr "モデル"
 
@@ -2469,6 +2619,14 @@ msgstr "変更されたモデル"
 msgid "More"
 msgstr "その他"
 
+#: src/fork/documents/file-chip.tsx
+msgid "More actions for {filename}"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "More actions for {title}"
+msgstr ""
+
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"
 msgstr "ファイルを移動"
@@ -2497,6 +2655,14 @@ msgstr "名前"
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Name is required."
 msgstr "名前は必須です。"
+
+#: src/settings/voice.tsx
+msgid "Native audio (end-to-end)"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Native audio generates speech directly for lower latency and more expressive tone; half-cascade transcribes and synthesizes as separate steps."
+msgstr ""
 
 #: src/components/ui/mobile-sidebar.tsx
 msgid "Navigation"
@@ -2778,6 +2944,10 @@ msgstr "1 つのアプリであらゆる AI モデルを"
 msgid "One moment while we look up the code."
 msgstr "コードを照会しています。少しお待ちください。"
 
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself."
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
 msgstr "OneDrive へのアクセス"
@@ -2785,6 +2955,11 @@ msgstr "OneDrive へのアクセス"
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Only available in private chats."
 msgstr "プライベートチャットでのみ利用できます。"
+
+#: src/fork/documents/file-chip.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "Open"
+msgstr ""
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
@@ -2859,6 +3034,10 @@ msgstr "Thunderbolt CLI を開く"
 msgid "Opening…"
 msgstr "開いています…"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr ""
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -2871,6 +3050,10 @@ msgstr "任意 — 認証が不要なローカルサーバーの場合は空欄�
 #: src/projects/project-form.tsx
 msgid "Optional — what this project is for"
 msgstr "任意 — このプロジェクトの目的"
+
+#: src/settings/voice.tsx
+msgid "Optional instructions appended to the assistant's system prompt to shape its tone and style during voice conversations."
+msgstr ""
 
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/waitlist/waitlist-page.tsx
@@ -2897,9 +3080,29 @@ msgstr "曇り"
 msgid "Pair {deviceName}"
 msgstr "{deviceName} をペアリング"
 
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing failed. Please try again."
+msgstr ""
+
 #: src/settings/devices.tsx
 msgid "Pairing identity"
 msgstr "ペアリング ID"
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing timed out. Try again."
+msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing was refused by the agent."
+msgstr ""
+
+#: src/components/theme-toggle-group.tsx
+msgid "Paper"
+msgstr ""
+
+#: src/components/theme-toggle-group.tsx
+msgid "Paper theme"
+msgstr ""
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Partly cloudy"
@@ -2936,6 +3139,11 @@ msgstr "ペアリングコードを貼り付けるか、その QR 画像をア�
 msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are supported; non-Bearer auth headers are ignored."
 msgstr "<0>mcpServers</0> の設定を貼り付けてください。対応しているのはリモート（http/sse）サーバーのみで、Bearer 以外の認証ヘッダーは無視されます。"
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Paste the agent access token"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Peer-to-peer via iroh — the connection is verified when a chat starts."
 msgstr "iroh によるピアツーピア接続 — 接続はチャット開始時に検証されます。"
@@ -2951,6 +3159,10 @@ msgstr "アカウントと、当社のサーバーおよびこのデバイス上
 #: src/components/chat/permission-dialog.tsx
 msgid "Permission Required"
 msgstr "許可が必要です"
+
+#: src/settings/voice.tsx
+msgid "Personality prompt"
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Personalization"
@@ -3061,6 +3273,14 @@ msgstr "{relative}に到達"
 msgid "Read your emails and compose drafts."
 msgstr "メールを読み、下書きを作成します。"
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr ""
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr "メールの読み取り、作成、整理を行います。"
@@ -3072,6 +3292,10 @@ msgstr "{fileName} を読み込み中…"
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Ready to submit"
 msgstr "送信できます"
+
+#: src/settings/voice.tsx
+msgid "Real-time voice conversation via Google Gemini Live. Add your own API key below — or leave it empty to use the workspace key if the operator configured one."
+msgstr ""
 
 #: src/content-view/context.tsx
 msgid "Reasoning"
@@ -3109,6 +3333,10 @@ msgstr ""
 msgid "Registering this device and detecting your account status."
 msgstr "このデバイスを登録し、アカウントの状態を確認しています。"
 
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx
 msgid "Reload"
@@ -3137,6 +3365,10 @@ msgstr "プロジェクトから削除"
 msgid "Remove icon"
 msgstr "アイコンを削除"
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr ""
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr "引用を削除"
@@ -3144,6 +3376,10 @@ msgstr "引用を削除"
 #: src/components/remove-bridge-dialog.tsx
 msgid "Remove this bridge?"
 msgstr "このブリッジを削除しますか？"
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Remove token"
+msgstr ""
 
 #: src/settings/encryption/passkey-section.tsx
 msgid "Remove your passkey?"
@@ -3193,10 +3429,12 @@ msgid "Requested by {appName}"
 msgstr ""
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as images"
 msgstr "画像として再送信"
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as text"
 msgstr "テキストとして再送信"
 
@@ -3291,10 +3529,12 @@ msgid "Run this on the machine hosting the bridge, then add it — the connectio
 msgstr "ブリッジをホストしているマシンでこれを実行してから追加してください — 接続は初回利用時に検証されます。"
 
 #: src/components/set-node-id-dialog.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/mini-apps/mini-app-download-prompt.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr "保存"
@@ -3423,6 +3663,10 @@ msgstr "タスクを検索…"
 msgid "Search…"
 msgstr "検索…"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
+msgstr ""
+
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"
 msgstr "「{query}」を検索中…"
@@ -3449,8 +3693,8 @@ msgid "Select"
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Select all that apply"
-msgstr "該当するものをすべて選択"
+#~ msgid "Select all that apply"
+#~ msgstr "該当するものをすべて選択"
 
 #: src/components/location-search-combobox.tsx
 msgid "Select location…"
@@ -3516,11 +3760,18 @@ msgstr "送信しています…"
 msgid "Sent"
 msgstr "送信しました"
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
+msgstr ""
+
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as images"
 msgstr "画像として送信しました"
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as text"
 msgstr "テキストとして送信しました"
 
@@ -3754,6 +4005,10 @@ msgstr "弱いにわか雪"
 msgid "Slug"
 msgstr "スラッグ"
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Small"
+msgstr ""
+
 #: src/projects/emoji-catalog.ts
 msgid "Smileys & people"
 msgstr "顔と人"
@@ -3867,8 +4122,13 @@ msgid "Synced {relative}"
 msgstr "{relative}に同期"
 
 #: src/components/theme-toggle-group.tsx
+#: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
 msgstr "システム"
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
+msgstr ""
 
 #: src/components/settings/agents/agent-list.tsx
 msgid "System agents"
@@ -3952,6 +4212,14 @@ msgstr "モデルをテストしています…"
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Testing…"
 msgstr "テストしています…"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Text size for chat messages."
+msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
+msgstr ""
 
 #: src/settings/account/use-delete-account.ts
 #: src/settings/encryption/use-change-recovery-key.ts
@@ -4076,6 +4344,10 @@ msgstr "思考中"
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
 msgstr "この操作は取り消せません。このチャットとすべてのメッセージが完全に削除されます。"
 
+#: src/fork/acp/agent-access.ts
+msgid "This agent is not available for your account."
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
 msgstr "プライベートウィンドウや、サイトデータがブロックされている場合に発生することがあります。このサイトのストレージを有効にして再読み込みしてください。"
@@ -4139,6 +4411,10 @@ msgstr "地域に応じた設定や機能で体験をパーソナライズする
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
 msgstr "これはアカウントで最初のデバイスです。データを保護する暗号化キーを作成し、大切に保管していただくためのリカバリーキーをお渡しします。"
+
+#: src/fork/agents/proxy-reachability.ts
+msgid "This is your own machine's address. The desktop app can reach it, but in the browser the connection is made by the server, which would look for the agent on itself."
+msgstr ""
 
 #: src/lib/otp-error-messages.ts
 msgid "This link has expired. Please request a new one."
@@ -4328,9 +4604,17 @@ msgstr "サイドバーの表示を切り替え"
 msgid "Toggle Sidebar"
 msgstr "サイドバーの表示を切り替え"
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+msgid "Token"
+msgstr ""
+
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Token rejected"
 msgstr "トークンが拒否されました"
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Token set"
+msgstr ""
 
 #: src/lib/otp-error-messages.ts
 msgid "Too many attempts. Please request a new code."
@@ -4541,6 +4825,10 @@ msgstr "メールのコードの代わりに、指紋や顔認証、デバイス
 #: src/components/sync-setup/passkey-enroll-step.tsx
 #~ msgid "Use your passkey to turn on sync on new devices, without approving them from another device. Anyone who can use this passkey will be able to unlock your data."
 #~ msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "User Experience"
@@ -4863,6 +5151,10 @@ msgstr ""
 msgid "Your account was deleted, but this device’s data couldn’t be cleared. Reload the app."
 msgstr ""
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr ""
+
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
 msgstr "あなたのエージェント · ターミナルで実行"
@@ -4888,8 +5180,8 @@ msgid "Your browser will download {fileName}."
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Your call"
-msgstr "お好みで"
+#~ msgid "Your call"
+#~ msgstr "お好みで"
 
 #: src/components/create-item/create-skill-panel.tsx
 #: src/skills/skills-view.tsx

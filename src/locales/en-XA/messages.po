@@ -166,7 +166,16 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/components/chat/artifact-message-part.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "{title} — shown in side panel"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "{title} — superseded, updated below"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "{title} — updated"
 msgstr ""
 
 #. js-lingui:icu=%7Btotal%2C+plural%2C+one+%7BImported+%23+row.+The+app+may+take+a+moment+to+reflect+new+chats.%7D+other+%7BImported+%23+rows.+The+app+may+take+a+moment+to+reflect+new+chats.%7D%7D&pluralize_on=total
@@ -231,6 +240,11 @@ msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Accepts connections from your devices"
+msgstr ""
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Access token"
 msgstr ""
 
 #: src/settings/connections/mcp-server-form.tsx
@@ -344,6 +358,10 @@ msgstr ""
 msgid "Add Your First Task"
 msgstr ""
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Add your Gemini API key in Settings → Voice to use voice on this device."
+msgstr ""
+
 #. placeholder {0}: formatters.date(passkey.createdAt)
 #: src/settings/passkeys.tsx
 #~ msgid "Added {0}"
@@ -383,6 +401,14 @@ msgid "All skills are pinned"
 msgstr ""
 
 #: src/components/chat/permission-dialog.tsx
+msgid "Allow once"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always allow"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
 msgid "Always allow all actions of this kind"
 msgstr ""
 
@@ -408,6 +434,10 @@ msgstr ""
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
+msgstr ""
+
+#: src/components/chat/permission-dialog.tsx
+msgid "Always reject"
 msgstr ""
 
 #: src/lib/sso-error-messages.ts
@@ -475,6 +505,11 @@ msgstr ""
 #: src/mini-apps/mini-app-approval-prompt.tsx
 #: src/settings/devices.tsx
 msgid "Approve"
+msgstr ""
+
+#. placeholder {0}: approveMatch[1]
+#: src/components/chat/permission-dialog.tsx
+msgid "Approve {0}?"
 msgstr ""
 
 #: src/settings/devices.tsx
@@ -689,6 +724,14 @@ msgstr ""
 msgid "Chat actions"
 msgstr ""
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font"
+msgstr ""
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Chat font size"
+msgstr ""
+
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Chat name"
 msgstr ""
@@ -777,8 +820,8 @@ msgid "Choose model"
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Choose one"
-msgstr ""
+#~ msgid "Choose one"
+#~ msgstr ""
 
 #: src/widgets/connect-integration/widget.tsx
 #~ msgid "Choose your email provider {displayReason}"
@@ -854,6 +897,7 @@ msgstr ""
 #: src/components/ui/responsive-modal.tsx
 #: src/components/ui/sheet.tsx
 #: src/components/window-controls.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Close"
 msgstr ""
 
@@ -883,6 +927,10 @@ msgstr ""
 
 #: src/components/device-approval.tsx
 msgid "Code didn't work"
+msgstr ""
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Collapse reasoning"
 msgstr ""
 
 #: src/layout/sidebar/sidebar-header.tsx
@@ -965,6 +1013,10 @@ msgstr ""
 msgid "Connected — synthesis succeeded."
 msgstr ""
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Connected agent · {endpoint}"
+msgstr ""
+
 #: src/widgets/connect-integration/widget.tsx
 msgid "Connected to {connectedProviderName} Calendar"
 msgstr ""
@@ -998,6 +1050,11 @@ msgstr ""
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Connection"
+msgstr ""
+
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "Connection code"
 msgstr ""
 
 #: src/settings/connections/mcp-server-detail.tsx
@@ -1125,6 +1182,10 @@ msgstr ""
 msgid "Could not read the import file."
 msgstr ""
 
+#: src/fork/documents/docx-preview.tsx
+msgid "Could not render {fileName}. Use the download button to open it."
+msgstr ""
+
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."
 msgstr ""
@@ -1165,6 +1226,10 @@ msgstr ""
 msgid "Couldn't check for updates."
 msgstr ""
 
+#: src/voice/ui/use-voice-session.ts
+msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
+msgstr ""
+
 #: src/settings/app-version-section.tsx
 #~ msgid "Couldn't download the update"
 #~ msgstr ""
@@ -1197,6 +1262,10 @@ msgstr ""
 msgid "Couldn't pin {name}."
 msgstr ""
 
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Couldn't reach the agent. Check the address."
+msgstr ""
+
 #: src/settings/encryption/use-remove-passkey.ts
 msgid "Couldn't remove the passkey. Please try again."
 msgstr ""
@@ -1211,6 +1280,10 @@ msgstr ""
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update."
+msgstr ""
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Couldn't save {field}. Please try again."
 msgstr ""
 
 #: src/components/settings/agents/editable-field.tsx
@@ -1468,6 +1541,10 @@ msgstr ""
 msgid "Deleting…"
 msgstr ""
 
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Delivered"
+msgstr ""
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Dense drizzle"
 msgstr ""
@@ -1620,7 +1697,23 @@ msgstr ""
 
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/update-notification.tsx
+#: src/fork/documents/file-chip.tsx
+#: src/fork/zeroclaw/delivered-file-card.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Download"
+msgstr ""
+
+#. placeholder {0}: ref.filename
+#: src/fork/zeroclaw/delivered-file-card.tsx
+msgid "Download {0}"
+msgstr ""
+
+#: src/widgets/document-result/pdf-sidebar-viewer.tsx
+msgid "Download {fileName}"
+msgstr ""
+
+#: src/fork/documents/file-chip.tsx
+msgid "Download and open"
 msgstr ""
 
 #: src/search/commands/use-commands.ts
@@ -1658,6 +1751,10 @@ msgstr ""
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Drop file to attach"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "e.g. Speak concisely and warmly, like a helpful coworker."
 msgstr ""
 
 #: src/settings/models/add-model-form.tsx
@@ -1788,6 +1885,10 @@ msgstr ""
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Enter an API key to test the connection before saving."
+msgstr ""
+
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "Enter connection code"
 msgstr ""
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
@@ -1957,6 +2058,10 @@ msgstr ""
 msgid "Foggy"
 msgstr ""
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Font for reading chat messages."
+msgstr ""
+
 #: src/projects/emoji-catalog.ts
 msgid "Food & drink"
 msgstr ""
@@ -1964,6 +2069,22 @@ msgstr ""
 #. placeholder {0}: app.name
 #: src/mini-apps/mini-app-chat-badge.tsx
 msgid "From {0}"
+msgstr ""
+
+#: src/components/chat/user-message.tsx
+msgid "From the canvas"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini API key"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini Live (realtime)"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Gemini Live voice character."
 msgstr ""
 
 #: src/settings/encryption/change-recovery-key-section.tsx
@@ -2041,7 +2162,11 @@ msgid "Good morning"
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Got it, working on that next."
+#~ msgid "Got it, working on that next."
+#~ msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Half-cascade (STT → LLM → TTS)"
 msgstr ""
 
 #: src/settings/preferences.tsx
@@ -2087,6 +2212,10 @@ msgstr ""
 
 #: src/settings/devices.tsx
 msgid "Hide QR code for {deviceName}"
+msgstr ""
+
+#: src/fork/reasoning/reasoning-collapse-toggle.tsx
+msgid "Hide the model's live thinking while it generates."
 msgstr ""
 
 #: src/settings/preferences.tsx
@@ -2256,10 +2385,22 @@ msgstr ""
 msgid "Keep your data synced across devices."
 msgstr ""
 
+#: src/settings/voice.tsx
+msgid "Key is valid — Gemini Live is reachable."
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Key saved"
+msgstr ""
+
 #: src/components/onboarding/onboarding-language-step.tsx
 #: src/settings/preferences.tsx
 #: src/waitlist/waitlist-language-picker.tsx
 msgid "Language"
+msgstr ""
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Large"
 msgstr ""
 
 #: src/settings/devices.tsx
@@ -2373,6 +2514,10 @@ msgstr ""
 msgid "Logging out…"
 msgstr ""
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Lora"
+msgstr ""
+
 #: src/widgets/weather-forecast/lib.ts
 msgid "Mainly clear"
 msgstr ""
@@ -2396,6 +2541,10 @@ msgstr ""
 #: src/components/settings/agents/agent-detail.tsx
 #: src/settings/connections/connections-list.tsx
 msgid "MCP servers"
+msgstr ""
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Medium"
 msgstr ""
 
 #: src/components/sidebar-footer.tsx
@@ -2434,6 +2583,7 @@ msgstr ""
 #: src/settings/models/add-model-form.tsx
 #: src/settings/models/edit-model-form.tsx
 #: src/settings/models/model-detail.tsx
+#: src/settings/voice.tsx
 msgid "Model"
 msgstr ""
 
@@ -2481,6 +2631,14 @@ msgstr ""
 msgid "More"
 msgstr ""
 
+#: src/fork/documents/file-chip.tsx
+msgid "More actions for {filename}"
+msgstr ""
+
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "More actions for {title}"
+msgstr ""
+
 #: src/components/chat/permission-dialog.tsx
 msgid "Move file"
 msgstr ""
@@ -2508,6 +2666,14 @@ msgstr ""
 #: src/settings/models/use-add-model-form.ts
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Name is required."
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Native audio (end-to-end)"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Native audio generates speech directly for lower latency and more expressive tone; half-cascade transcribes and synthesizes as separate steps."
 msgstr ""
 
 #: src/components/ui/mobile-sidebar.tsx
@@ -2790,12 +2956,21 @@ msgstr ""
 msgid "One moment while we look up the code."
 msgstr ""
 
+#: src/fork/agent-pairing/pair-by-code-field.tsx
+msgid "One-time code, exchanged for an access token when you test the connection — no need to paste the token yourself."
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "OneDrive Access"
 msgstr ""
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Only available in private chats."
+msgstr ""
+
+#: src/fork/documents/file-chip.tsx
+#: src/fork/zeroclaw/ui-resource-chip.tsx
+msgid "Open"
 msgstr ""
 
 #: src/components/sync-setup/approval-waiting-step.tsx
@@ -2871,6 +3046,10 @@ msgstr ""
 msgid "Opening…"
 msgstr ""
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Opens a public web page and extracts its readable text, with the source."
+msgstr ""
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Optional"
@@ -2882,6 +3061,10 @@ msgstr ""
 
 #: src/projects/project-form.tsx
 msgid "Optional — what this project is for"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Optional instructions appended to the assistant's system prompt to shape its tone and style during voice conversations."
 msgstr ""
 
 #: src/components/sign-in/sign-in-email-step.tsx
@@ -2909,8 +3092,20 @@ msgstr ""
 msgid "Pair {deviceName}"
 msgstr ""
 
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing failed. Please try again."
+msgstr ""
+
 #: src/settings/devices.tsx
 msgid "Pairing identity"
+msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing timed out. Try again."
+msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "Pairing was refused by the agent."
 msgstr ""
 
 #: src/components/theme-toggle-group.tsx
@@ -2956,6 +3151,11 @@ msgstr ""
 msgid "Paste an <0>mcpServers</0> config. Only remote (http/sse) servers are supported; non-Bearer auth headers are ignored."
 msgstr ""
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Paste the agent access token"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Peer-to-peer via iroh — the connection is verified when a chat starts."
 msgstr ""
@@ -2970,6 +3170,10 @@ msgstr ""
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Permission Required"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Personality prompt"
 msgstr ""
 
 #: src/settings/preferences.tsx
@@ -3081,6 +3285,14 @@ msgstr ""
 msgid "Read your emails and compose drafts."
 msgstr ""
 
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot — switch back to the original agent to interact"
+msgstr ""
+
+#: src/fork/zeroclaw/canvas-read-only-banner.tsx
+msgid "Read-only snapshot from {emittingAgentName} — switch back to interact"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read, compose, and organize your emails."
 msgstr ""
@@ -3091,6 +3303,10 @@ msgstr ""
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "Ready to submit"
+msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Real-time voice conversation via Google Gemini Live. Add your own API key below — or leave it empty to use the workspace key if the operator configured one."
 msgstr ""
 
 #: src/content-view/context.tsx
@@ -3129,6 +3345,10 @@ msgstr ""
 msgid "Registering this device and detecting your account status."
 msgstr ""
 
+#: src/components/chat/permission-dialog.tsx
+msgid "Reject"
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx
 msgid "Reload"
@@ -3157,12 +3377,20 @@ msgstr ""
 msgid "Remove icon"
 msgstr ""
 
+#: src/settings/voice.tsx
+msgid "Remove key"
+msgstr ""
+
 #: src/components/chat/quote-chip.tsx
 msgid "Remove quote"
 msgstr ""
 
 #: src/components/remove-bridge-dialog.tsx
 msgid "Remove this bridge?"
+msgstr ""
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Remove token"
 msgstr ""
 
 #: src/settings/encryption/passkey-section.tsx
@@ -3213,10 +3441,12 @@ msgid "Requested by {appName}"
 msgstr ""
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as images"
 msgstr ""
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Resend as text"
 msgstr ""
 
@@ -3311,10 +3541,12 @@ msgid "Run this on the machine hosting the bridge, then add it — the connectio
 msgstr ""
 
 #: src/components/set-node-id-dialog.tsx
+#: src/components/settings/agents/agent-token-field.tsx
 #: src/components/settings/agents/editable-field.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/mini-apps/mini-app-download-prompt.tsx
 #: src/settings/models/edit-model-form.tsx
+#: src/settings/voice.tsx
 #: src/skills/skill-form.tsx
 msgid "Save"
 msgstr ""
@@ -3443,6 +3675,10 @@ msgstr ""
 msgid "Search…"
 msgstr ""
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Searches the web and returns results with their sources."
+msgstr ""
+
 #: src/lib/tool-metadata.ts
 msgid "Searching for \"{query}\"…"
 msgstr ""
@@ -3469,8 +3705,8 @@ msgid "Select"
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Select all that apply"
-msgstr ""
+#~ msgid "Select all that apply"
+#~ msgstr ""
 
 #: src/components/location-search-combobox.tsx
 msgid "Select location…"
@@ -3536,11 +3772,18 @@ msgstr ""
 msgid "Sent"
 msgstr ""
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Sent as a bearer credential, not in the URL. Stored only on this device."
+msgstr ""
+
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as images"
 msgstr ""
 
 #: src/components/chat/file-card.tsx
+#: src/fork/documents/file-chip.tsx
 msgid "Sent as text"
 msgstr ""
 
@@ -3774,6 +4017,10 @@ msgstr ""
 msgid "Slug"
 msgstr ""
 
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Small"
+msgstr ""
+
 #: src/projects/emoji-catalog.ts
 msgid "Smileys & people"
 msgstr ""
@@ -3887,7 +4134,12 @@ msgid "Synced {relative}"
 msgstr ""
 
 #: src/components/theme-toggle-group.tsx
+#: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
+msgstr ""
+
+#: src/components/settings/agents/agent-provenance.ts
+msgid "System agent · always available"
 msgstr ""
 
 #: src/components/settings/agents/agent-list.tsx
@@ -3971,6 +4223,14 @@ msgstr ""
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Testing…"
+msgstr ""
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgid "Text size for chat messages."
+msgstr ""
+
+#: src/fork/agent-pairing/pairing-messages.ts
+msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
 msgstr ""
 
 #: src/settings/account/use-delete-account.ts
@@ -4096,6 +4356,10 @@ msgstr ""
 msgid "This action cannot be undone. This will permanently delete this chat and all its messages."
 msgstr ""
 
+#: src/fork/acp/agent-access.ts
+msgid "This agent is not available for your account."
+msgstr ""
+
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
 msgstr ""
@@ -4158,6 +4422,10 @@ msgstr ""
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
+msgstr ""
+
+#: src/fork/agents/proxy-reachability.ts
+msgid "This is your own machine's address. The desktop app can reach it, but in the browser the connection is made by the server, which would look for the agent on itself."
 msgstr ""
 
 #: src/lib/otp-error-messages.ts
@@ -4348,8 +4616,16 @@ msgstr ""
 msgid "Toggle Sidebar"
 msgstr ""
 
+#: src/components/settings/agents/add-custom-agent-form.tsx
+msgid "Token"
+msgstr ""
+
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Token rejected"
+msgstr ""
+
+#: src/components/settings/agents/agent-token-field.tsx
+msgid "Token set"
 msgstr ""
 
 #: src/lib/otp-error-messages.ts
@@ -4561,6 +4837,10 @@ msgstr ""
 #: src/components/sync-setup/passkey-enroll-step.tsx
 #~ msgid "Use your passkey to turn on sync on new devices, without approving them from another device. Anyone who can use this passkey will be able to unlock your data."
 #~ msgstr ""
+
+#: src/settings/voice.tsx
+msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
+msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "User Experience"
@@ -4883,6 +5163,10 @@ msgstr ""
 msgid "Your account was deleted, but this device’s data couldn’t be cleared. Reload the app."
 msgstr ""
 
+#: src/components/settings/agents/agent-provenance.ts
+msgid "Your agent · built into the app"
+msgstr ""
+
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Your agent · runs in your terminal"
 msgstr ""
@@ -4908,8 +5192,8 @@ msgid "Your browser will download {fileName}."
 msgstr ""
 
 #: src/widgets/ask/display.tsx
-msgid "Your call"
-msgstr ""
+#~ msgid "Your call"
+#~ msgstr ""
 
 #: src/components/create-item/create-skill-panel.tsx
 #: src/skills/skills-view.tsx
