@@ -54,7 +54,8 @@ describe('toReplyChat', () => {
 
     expect(chatInstance.sendMessage).not.toHaveBeenCalled()
     expect(
-      screen.getByText("This private chat won't run on Assistant. Switch to Thunderbolt to run it."),
+      // Fork: the built-in agent carries the product name (see fork/rebrand).
+      screen.getByText(`This private chat won't run on Assistant. Switch to ${builtInAgent.name} to run it.`),
     ).toBeInTheDocument()
     expect(screen.queryByText(/^Error:/)).toBeNull()
   })
