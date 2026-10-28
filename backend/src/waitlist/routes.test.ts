@@ -427,22 +427,22 @@ describe('Waitlist API', () => {
     it("sends the joined email in the requester's language", async () => {
       const { app: capturing, sendJoinedEmail } = await capturingApp()
 
-      await join(capturing, 'joined-de@example.com', 'de')
+      await join(capturing, 'joined-ru@example.com', 'ru')
 
-      expect(sendJoinedEmail).toHaveBeenCalledWith({ email: 'joined-de@example.com', locale: 'de' })
+      expect(sendJoinedEmail).toHaveBeenCalledWith({ email: 'joined-ru@example.com', locale: 'ru' })
     })
 
     it('sends the reminder email in the requested language', async () => {
       await db.insert(waitlist).values({
         id: crypto.randomUUID(),
-        email: 'reminder-ja@example.com',
+        email: 'reminder-ru@example.com',
         status: 'pending',
       })
       const { app: capturing, sendReminderEmail } = await capturingApp()
 
-      await join(capturing, 'reminder-ja@example.com', 'ja')
+      await join(capturing, 'reminder-ru@example.com', 'ru')
 
-      expect(sendReminderEmail).toHaveBeenCalledWith({ email: 'reminder-ja@example.com', locale: 'ja' })
+      expect(sendReminderEmail).toHaveBeenCalledWith({ email: 'reminder-ru@example.com', locale: 'ru' })
     })
 
     it('falls back to English when no language header is sent', async () => {
@@ -463,9 +463,9 @@ describe('Waitlist API', () => {
       const auth = createAuth(db, { sendSignInEmail })
       const appWithAuth = await createApp({ database: db, otpCooldownMs: 0, auth })
 
-      await join(appWithAuth, 'approved-fr@mozilla.org', 'fr')
+      await join(appWithAuth, 'approved-ru@mozilla.org', 'ru')
 
-      expect(sendSignInEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'fr' }))
+      expect(sendSignInEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ru' }))
     })
   })
 })
