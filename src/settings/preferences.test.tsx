@@ -14,6 +14,7 @@ import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { reconcileDefaults } from '@/lib/reconcile-defaults'
 import { getClock } from '@/testing-library'
 import { createMockAuthClient } from '@/test-utils/auth-client'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { createTestProvider } from '@/test-utils/test-provider'
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
@@ -67,6 +68,23 @@ describe('PreferencesSettingsPage — sync toggle gating', () => {
 
   afterEach(() => {
     cleanup()
+    // In afterEach, never at the end of the test body: a failing assertion would
+    // skip the reset and leak 'local' into every test after it in this process.
+    useLocalSettingsStore.setState({ operationMode: 'server' })
+  })
+
+  // Upstream's own `isFullUser` gate already hides the sync toggle, the passkey,
+  // recovery-key and delete-account sections when there is no session — but its
+  // ELSE branch invites the user to sign in, which is the one thing local mode
+  // must never offer. Both halves asserted.
+  it('offers neither the sync toggle nor a sign-in prompt in local mode', () => {
+    useLocalSettingsStore.setState({ operationMode: 'local' })
+    renderPage(createMockAuthClient({ session: null }))
+
+    expect(screen.queryByRole('button', { name: 'Sign In' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('switch', { name: /sync this device/i })).not.toBeInTheDocument()
+    expect(screen.queryByText('Sync This Device With Cloud')).not.toBeInTheDocument()
+    useLocalSettingsStore.setState({ operationMode: 'server' })
   })
 
   it('keeps local backup and reset controls available without an account', () => {
