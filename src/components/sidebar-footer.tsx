@@ -38,6 +38,7 @@ import { useAuth, useSignInModal } from '@/contexts'
 import { useE2eeReady } from '@/hooks/use-e2ee-ready'
 import { supportsKeyStoreLock } from '@/crypto/key-store-lock'
 import { encryptedSyncUpgradeMessage } from '@/lib/encrypted-sync-support'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { useCreateNewChat } from '@/hooks/use-create-new-chat'
 import { useHaptics } from '@/hooks/use-haptics'
 import type { Formatters } from '@/i18n/format'
@@ -216,6 +217,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
   }
 
   const { data: session, isPending } = authClient.useSession()
+  const localMode = useIsLocalMode()
   // Treat anonymous sessions as logged-out for the footer UI: anonymous users have a
   // synthetic email and no real account, so showing them as "logged in" is misleading.
   // The Sign In affordance (below) is the correct surface for them to upgrade.
@@ -375,6 +377,12 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
    * default is the labeled pill.
    */
   const renderAccountControl = (collapsed = false) => {
+    // Fork: local mode has no account. One exit covers both affordances this
+    // function can produce — the sign-in button and the account-menu trigger —
+    // so neither can be left behind.
+    if (localMode) {
+      return null
+    }
     const iconOnly = collapsed || isMobile
     if (isPending) {
       return iconOnly ? (
