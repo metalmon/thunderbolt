@@ -14,6 +14,8 @@ import type { AnyDrizzleDatabase } from '../db/database-interface'
 import { agentsSecretsTable, agentsSystemTable, agentsTable } from '../db/tables'
 import { builtInAgent } from '../defaults/agents'
 import { nowIso } from '../lib/utils'
+import { isLocalMode } from '@/fork/local-mode/mode'
+import { systemAgentTypes, type SystemAgentType } from '@shared/acp-types'
 import type { Agent } from '@/types/acp'
 import { customAgentTypes, type CustomAgentType } from '@shared/acp-types'
 import { clearAcpSessionIdsForAgent } from './chat-threads'
@@ -116,7 +118,15 @@ export const composeAllAgents = (
   systemAgents: Agent[],
   customAgents: Agent[],
   options: { includeBuiltIn?: boolean } = {},
-): Agent[] => [...(options.includeBuiltIn === false ? [] : [builtInAgent]), ...systemAgents, ...customAgents]
+): Agent[] => {
+  const all = [...(options.includeBuiltIn === false ? [] : [builtInAgent]), ...systemAgents, ...customAgents]
+  // Fork: `managed-acp` and `managed-http` are reached THROUGH our backend
+  // (`/v1/haystack/ws`, `/v1/hosted`), and in local mode their rows are only
+  // leftovers from a roster that is no longer served. `remote-acp` stays: an
+  // agent the user configured on their own machine or LAN needs nothing of ours.
+  // Filtered at the one place both the live hook and `loadAllAgents` compose.
+  return isLocalMode() ? all.filter((agent) => !systemAgentTypes.includes(agent.type as SystemAgentType)) : all
+}
 
 /** Load the combined agent list once, in the same order as {@link useAllAgents},
  *  for code that cannot use the live hook, such as the discovery bootstrap effect

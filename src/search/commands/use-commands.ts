@@ -18,6 +18,7 @@ import { useLingui } from '@lingui/react/macro'
 import { Download, LogOut, MessageCirclePlus, PanelLeft, Trash2 } from 'lucide-react'
 import { isMinimalModeHiddenPath } from '../registry'
 import { buildCreateCommands } from './create-commands'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { navigationCommands, type NavGate } from './navigation'
 import type { PaletteCommand, UseCommandsOptions } from './types'
 
@@ -28,7 +29,7 @@ const openExternal = (url: string) => window.open(url, '_blank', 'noopener,noref
 const isMacPlatform = () => isMacDesktop() || getWebOsPlatform() === 'macos'
 
 /** Resolved feature/build gates a navigation command can depend on. */
-export type CommandFlags = { voice: boolean; tasks: boolean; dev: boolean }
+export type CommandFlags = { voice: boolean; tasks: boolean; dev: boolean; account: boolean }
 
 const themeOptions: { theme: Theme; title: MessageDescriptor }[] = [
   { theme: 'light', title: msg`Set Light` },
@@ -180,6 +181,7 @@ export const useCommands = (opts: UseCommandsOptions): PaletteCommand[] => {
   const { toggleSidebar, closeMobileSidebar } = useSidebar()
   const minimalMode = useConfigStore((state) => selectMinimalMode(state.config))
   const { data: session } = useAuth().useSession()
+  const localMode = useIsLocalMode()
 
   return buildCommands({
     i18n,
@@ -189,6 +191,9 @@ export const useCommands = (opts: UseCommandsOptions): PaletteCommand[] => {
       voice: experimentalFeatureVoice.value,
       tasks: experimentalFeatureTasks.value,
       dev: import.meta.env.DEV,
+      // Fork: no backend, no account — and the Devices route is not mounted in
+      // local mode, so offering it here would land the user on "not found".
+      account: !localMode,
     },
     showDownloadApp: showAppDownloads && !isTauri() && isWebDesktopPlatform(),
     isMac: isMacPlatform(),

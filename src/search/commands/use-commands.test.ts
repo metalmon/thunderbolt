@@ -10,7 +10,7 @@ import type { PaletteCommand } from './types'
 
 const makeDeps = (overrides: Partial<BuildCommandsDeps> = {}): BuildCommandsDeps => ({
   i18n,
-  flags: { voice: false, tasks: false, dev: false },
+  flags: { voice: false, tasks: false, dev: false, account: true },
   minimalMode: false,
   isAnonymous: false,
   showDownloadApp: false,
@@ -46,16 +46,22 @@ describe('buildCommands — navigation gating', () => {
   })
 
   it('reveals each gated nav command only when its own flag is on', () => {
-    const voiceOnly = buildCommands(makeDeps({ flags: { voice: true, tasks: false, dev: false } })).map((c) => c.id)
+    const voiceOnly = buildCommands(makeDeps({ flags: { voice: true, tasks: false, dev: false, account: true } })).map(
+      (c) => c.id,
+    )
     expect(voiceOnly).toContain('voice')
     expect(voiceOnly).not.toContain('tasks')
     expect(voiceOnly).not.toContain('dev-settings')
 
-    const tasksOnly = buildCommands(makeDeps({ flags: { voice: false, tasks: true, dev: false } })).map((c) => c.id)
+    const tasksOnly = buildCommands(makeDeps({ flags: { voice: false, tasks: true, dev: false, account: true } })).map(
+      (c) => c.id,
+    )
     expect(tasksOnly).toContain('tasks')
     expect(tasksOnly).not.toContain('voice')
 
-    const devOnly = buildCommands(makeDeps({ flags: { voice: false, tasks: false, dev: true } })).map((c) => c.id)
+    const devOnly = buildCommands(makeDeps({ flags: { voice: false, tasks: false, dev: true, account: true } })).map(
+      (c) => c.id,
+    )
     expect(devOnly).toContain('dev-settings')
     expect(devOnly).toContain('message-simulator')
     expect(devOnly).not.toContain('voice')
@@ -63,7 +69,7 @@ describe('buildCommands — navigation gating', () => {
 })
 
 describe('buildCommands, minimal mode', () => {
-  const allFlags = { voice: true, tasks: true, dev: true }
+  const allFlags = { voice: true, tasks: true, dev: true, account: true }
 
   it('offers the Settings destinations and create commands by default', () => {
     const ids = buildCommands(makeDeps({ flags: allFlags })).map((command) => command.id)
@@ -171,5 +177,23 @@ describe('buildCommands — action wiring', () => {
   it('shows a platform-aware toggle-sidebar shortcut hint', () => {
     expect(byId(buildCommands(makeDeps({ isMac: true })), 'toggle-sidebar')?.shortcut).toBe('⌘B')
     expect(byId(buildCommands(makeDeps({ isMac: false })), 'toggle-sidebar')?.shortcut).toBe('Ctrl+B')
+  })
+})
+
+describe('local mode', () => {
+  // The Devices route is not mounted in local mode, so a palette entry for it
+  // would navigate the user to "not found".
+  it('drops the Devices entry when there is no account', () => {
+    const withAccount = buildCommands(makeDeps({ flags: { voice: true, tasks: true, dev: true, account: true } })).map(
+      (c) => c.id,
+    )
+    const withoutAccount = buildCommands(
+      makeDeps({ flags: { voice: true, tasks: true, dev: true, account: false } }),
+    ).map((c) => c.id)
+
+    expect(withAccount).toContain('devices')
+    expect(withoutAccount).not.toContain('devices')
+    // Nothing else may disappear with it.
+    expect(withoutAccount).toEqual(withAccount.filter((id) => id !== 'devices'))
   })
 })
