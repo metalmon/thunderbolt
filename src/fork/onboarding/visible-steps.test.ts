@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it } from 'bun:test'
+import { onboardingStepCount } from '@/hooks/use-onboarding-state'
 import {
   allOnboardingSteps,
   lastVisibleStep,
@@ -21,8 +22,15 @@ describe('visibleOnboardingSteps', () => {
     expect(withProviders).toEqual([...allOnboardingSteps])
   })
 
+  // The guard the file header promises: upstream owns the step count, and a step
+  // added there must widen this list, or navigation silently ends the wizard early.
+  it('covers every step upstream declares', () => {
+    expect(allOnboardingSteps).toHaveLength(onboardingStepCount)
+    expect(lastVisibleStep(withProviders)).toBe(onboardingStepCount)
+  })
+
   it('drops only the auth step when it cannot', () => {
-    expect(withoutProviders).toEqual([1, 3, 4, 5, 6])
+    expect(withoutProviders).toEqual([1, 3, 4, 5, 6, 7])
     expect(withoutProviders).not.toContain(providerOnboardingStep)
   })
 })
@@ -39,7 +47,7 @@ describe('navigation', () => {
   })
 
   it('stops at the ends rather than running off', () => {
-    expect(nextVisibleStep(withoutProviders, 6)).toBe(6)
+    expect(nextVisibleStep(withoutProviders, onboardingStepCount)).toBe(onboardingStepCount)
     expect(prevVisibleStep(withoutProviders, 1)).toBe(1)
   })
 
@@ -52,14 +60,14 @@ describe('navigation', () => {
 
 describe('progress', () => {
   it('ends on the celebration either way', () => {
-    expect(lastVisibleStep(withProviders)).toBe(6)
-    expect(lastVisibleStep(withoutProviders)).toBe(6)
+    expect(lastVisibleStep(withProviders)).toBe(onboardingStepCount)
+    expect(lastVisibleStep(withoutProviders)).toBe(onboardingStepCount)
   })
 
-  // The dots count visible steps, so five steps show five dots and the third
+  // The dots count visible steps, so hiding one drops a dot and the third
   // visible step highlights the third dot — not the fourth.
   it('positions the dots against the visible steps', () => {
-    expect(withoutProviders).toHaveLength(5)
+    expect(withoutProviders).toHaveLength(onboardingStepCount - 1)
     expect(visibleStepPosition(withoutProviders, 4)).toBe(3)
     expect(visibleStepPosition(withProviders, 4)).toBe(4)
   })
