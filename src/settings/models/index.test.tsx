@@ -4,10 +4,12 @@
 
 import { eq } from 'drizzle-orm'
 import { modelsTable } from '@/db/tables'
+import { useConfigStore } from '@/api/config-store'
 import { i18n } from '@/i18n'
 import { createModel, getModel } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
+import { stubJsonResponse } from '@/test-utils/http'
 import { renderWithReactivity, waitForElement } from '@/test-utils/powersync-reactivity-test'
 import { getClock } from '@/testing-library'
 import '@testing-library/jest-dom'
@@ -445,11 +447,15 @@ describe('model card action menu', () => {
       isConfidential: 1,
     })
 
+    // The label is the deployment's app name (upstream resolves managed lanes
+    // through branding since #1439), so the name under test comes from `/config`.
+    useConfigStore.setState({ config: { branding: { appName: 'Вольт' } }, configLoaded: true })
+
     renderModelsPage()
     await waitForElement(() => screen.queryByText('GLM 5.2'))
 
     const card = screen.getByText('GLM 5.2').closest('[data-slot="card"]') as HTMLElement
-    expect(within(card).getByText('Volt')).toBeInTheDocument()
+    expect(within(card).getByText('Вольт')).toBeInTheDocument()
     expect(within(card).queryByText('Tinfoil')).not.toBeInTheDocument()
   })
 
