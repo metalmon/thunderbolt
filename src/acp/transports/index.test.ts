@@ -260,7 +260,6 @@ describe('openTransport — agent-type routing', () => {
       agentType: 'remote-acp',
       signal: new AbortController().signal,
       isStandalone: () => true,
-      readProxyEnabled: () => null, // proxy off → native
       agentAuthToken: 'zc_deadbeef',
     })
 
@@ -278,7 +277,6 @@ describe('openTransport — agent-type routing', () => {
       agentType: 'remote-acp',
       signal: new AbortController().signal,
       isStandalone: () => true,
-      readProxyEnabled: () => null,
       agentAuthToken: null,
     })
 
@@ -296,7 +294,6 @@ describe('openTransport — agent-type routing', () => {
       agentType: 'remote-acp',
       signal: new AbortController().signal,
       isStandalone: () => false,
-      readProxyEnabled: () => null,
       httpClient: stubHttpClient,
       getAuthToken: () => 'proxy-token-xyz',
       agentAuthToken: 'zc_deadbeef',
@@ -320,7 +317,6 @@ describe('resolveWebSocketFactory — direct unit test', () => {
       agentType: 'remote-acp',
       signal: new AbortController().signal,
       isStandalone: () => true,
-      readProxyEnabled: () => null,
       agentAuthToken: 'zc_x',
     })
 
@@ -337,7 +333,6 @@ describe('resolveWebSocketFactory — direct unit test', () => {
       agentType: 'remote-acp',
       signal: new AbortController().signal,
       isStandalone: () => true,
-      readProxyEnabled: () => null,
       agentAuthToken: null,
     })
 

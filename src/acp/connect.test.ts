@@ -16,7 +16,6 @@ import { getClock } from '@/testing-library'
 import { useConfigStore } from '@/api/config-store'
 import { defaultSkillResearch, defaultSkillWeather } from '@/defaults/skills'
 import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
-import { skillsCapabilityMeta } from '@shared/agent-core/skills'
 import type {
   Agent as AcpSdkAgent,
   Client,

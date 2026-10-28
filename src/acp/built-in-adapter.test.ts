@@ -1337,7 +1337,9 @@ describe('real Pi web-budget payload', () => {
  *  each use. */
 const fixtureModel = (context: AgentAdapterContext): Model => {
   const model = context.selectedModel
-  if (!model) {throw new Error('this adapter fixture is built with a model')}
+  if (!model) {
+    throw new Error('this adapter fixture is built with a model')
+  }
   return model
 }
 
@@ -1372,13 +1374,13 @@ it('sends a /research token verbatim, without its instruction, in minimal mode',
   useConfigStore.setState({ config: { minimalMode: true } })
   const run = createBudgetAdapter(['Done.'], prepareAiRequestConfig)
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...run.context.selectedModel!, enabled: 1 })
     await updateSettings(getDb(), { integrations_pro_is_enabled: true })
     await updateSkill(getDb(), defaultSkillResearch.id, { enabled: 1, instruction: 'EXPLICIT_RESEARCH_BODY' })
     const messages: ThunderboltUIMessage[] = [
       { id: 'research-user', role: 'user', parts: [{ type: 'text', text: '/research a topic' }] },
     ]
-    const context = createEvalAdapterContext({ ...run.context, messages })
+    const context = createEvalAdapterContext({ ...run.context, selectedModel: run.context.selectedModel!, messages })
     await (await run.adapter.fetch({ body: JSON.stringify({ messages }) }, context)).text()
     const userMessages = JSON.stringify(run.requests[0].messages.filter(({ role }) => role === 'user'))
     expect(userMessages).toContain('/research a topic')
@@ -1397,7 +1399,7 @@ it.each([
   useConfigStore.setState({ config: { minimalMode } })
   const run = createBudgetAdapter(['Done.'], prepareAiRequestConfig)
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...run.context.selectedModel!, enabled: 1 })
     await run.send()
     const request = run.requests[0]
     const system = JSON.stringify(request.messages.filter(({ role }) => role === 'system'))

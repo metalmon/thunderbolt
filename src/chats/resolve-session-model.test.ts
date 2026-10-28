@@ -16,15 +16,15 @@ const nonPrivateThread = { isEncrypted: 0 }
 
 describe('resolveSessionModel', () => {
   it('takes the first model the picker enables for the thread, skipping one missing its API key', () => {
-    expect(resolveSessionModel(builtInAgent, nonPrivateThread, confidential, models).id).toBe(standard.id)
+    expect(resolveSessionModel(builtInAgent, nonPrivateThread, confidential, models)?.id).toBe(standard.id)
   })
 
   it('leaves the model alone for an agent that does not use it', () => {
     const hostedAgent: Agent = { ...builtInAgent, id: 'hosted-agent', type: 'managed-http', transport: 'http' }
-    expect(resolveSessionModel(hostedAgent, nonPrivateThread, confidential, models).id).toBe(confidential.id)
+    expect(resolveSessionModel(hostedAgent, nonPrivateThread, confidential, models)?.id).toBe(confidential.id)
   })
 
   it('leaves the model alone for a chat with no thread row yet', () => {
-    expect(resolveSessionModel(builtInAgent, null, confidential, models).id).toBe(confidential.id)
+    expect(resolveSessionModel(builtInAgent, null, confidential, models)?.id).toBe(confidential.id)
   })
 })
