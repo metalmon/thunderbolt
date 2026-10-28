@@ -14,8 +14,8 @@ import {
   visibleStepPosition,
 } from './visible-steps'
 
-const withProviders = visibleOnboardingSteps(true)
-const withoutProviders = visibleOnboardingSteps(false)
+const withProviders = visibleOnboardingSteps(true, false)
+const withoutProviders = visibleOnboardingSteps(false, false)
 
 describe('visibleOnboardingSteps', () => {
   it('shows every step when the deployment can offer an integration', () => {
@@ -74,5 +74,28 @@ describe('progress', () => {
 
   it('falls back to the first position for an unknown step', () => {
     expect(visibleStepPosition(withoutProviders, providerOnboardingStep)).toBe(1)
+  })
+})
+
+describe('local mode', () => {
+  // The wizard opens for anyone whose `user_has_completed_onboarding` is unset,
+  // local mode included. Three of its steps cannot be completed without a
+  // backend — the sign-in invitation, the location search (`/v1/locations`) and
+  // the passkey enrolment (`/passkey/*`) — so they must not be offered at all.
+  it('drops the sign-in, location and passkey steps', () => {
+    expect(visibleOnboardingSteps(true, true)).toEqual([1, 3, 5, 7])
+  })
+
+  // Local mode wins over the OAuth answer: that flag describes a deployment we
+  // are not talking to.
+  it('ignores the OAuth-providers answer', () => {
+    expect(visibleOnboardingSteps(false, true)).toEqual(visibleOnboardingSteps(true, true))
+  })
+
+  // The wizard still has to end on the celebration step, or `lastVisibleStep`
+  // would leave it with nowhere to finish.
+  it('still ends on the celebration step', () => {
+    const steps = visibleOnboardingSteps(true, true)
+    expect(steps[steps.length - 1]).toBe(allOnboardingSteps[allOnboardingSteps.length - 1])
   })
 })
