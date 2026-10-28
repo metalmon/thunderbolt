@@ -82,6 +82,36 @@ const renderWithProviders = (authClient: AuthClient, children?: ReactNode) => {
 }
 
 describe('SidebarFooter', () => {
+  // Local mode has no account, so the footer must offer nothing to do with one:
+  // neither a sign-in button nor the account menu. Both are the same affordance
+  // in the source, so both are asserted — a guard on one alone would pass while
+  // the other still rendered.
+  describe('local mode', () => {
+    afterEach(() => {
+      useLocalSettingsStore.setState({ operationMode: 'server' })
+    })
+
+    it('offers no sign-in and no account menu', () => {
+      useLocalSettingsStore.setState({ operationMode: 'local' })
+      useConfigStore.setState({ config: {}, configLoaded: true })
+      renderWithProviders(createMockAuthClient({ session: null }))
+
+      expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Account menu' })).toBeNull()
+    })
+
+    // A session can linger — the mode switch clears it, but an install that
+    // got here another way must still show no account.
+    it('offers no account menu even with a session present', () => {
+      useLocalSettingsStore.setState({ operationMode: 'local' })
+      useConfigStore.setState({ config: {}, configLoaded: true })
+      renderWithProviders(createMockAuthClient({ session: { user: { id: 'u1', email: 'u@e.com', name: 'U' } } }))
+
+      expect(screen.queryByRole('button', { name: 'Account menu' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull()
+    })
+  })
+
   describe('anonymous users', () => {
     it('shows an icon-only Sign In affordance (treats anonymous as logged-out)', () => {
       const authClient = createMockAuthClient({
