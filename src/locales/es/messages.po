@@ -5199,6 +5199,10 @@ msgstr ""
 msgid "You must be signed in to import data."
 msgstr "Tienes que iniciar sesión para importar datos."
 
+#: src/fork/local-mode/server-section.tsx
+msgid "You will be signed out and sync will stop: the credentials you hold were issued by the current server and must not be sent to a different one."
+msgstr ""
+
 #: src/settings/encryption/passkey-section.tsx
 msgid "You won't be able to sign in or unlock sync with this passkey anymore. Devices that are already set up keep working."
 msgstr "Ya no podrás iniciar sesión ni desbloquear la sincronización con esta llave de acceso. Los dispositivos que ya están configurados seguirán funcionando."
