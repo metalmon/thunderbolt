@@ -21,6 +21,7 @@ import { trackEvent, useTelemetryAvailable } from '@/lib/posthog'
 import { isTauri } from '@/lib/platform'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { useIsLocalMode } from '@/fork/local-mode/mode'
+import { ServerSection } from '@/fork/local-mode/server-section'
 import { useHttpClient } from '@/contexts'
 import { useMemo, useReducer, useRef, useState, type ChangeEvent } from 'react'
 
@@ -1095,6 +1096,13 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
           </Tooltip>
         </div>
       </SectionCard>
+
+      <div className="h-6" />
+
+      {/* Fork: the one editor for the backend address and the operating mode.
+          Renders nothing unless the build allows retargeting, so no condition
+          is needed here. */}
+      <ServerSection />
 
       <div className="h-6" />
 
