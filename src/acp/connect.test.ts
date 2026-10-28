@@ -11,12 +11,11 @@
 import '@/testing-library'
 
 import { act } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { describe, expect, it, mock } from 'bun:test'
 import { getClock } from '@/testing-library'
 import { useConfigStore } from '@/api/config-store'
 import { defaultSkillResearch, defaultSkillWeather } from '@/defaults/skills'
 import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
-import { skillsCapabilityMeta } from '@shared/agent-core/skills'
 import type {
   Agent as AcpSdkAgent,
   Client,
@@ -32,6 +31,7 @@ import type { FetchFn } from '@/lib/proxy-fetch'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { createSpyHttpClient } from '@/test-utils/http-client-spy'
 import type { AiFetchStreamingResponseFn } from './built-in-adapter'
+import { skillsCapabilityMeta } from '@shared/agent-core/skills'
 import { connectToAgent } from './connect'
 
 const builtInAgent: Agent = {
