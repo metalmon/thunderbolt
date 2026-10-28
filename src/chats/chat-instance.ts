@@ -1181,14 +1181,7 @@ export const createChatInstance = (
 
     // The hosted agent doesn't use the selected model, and its threads are never
     // private, so the model/thread confidentiality lock doesn't apply to it.
-    // Encryption is a property of the model, so with no model there is nothing
-    // confidential to mismatch either.
-    if (
-      selectedModel &&
-      chatThread &&
-      !isHostedAgent(selectedAgent) &&
-      !matchesThreadConfidentiality(selectedModel, chatThread)
-    ) {
+    if (chatThread && !isHostedAgent(selectedAgent) && !matchesThreadConfidentiality(selectedModel, chatThread)) {
       throw new Error(
         `This model is not available for ${chatThread.isEncrypted === 1 ? 'encrypted' : 'unencrypted'} conversations.`,
       )
