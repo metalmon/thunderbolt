@@ -75,6 +75,7 @@ import { ProjectRedirect } from '@/projects/project-redirect'
 import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
 import { AppErrorBoundary } from '@/fork/error-boundary/app-error-boundary'
 import { LocalModeBanner } from '@/fork/local-mode/local-mode-banner'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -201,6 +202,10 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
 
   const ssoMode = isSsoMode()
   const shouldBypassWaitlist = isWaitlistBypassed()
+  // Fork: routes that exist only to talk to our backend. Not mounted rather than
+  // mounted-and-broken, so a stale link lands on "not found" instead of a screen
+  // that spins forever.
+  const localMode = useIsLocalMode()
 
   return (
     <Suspense fallback={<Loading />}>
@@ -208,7 +213,10 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
         {/* Auth flow routes - NO guards (must work during auth) */}
         <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route path="/auth/verify" element={<MagicLinkVerify />} />
-        <Route path="/device" element={<DeviceApproval />} />
+        {/* Fork: this one sits OUTSIDE the auth gate, so local mode cannot be
+            handled by the gate as everything else is — the condition has to be
+            on the route itself. CLI device approval is a backend grant flow. */}
+        {!localMode && <Route path="/device" element={<DeviceApproval />} />}
 
         {/* SSO redirect route — no guard, only in OIDC/SAML mode */}
         {ssoMode && <Route path="/sso-redirect" element={<SsoRedirect />} />}
@@ -236,6 +244,13 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
               <Route path="projects" element={<ProjectRedirect />} />
               <Route path="projects/:projectId" element={<ProjectRedirect />} />
               <Route path="apps/:appId" element={<MiniAppPage />} />
+              {/* One component for both: `:projectId` is the list with that
+                  project's slide-out open, so a deep link, a sidebar row, a search
+                  hit, and the chat badge all land on the same surface — and there
+                  is one place a project is edited. */}
+              <Route path="projects" element={<ProjectsPage />} />
+              <Route path="projects/:projectId" element={<ProjectsPage />} />
+              {!localMode && <Route path="apps/:appId" element={<MiniAppPage />} />}
               {import.meta.env.DEV && <Route path="message-simulator" element={<MessageSimulatorPage />} />}
             </Route>
 
@@ -245,7 +260,7 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
               <Route path="preferences" element={<PreferencesSettingsPage />} />
               <Route path="models" element={<ModelsPage />} />
               {experimentalFeatureVoice.value && <Route path="voice" element={<VoiceSettingsPage />} />}
-              <Route path="devices" element={<DevicesSettingsPage />} />
+              {!localMode && <Route path="devices" element={<DevicesSettingsPage />} />}
               <Route path="connections" element={<ConnectionsPage />} />
               {/* Legacy routes — MCP servers and integrations merged into Connections. */}
               <Route path="mcp-servers" element={<Navigate to="/settings/connections" replace />} />
