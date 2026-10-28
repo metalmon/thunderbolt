@@ -6,6 +6,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useAuth, useHttpClient } from '@/contexts'
 import { authRequestHeaders } from '@/contexts/auth-context'
 import { isAltchaCaptchaEnabled, isAnonymousAuthEnabled, isSsoMode, isWaitlistBypassed } from '@/lib/auth-mode'
+import { HttpError } from '@/lib/http'
 import { captchaTokenHeader, captchaVerificationFailedCode } from '@shared/captcha'
 import { AltchaTransientError, solveAltchaChallenge } from './altcha'
 
@@ -17,6 +18,8 @@ export type AuthGateState =
   | { status: 'redirect'; to: string }
   | { status: 'verifying' }
   | { status: 'verification-failed'; retry: () => void }
+  /** Fork: the backend could not be reached at all, so no sign-in can succeed. */
+  | { status: 'offline'; retry: () => void }
 
 /** Progress of the ALTCHA solve that precedes anonymous sign-in; stays `idle` without a captcha. */
 type CaptchaStatus = 'idle' | 'verifying' | 'failed'
@@ -31,6 +34,7 @@ type CaptchaStatus = 'idle' | 'verifying' | 'failed'
  *    (with `VITE_CAPTCHA_PROVIDER=altcha`, solve a challenge first and show `verifying`, or
  *    `verification-failed` with a retry when the challenge fetch fails or the API refuses the solution)
  *  - waitlist active + no session → redirect to /waitlist
+ *  - sign-in could not reach the server → `offline` with a retry (fork; see `signInAnonymously`)
  *
  * For `require="unauthenticated"`:
  *  - has session → redirect to /
@@ -55,6 +59,9 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   // re-render that hides the button; aborted on unmount so a stale attempt never signs in.
   const attemptRef = useRef<AbortController | null>(null)
   const [anonError, setAnonError] = useState<Error | null>(null)
+  // Fork: set when sign-in could not reach the server at all. Separate from
+  // `anonError` because the two deserve opposite treatment — see `signInAnonymously`.
+  const [unreachable, setUnreachable] = useState(false)
   const [captchaStatus, setCaptchaStatus] = useState<CaptchaStatus>('idle')
   if (anonError) {
     throw anonError
@@ -116,12 +123,26 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
 
   const signInAnonymously = async () => {
     try {
+      setUnreachable(false)
       const result = isAltchaCaptchaEnabled() ? await signInWithCaptcha() : await authClient.signIn.anonymous()
       if (result?.error) {
+        // The server answered and refused. A real error: surface it.
         setAnonError(new Error(result.error.message ?? 'Anonymous sign-in failed'))
       }
     } catch (err) {
-      setAnonError(err instanceof Error ? err : new Error(String(err)))
+      // Fork: split on whether the server ANSWERED. An `HttpError` carries a
+      // response, so it was reached and refused — that is a real error and keeps
+      // reaching the boundary, which is what the captcha path deliberately
+      // re-throws a 404/429 for (`altcha.ts:56`). Everything else is a network
+      // error or abort: Better Auth resolves HTTP failures with `{ error }` and
+      // rejects only when the request never completed. That case used to blank
+      // the app whenever the backend was down, since nothing in the tree catches
+      // a throw; report it as a state the UI can offer a retry on instead.
+      if (err instanceof HttpError) {
+        setAnonError(err)
+        return
+      }
+      setUnreachable(true)
     }
   }
 
@@ -132,9 +153,10 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   // button signs in again.
   //
   // Better Auth client methods resolve with `{ data, error }` for HTTP failures
-  // (4xx/5xx) — they do NOT throw. Only network errors / aborts reject. We must
-  // surface both paths to the error boundary; otherwise an HTTP error leaves the
-  // gate stuck in `loading` forever (the ref prevents a retry).
+  // (4xx/5xx) — they do NOT throw. Only network errors / aborts reject. Both
+  // paths must be handled or an HTTP error leaves the gate stuck in `loading`
+  // forever (the ref prevents a retry): an answer that refuses goes to the error
+  // boundary, a request that never completed becomes `offline`.
   useEffect(() => {
     const shouldFireAnon =
       !isPending && !isAuthenticated && require === 'authenticated' && isAnonymousAllowed && !triedAnonRef.current
@@ -172,6 +194,11 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   }
 
   if (isAnonymousAllowed) {
+    // Checked before the captcha states: an unreachable server explains them all,
+    // and "verify you are human" is the wrong thing to show when nothing answered.
+    if (unreachable) {
+      return { status: 'offline', retry: () => void signInAnonymously() }
+    }
     if (captchaStatus === 'failed') {
       return { status: 'verification-failed', retry: () => void signInAnonymously() }
     }

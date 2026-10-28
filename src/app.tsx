@@ -72,6 +72,7 @@ import { preloadInBackground } from '@/lib/after-paint'
 import { takeDeviceApprovalReturn } from '@/lib/device-approval-return'
 import { LazyMotion } from 'framer-motion'
 import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
+import { AppErrorBoundary } from '@/fork/error-boundary/app-error-boundary'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -429,7 +430,11 @@ export const App = () => {
     <I18nProvider i18n={i18n}>
       <ThemeProvider>
         <LazyMotion features={loadMotionFeatures} strict>
-          {renderAppContent()}
+          {/* Fork: the app had no error boundary at all, so any render-time
+              throw unmounted the whole tree and left an empty page. Inside
+              I18nProvider and ThemeProvider on purpose — the error screen is
+              translated and themed. */}
+          <AppErrorBoundary onClearDatabase={clearDatabase}>{renderAppContent()}</AppErrorBoundary>
           <WindowControls />
           {/* Seamless v1→v2 migration completed at init — show the new recovery
               phrase once. Blocked while the upgrade screen owns the viewport; the
