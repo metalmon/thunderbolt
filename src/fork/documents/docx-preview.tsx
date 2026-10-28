@@ -6,8 +6,6 @@ import { useLingui } from '@lingui/react/macro'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import './docx-preview.css'
-
 type DocxPreviewProps = {
   /** Object URL of the .docx blob (already resolved by the caller's blob hook). */
   blobUrl: string
@@ -16,51 +14,65 @@ type DocxPreviewProps = {
 
 type RenderStatus = 'loading' | 'ready' | 'error'
 
+type Frame = { srcDoc: string; pageWidth: number }
+
+/** Letter at 96dpi — the fallback when the document declares no page width. */
+const defaultPageWidthPx = 816
+
+/**
+ * The frame's own stylesheet. It cannot read the app's theme tokens (different,
+ * opaque origin), and it does not need to: a document reads as a white sheet in
+ * any theme, like Word, Acrobat or Google Docs. The themed canvas around the
+ * sheets lives on the host element, outside the frame.
+ *
+ * docx-preview hardcodes a gray `.docx-wrapper` background and its own padding;
+ * both are neutralized here.
+ */
+const frameStylesheet = `
+  html, body { margin: 0; padding: 0; background: transparent; }
+  .docx-wrapper { background: transparent; padding: 0; }
+  .docx-wrapper > section.docx { margin: 0 auto 1rem; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18); }
+`
+
 /**
  * Renders a .docx as faithful, paginated Word-like pages (white sheets on a
- * themed canvas) via the `docx-preview` library.
+ * themed canvas) via the `docx-preview` library, inside a sandboxed frame.
  *
- * Replaces the upstream path (mammoth `convertToHtml` injected into a style-less
- * `sandbox=""` `srcDoc` iframe), which rendered as unstyled black-on-transparent
- * text — unreadable in dark mode — and had no pagination. `docx-preview` is
- * dynamically imported so it and its `jszip` dependency stay out of the PDF-only
- * code path and the entry bundle.
+ * Upstream renders DOCX as mammoth HTML in a `sandbox=""` `srcDoc` iframe, which
+ * came out unstyled black-on-transparent (unreadable in dark mode) and had no
+ * pagination. The fork swapped the library — and, for a while, also the frame:
+ * docx-preview built the document straight into the app DOM. That is what this
+ * version puts back, keeping the pagination.
  *
- * Security note: unlike the upstream sandboxed iframe, `docx-preview` builds the
- * document into the app DOM. It does not execute scripts embedded in the file
- * (it maps OOXML to elements and resolves media as blob URLs); output is scoped
- * to the `.docx-viewer` container.
+ * **Why the frame matters.** The document is untrusted input: it arrives as an
+ * attachment or from an agent. docx-preview does not execute scripts from the
+ * file (OOXML has none to map), but it does build real `<a href>` elements from
+ * the document's hyperlinks — and a `javascript:` link clicked in the app origin
+ * runs in the origin that holds the Tauri IPC. The empty `sandbox` closes that:
+ * no scripts, an opaque origin, no form submission, no top-level navigation. The
+ * parent's CSP is inherited by a `srcdoc` document too, so inline script is
+ * refused twice over.
+ *
+ * Two consequences worth knowing:
+ * - Images must be `data:` URIs (`useBase64URL`). docx-preview's default blob:
+ *   URLs belong to the parent origin and an opaque origin cannot load them.
+ * - Fitting pages to the panel is done from out here, by scaling the frame
+ *   element: inside it there is no script to recompute anything on resize.
+ *
+ * `docx-preview` is dynamically imported so it and its `jszip` dependency stay
+ * out of the PDF-only code path and the entry bundle.
  */
 export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
   const { t } = useLingui()
-  const containerRef = useRef<HTMLDivElement>(null)
+  const hostRef = useRef<HTMLDivElement>(null)
+  const frameRef = useRef<HTMLIFrameElement>(null)
   const [status, setStatus] = useState<RenderStatus>('loading')
+  const [frame, setFrame] = useState<Frame | null>(null)
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) {
-      return
-    }
     let cancelled = false
-    let observer: ResizeObserver | null = null
     setStatus('loading')
-
-    // Scale the rendered pages to fill the panel width — docx-preview lays pages
-    // out at their true A4/Letter width, which overflows the narrow sideview.
-    // `zoom` scales the layout box too (no leftover gap); recomputed on resize.
-    const fitToWidth = () => {
-      const wrapper = container.querySelector<HTMLElement>('.docx-wrapper')
-      const page = container.querySelector<HTMLElement>('.docx-wrapper > section.docx')
-      if (!wrapper || !page) {
-        return
-      }
-      wrapper.style.zoom = '1'
-      const pageWidth = page.offsetWidth
-      const available = container.clientWidth
-      if (pageWidth > 0 && available > 0) {
-        wrapper.style.zoom = String(available / pageWidth)
-      }
-    }
+    setFrame(null)
 
     const render = async () => {
       try {
@@ -71,8 +83,10 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
         if (cancelled) {
           return
         }
-        container.replaceChildren()
-        await renderAsync(blob, container, undefined, {
+        // Built in a document of its own, never attached: nothing from the file
+        // touches the app DOM, and the result is handed over as markup.
+        const detached = document.implementation.createHTMLDocument(fileName)
+        await renderAsync(blob, detached.body, undefined, {
           className: 'docx',
           inWrapper: true,
           // Honor Word's rendered page breaks so the document splits into
@@ -80,15 +94,23 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
           ignoreLastRenderedPageBreak: false,
           renderHeaders: true,
           renderFooters: true,
+          // See the component comment: blob: URLs are unreachable from the
+          // frame's opaque origin, data: URIs are not.
+          useBase64URL: true,
         })
         if (cancelled) {
           return
         }
-        fitToWidth()
-        if (typeof ResizeObserver !== 'undefined') {
-          observer = new ResizeObserver(fitToWidth)
-          observer.observe(container)
-        }
+        const style = detached.createElement('style')
+        style.textContent = frameStylesheet
+        detached.head.append(style)
+
+        // The declared page width, read off the inline style docx-preview writes
+        // (no layout needed, which a detached document could not give anyway).
+        const declared = detached.querySelector<HTMLElement>('section.docx')?.style.width
+        const pageWidth = Number.parseFloat(declared ?? '') || defaultPageWidthPx
+
+        setFrame({ srcDoc: `<!doctype html><html>${detached.documentElement.innerHTML}</html>`, pageWidth })
         setStatus('ready')
       } catch {
         if (!cancelled) {
@@ -101,13 +123,38 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
 
     return () => {
       cancelled = true
-      observer?.disconnect()
-      container.replaceChildren()
     }
-  }, [blobUrl])
+  }, [blobUrl, fileName])
+
+  // Fit the pages to the panel. docx-preview lays them out at their true
+  // A4/Letter width, which overflows the narrow sideview; the frame is scaled as
+  // a whole and its logical height divided back out, so the scaled box still
+  // fills the host and the frame keeps its own scrollbar.
+  useEffect(() => {
+    const host = hostRef.current
+    const el = frameRef.current
+    if (!host || !el || !frame) {
+      return
+    }
+    const fit = () => {
+      const available = host.clientWidth
+      const scale = available > 0 ? available / frame.pageWidth : 1
+      el.style.width = `${frame.pageWidth}px`
+      el.style.height = `${100 / scale}%`
+      el.style.transform = `scale(${scale})`
+      el.style.transformOrigin = 'top left'
+    }
+    fit()
+    if (typeof ResizeObserver === 'undefined') {
+      return
+    }
+    const observer = new ResizeObserver(fit)
+    observer.observe(host)
+    return () => observer.disconnect()
+  }, [frame])
 
   return (
-    <div className="relative min-h-full w-full bg-muted">
+    <div ref={hostRef} className="relative h-full w-full overflow-hidden bg-muted">
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -120,7 +167,18 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
           </p>
         </div>
       )}
-      <div ref={containerRef} className="docx-viewer" />
+      {frame && (
+        <iframe
+          ref={frameRef}
+          title={fileName}
+          /* Empty on purpose: the document needs no script, no origin, no form
+           * and no navigation. Anything added here hands a capability to a file
+           * the user merely received. */
+          sandbox=""
+          srcDoc={frame.srcDoc}
+          className="block border-0"
+        />
+      )}
     </div>
   )
 }
