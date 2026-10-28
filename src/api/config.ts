@@ -4,6 +4,7 @@
 
 import { createClient, type HttpClient } from '@/lib/http'
 import { isCurrentServer } from '@/stores/local-settings-store'
+import { markConfigAbsent } from '@/fork/local-mode/config-absent'
 import { useConfigStore, type AppConfig } from './config-store'
 
 /**
@@ -13,6 +14,9 @@ import { useConfigStore, type AppConfig } from './config-store'
  */
 export const fetchConfig = async (cloudUrl: string, httpClient?: HttpClient): Promise<AppConfig | null> => {
   if (!cloudUrl) {
+    // Fork: an autonomous install has no backend to ask, so the config is declared
+    // absent-and-settled — that keeps the deployment-gated controls rendering.
+    markConfigAbsent()
     useConfigStore.setState({ config: {}, configLoaded: true, forceUpgrade: false, forceUpgradeMinVersion: undefined })
     return {}
   }
