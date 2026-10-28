@@ -8,13 +8,11 @@ import { acceptLanguageFor } from './accept-language'
 const englishChain = 'en-US,en;q=0.9'
 
 describe('acceptLanguageFor', () => {
-  it('adds the base language between a regional tag and English', () => {
-    expect(acceptLanguageFor('pt-BR')).toBe('pt-BR,pt;q=0.9,en;q=0.8')
-  })
-
+  // Fork: the offered set is en + ru, both base-language tags, so the regional rung
+  // (`pt-BR,pt;q=0.9,en;q=0.8`) has nothing to exercise here. A locale upstream ships
+  // but this build does not offer is exactly what must not be forwarded — asserted below.
   it('falls straight back to English for a base-language tag', () => {
-    expect(acceptLanguageFor('de')).toBe('de,en;q=0.9')
-    expect(acceptLanguageFor('ja')).toBe('ja,en;q=0.9')
+    expect(acceptLanguageFor('ru')).toBe('ru,en;q=0.9')
   })
 
   it('leaves English users on exactly their current chain', () => {
@@ -27,7 +25,7 @@ describe('acceptLanguageFor', () => {
   })
 
   it('tolerates surrounding whitespace, as every other backend header read does', () => {
-    expect(acceptLanguageFor(' pt-BR ')).toBe('pt-BR,pt;q=0.9,en;q=0.8')
+    expect(acceptLanguageFor(' ru ')).toBe('ru,en;q=0.9')
   })
 
   // Only a dev build can send it, and it is a private-use subtag no upstream honours.
@@ -39,6 +37,8 @@ describe('acceptLanguageFor', () => {
   // user-supplied URL, so nothing outside the shipped set may be forwarded.
   it('forwards nothing that is not a shipped locale', () => {
     expect(acceptLanguageFor('zh-CN')).toBe(englishChain)
+    expect(acceptLanguageFor('pt-BR')).toBe(englishChain)
+    expect(acceptLanguageFor('de')).toBe(englishChain)
     expect(acceptLanguageFor('de\r\nX-Injected: 1')).toBe(englishChain)
     expect(acceptLanguageFor('*')).toBe(englishChain)
   })
