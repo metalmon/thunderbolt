@@ -11,7 +11,6 @@
  * helpers so the upstream transports file stays untouched (fork thin-hook rule).
  */
 
-import { isStandaloneTransport } from '@/acp/transports'
 import type { WebSocketLike } from '@/acp/transports/websocket'
 import { buildPairingSubprotocols } from '@/fork/agent-bearer/subprotocols'
 import { createProxyWebSocket } from '@/lib/proxy-fetch'
@@ -34,9 +33,6 @@ export const resolvePairingWebSocketFactory = (
   inputs: PairingTransportInputs = {},
 ): ((url: string) => WebSocketLike) => {
   const protocols = buildPairingSubprotocols()
-  if (isStandaloneTransport(inputs.isStandalone, inputs.readProxyEnabled)) {
-    return (url) => new WebSocket(url, protocols) as unknown as WebSocketLike
-  }
   const proxyWs = createProxyWebSocket({
     cloudUrl: useLocalSettingsStore.getState().cloudUrl,
     isStandalone: inputs.isStandalone,
