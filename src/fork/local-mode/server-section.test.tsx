@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import '@testing-library/jest-dom'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
+import { getAuthToken, setAuthToken } from '@/lib/auth-token'
+import { getCachedSession, setCachedSession } from '@/lib/session-cache'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { ServerSection } from './server-section'
 
@@ -22,6 +24,7 @@ afterEach(() => {
   useLocalSettingsStore.setState({
     operationMode: initialLocalSettings.operationMode,
     cloudUrl: initialLocalSettings.cloudUrl,
+    syncEnabled: initialLocalSettings.syncEnabled,
   })
 })
 
@@ -46,12 +49,36 @@ describe('ServerSection', () => {
     expect(useLocalSettingsStore.getState().cloudUrl).toBe('https://backend.example.ru/v1')
   })
 
-  it('saves a valid address', () => {
+  // Found by review, and it condemned the first version of this file: "Save
+  // address" wrote the store directly. That bypassed the one thing the dialog
+  // exists for — the user reading back the host before credentials go there —
+  // on exactly the path most likely to be used by persuasion.
+  it('does not retarget the backend without confirmation', () => {
     render(<ServerSection />)
     fireEvent.change(screen.getByLabelText('Server address'), { target: { value: 'https://other.example.ru/v1' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save address' }))
 
+    expect(useLocalSettingsStore.getState().cloudUrl).toBe('https://backend.example.ru/v1')
+    expect(screen.getByText('other.example.ru')).toBeInTheDocument()
+  })
+
+  // The second half of the same finding: a token issued by one backend must
+  // never be presented to a different one.
+  it('signs out and stops sync when the host actually changes', async () => {
+    setAuthToken('token-from-the-old-server')
+    setCachedSession({ user: { id: 'u1' }, session: { expiresAt: new Date(Date.now() + 86_400_000) } })
+    useLocalSettingsStore.setState({ syncEnabled: true })
+    render(<ServerSection />)
+    fireEvent.change(screen.getByLabelText('Server address'), { target: { value: 'https://other.example.ru/v1' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save address' }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Connect and keep local data' }))
+    })
+
     expect(useLocalSettingsStore.getState().cloudUrl).toBe('https://other.example.ru/v1')
+    expect(getAuthToken()).toBeFalsy()
+    expect(getCachedSession()).toBeNull()
+    expect(useLocalSettingsStore.getState().syncEnabled).toBe(false)
   })
 
   // Leaving local mode is where this device's unowned history could be claimed
