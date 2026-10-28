@@ -82,6 +82,7 @@ import { LazyMotion } from 'framer-motion'
 import { ProjectRedirect } from '@/projects/project-redirect'
 import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
 import { AppErrorBoundary } from '@/fork/error-boundary/app-error-boundary'
+import { LocalModeBanner } from '@/fork/local-mode/local-mode-banner'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -405,6 +406,10 @@ export const App = () => {
                             <ExternalLinkDialogProvider>
                               <RecoveryContinuityProvider>
                                 <ChatFontApplier />
+                                {/* Fork: states once that this install keeps
+                                    everything on the machine. Renders nothing in
+                                    server mode, so it needs no condition here. */}
+                                <LocalModeBanner />
                                 <AppContent initData={initData} />
                                 {/* Catches every phrase that was minted but never
                                     confirmed — reload, crash, or a dialog that
