@@ -165,6 +165,10 @@ msgstr "{wordCount}/24 слов"
 msgid "⚠ This export was made by a different account ({importSourceEmail}). Importing it here will mix that data into your account. Confirm only if you intend to."
 msgstr "⚠ Этот экспорт сделан другим аккаунтом ({importSourceEmail}). Импорт смешает эти данные с вашим аккаунтом. Подтверждайте, только если действительно этого хотите."
 
+#: src/settings/account/use-delete-account.ts
+msgid "A code was just sent. Wait a moment and try again."
+msgstr "Код только что отправлен. Подождите немного и попробуйте снова."
+
 #: src/components/device-approval.tsx
 msgid "A device wants to sign in to your account as the Thunderbolt CLI. Only approve if you just started this from your own terminal."
 msgstr "Устройство пытается войти в ваш аккаунт как Вольт CLI. Подтверждайте, только если вы сами запустили это из своего терминала."
@@ -247,6 +251,10 @@ msgstr "Активно"
 msgid "Activity"
 msgstr "Активность"
 
+#: src/settings/encryption/passkey-section.tsx
+msgid "Add"
+msgstr "Добавить"
+
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Add & Authorize"
 msgstr "Добавить и авторизовать"
@@ -258,6 +266,10 @@ msgstr "Добавьте <0>~/.local/bin</0> в PATH и перезапустит
 #: src/tasks/index.tsx
 msgid "Add a new task…"
 msgstr "Добавить задачу…"
+
+#: src/settings/encryption/add-passkey-dialog.tsx
+msgid "Add a passkey"
+msgstr "Добавить ключ доступа"
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Add a skill"
@@ -382,6 +394,10 @@ msgstr "Всегда спрашивать"
 #: src/components/chat/permission-dialog.tsx
 msgid "Always reject"
 msgstr "Всегда отклонять"
+
+#: src/lib/sso-error-messages.ts
+msgid "An account with this email already exists but is not verified, so it cannot be linked to this sign-in. Ask your administrator for help."
+msgstr "Учётная запись с этим адресом уже есть, но она не подтверждена, поэтому связать её с этим входом нельзя. Обратитесь к администратору."
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
@@ -554,6 +570,7 @@ msgid "Available tools:"
 msgstr "Доступные инструменты:"
 
 #: src/components/account-deleted.tsx
+#: src/components/device-revoked.tsx
 #: src/components/not-found.tsx
 msgid "Back to App"
 msgstr "Вернуться в приложение"
@@ -618,6 +635,7 @@ msgstr "Календарь"
 #: src/settings/connections/index.tsx
 #: src/settings/connections/mcp-server-form.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
+#: src/settings/encryption/passkey-section.tsx
 #: src/settings/models/index.tsx
 #: src/settings/preferences.tsx
 #: src/skills/dependents-dialog.tsx
@@ -722,6 +740,10 @@ msgstr "Проверяем запрос на вход…"
 msgid "Checking whether {modelName} can read images…"
 msgstr "Проверяем, читает ли {modelName} изображения…"
 
+#: src/components/auth-gate/browser-check.tsx
+msgid "Checking your browser…"
+msgstr "Проверяем браузер…"
+
 #: src/components/device-approval.tsx
 msgid "Checking your session."
 msgstr "Проверяем вашу сессию."
@@ -807,8 +829,8 @@ msgid "Clear sky"
 msgstr "Ясно"
 
 #: src/components/app-error-screen.tsx
-msgid "Clearing Database…"
-msgstr "Очистка базы данных…"
+#~ msgid "Clearing Database…"
+#~ msgstr "Очистка базы данных…"
 
 #: src/settings/devices.tsx
 msgid "CLI"
@@ -891,7 +913,6 @@ msgid "Configuration"
 msgstr "Конфигурация"
 
 #: src/components/modification-indicator.tsx
-#: src/components/revoked-device-modal.tsx
 msgid "Confirm"
 msgstr "Подтвердить"
 
@@ -1025,6 +1046,7 @@ msgstr "Превышен контекст модели"
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/components/sign-in/sign-in-otp-step.tsx
 #: src/components/sign-in/sign-in-success-step.tsx
+#: src/components/sync-setup/passkey-enroll-step.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Continue"
@@ -1119,6 +1141,10 @@ msgstr "Не удалось отрисовать код сопряжения."
 msgid "Could not save the project."
 msgstr "Не удалось сохранить проект."
 
+#: src/components/onboarding/onboarding-passkey-step.tsx
+msgid "Couldn't add a passkey. You can add one later when you set up sync."
+msgstr "Не удалось добавить ключ доступа. Его можно добавить позже, при настройке синхронизации."
+
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Couldn't add the agent. Please try again."
 msgstr "Не удалось добавить агента. Попробуйте ещё раз."
@@ -1171,6 +1197,10 @@ msgstr "Не удалось закрепить {name}."
 msgid "Couldn't reach the agent. Check the address."
 msgstr "Не удалось связаться с агентом. Проверьте адрес."
 
+#: src/settings/encryption/use-remove-passkey.ts
+msgid "Couldn't remove the passkey. Please try again."
+msgstr "Не удалось удалить ключ доступа. Попробуйте снова."
+
 #: src/settings/app-version-section.tsx
 msgid "Couldn't restart to apply the update: {error}"
 msgstr "Не удалось перезапустить для установки обновления: {error}"
@@ -1194,6 +1224,23 @@ msgstr "Не удалось сохранить новый порядок."
 #: src/components/artifact/artifact-actions.tsx
 msgid "Couldn't save: {saveError}"
 msgstr "Не удалось сохранить: {saveError}"
+
+#: src/settings/account/use-delete-account.ts
+msgid "Couldn’t send a new code. Your previous code may no longer work — request another."
+msgstr "Не удалось отправить новый код. Предыдущий код может уже не работать — запросите другой."
+
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Couldn't set up the passkey. Please try again."
+msgstr "Не удалось настроить ключ доступа. Попробуйте снова."
+
+#: src/components/sign-in/use-sign-in-form-state.ts
+#: src/waitlist/use-waitlist-state.ts
+msgid "Couldn't sign in with your passkey. Please try again or use your email."
+msgstr "Не удалось войти по ключу доступа. Попробуйте снова или войдите по адресу электронной почты."
+
+#: src/hooks/use-sync-setup.ts
+msgid "Couldn't unlock sync with your passkey. Please try again."
+msgstr "Не удалось разблокировать синхронизацию ключом доступа. Попробуйте снова."
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Couldn't unpin {name}."
@@ -1220,6 +1267,11 @@ msgstr "Создать агента"
 #: src/search/commands/create-commands.ts
 msgid "Create Model"
 msgstr "Создать модель"
+
+#: src/components/sync-setup/confirm-identity-step.tsx
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Create passkey"
+msgstr "Создать ключ доступа"
 
 #: src/projects/create-project-panel.tsx
 msgid "Create project"
@@ -1328,7 +1380,7 @@ msgstr "Удалить {skillName}?"
 msgid "Delete {targetName}?"
 msgstr "Удалить {targetName}?"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "Delete account"
 msgstr "Удалить аккаунт"
 
@@ -1353,7 +1405,6 @@ msgid "Delete Chat"
 msgstr "Удалить чат"
 
 #: src/components/logout-modal.tsx
-#: src/components/revoked-device-modal.tsx
 msgid "Delete data from device"
 msgstr "Удалить данные с устройства"
 
@@ -1361,7 +1412,7 @@ msgstr "Удалить данные с устройства"
 msgid "Delete Model"
 msgstr "Удалить модель"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "Delete My Account"
 msgstr "Удалить мой аккаунт"
 
@@ -1398,19 +1449,18 @@ msgstr "Удалить эту модель из настроенных?"
 msgid "Delete this project?"
 msgstr "Удалить этот проект?"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "Delete Your Account"
 msgstr "Удалить аккаунт"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "Delete your account?"
 msgstr "Удалить аккаунт?"
 
 #: src/components/logout-modal.tsx
-#: src/components/revoked-device-modal.tsx
+#: src/settings/account/delete-account-section.tsx
 #: src/settings/connections/index.tsx
 #: src/settings/models/index.tsx
-#: src/settings/preferences.tsx
 msgid "Deleting…"
 msgstr "Удаление…"
 
@@ -1464,7 +1514,7 @@ msgstr "Описание"
 msgid "Dev Settings"
 msgstr "Настройки разработчика"
 
-#: src/components/revoked-device-modal.tsx
+#: src/components/device-revoked.tsx
 msgid "Device access revoked"
 msgstr "Доступ устройства отозван"
 
@@ -1535,7 +1585,7 @@ msgstr "Отключить"
 msgid "Disconnected"
 msgstr "Отключён"
 
-#: src/components/chat/chat-prompt-input.tsx
+#: src/components/chat/composer-alert.tsx
 #: src/components/download-app-banner-mobile.tsx
 #: src/components/ui/mobile-blur-backdrop.tsx
 #: src/components/update-notification.tsx
@@ -1772,6 +1822,10 @@ msgstr "Введите фразу восстановления"
 msgid "Enter the 24-word recovery phrase you saved when you first set up sync."
 msgstr "Введите фразу из 24 слов, которую вы сохранили при первой настройке синхронизации."
 
+#: src/components/sign-in/sign-in-otp-step.tsx
+msgid "Enter the 8-digit code"
+msgstr "Введите код из 8 цифр"
+
 #: src/fork/agent-pairing/pair-by-code-input.tsx
 #~ msgid "Enter the agent URL above first — the code alone does not say where to connect."
 #~ msgstr "Сначала укажите адрес агента выше — по одному коду неизвестно, куда подключаться."
@@ -1853,7 +1907,7 @@ msgstr "Не удалось подключиться к {agentName}"
 msgid "Failed to connect to model"
 msgstr "Не удалось подключиться к модели"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/use-delete-account.ts
 msgid "Failed to delete account."
 msgstr "Не удалось удалить аккаунт."
 
@@ -1897,11 +1951,13 @@ msgstr "Не удалось удалить MCP-сервер"
 msgid "Failed to resend verification code. Please check your connection."
 msgstr "Не удалось повторно отправить код. Проверьте подключение."
 
+#: src/settings/account/use-delete-account.ts
 #: src/settings/encryption/use-change-recovery-key.ts
 msgid "Failed to send the verification code"
 msgstr "Не удалось отправить код подтверждения"
 
 #: src/components/sign-in/use-sign-in-form-state.ts
+#: src/components/sync-setup/use-confirm-identity-state.ts
 msgid "Failed to send verification code. Please check your connection."
 msgstr "Не удалось отправить код подтверждения. Проверьте подключение."
 
@@ -1978,7 +2034,8 @@ msgstr "Создать новую фразу восстановления из 2
 msgid "Generate a new phrase"
 msgstr "Создать новую фразу"
 
-#: src/components/step-up-code-dialog.tsx
+#: src/components/unsaved-recovery-phrase-prompt.tsx
+#: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Generate new phrase"
 msgstr "Создать новую фразу"
 
@@ -1987,7 +2044,8 @@ msgid "Generating keys…"
 msgstr "Генерация ключей…"
 
 #: src/components/chat/inline-artifact-card.tsx
-#: src/components/step-up-code-dialog.tsx
+#: src/components/unsaved-recovery-phrase-prompt.tsx
+#: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Generating…"
 msgstr "Генерация…"
 
@@ -2243,8 +2301,8 @@ msgid "Keep Current Units"
 msgstr "Оставить текущие"
 
 #: src/components/revoked-device-modal.tsx
-msgid "Keep data on device"
-msgstr "Оставить данные на устройстве"
+#~ msgid "Keep data on device"
+#~ msgstr "Оставить данные на устройстве"
 
 #: src/skills/discard-create-dialog.tsx
 msgid "Keep editing"
@@ -2719,6 +2777,10 @@ msgstr "Не найдено задач по запросу «{searchQuery}»"
 msgid "No tasks yet"
 msgstr "Пока нет задач"
 
+#: src/components/chat/chat-prompt-input.tsx
+msgid "None of your models can be used in this chat. Choose another agent to send."
+msgstr "Ни одна из ваших моделей не подходит для этого чата. Выберите другого агента, чтобы отправить."
+
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Not available in private chats."
 msgstr "Недоступны в конфиденциальных чатах."
@@ -2732,6 +2794,8 @@ msgid "Not Found"
 msgstr "Не найдено"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+#: src/components/sync-setup/confirm-identity-step.tsx
+#: src/components/sync-setup/passkey-enroll-step.tsx
 #: src/widgets/connect-integration/widget.tsx
 msgid "Not now"
 msgstr "Не сейчас"
@@ -2780,6 +2844,10 @@ msgstr "Проверка OAuth не удалась"
 #: src/projects/emoji-catalog.ts
 msgid "Objects"
 msgstr "Объекты"
+
+#: src/settings/preferences.tsx
+msgid "Off sends own-key model and MCP requests directly from this device. On routes them through Thunderbolt's backend. Local (loopback) models always connect directly."
+msgstr "Выключено — запросы к моделям по своему ключу и к MCP уходят прямо с этого устройства. Включено — они идут через сервер Вольта. Локальные (loopback) модели всегда подключаются напрямую."
 
 #: src/components/sidebar-footer.tsx
 msgid "Offline. Changes will sync when back online."
@@ -2905,6 +2973,11 @@ msgstr "Необязательно — для чего этот проект"
 msgid "Optional instructions appended to the assistant's system prompt to shape its tone and style during voice conversations."
 msgstr "Необязательные инструкции, добавляемые в системный промпт ассистента, чтобы задать тон и стиль во время голосовых диалогов."
 
+#: src/components/sign-in/sign-in-email-step.tsx
+#: src/waitlist/waitlist-page.tsx
+msgid "or"
+msgstr "или"
+
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"
 msgstr "Или перейдите по ссылке из письма"
@@ -2957,6 +3030,10 @@ msgstr "Тема «Бумага»"
 msgid "Partly cloudy"
 msgstr "Переменная облачность"
 
+#: src/settings/encryption/passkey-section.tsx
+msgid "Passkey"
+msgstr "Ключ доступа"
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Paste a pairing code or upload its QR image to bind this device to its peer-to-peer identity."
 msgstr "Вставьте код сопряжения или загрузите QR-изображение, чтобы привязать устройство к peer-to-peer-идентичности."
@@ -2978,7 +3055,7 @@ msgstr "Peer-to-peer через iroh — соединение проверяет
 msgid "Pending approvals"
 msgstr "Ожидают подтверждения"
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "Permanently delete your account and all data on our servers and this device."
 msgstr "Безвозвратно удалить аккаунт и все данные на наших серверах и на этом устройстве."
 
@@ -3174,11 +3251,11 @@ msgstr "Перезагрузить"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/settings/devices.tsx
+#: src/settings/encryption/passkey-section.tsx
 msgid "Remove"
 msgstr "Удалить"
 
 #: src/components/logout-modal.tsx
-#: src/components/revoked-device-modal.tsx
 msgid "Remove all chats, settings, and cached data from this device."
 msgstr "Удалить все чаты, настройки и кэш с этого устройства."
 
@@ -3206,6 +3283,10 @@ msgstr "Убрать этот мост?"
 #: src/components/settings/agents/agent-token-field.tsx
 msgid "Remove token"
 msgstr "Удалить токен"
+
+#: src/settings/encryption/passkey-section.tsx
+msgid "Remove your passkey?"
+msgstr "Удалить ключ доступа?"
 
 #: src/components/remove-bridge-dialog.tsx
 #: src/lib/tool-metadata.ts
@@ -3429,6 +3510,10 @@ msgstr "Ищите и работайте с файлами и документа
 msgid "Search chats, models, skills, agents…"
 msgstr "Поиск чатов, моделей, навыков, агентов…"
 
+#: src/search/palette/search-palette.tsx
+msgid "Search chats…"
+msgstr "Поиск по чатам…"
+
 #: src/settings/connections/connections-list.tsx
 msgid "Search connections"
 msgstr "Поиск подключений"
@@ -3532,6 +3617,8 @@ msgstr "Выберите провайдера"
 msgid "Select…"
 msgstr "Выберите…"
 
+#: src/components/sync-setup/confirm-identity-step.tsx
+#: src/settings/account/delete-account-section.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Send code"
 msgstr "Отправить код"
@@ -3544,10 +3631,15 @@ msgstr "Отправить ссылку для входа"
 msgid "Send message"
 msgstr "Отправить сообщение"
 
+#: src/components/ui/header.tsx
+msgid "Send this private chat to {agentName}?"
+msgstr "Отправить этот приватный чат агенту {agentName}?"
+
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Send to the Thunderbolt team"
 msgstr "Отправить команде Volt"
 
+#: src/components/sync-setup/confirm-identity-step.tsx
 #: src/components/unsaved-recovery-phrase-prompt.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Sending code…"
@@ -3610,6 +3702,10 @@ msgstr "Тёмная тема"
 #: src/search/commands/use-commands.ts
 msgid "Set Light"
 msgstr "Светлая тема"
+
+#: src/components/onboarding/onboarding-passkey-step.tsx
+msgid "Set up a passkey"
+msgstr "Настроить ключ доступа"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Set up encrypted sync"
@@ -3686,6 +3782,11 @@ msgstr "Войти"
 msgid "Sign In"
 msgstr "Войти"
 
+#: src/components/onboarding/onboarding-passkey-step.tsx
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Sign in faster next time"
+msgstr "В следующий раз входите быстрее"
+
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 #~ msgid "Sign in to a full account to share a debug transcript."
 #~ msgstr ""
@@ -3710,6 +3811,15 @@ msgstr "Вход в CLI"
 msgid "Sign in to Thunderbolt"
 msgstr "Войти в Вольт"
 
+#: src/components/sign-in/sign-in-email-step.tsx
+#: src/waitlist/waitlist-page.tsx
+msgid "Sign in with passkey"
+msgstr "Войти по ключу доступа"
+
+#: src/settings/encryption/passkey-section.tsx
+msgid "Sign in with your fingerprint, face, or device PIN."
+msgstr "Вход по отпечатку, лицу или PIN-коду устройства."
+
 #: src/search/commands/use-commands.ts
 msgid "Sign out"
 msgstr "Выйти"
@@ -3722,17 +3832,25 @@ msgstr "Вход разрешён"
 msgid "Sign-in denied"
 msgstr "Вход отклонён"
 
+#: src/components/sso-error.tsx
+msgid "Sign-in failed"
+msgstr "Войти не удалось"
+
 #: src/components/welcome-dialog.tsx
 msgid "Sign-in successful"
 msgstr "Вход выполнен успешно"
+
+#: src/lib/sso-error-messages.ts
+msgid "Sign-in was cancelled, or your identity provider did not grant access."
+msgstr "Вход отменён, либо поставщик удостоверений не предоставил доступ."
 
 #: src/components/signed-out.tsx
 msgid "Signed Out"
 msgstr "Вы вышли"
 
 #: src/components/revoked-device-modal.tsx
-msgid "Signing out…"
-msgstr "Выход…"
+#~ msgid "Signing out…"
+#~ msgstr "Выход…"
 
 #: src/components/magic-link-verify.tsx
 msgid "Signing you in…"
@@ -3878,6 +3996,10 @@ msgstr "Удалось получить ответ от модели."
 msgid "Suggested"
 msgstr "Рекомендуемые"
 
+#: src/components/ui/header.tsx
+msgid "Switch Agent"
+msgstr "Сменить агента"
+
 #: src/settings/preferences.tsx
 msgid "Switch to {suggestedLanguageLabel}"
 msgstr "Переключить на {suggestedLanguageLabel}"
@@ -3998,6 +4120,7 @@ msgstr "Код не подошёл. Он одноразовый и быстро 
 #~ msgid "That code didn't work. Check it and try again."
 #~ msgstr "Код не подошёл. Проверьте его и попробуйте снова."
 
+#: src/settings/account/use-delete-account.ts
 #: src/settings/encryption/use-change-recovery-key.ts
 msgid "That code is invalid or expired. Check your email and try again."
 msgstr "Код неверен или истёк. Проверьте почту и повторите попытку."
@@ -4063,8 +4186,16 @@ msgstr "Устройство потеряло доступ, но ключ акк
 #~ msgstr "Устройство будет выведено из сессии, а локальные данные очистятся при следующей синхронизации. Чтобы снова пользоваться синхронизацией, потребуется войти заново."
 
 #: src/components/revoke-device-dialog.tsx
-msgid "The device will be signed out and lose access to your synced data, and it will need to sign in again to use sync. Data already stored on it is not erased remotely — that device is asked whether to keep or delete its local copy. Your recovery phrase keeps working."
-msgstr "Устройство будет отключено от аккаунта и потеряет доступ к синхронизированным данным; для синхронизации потребуется войти снова. Уже сохранённые на нём данные удалённо не стираются — устройство само спросит, сохранить или удалить локальную копию. Фраза восстановления продолжит работать."
+#~ msgid "The device will be signed out and lose access to your synced data, and it will need to sign in again to use sync. Data already stored on it is not erased remotely — that device is asked whether to keep or delete its local copy. Your recovery phrase keeps working."
+#~ msgstr "Устройство будет отключено от аккаунта и потеряет доступ к синхронизированным данным; для синхронизации потребуется войти снова. Уже сохранённые на нём данные удалённо не стираются — устройство само спросит, сохранить или удалить локальную копию. Фраза восстановления продолжит работать."
+
+#: src/components/revoke-device-dialog.tsx
+msgid "The device will be signed out and lose access to your synced data. Its local copy is cleared the next time it connects; a device that never comes back online keeps what is already on it. Your recovery phrase keeps working."
+msgstr "Устройство выйдет из учётной записи и потеряет доступ к синхронизированным данным. Его локальная копия будет очищена при следующем подключении; устройство, которое больше не выйдет в сеть, сохранит то, что на нём уже есть. Фраза восстановления продолжит работать."
+
+#: src/components/chat/error-message.tsx
+msgid "The instructions from your skills or project are too long for this agent. Shorten a long skill or the project's instructions, then try again."
+msgstr "Инструкции из ваших навыков или проекта слишком длинные для этого агента. Сократите длинный навык или инструкции проекта и попробуйте снова."
 
 #: src/widgets/map/widget.tsx
 msgid "The map couldn’t be loaded."
@@ -4136,6 +4267,10 @@ msgstr "Срок действия кода истёк. Запросите нов
 msgid "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window."
 msgstr "Разговор слишком большой для окна контекста модели. Начните новый чат, удалите часть вложений или выберите модель с большим контекстом."
 
+#: src/components/ui/header.tsx
+msgid "This conversation will be sent to {agentName} unencrypted and will no longer be private."
+msgstr "Эта переписка будет отправлена агенту {agentName} без шифрования и перестанет быть приватной."
+
 #: src/settings/devices.tsx
 msgid "This device"
 msgstr "Это устройство"
@@ -4145,8 +4280,8 @@ msgid "This device has been approved and sync is now enabled across your devices
 msgstr "Устройство одобрено, синхронизация включена на всех ваших устройствах."
 
 #: src/components/revoked-device-modal.tsx
-msgid "This device has been signed out remotely. Choose what to do with your local data."
-msgstr "Это устройство было выведено из сессии удалённо. Выберите, что сделать с локальными данными."
+#~ msgid "This device has been signed out remotely. Choose what to do with your local data."
+#~ msgstr "Это устройство было выведено из сессии удалённо. Выберите, что сделать с локальными данными."
 
 #: src/hooks/use-sync-setup.ts
 msgid "This device has not been approved yet. Please approve it from a trusted device first."
@@ -4155,6 +4290,10 @@ msgstr "Это устройство ещё не одобрено. Сначала
 #: src/settings/devices.tsx
 msgid "This device lost access, but your account key was not replaced — so it can still read data it already has, and anything written since. Finish securing your account to lock it out."
 msgstr "Это устройство потеряло доступ, но ключ аккаунта не заменён — оно по-прежнему читает уже полученные данные и всё записанное позже. Завершите защиту аккаунта, чтобы закрыть ему доступ."
+
+#: src/components/device-revoked.tsx
+msgid "This device was signed out remotely and its local data has been cleared."
+msgstr "Это устройство было отключено от учётной записи удалённо, его локальные данные очищены."
 
 #: src/settings/preferences.tsx
 msgid "This file doesn't look like a Thunderbolt export."
@@ -4192,9 +4331,31 @@ msgstr "Эта модель не смогла прочитать прикреп�
 msgid "This model does not seem to support tool usage."
 msgstr "Похоже, эта модель не поддерживает инструменты."
 
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "This passkey can sign you in, but it can't unlock sync. You can still approve new devices or use your recovery phrase."
+msgstr "Этот ключ доступа подходит для входа, но не разблокирует синхронизацию. Новые устройства по-прежнему можно одобрить или использовать фразу восстановления."
+
+#: src/hooks/use-sync-setup.ts
+msgid "This passkey can't unlock sync for this account."
+msgstr "Этот ключ доступа не разблокирует синхронизацию для этой учётной записи."
+
+#: src/hooks/use-sync-setup.ts
+msgid "This passkey can't unlock sync on this device."
+msgstr "Этот ключ доступа не разблокирует синхронизацию на этом устройстве."
+
 #: src/components/remove-bridge-dialog.tsx
 msgid "This permanently removes the revoked bridge registration. The bridge can register again afterward."
 msgstr "Это навсегда удалит регистрацию отозванного моста. Мост сможет зарегистрироваться снова."
+
+#: src/components/chat/chat-prompt-input.tsx
+#: src/voice/ui/use-voice-session.ts
+msgid "This private chat won't run on {agentName}."
+msgstr "Этот приватный чат не выполнится на агенте {agentName}."
+
+#: src/components/chat/chat-prompt-input.tsx
+#: src/voice/ui/use-voice-session.ts
+msgid "This private chat won't run on {agentName}. Switch to {builtInAgentName} to run it."
+msgstr "Этот приватный чат не выполнится на агенте {agentName}. Переключитесь на {builtInAgentName}, чтобы выполнить его."
 
 #: src/projects/project-form.tsx
 msgid "this project"
@@ -4223,6 +4384,10 @@ msgstr "Серверу нужна авторизация. Нажмите «Ав�
 #: src/settings/connections/mcp-server-form.tsx
 msgid "This server uses OAuth. Add it and authorize to connect."
 msgstr "Этот сервер использует OAuth. Добавьте его и авторизуйтесь для подключения."
+
+#: src/lib/sso-error-messages.ts
+msgid "This sign-in did not start from Thunderbolt. Open Thunderbolt and sign in from there."
+msgstr "Этот вход начат не из Вольта. Откройте Вольт и войдите оттуда."
 
 #: src/lib/device-grant.ts
 msgid "This sign-in request has expired. Start a new one from your terminal."
@@ -4256,7 +4421,7 @@ msgstr "Навык будет удалён безвозвратно. Други�
 msgid "This will permanently delete this chat."
 msgstr "Чат будет удалён безвозвратно."
 
-#: src/settings/preferences.tsx
+#: src/settings/account/delete-account-section.tsx
 msgid "This will permanently delete your account and all of your data on our servers and on this device, including settings, chat history, and cached information. This action cannot be undone."
 msgstr "Аккаунт и все данные на наших серверах и на этом устройстве — настройки, история чатов и кэш — будут удалены безвозвратно. Это действие нельзя отменить."
 
@@ -4345,6 +4510,10 @@ msgstr "Формат времени"
 msgid "Time Format"
 msgstr "Формат времени"
 
+#: src/components/sync-setup/confirm-identity-step.tsx
+msgid "To continue, we’ll email you a verification code."
+msgstr "Чтобы продолжить, мы отправим вам код подтверждения на почту."
+
 #: src/search/commands/use-commands.ts
 msgid "Toggle sidebar"
 msgstr "Боковая панель"
@@ -4399,7 +4568,9 @@ msgstr "Путешествия и места"
 msgid "Trusted devices"
 msgstr "Доверенные устройства"
 
+#: src/components/auth-gate/browser-check.tsx
 #: src/components/embedded/surface-status.tsx
+#: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
@@ -4417,6 +4588,14 @@ msgstr "Модель синтеза речи"
 #: src/settings/voice.tsx
 msgid "TTS voice"
 msgstr "Голос TTS"
+
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Turn on sync on new devices with just your passkey, no approval needed. Anyone with access to your passkey can unlock your data."
+msgstr "Включайте синхронизацию на новых устройствах одним ключом доступа, без одобрения. Любой, у кого есть доступ к вашему ключу, сможет открыть ваши данные."
+
+#: src/settings/encryption/use-remove-passkey.ts
+msgid "Turn on sync on this device to remove this passkey."
+msgstr "Чтобы удалить этот ключ доступа, включите синхронизацию на этом устройстве."
 
 #: src/components/telemetry-warning-modal.tsx
 msgid "Turning off telemetry will disable all preview features. Are you sure you want to continue?"
@@ -4445,6 +4624,14 @@ msgstr "Неизвестно"
 #: src/widgets/weather-forecast/lib.ts
 msgid "Unknown (code {code})"
 msgstr "Неизвестно (код {code})"
+
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Unlock sync with a passkey"
+msgstr "Разблокировать синхронизацию ключом доступа"
+
+#: src/components/sync-setup/approval-waiting-step.tsx
+msgid "Unlock with passkey"
+msgstr "Разблокировать ключом доступа"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Unpin"
@@ -4530,6 +4717,10 @@ msgstr "Используйте https:// (http допустим только дл
 msgid "Use my recovery key"
 msgstr "Использовать фразу восстановления"
 
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Use passkey"
+msgstr "Использовать ключ доступа"
+
 #: src/search/commands/use-commands.ts
 msgid "Use System"
 msgstr "Как в системе"
@@ -4541,6 +4732,11 @@ msgstr "Используйте запрос подключения на экра
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
 msgstr "Используйте Вольт из командной строки."
+
+#: src/components/onboarding/onboarding-passkey-step.tsx
+#: src/components/sync-setup/passkey-enroll-step.tsx
+msgid "Use your fingerprint, face, or device PIN to sign in instead of an email code. Email sign-in still works too."
+msgstr "Входите по отпечатку, лицу или PIN-коду устройства вместо кода из письма. Вход по почте тоже продолжит работать."
 
 #: src/settings/voice.tsx
 msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
@@ -4559,6 +4755,7 @@ msgid "Verification Failed"
 msgstr "Не удалось подтвердить"
 
 #: src/components/sign-in/use-sign-in-form-state.ts
+#: src/components/sync-setup/use-confirm-identity-state.ts
 #: src/lib/otp-error-messages.ts
 #: src/waitlist/use-waitlist-state.ts
 msgid "Verification failed. Please try again."
@@ -4633,6 +4830,14 @@ msgstr "Хотите ранний доступ?"
 msgid "We could not send the transcript. Please check your connection and try again."
 msgstr "Не удалось отправить расшифровку. Проверьте подключение и попробуйте снова."
 
+#: src/lib/sso-error-messages.ts
+msgid "We could not sign you in. Please try again."
+msgstr "Войти не удалось. Попробуйте снова."
+
+#: src/components/auth-gate/browser-check.tsx
+msgid "We couldn't verify your browser. Check your connection and try again."
+msgstr "Не удалось проверить браузер. Проверьте соединение и попробуйте снова."
+
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "We don't keep logs of your conversations."
 msgstr "Мы не храним логи ваших разговоров."
@@ -4645,9 +4850,14 @@ msgstr "Мы не обучаем модели на ваших данных."
 msgid "We sent a code to <0>{email}</0>"
 msgstr "Мы отправили код на <0>{email}</0>"
 
-#: src/components/step-up-code-dialog.tsx
+#: src/components/unsaved-recovery-phrase-prompt.tsx
+#: src/settings/encryption/change-recovery-key-section.tsx
 msgid "We sent an 8-digit code to your account email. Enter it to generate your new recovery phrase."
 msgstr "Мы отправили 8-значный код на почту аккаунта. Введите его, чтобы создать новую фразу восстановления."
+
+#: src/settings/account/delete-account-section.tsx
+msgid "We sent an 8-digit code to your account email. Enter it to permanently delete your account."
+msgstr "Мы отправили код из 8 цифр на почту вашей учётной записи. Введите его, чтобы безвозвратно удалить учётную запись."
 
 #: src/waitlist/waitlist-page.tsx
 msgid "We've sent an email to <0>{email}</0> with your next steps."
@@ -4708,8 +4918,8 @@ msgid "What's in it?"
 msgstr "Что в неё входит?"
 
 #: src/settings/preferences.tsx
-msgid "When enabled, requests are routed through Thunderbolt's cloud proxy."
-msgstr "Когда включено, запросы идут через облачный прокси Вольт."
+#~ msgid "When enabled, requests are routed through Thunderbolt's cloud proxy."
+#~ msgstr "Когда включено, запросы идут через облачный прокси Вольт."
 
 #: src/skills/skill-form.tsx
 msgid "When to use this skill…"
@@ -4795,6 +5005,10 @@ msgstr "Вы достигли лимита отправки. Попробуйт�
 msgid "You must be signed in to import data."
 msgstr "Чтобы импортировать данные, нужно войти в аккаунт."
 
+#: src/settings/encryption/passkey-section.tsx
+msgid "You won't be able to sign in or unlock sync with this passkey anymore. Devices that are already set up keep working."
+msgstr "Этим ключом доступа больше нельзя будет войти или разблокировать синхронизацию. Уже настроенные устройства продолжат работать."
+
 #: src/skills/discard-create-dialog.tsx
 #: src/skills/skills-view.tsx
 msgid "You'll lose what you've added so far."
@@ -4841,6 +5055,10 @@ msgstr "Ваш аккаунт удалён, локальные данные оч
 msgid "Your account keys changed while preparing the new phrase. Please try again."
 msgstr "Ключи аккаунта изменились во время подготовки новой фразы. Повторите попытку."
 
+#: src/settings/account/use-delete-account.ts
+msgid "Your account was deleted, but this device’s data couldn’t be cleared. Reload the app."
+msgstr "Учётная запись удалена, но данные на этом устройстве очистить не удалось. Перезагрузите приложение."
+
 #: src/components/settings/agents/agent-provenance.ts
 msgid "Your agent · built into the app"
 msgstr "Ваш агент · встроен в приложение"
@@ -4883,8 +5101,8 @@ msgid "Your chats and settings will remain on this device for next time."
 msgstr "Чаты и настройки останутся на этом устройстве для следующего раза."
 
 #: src/components/revoked-device-modal.tsx
-msgid "Your chats and settings will remain on this device for offline use."
-msgstr "Чаты и настройки останутся на этом устройстве для офлайн-использования."
+#~ msgid "Your chats and settings will remain on this device for offline use."
+#~ msgstr "Чаты и настройки останутся на этом устройстве для офлайн-использования."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Your deployment's server"
@@ -4905,6 +5123,10 @@ msgstr "Ваше имя"
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Your old recovery phrase no longer works. Write down these 24 words in order and store them somewhere safe. This phrase won't be shown again."
 msgstr "Старая фраза восстановления больше не работает. Запишите эти 24 слова по порядку и храните в надёжном месте. Повторно фраза показана не будет."
+
+#: src/settings/encryption/use-change-recovery-key.ts
+msgid "Your passkey's sync keys couldn't be verified. Remove the passkey in Settings → Preferences on the web, then try again."
+msgstr "Не удалось проверить ключи синхронизации у этого ключа доступа. Удалите ключ доступа в «Настройки → Параметры» в веб-версии и попробуйте снова."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Your private AI assistant"
