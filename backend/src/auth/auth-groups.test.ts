@@ -152,7 +152,10 @@ describe('SSO provider self-registration is disabled', () => {
       headers: new Headers({ cookie }),
     })
 
-    await expect(attempt).rejects.toThrow(/registration is disabled/i)
+    // Either refusal closes the hole: `providersLimit: 0` turns the route off, and
+    // upstream's own THU-943 refuses a provider id this deployment did not configure
+    // (which now answers first). Matching both keeps the guard honest across either.
+    await expect(attempt).rejects.toThrow(/registration is disabled|only the configured sso provider/i)
 
     await testEnv.cleanup()
   })
