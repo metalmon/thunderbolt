@@ -6,6 +6,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useAuth, useHttpClient } from '@/contexts'
 import { authRequestHeaders } from '@/contexts/auth-context'
 import { isAltchaCaptchaEnabled, isAnonymousAuthEnabled, isSsoMode, isWaitlistBypassed } from '@/lib/auth-mode'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { HttpError } from '@/lib/http'
 import { captchaTokenHeader, captchaVerificationFailedCode } from '@shared/captcha'
 import { AltchaTransientError, solveAltchaChallenge } from './altcha'
@@ -35,6 +36,7 @@ type CaptchaStatus = 'idle' | 'verifying' | 'failed'
  *    `verification-failed` with a retry when the challenge fetch fails or the API refuses the solution)
  *  - waitlist active + no session → redirect to /waitlist
  *  - sign-in could not reach the server → `offline` with a retry (fork; see `signInAnonymously`)
+ *  - local mode → allowed, with no session and no sign-in attempt (fork; see `@/fork/local-mode/mode`)
  *
  * For `require="unauthenticated"`:
  *  - has session → redirect to /
@@ -52,7 +54,12 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   const { data: session, isPending } = authClient.useSession()
   const isAuthenticated = !!session?.user
 
-  const isAnonymousAllowed = isAnonymousAuthEnabled() && !isSsoMode() && isWaitlistBypassed()
+  // Fork: `!localMode` is the FIRST of the two points local mode needs. This
+  // one gates the effect below, which fires before any `return` — so the early
+  // exit further down cannot stop it, and without this an autonomous install
+  // would still be firing a sign-in at a backend it does not have.
+  const localMode = useIsLocalMode()
+  const isAnonymousAllowed = isAnonymousAuthEnabled() && !isSsoMode() && isWaitlistBypassed() && !localMode
 
   const triedAnonRef = useRef(false)
   // The captcha attempt in flight, if any. A ref because a double click on retry lands before the
@@ -180,6 +187,14 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
     },
     [],
   )
+
+  // Fork: the second of local mode's two points, and it sits before the pending
+  // check on purpose. There is no account in local mode, so the session fetch is
+  // irrelevant — and with no backend it settles only when the request gives up,
+  // which would be a blank screen for as long as that takes.
+  if (localMode) {
+    return { status: 'allowed' }
+  }
 
   if (isPending) {
     return { status: 'loading' }

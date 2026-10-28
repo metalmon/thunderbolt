@@ -35,6 +35,7 @@ import { getAuthToken } from './auth-token'
 import { isLoopbackHost } from './mcp-url-validation'
 import { isTauri } from './platform'
 import { nativeFetch } from './native-fetch'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { handleSessionRejected } from './session-rejected'
 
 const defaultIsStandalone = isTauri
@@ -43,11 +44,19 @@ const defaultReadProxyEnabled = (): string | null =>
 
 /** Computes whether the cloud proxy is effectively enabled.
  *  Web always proxies (CORS forces it). Tauri respects the `proxy_enabled`
- *  toggle, defaulting to false (direct upstream) when storage is absent. */
+ *  toggle, defaulting to false (direct upstream) when storage is absent.
+ *
+ *  Fork: local mode never proxies, on any platform. This is the ONE point that
+ *  decides it for models, MCP, remote ACP agents off the loopback and Gemini
+ *  Live's relay, so the mode needs no per-lane rule. The web branch is included
+ *  deliberately: there is no proxy to reach without a backend, and failing on
+ *  CORS is honest where routing into a dead `/v1/proxy` is not. It also fixes a
+ *  standing bug — an agent on a LAN address with the toggle on was being sent
+ *  through the proxy. */
 export const computeEffectiveProxyEnabled = (
   isStandalone: () => boolean = defaultIsStandalone,
   read: () => string | null = defaultReadProxyEnabled,
-): boolean => (isStandalone() ? read() === 'true' : true)
+): boolean => (isLocalMode() ? false : isStandalone() ? read() === 'true' : true)
 
 /**
  * Canonical fetch-function shape used across the proxy / AI plumbing.
