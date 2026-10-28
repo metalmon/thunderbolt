@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
+import { updateSettings } from '@/dal'
+import { getDb } from '@/db/database'
 import {
   createMockChatInstance,
   createMockChatThread,
@@ -13,7 +15,7 @@ import {
 } from '@/test-utils/chat-store-mocks'
 import { createQueryTestWrapper } from '@/test-utils/react-query'
 import type { Model, ThunderboltUIMessage } from '@/types'
-import { act, cleanup, createEvent, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { createElement, createRef, type ReactNode } from 'react'
 import { BrowserRouter } from 'react-router'
@@ -586,7 +588,7 @@ describe('ChatPromptInput', () => {
       })
 
       expect(screen.queryByRole('alert')).toBeNull()
-      expect(useChatStore.getState().sessions.get('thread-1')?.selectedModel.id).toBe(added.id)
+      expect(useChatStore.getState().sessions.get('thread-1')?.selectedModel?.id).toBe(added.id)
     })
 
     it('sends when the model matches the thread', async () => {
@@ -599,7 +601,8 @@ describe('ChatPromptInput', () => {
   })
 
   describe('private chat held back from a non-built-in agent', () => {
-    const notice = "This private chat won't run on Assistant. Switch to Thunderbolt to run it."
+    // Fork: the built-in agent carries the product name (see fork/rebrand).
+    const notice = `This private chat won't run on Assistant. Switch to ${builtInAgent.name} to run it.`
 
     /** An automation thread: private, ending on its unanswered prompt, resolved to `agent`. */
     const renderAutomationThread = ({ isEncrypted = 1 }: { isEncrypted?: 0 | 1 } = {}) => {
@@ -628,11 +631,13 @@ describe('ChatPromptInput', () => {
     })
 
     it('says so and holds typed and voice sends, which would carry the history out unencrypted', async () => {
+      await updateSettings(getDb(), { experimental_feature_voice: true })
       const { container, sendMessage } = renderAutomationThread()
 
       expect(screen.getByText(notice)).toBeInTheDocument()
-      // Voice sends straight through the chat, so it is held here too.
-      expect(screen.getByRole('button', { name: 'Start voice mode' })).toBeDisabled()
+      // Voice sends straight through the chat, so it is held here too. Fork: the
+      // button only exists once the voice co-pilot experiment is switched on.
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Start voice mode' })).toBeDisabled())
 
       fireEvent.change(screen.getByPlaceholderText('Ask me anything…'), { target: { value: 'Go on' } })
       await act(async () => {
@@ -798,15 +803,19 @@ describe('ChatPromptInput', () => {
       useConfigStore.setState({ config: {}, configLoaded: false })
     })
 
-    it(`${present ? 'shows' : 'hides'} the button in the empty composer`, () => {
+    it(`${present ? 'shows' : 'hides'} the button in the empty composer`, async () => {
       useConfigStore.setState({ config: minimalMode ? { minimalMode } : {}, configLoaded: true })
+      // Fork: the voice co-pilot is a switched-off experiment, so the button is
+      // withheld until the setting is on — this asserts the minimal-mode gate
+      // on top of that, not the setting.
+      await updateSettings(getDb(), { experimental_feature_voice: true })
       const { mockUseChat } = setupStore()
       render(
         <ChatPromptInput useChat={mockUseChat} useIsMobile={createMockUseIsMobile()} useWarmAcpCommands={noWarmUp} />,
         { wrapper: TestWrapper },
       )
 
-      expect(screen.queryByRole('button', { name: 'Start voice mode' }) !== null).toBe(present)
+      await waitFor(() => expect(screen.queryByRole('button', { name: 'Start voice mode' }) !== null).toBe(present))
     })
   })
 

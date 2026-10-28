@@ -432,7 +432,7 @@ describe('useHydrateChatStore', () => {
       await hydrateNewChat()
 
       const session = getCurrentSession()
-      expect(session?.selectedModel.id).toBe(modelId)
+      expect(session?.selectedModel?.id).toBe(modelId)
       expect(session?.chatThread).toBeNull()
       expect(session?.chatInstance.messages).toEqual([])
       expect(session?.triggerData).toBeNull()
@@ -445,8 +445,8 @@ describe('useHydrateChatStore', () => {
 
       await hydrateNewChat()
 
-      expect(getCurrentSession()?.selectedModel.isSystem).toBe(1)
-      expect(getCurrentSession()?.selectedModel.id).not.toBe(modelId)
+      expect(getCurrentSession()?.selectedModel?.isSystem).toBe(1)
+      expect(getCurrentSession()?.selectedModel?.id).not.toBe(modelId)
     })
 
     it('keeps the last-used agent for a new chat ahead of the agent discovery names as default', async () => {
