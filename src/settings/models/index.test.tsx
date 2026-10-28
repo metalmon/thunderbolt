@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useConfigStore } from '@/api/config-store'
 import { i18n } from '@/i18n'
 import { createModel, getModel } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
@@ -425,11 +426,15 @@ describe('model card action menu', () => {
       isConfidential: 1,
     })
 
+    // The label is the deployment's app name (upstream resolves managed lanes
+    // through branding since #1439), so the name under test comes from `/config`.
+    useConfigStore.setState({ config: { branding: { appName: 'Вольт' } }, configLoaded: true })
+
     renderModelsPage()
     await waitForElement(() => screen.queryByText('GLM 5.2'))
 
     const card = screen.getByText('GLM 5.2').closest('[data-slot="card"]') as HTMLElement
-    expect(within(card).getByText('Volt')).toBeInTheDocument()
+    expect(within(card).getByText('Вольт')).toBeInTheDocument()
     expect(within(card).queryByText('Tinfoil')).not.toBeInTheDocument()
   })
 
