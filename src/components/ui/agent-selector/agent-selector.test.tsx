@@ -4,7 +4,8 @@
 
 import '@testing-library/jest-dom'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { useConfigStore } from '@/api/config-store'
 import { builtInAgent } from '@/defaults/agents'
 import { forceMobileViewport, restoreViewport } from '@/test-utils/viewport'
 import type { Agent } from '@/types/acp'
@@ -59,6 +60,13 @@ describe('buildAgentItems', () => {
 })
 
 describe('AgentSelector', () => {
+  // The built-in agent carries the deployment's app name (upstream resolves it
+  // through BRANDING since #1439), so the name these assertions look for has to
+  // come from `/config` rather than a literal in the component.
+  beforeEach(() => {
+    useConfigStore.setState({ config: { branding: { appName: 'Вольт' } }, configLoaded: true })
+  })
+
   it('renders the trigger with the selected agent name', () => {
     const onSelect = mock(() => {})
     render(<AgentSelector selectedAgent={systemAgent} agents={[builtInAgent, systemAgent]} onSelect={onSelect} />)
@@ -100,7 +108,7 @@ describe('AgentSelector', () => {
     fireEvent.click(screen.getByTestId('agent-selector-trigger'))
 
     // Built-in appears in both the trigger and the dropdown item; assert at least one match.
-    expect(screen.getAllByText('Volt').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Вольт').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('RAG Chat')).toBeInTheDocument()
     expect(screen.getByText('My Remote Agent')).toBeInTheDocument()
   })
@@ -181,14 +189,14 @@ describe('AgentSelector', () => {
     render(<AgentSelector selectedAgent={builtInAgent} agents={[builtInAgent]} onSelect={() => {}} disabled />)
 
     const trigger = screen.getByTestId('agent-selector-trigger')
-    expect(trigger).toHaveTextContent('Volt')
+    expect(trigger).toHaveTextContent('Вольт')
     expect(trigger.closest('button')).toBeNull()
     // Not dimmed by `disabled`: there is no switch to hold back during a reply.
     expect(trigger).not.toHaveClass('opacity-60')
 
     fireEvent.click(trigger)
 
-    expect(screen.getAllByText('Volt')).toHaveLength(1)
+    expect(screen.getAllByText('Вольт')).toHaveLength(1)
   })
 
   describe('when the only available agent is not the selected one', () => {
