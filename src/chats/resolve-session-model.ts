@@ -18,12 +18,12 @@ import type { Agent } from '@/types/acp'
 export const resolveSessionModel = (
   agent: Agent,
   chatThread: { isEncrypted: number } | null,
-  currentModel: Model,
+  currentModel: Model | null,
   models: Model[],
-): Model => {
+): Model | null => {
   if (!isBuiltInAgent(agent)) {
     return currentModel
   }
   const available = models.filter((model) => isModelReady(model) && matchesThreadConfidentiality(model, chatThread))
-  return available.find((model) => model.id === currentModel.id) ?? available[0] ?? currentModel
+  return available.find((model) => model.id === currentModel?.id) ?? available[0] ?? currentModel
 }
