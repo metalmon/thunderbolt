@@ -52,6 +52,10 @@ msgstr "{agentName} не принимает вложения. Удалите п�
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (хостинг, приватно)"
 
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
+msgstr "{appName} не смог соединиться со своим сервером и поэтому не может выполнить вход. Проверьте, что сервер работает и что вы в нужной сети."
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
 msgstr "{appName} — это агент, встроенный в приложение: всегда рядом, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с любой задачей."
@@ -643,6 +647,10 @@ msgstr "Продолжая, вы соглашаетесь с <0>Условиям
 #: src/widgets/connect-integration/widget.tsx
 msgid "Calendar"
 msgstr "Календарь"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Can't reach the server"
+msgstr "Сервер недоступен"
 
 #: src/components/app-error-screen.tsx
 #: src/components/approve-device-dialog.tsx
@@ -4677,6 +4685,7 @@ msgstr "Доверенные устройства"
 #: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
+#: src/fork/local-mode/server-unavailable-screen.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Try again"
 msgstr "Попробовать снова"
