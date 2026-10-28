@@ -14,6 +14,7 @@ import { useDatabase } from '@/contexts'
 import { builtInAgent } from '@/defaults/agents'
 import { getSettings } from '@/dal'
 import { isDirectVoiceKeyMissing } from '@/fork/voice/direct-voice-gate'
+import { getActiveLocale } from '@/i18n/active-locale'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import type { ThunderboltUIMessage } from '@/types'
 import type { ReplyChat } from '@/voice/chat-reply'
@@ -80,13 +81,15 @@ const toContextMessages = (messages: readonly ThunderboltUIMessage[]): ContextMe
     .filter((message) => message.text.length > 0)
 
 /**
- * Best-effort UI language for the voice system instruction. The codebase has
- * no app-wide UI language setting today (no i18n library, no locale field in
- * settings — verified by inspection for Task 11), so this reads the browser's
- * own language instead of inventing new settings infrastructure. Revisit once
- * an app-level UI language source exists.
+ * The UI language for the voice system instruction, read from the app's own
+ * active locale — not `navigator.language`, which it used while the app had no
+ * language of its own. The two disagree for exactly the user who set the app to
+ * Russian in a browser that asks for English, and that user wants Russian voice.
+ *
+ * Read at session start rather than subscribed: the instruction is baked into the
+ * engine at construction, so a language change applies to the next session.
  */
-const resolveVoiceLang = (): VoiceLang => (navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en')
+const resolveVoiceLang = (): VoiceLang => (getActiveLocale().toLowerCase().startsWith('ru') ? 'ru' : 'en')
 
 /** BCP-47 speech language for the half-cascade `speechConfig.languageCode`
  *  (accent fix), derived from the same `VoiceLang` the system instruction uses
