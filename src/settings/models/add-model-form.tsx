@@ -16,17 +16,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusCard } from '@/components/ui/status-card'
 import { useAutofocusOnMount } from '@/hooks/use-autofocus-on-mount'
 import { useAppName } from '@/lib/branding-selectors'
-import type { Model } from '@/types'
 import { ConnectionTestSection } from './connection-test-section'
 import { providerAutoFetchesCatalog, shouldDisableAddModel } from './model-policy'
 import { getProviderLabel, providerPickerOrder } from './model-presentation'
 import type { AddableProvider, AddModelFormValues } from './use-add-model-form'
 
-/** Fork: `managed` is left out of the picker. The lane with the key on the server
- *  is declared by the deployment (`DEFAULT_MODELS`), not added by hand — a row a
- *  user typed there would point at a backend path only the operator can furnish,
- *  and fail at the first message. */
-const providerOptions = providerPickerOrder.filter((p): p is AddableProvider => p !== 'managed')
+// Fork: `managed` needs no filtering out here — it is not in `providerBrandNames`,
+// so `providerPickerOrder` never offers the lane whose key lives on the server.
 
 type AddModelFormProps = {
   form: UseFormReturn<AddModelFormValues>
@@ -105,7 +101,7 @@ export const AddModelForm = ({
                     <SelectValue placeholder={t`Select provider`} />
                   </SelectTrigger>
                   <SelectContent>
-                    {providerOptions.map((provider) => (
+                    {providerPickerOrder.map((provider) => (
                       <SelectItem key={provider} value={provider}>
                         {getProviderLabel(i18n, provider, appName)}
                       </SelectItem>
