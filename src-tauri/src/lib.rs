@@ -56,12 +56,12 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::set_interface_style,
             commands::start_oauth_server,
             commands::install_thunderbolt_cli,
-            commands::save_bytes_to_path,
             fork_boot_log::fork_boot_log,
             fork_page_fetch::fork_resolve_host,
             fork_page_fetch::fork_fetch_pinned,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
+            commands::save_document_as,
         ]);
 
     #[cfg(debug_assertions)]

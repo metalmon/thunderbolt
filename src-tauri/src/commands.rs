@@ -31,16 +31,70 @@ pub async fn toggle_dock_icon(app_handle: tauri::AppHandle, show: bool) -> Resul
 
 // === Fork: save a delivered/attached file to a user-chosen path ==============================
 
-/// Write bytes to an absolute path the user picked via the native save dialog, then
-/// open the saved file with the OS default app (see src/fork/documents/file-actions.ts).
-/// Writes with `std::fs` (not the scoped `fs` plugin) so the destination isn't
-/// capability-limited, and opens with the opener plugin's free `open_path` (raw
-/// ShellExecute — no JS capability/scope in the path), so "Download and open"
-/// reliably launches the default application.
+/// Extensions "Download and open" may hand to the OS default application.
+///
+/// An allowlist rather than a denylist: the webview decides WHICH stored file is
+/// saved, so the set of things that can be launched has to be closed. Everything
+/// else is revealed in the file manager instead — the user still gets the file,
+/// nothing is executed on their behalf.
+const OPENABLE_EXTENSIONS: &[&str] = &[
+    "pdf", "docx", "doc", "xlsx", "xls", "pptx", "ppt", "odt", "ods", "odp", "rtf", "txt", "md", "csv", "json", "png",
+    "jpg", "jpeg", "gif", "webp", "svg",
+];
+
+/// Save bytes to a location the user picks, then open or reveal the result.
+///
+/// The destination comes from a dialog shown HERE, in Rust, and the bytes are
+/// written only to what that dialog returned. The webview never names a path:
+/// it used to, and because this writes with `std::fs` (outside the `fs` plugin's
+/// scopes) and then launched the result, any script running in the app origin
+/// could write an executable anywhere and start it. The dialog on the JS side
+/// was a formality — from here it was just a string from the client.
+///
+/// Opening is restricted to `OPENABLE_EXTENSIONS`; anything else is revealed in
+/// the file manager. `suggested_name` only seeds the dialog's filename field,
+/// so a crafted name cannot escape the directory the user chose.
+///
+/// See src/fork/documents/file-actions.ts for the caller.
+///
+/// @returns `true` when a file was written, `false` when the user cancelled.
 #[command]
-pub async fn save_bytes_to_path(path: String, contents: Vec<u8>) -> Result<(), String> {
+pub async fn save_document_as(
+    app_handle: tauri::AppHandle,
+    contents: Vec<u8>,
+    suggested_name: String,
+) -> Result<bool, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    // `file_name` takes the leaf only: a name carrying separators would otherwise
+    // steer the dialog out of the directory the user is looking at.
+    let leaf = std::path::Path::new(&suggested_name)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("document")
+        .to_string();
+
+    let Some(chosen) = app_handle.dialog().file().set_file_name(&leaf).blocking_save_file() else {
+        return Ok(false); // cancelled
+    };
+    let path = chosen
+        .into_path()
+        .map_err(|e| format!("the save dialog returned a path this platform cannot use: {e}"))?;
+
     std::fs::write(&path, &contents).map_err(|e| e.to_string())?;
-    tauri_plugin_opener::open_path(&path, None::<&str>).map_err(|e| e.to_string())
+
+    let openable = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| OPENABLE_EXTENSIONS.contains(&e.to_ascii_lowercase().as_str()))
+        .unwrap_or(false);
+
+    if openable {
+        tauri_plugin_opener::open_path(&path, None::<&str>).map_err(|e| e.to_string())?;
+    } else {
+        tauri_plugin_opener::reveal_item_in_dir(&path).map_err(|e| e.to_string())?;
+    }
+    Ok(true)
 }
 
 // === Interface Style (iOS keyboard/system UI theme) ==========================================
