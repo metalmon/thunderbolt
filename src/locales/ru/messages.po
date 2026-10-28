@@ -667,6 +667,7 @@ msgstr "Сервер недоступен"
 #: src/components/ui/chat-nav-button.tsx
 #: src/components/ui/confirm-action-dialog.tsx
 #: src/components/ui/responsive-modal.tsx
+#: src/fork/local-mode/server-section.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/connections/index.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -974,6 +975,14 @@ msgstr "Подключить {providerName}"
 msgid "Connect a remote agent that speaks the Agent Client Protocol."
 msgstr "Подключите удалённого агента по Agent Client Protocol."
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect and keep local data"
+msgstr "Подключить и сохранить локальные данные"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect and start clean"
+msgstr "Подключить и начать заново"
+
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Google"
 msgstr "Подключить Google"
@@ -981,6 +990,14 @@ msgstr "Подключить Google"
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Microsoft"
 msgstr "Подключить Microsoft"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect this server"
+msgstr "Подключить этот сервер"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect this server?"
+msgstr "Подключить этот сервер?"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Connect your account to make these tools available to agents."
@@ -1837,6 +1854,10 @@ msgstr "Адрес"
 #: src/components/device-approval.tsx
 msgid "Enter a different code"
 msgstr "Ввести другой код"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Enter a full address, including https:// and the /v1 path."
+msgstr "Укажите адрес полностью, вместе с https:// и путём /v1."
 
 #: src/lib/mcp-url-validation.ts
 msgid "Enter a valid URL"
@@ -2938,6 +2959,10 @@ msgstr "Доступ к OneDrive"
 msgid "Only available in private chats."
 msgstr "Доступны только в конфиденциальных чатах."
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Only https is allowed, or http for an address on this machine."
+msgstr "Допустим только https, либо http для адреса на этой машине."
+
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
@@ -3510,6 +3535,10 @@ msgstr "Сохранить"
 msgid "Save a file from {appName}?"
 msgstr "Сохранить файл из {appName}?"
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Save address"
+msgstr "Сохранить адрес"
+
 #: src/projects/project-form.tsx
 msgid "Save changes"
 msgstr "Сохранить изменения"
@@ -3741,6 +3770,14 @@ msgstr "Отправлено как изображения"
 #: src/fork/documents/file-chip.tsx
 msgid "Sent as text"
 msgstr "Отправлено как текст"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Server"
+msgstr "Сервер"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Server address"
+msgstr "Адрес сервера"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Server name (used to prefix tools)"
@@ -4088,6 +4125,14 @@ msgstr "Переключить на {suggestedLanguageLabel}"
 msgid "Symbols"
 msgstr "Символы"
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Sync stays off until you sign in and choose what happens to this device's data. Chats created here have no owner yet, so whichever account signs in first would claim them."
+msgstr "Синхронизация останется выключенной, пока вы не войдёте и не решите, что делать с данными этого устройства. У созданных здесь переписок ещё нет владельца, поэтому их присвоит та учётная запись, которая войдёт первой."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Sync stops and you will be signed out. Everything already on this device stays, and the features that need the server — the account, sync, web search and the server's models — will be hidden."
+msgstr "Синхронизация остановится, из учётной записи вас выведет. Всё, что уже есть на этом устройстве, останется, а возможности, которым нужен сервер — учётная запись, синхронизация, поиск в сети и серверные модели — будут скрыты."
+
 #: src/settings/preferences.tsx
 msgid "Sync This Device With Cloud"
 msgstr "Синхронизировать это устройство с облаком"
@@ -4212,6 +4257,10 @@ msgstr "Этот код неверен или уже использован. П�
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The {recipient} team, for debugging. It's tied to your account — it isn't anonymous."
 msgstr "Команда {recipient} — для отладки. Привязано к вашей учётной записи — не анонимно."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "The address this installation signs in to and syncs with."
+msgstr "Адрес, к которому этот установ входит и с которым синхронизируется."
 
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
@@ -4398,6 +4447,10 @@ msgstr "Этот файл не похож на экспорт {appName}."
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "This helps us personalize your experience with local settings and features."
 msgstr "Это поможет персонализировать опыт с учётом местных настроек и функций."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "This installation works on this device only. Connect a server to sign in and sync across devices."
+msgstr "Этот установ работает только на этом устройстве. Подключите сервер, чтобы входить и синхронизироваться между устройствами."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
@@ -5069,6 +5122,18 @@ msgstr "Управление окном"
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "word1 word2 word3 ..."
 msgstr "слово1 слово2 слово3 …"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work offline"
+msgstr "Работать автономно"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work on this device only"
+msgstr "Работать только на этом устройстве"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work on this device only?"
+msgstr "Работать только на этом устройстве?"
 
 #: src/fork/local-mode/local-mode-banner.tsx
 msgid "Working on this device only — no account, no sync."
