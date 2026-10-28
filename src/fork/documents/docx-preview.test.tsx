@@ -6,7 +6,8 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 // Controllable stand-in for docx-preview's `renderAsync` — each test swaps the
-// implementation to exercise the ready / error branches.
+// implementation to exercise the ready / error branches and to plant the kind of
+// markup a hostile document would produce.
 let renderImpl: (...args: unknown[]) => Promise<void>
 const renderAsyncMock = mock((...args: unknown[]) => renderImpl(...args))
 mock.module('docx-preview', () => ({ renderAsync: renderAsyncMock }))
@@ -31,17 +32,66 @@ afterEach(() => {
 
 const { DocxPreview } = await import('./docx-preview')
 
+/** What a hostile document gives docx-preview to build: a link that would run in
+ *  whichever origin renders it. OOXML carries no script, so this is the vector. */
+const plantHostileLink = () => {
+  renderImpl = async (...args: unknown[]) => {
+    const target = args[1] as HTMLElement
+    const link = target.ownerDocument.createElement('a')
+    link.href = 'javascript:fetch("/steal")'
+    link.textContent = 'Open report'
+    target.append(link)
+  }
+}
+
 describe('DocxPreview', () => {
-  it('feeds the fetched blob and the scoped container into docx-preview renderAsync', async () => {
+  it('builds the document in a detached document, never in the app DOM', async () => {
     render(<DocxPreview blobUrl="blob:doc" fileName="report.docx" />)
 
     await waitFor(() => expect(renderAsyncMock).toHaveBeenCalledTimes(1))
 
     expect(globalThis.fetch).toHaveBeenCalledWith('blob:doc')
-    const [blobArg, containerArg] = renderAsyncMock.mock.calls[0]
+    const [blobArg, targetArg, , optionsArg] = renderAsyncMock.mock.calls[0]
     expect(blobArg).toBeInstanceOf(Blob)
-    expect(containerArg).toBe(document.querySelector('.docx-viewer'))
+    const target = targetArg as HTMLElement
+    // The target belongs to another document entirely, so nothing the library
+    // builds is reachable from the page the app runs in. (`isConnected` would say
+    // true here: it means "attached to ITS own document", which this body is.)
+    expect(target.ownerDocument).not.toBe(document)
+    expect(document.contains(target)).toBe(false)
+    // blob: URLs belong to this origin and the frame's origin is opaque, so the
+    // images have to be inlined or they silently fail to load.
+    expect(optionsArg).toMatchObject({ useBase64URL: true })
     expect(screen.queryByText(/Could not render/)).toBeNull()
+  })
+
+  it('hands the markup to a frame with an empty sandbox', async () => {
+    render(<DocxPreview blobUrl="blob:doc" fileName="report.docx" />)
+
+    const frame = await waitFor(() => {
+      const el = document.querySelector('iframe')
+      expect(el).not.toBeNull()
+      return el as HTMLIFrameElement
+    })
+    // Empty, not merely present: `allow-scripts` would restore the vector, and
+    // `allow-same-origin` would put the document back in reach of the IPC.
+    expect(frame.getAttribute('sandbox')).toBe('')
+    expect(frame.getAttribute('srcdoc')).toContain('<!doctype html>')
+  })
+
+  it('keeps a javascript: link out of the app DOM', async () => {
+    plantHostileLink()
+    render(<DocxPreview blobUrl="blob:doc" fileName="report.docx" />)
+
+    const frame = await waitFor(() => {
+      const el = document.querySelector('iframe')
+      expect(el).not.toBeNull()
+      return el as HTMLIFrameElement
+    })
+    // Confined, not dropped: the link still reaches the frame (the document is
+    // shown as it is), but nothing clickable lands in the origin holding the IPC.
+    expect(frame.getAttribute('srcdoc')).toContain('javascript:fetch')
+    expect(document.querySelector('a[href^="javascript:"]')).toBeNull()
   })
 
   it('shows a download-fallback message when rendering fails', async () => {
