@@ -244,6 +244,33 @@ describe('useAuthGate — require="authenticated"', () => {
     expect(capture.error).toBeInstanceOf(Error)
   })
 
+  // Fork: the network path is a STATE, not a throw — the distinction upstream
+  // already draws for the captcha (a transient challenge failure yields
+  // 'verification-failed', only an HTTP refusal reaches the boundary). Anonymous
+  // sign-in was the one path without it: with the backend unreachable the throw
+  // above fired during render, and since the app mounts no error boundary at all
+  // it blanked the whole tree. A reachable server that REFUSES (the 429 test
+  // above) still throws — that is a real error and stays upstream's behaviour.
+  it('reports offline instead of throwing when signIn.anonymous fails on the network', async () => {
+    env.VITE_AUTH_ENABLE_ANONYMOUS = 'true'
+    env.VITE_BYPASS_WAITLIST = 'true'
+    const { authClient, signInSpy } = createAuthClientWithAnonSpy({
+      initialSession: null,
+      initialPending: false,
+      // Better Auth resolves `{ data, error }` for HTTP failures and REJECTS
+      // only on a network error or abort — so a throw out of the client is
+      // precisely "the server could not be reached".
+      signInError: new TypeError('Failed to fetch'),
+    })
+    const wrapper = createTestProvider({ authClient })
+    // renderHook, not an error boundary: not needing one is the whole assertion.
+    const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+
+    await waitFor(() => expect(signInSpy).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(result.current.status).toBe('offline'))
+    expect(result.current).toHaveProperty('retry')
+  })
+
   it('fires signIn.anonymous exactly once even under React StrictMode double-invoke', async () => {
     env.VITE_AUTH_ENABLE_ANONYMOUS = 'true'
     env.VITE_BYPASS_WAITLIST = 'true'

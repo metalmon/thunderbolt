@@ -5,7 +5,7 @@
 import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { createMockAuthClient } from '@/test-utils/auth-client'
 import { createTestProvider } from '@/test-utils/test-provider'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, describe, expect, it, mock } from 'bun:test'
 import { MemoryRouter, Route, Router, Routes, useLocation } from 'react-router'
 import { AuthGate } from './auth-gate'
@@ -70,5 +70,52 @@ describe('AuthGate in SSO mode with no session', () => {
     renderGateAt('/?error=account_not_linked')
 
     expect(screen.getByText('/sso-error?error=account_not_linked')).toBeInTheDocument()
+  })
+})
+
+describe('AuthGate when the server cannot be reached', () => {
+  beforeAll(async () => {
+    await setupTestDatabase()
+  })
+
+  afterAll(async () => {
+    await teardownTestDatabase()
+  })
+
+  afterEach(() => {
+    delete env.VITE_AUTH_ENABLE_ANONYMOUS
+    delete env.VITE_BYPASS_WAITLIST
+  })
+
+  // The gate renders `<Outlet />` for any status it does not name, so a new
+  // status that reaches that fall-through would hand the protected routes to a
+  // visitor with no session at all. This pins the branch, not just the status.
+  it('renders the unavailable screen and NOT the protected route', async () => {
+    env.VITE_AUTH_ENABLE_ANONYMOUS = 'true'
+    env.VITE_BYPASS_WAITLIST = 'true'
+    const authClient = {
+      ...createMockAuthClient(),
+      useSession: () => ({ data: null, isPending: false, isRefetching: false, error: null, refetch: async () => {} }),
+      signIn: {
+        emailOtp: async () => ({ error: null }),
+        anonymous: async () => {
+          throw new TypeError('Failed to fetch')
+        },
+      },
+    } as unknown as ReturnType<typeof createMockAuthClient>
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route element={<AuthGate require="authenticated" />}>
+            <Route path="/" element={<LocationProbe />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+      { wrapper: createTestProvider({ authClient }) },
+    )
+
+    await waitFor(() => expect(screen.getByRole('heading')).toHaveTextContent(/can't reach/i))
+    expect(screen.queryByText('/')).not.toBeInTheDocument()
   })
 })
