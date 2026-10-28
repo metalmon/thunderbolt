@@ -66,6 +66,31 @@ describe('desktop capabilities', () => {
   })
 })
 
+describe('what "Download and open" may launch', () => {
+  const commands = readFileSync(resolve(import.meta.dirname, '../../../src-tauri/src/commands.rs'), 'utf-8')
+  const allowlist = commands.match(/OPENABLE_EXTENSIONS: &\[&str\] = &\[(.*?)\];/s)?.[1] ?? ''
+
+  /**
+   * The bytes come from a chat attachment or an agent, and opening hands them to
+   * whatever the OS associates with the extension. Macros and script are the two
+   * ways "just a document" becomes execution, so these formats are revealed in
+   * the file manager instead of opened: the legacy Office trio carries macros,
+   * and an `.svg` opens in a browser that will run what is inside it.
+   */
+  it.each(['doc', 'xls', 'ppt', 'svg', 'html', 'htm', 'exe', 'bat', 'lnk', 'ps1'])(
+    'never launches a .%s',
+    (extension) => {
+      expect(allowlist).not.toContain(`"${extension}"`)
+    },
+  )
+
+  /** What a browser does to a download, so Office opens it in Protected View. */
+  it('marks the saved file as coming from the internet zone', () => {
+    expect(commands).toContain('Zone.Identifier')
+    expect(commands).toContain('ZoneId=3')
+  })
+})
+
 describe('desktop window', () => {
   const tauriConf = JSON.parse(
     readFileSync(resolve(import.meta.dirname, '../../../src-tauri/tauri.conf.json'), 'utf-8'),
