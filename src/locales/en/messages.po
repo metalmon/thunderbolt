@@ -684,6 +684,7 @@ msgstr "Can't reach the server"
 #: src/components/ui/chat-nav-button.tsx
 #: src/components/ui/confirm-action-dialog.tsx
 #: src/components/ui/responsive-modal.tsx
+#: src/fork/local-mode/server-section.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/settings/connections/index.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -995,6 +996,14 @@ msgstr "Connect {providerName}"
 msgid "Connect a remote agent that speaks the Agent Client Protocol."
 msgstr "Connect a remote agent that speaks the Agent Client Protocol."
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect and keep local data"
+msgstr "Connect and keep local data"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect and start clean"
+msgstr "Connect and start clean"
+
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Google"
 msgstr "Connect Google"
@@ -1002,6 +1011,14 @@ msgstr "Connect Google"
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Connect Microsoft"
 msgstr "Connect Microsoft"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect this server"
+msgstr "Connect this server"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Connect this server?"
+msgstr "Connect this server?"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Connect your account to make these tools available to agents."
@@ -1882,6 +1899,10 @@ msgstr "Endpoint"
 #: src/components/device-approval.tsx
 msgid "Enter a different code"
 msgstr "Enter a different code"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Enter a full address, including https:// and the /v1 path."
+msgstr "Enter a full address, including https:// and the /v1 path."
 
 #: src/lib/mcp-url-validation.ts
 msgid "Enter a valid URL"
@@ -2976,6 +2997,10 @@ msgstr "OneDrive Access"
 msgid "Only available in private chats."
 msgstr "Only available in private chats."
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Only https is allowed, or http for an address on this machine."
+msgstr "Only https is allowed, or http for an address on this machine."
+
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
@@ -3563,6 +3588,10 @@ msgstr "Save"
 msgid "Save a file from {appName}?"
 msgstr "Save a file from {appName}?"
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Save address"
+msgstr "Save address"
+
 #: src/projects/project-form.tsx
 msgid "Save changes"
 msgstr "Save changes"
@@ -3794,6 +3823,14 @@ msgstr "Sent as images"
 #: src/fork/documents/file-chip.tsx
 msgid "Sent as text"
 msgstr "Sent as text"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Server"
+msgstr "Server"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Server address"
+msgstr "Server address"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Server name (used to prefix tools)"
@@ -4133,6 +4170,14 @@ msgstr "Switch to {suggestedLanguageLabel}"
 msgid "Symbols"
 msgstr "Symbols"
 
+#: src/fork/local-mode/server-section.tsx
+msgid "Sync stays off until you sign in and choose what happens to this device's data. Chats created here have no owner yet, so whichever account signs in first would claim them."
+msgstr "Sync stays off until you sign in and choose what happens to this device's data. Chats created here have no owner yet, so whichever account signs in first would claim them."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Sync stops and you will be signed out. Everything already on this device stays, and the features that need the server — the account, sync, web search and the server's models — will be hidden."
+msgstr "Sync stops and you will be signed out. Everything already on this device stays, and the features that need the server — the account, sync, web search and the server's models — will be hidden."
+
 #: src/settings/preferences.tsx
 msgid "Sync This Device With Cloud"
 msgstr "Sync This Device With Cloud"
@@ -4253,6 +4298,10 @@ msgstr "That code isn't valid or has already been used. Check your terminal and 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The {recipient} team, for debugging. It's tied to your account — it isn't anonymous."
 msgstr "The {recipient} team, for debugging. It's tied to your account — it isn't anonymous."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "The address this installation signs in to and syncs with."
+msgstr "The address this installation signs in to and syncs with."
 
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
@@ -4427,6 +4476,10 @@ msgstr "This file doesn't look like a {appName} export."
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "This helps us personalize your experience with local settings and features."
 msgstr "This helps us personalize your experience with local settings and features."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "This installation works on this device only. Connect a server to sign in and sync across devices."
+msgstr "This installation works on this device only. Connect a server to sign in and sync across devices."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
@@ -5065,6 +5118,18 @@ msgstr "Window controls"
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "word1 word2 word3 ..."
 msgstr "word1 word2 word3 ..."
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work offline"
+msgstr "Work offline"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work on this device only"
+msgstr "Work on this device only"
+
+#: src/fork/local-mode/server-section.tsx
+msgid "Work on this device only?"
+msgstr "Work on this device only?"
 
 #: src/fork/local-mode/local-mode-banner.tsx
 msgid "Working on this device only — no account, no sync."
