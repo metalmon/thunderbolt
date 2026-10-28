@@ -5070,6 +5070,10 @@ msgstr "Управление окном"
 msgid "word1 word2 word3 ..."
 msgstr "слово1 слово2 слово3 …"
 
+#: src/fork/local-mode/local-mode-banner.tsx
+msgid "Working on this device only — no account, no sync."
+msgstr "Работа только на этом устройстве: без учётной записи и синхронизации."
+
 #: src/settings/preferences.tsx
 msgid "Would you like to change the language to {suggestedLanguageLabel}?"
 msgstr "Сменить язык на {suggestedLanguageLabel}?"

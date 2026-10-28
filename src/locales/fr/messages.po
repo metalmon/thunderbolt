@@ -5078,6 +5078,10 @@ msgstr "Commandes de fenêtre"
 msgid "word1 word2 word3 ..."
 msgstr "mot1 mot2 mot3 ..."
 
+#: src/fork/local-mode/local-mode-banner.tsx
+msgid "Working on this device only — no account, no sync."
+msgstr ""
+
 #: src/settings/preferences.tsx
 msgid "Would you like to change the language to {suggestedLanguageLabel}?"
 msgstr "Souhaitez-vous changer la langue en {suggestedLanguageLabel} ?"
