@@ -19,6 +19,7 @@
         "height": 1000,
         "minHeight": 600,
         "minWidth": 500,
+        "dragDropEnabled": false,
         "visible": false,
         "backgroundThrottling": "disabled"
       }

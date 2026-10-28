@@ -58,7 +58,7 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             fork_boot_log::fork_boot_log,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
-            commands::save_bytes_to_path,
+            commands::save_document_as,
         ]);
 
     #[cfg(debug_assertions)]
