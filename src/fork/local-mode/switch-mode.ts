@@ -28,12 +28,21 @@ import { useLocalSettingsStore } from '@/stores/local-settings-store'
  * The flag is flipped LAST: until it is, nothing reads this install as
  * autonomous, so there is no window where the mode says "local" while a sync
  * connection is still open.
+ *
+ * The credential half is {@link dropServerCredentials}, separate because
+ * RETARGETING one backend to another needs exactly the same thing: a token
+ * issued by one server must never be presented to a different one, and the
+ * config describing the old deployment must not survive into the new one.
  */
-export const enterLocalMode = async () => {
+export const dropServerCredentials = async () => {
   await setSyncEnabled(false)
   clearAuthToken()
   clearCachedSession()
   markConfigAbsent()
+}
+
+export const enterLocalMode = async () => {
+  await dropServerCredentials()
   useLocalSettingsStore.getState().setLocalSetting('operationMode', 'local')
 }
 
