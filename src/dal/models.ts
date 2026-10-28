@@ -4,7 +4,7 @@
 
 import { deletePromptsForModel } from './model-prompt-deletion'
 
-import { and, desc, eq, getTableColumns, isNotNull, isNull, or, sql } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, isNotNull, isNull, or, sql, type SQL } from 'drizzle-orm'
 import type { AnyDrizzleDatabase } from '../db/database-interface'
 import {
   integrationsSecretsTable,
@@ -25,7 +25,9 @@ import { usesLocalProviders } from '@/lib/provider-mode'
 import { isModelReady } from '@/settings/models/model-policy'
 
 /** Models whose requests and credentials do not require a Thunderbolt server. */
-const standaloneModelCondition = sql`${modelsTable.provider} != 'thunderbolt' AND (${modelsTable.provider} != 'tinfoil' OR COALESCE(${modelsTable.isSystem}, 0) != 1)`
+/** Fork: `managed` is our own server-key lane, so it joins upstream's list of
+ *  providers a device with no server cannot reach. */
+const standaloneModelCondition = sql`${modelsTable.provider} != 'thunderbolt' AND ${modelsTable.provider} != 'managed' AND (${modelsTable.provider} != 'tinfoil' OR COALESCE(${modelsTable.isSystem}, 0) != 1)`
 
 /** Hidden preview providers cannot remain active through a saved model selection. */
 const providerVisibilityCondition = sql`(${modelsTable.provider} != 'otari' OR EXISTS (
@@ -92,12 +94,30 @@ const selectModelsWithSecrets = (db: AnyDrizzleDatabase) =>
     .leftJoin(secrets, eq(connections.id, secrets.id))
 
 /**
+ * Fork: the model lanes an autonomous install cannot use, as a `where` fragment.
+ *
+ * `thunderbolt` and `managed` are our backend's own key — the paid lane — and a
+ * `tinfoil` row marked `isSystem` is reached as `<cloudUrl>/tinfoil` with that
+ * key injected server-side. A tinfoil model the USER keyed is none of our
+ * business and stays: the rule is to drop the lane that goes through us, never
+ * the capability.
+ *
+ * Rows are hidden, never deleted — switching back to server mode has to restore
+ * them, and the catalog is reconciled state, not scratch.
+ *
+ * Returns an empty array in server mode, so the spread adds nothing and the
+ * query is byte-for-byte upstream's there. The condition itself is upstream's
+ * `standaloneModelCondition`, extended with our `managed` lane.
+ */
+const excludeBackendLanes = (): SQL[] => (usesLocalProviders() ? [standaloneModelCondition] : [])
+
+/**
  * Gets all models from the database (excluding soft-deleted)
  * Sorted with system models first, then alphabetically by name
  */
 export const getAllModels = (db: AnyDrizzleDatabase) => {
   const query = selectModelsWithSecrets(db)
-    .where(isNull(modelsTable.deletedAt))
+    .where(and(isNull(modelsTable.deletedAt), ...excludeBackendLanes()))
     .orderBy(desc(modelsTable.isSystem), modelsTable.name)
 
   return query as typeof query & DrizzleQueryWithPromise<Model>

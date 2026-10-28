@@ -6,6 +6,7 @@ import { type HttpClient } from '@/contexts'
 import { getSettings } from '@/dal'
 import { getDb } from '@/db/database'
 import { getPowerSyncInstance } from '@/db/powersync/sync-state'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { getLocalSetting } from '@/stores/local-settings-store'
 import { createHandleError } from '@/lib/error-utils'
 import { createClient } from '@/lib/http'
@@ -175,6 +176,13 @@ export const setCapturing = (client: PostHog, isCapturing: boolean) => {
  * @param httpClient - Optional HTTP client for dependency injection.
  */
 export const initPosthog = async (httpClient?: HttpClient): Promise<HandleResult<PostHog | null>> => {
+  // Fork: analytics run through our backend — the key comes from its
+  // `posthog/config` and events go to `${cloudUrl}/posthog`. An autonomous
+  // install has neither, so skip rather than spend a 5s timeout on every boot.
+  // Same shape as the "no key configured" exit below: no client, no error.
+  if (isLocalMode()) {
+    return { success: true, data: null }
+  }
   try {
     // Discard the account ID retained by older promotion-analytics builds.
     sessionStorage.removeItem('thunderbolt_pending_anon_id')
