@@ -5,7 +5,7 @@
 /**
  * Which onboarding steps a deployment actually shows.
  *
- * The wizard's steps are positional (1…6) and the auth step invites the user to
+ * The wizard's steps are positional (1…7) and the auth step invites the user to
  * connect Google or Microsoft. A closed-perimeter install reaches neither, so the
  * step is an invitation it cannot honour — and the backend already knows, because
  * it is the one holding (or not holding) the OAuth client ids.
@@ -19,8 +19,12 @@
 /** The auth step — the only conditional one today. */
 export const providerOnboardingStep = 2
 
-/** Every step the wizard can show, in order. The last is the celebration. */
-export const allOnboardingSteps = [1, 2, 3, 4, 5, 6] as const
+/** Every step the wizard can show, in order. The last is the celebration.
+ *  Kept in step with upstream's `onboardingStepCount`, which cannot be imported
+ *  here (the hook that declares it imports this file); `visible-steps.test.ts`
+ *  asserts the two agree, so an upstream step addition fails loudly instead of
+ *  silently shortening the wizard. */
+export const allOnboardingSteps = [1, 2, 3, 4, 5, 6, 7] as const
 
 export type OnboardingStepNumber = (typeof allOnboardingSteps)[number]
 
