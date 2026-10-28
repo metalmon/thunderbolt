@@ -7,15 +7,19 @@ import { getEmailI18n, resolveEmailLocale } from './i18n'
 
 describe('resolveEmailLocale', () => {
   it('accepts a shipped locale', () => {
-    expect(resolveEmailLocale('de')).toBe('de')
+    expect(resolveEmailLocale('ru')).toBe('ru')
   })
 
-  it('accepts a region-qualified locale the app ships', () => {
-    expect(resolveEmailLocale('pt-BR')).toBe('pt-BR')
+  // Fork: the offered set is en + ru (see `negotiableLocales`), so upstream's other
+  // catalogs — including the only region-qualified one, pt-BR — are shipped for type
+  // compatibility but never activated. A header naming one gets the English email.
+  it('refuses a locale upstream ships but this build does not offer', () => {
+    expect(resolveEmailLocale('de')).toBe('en')
+    expect(resolveEmailLocale('pt-BR')).toBe('en')
   })
 
   it('normalizes casing so a hand-written header still gets its catalog', () => {
-    expect(resolveEmailLocale('PT-br')).toBe('pt-BR')
+    expect(resolveEmailLocale('RU')).toBe('ru')
   })
 
   it('refuses the pseudo-locale over the wire', () => {
