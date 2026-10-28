@@ -66,14 +66,15 @@ export const needsApiKey = (model: Pick<Model, 'provider' | 'isSystem' | 'apiKey
 /**
  * Whether a model may run in a thread. A thread is locked to models whose
  * `isConfidential` matches its `isEncrypted`; a chat with no thread row yet
- * takes any model. The model picker greys out what this rejects,
+ * takes any model. Fork: an installation can have no local model at all, and
+ * with no model there is nothing confidential to mismatch either. The model picker greys out what this rejects,
  * `resolveSessionModel` swaps the built-in off it, the composer holds the send
  * on it, and the send guard in `chat-instance.ts` throws on it.
  */
 export const matchesThreadConfidentiality = (
-  model: Pick<Model, 'isConfidential'>,
+  model: Pick<Model, 'isConfidential'> | null,
   chatThread: { isEncrypted: number } | null,
-): boolean => !chatThread || chatThread.isEncrypted === model.isConfidential
+): boolean => !chatThread || !model || chatThread.isEncrypted === model.isConfidential
 
 /**
  * Whether fetching the provider's model catalog needs a user-supplied API key.
