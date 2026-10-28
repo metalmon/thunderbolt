@@ -243,7 +243,7 @@ export const useVoiceSession = () => {
         // construction time (see `engine/router.ts`) rather than passed here.
         voice = createRealtimeSession({
           engine: engineResult.engine,
-          chat: toReplyChat(session.chatInstance),
+          chat: toReplyChat(session.chatInstance, session.id),
           hasChatHistory: session.chatInstance.messages.length > 0,
           lang: voiceLang,
           onState: (state) => patch({ state }),
