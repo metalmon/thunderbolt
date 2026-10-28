@@ -21,7 +21,7 @@ import { clearLocalData } from '@/lib/cleanup'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { useIsLocalMode } from './mode'
 import { isServerEditAllowed, verifyServerAddress } from './server-address'
-import { enterLocalMode, enterServerMode } from './switch-mode'
+import { dropServerCredentials, enterLocalMode, enterServerMode } from './switch-mode'
 
 /** What the pending confirmation is about. */
 type Pending = { kind: 'to-local' } | { kind: 'to-server'; url: string; host: string } | null
@@ -58,6 +58,8 @@ export const ServerSection = () => {
   }
 
   const verdict = verifyServerAddress(draft)
+  const currentVerdict = verifyServerAddress(cloudUrl)
+  const currentHost = currentVerdict.ok ? currentVerdict.host : null
   const addressError = () => {
     if (verdict.ok || verdict.reason === 'empty') {
       return null
@@ -77,6 +79,13 @@ export const ServerSection = () => {
   const applyServer = async (wipeLocal: boolean) => {
     if (pending?.kind !== 'to-server') {
       return
+    }
+    // Retargeting one backend to another: a token and session issued by the old
+    // server must never be presented to the new one, and the old deployment's
+    // config must not describe the new one. Local mode has none of these to
+    // begin with, so this is the server-to-server path specifically.
+    if (!localMode && pending.host !== currentHost) {
+      await dropServerCredentials()
     }
     setLocalSetting('cloudUrl', pending.url)
     if (wipeLocal) {
@@ -123,11 +132,7 @@ export const ServerSection = () => {
             </Button>
           ) : (
             <>
-              <Button
-                variant="secondary"
-                onClick={() => setLocalSetting('cloudUrl', verdict.ok ? verdict.url : cloudUrl)}
-                disabled={!verdict.ok || draft.trim() === cloudUrl}
-              >
+              <Button variant="secondary" onClick={confirmToServer} disabled={!verdict.ok || draft.trim() === cloudUrl}>
                 <Trans>Save address</Trans>
               </Button>
               <Button variant="outline" onClick={() => setPending({ kind: 'to-local' })}>
@@ -179,10 +184,17 @@ export const ServerSection = () => {
                   {pending?.kind === 'to-server' ? pending.host : ''}
                 </p>
                 <AlertDialogDescription>
-                  <Trans>
-                    Sync stays off until you sign in and choose what happens to this device's data. Chats created here
-                    have no owner yet, so whichever account signs in first would claim them.
-                  </Trans>
+                  {localMode ? (
+                    <Trans>
+                      Sync stays off until you sign in and choose what happens to this device's data. Chats created here
+                      have no owner yet, so whichever account signs in first would claim them.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      You will be signed out and sync will stop: the credentials you hold were issued by the current
+                      server and must not be sent to a different one.
+                    </Trans>
+                  )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
