@@ -72,12 +72,19 @@ export const accountLocalSettingsSchema = z.object({
 
 export type AccountLocalSettings = z.infer<typeof accountLocalSettingsSchema>
 
+/** Fork: whether this installation talks to a backend at all. See `@/fork/local-mode/mode`. */
+export type OperationMode = 'server' | 'local'
+
 type LocalSettingsState = {
   cloudUrl: string
   /** Keep local routes available after optionally connecting a server. Never grants server access. */
   localMode: boolean
   /** A successful session permanently binds this installation's data to its server. */
   serverHasAuthenticated: boolean
+  /** Fork: `'local'` means no account, no sync and no backend-bound features.
+   *  Defaults from the build — a build with no backend address configured is an
+   *  autonomous one — and is then the user's own persisted choice. */
+  operationMode: OperationMode
   externalLinkBehavior: ExternalLinkBehavior
   debugPosthog: boolean
   isNativeFetchEnabled: boolean
@@ -115,6 +122,11 @@ export const initialLocalSettings: LocalSettingsState = {
   cloudUrl: initialCloudUrl,
   localMode: !initialCloudUrl,
   serverHasAuthenticated: !!initialCloudUrl,
+  cloudUrl: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL || 'http://localhost:8000/v1',
+  // An unset (or empty) backend address is the signal: nothing to talk to, so
+  // start autonomous. It cannot be inferred from `cloudUrl` above, whose
+  // fallback is a real-looking localhost URL.
+  operationMode: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL ? 'server' : 'local',
   externalLinkBehavior: 'ask',
   debugPosthog: false,
   isNativeFetchEnabled: true,
@@ -182,6 +194,7 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
         cloudUrl: s.cloudUrl,
         localMode: s.localMode,
         serverHasAuthenticated: s.serverHasAuthenticated,
+        operationMode: s.operationMode,
         externalLinkBehavior: s.externalLinkBehavior,
         debugPosthog: s.debugPosthog,
         isNativeFetchEnabled: s.isNativeFetchEnabled,
