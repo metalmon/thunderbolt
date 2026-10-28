@@ -19,6 +19,7 @@
         "height": 1000,
         "minHeight": 600,
         "minWidth": 500,
+        "dragDropEnabled": false,
         "visible": false,
         "dragDropEnabled": false,
         "backgroundThrottling": "disabled"
@@ -40,14 +41,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "deb",
-      "rpm",
-      "appimage",
-      "app",
-      "dmg",
-      "nsis"
-    ],
+    "targets": ["deb", "rpm", "appimage", "app", "dmg", "nsis"],
     "createUpdaterArtifacts": true,
     "publisher": "Окта Плюс",
     "shortDescription": "Volt: клиент ИИ-ассистента",
