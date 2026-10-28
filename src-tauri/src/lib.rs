@@ -7,6 +7,7 @@
 pub mod cli_installer;
 #[allow(dead_code)]
 pub mod commands;
+pub mod fork_boot_log;
 pub mod oauth_server;
 pub mod platform_utils;
 #[cfg(any(target_os = "linux", test))]
@@ -15,6 +16,7 @@ mod preview_guard;
 mod tray;
 #[cfg(any(target_os = "macos", target_os = "ios", test))]
 mod webview_recovery;
+pub mod sandbox;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "ios"))]
 use tauri::Manager;
@@ -55,6 +57,11 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_passkey::init())
         .plugin(platform_utils::init())
+        // Sandboxed-content host: dedicated `sandbox:` origin that serves agent /
+        // MCP-app HTML with its OWN CSP header, so it doesn't inherit the app's
+        // strict CSP (see sandbox.rs). State holds the id→content map.
+        .manage(sandbox::SandboxStore::default())
+        .register_uri_scheme_protocol("sandbox", sandbox::protocol_handler)
         .invoke_handler(tauri::generate_handler![
             commands::show_main_window,
             commands::hide_main_window,
@@ -67,6 +74,10 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             #[cfg(any(target_os = "macos", target_os = "ios"))]
             webview_recovery::native::retry_webview_after_crash,
             commands::save_bytes_to_path,
+            fork_boot_log::fork_boot_log,
+            sandbox::store_sandbox_content,
+            sandbox::revoke_sandbox_content,
+            commands::save_document_as,
         ]);
 
     #[cfg(debug_assertions)]

@@ -13,11 +13,12 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Thunderbolt",
+        "title": "Volt",
         "width": 1400,
         "height": 1000,
         "minHeight": 600,
         "minWidth": 500,
+        "dragDropEnabled": false,
         "visible": false,
         "dragDropEnabled": false,
         "backgroundThrottling": "disabled"
@@ -26,12 +27,13 @@
     "security": {
       "csp": {
         "default-src": "'self' tauri: asset:",
-        "frame-src": "'self' https:",
-        "connect-src": "'self' ipc: http://ipc.localhost https: wss: ws://localhost:8000 http://localhost:8000 ws://localhost:8080 http://localhost:8080 ws://127.0.0.1:8839 ws://127.0.0.1:8840 http://localhost:11434 ws://localhost:42617 http://localhost:42617 ws://127.0.0.1:42617 http://127.0.0.1:42617",
-        "img-src": "'self' asset: data: blob: https://api.thunderbolt.io https://cdn.agentclientprotocol.com",
+        "frame-src": "'self' https: sandbox: http://sandbox.localhost",
+        "connect-src": "'self' ipc: http://ipc.localhost https: wss: blob: ws://localhost:8000 http://localhost:8000 ws://localhost:8080 http://localhost:8080 ws://127.0.0.1:8839 ws://127.0.0.1:8840 http://localhost:11434 ws://localhost:42617 http://localhost:42617 ws://127.0.0.1:42617 http://127.0.0.1:42617 https://opencode.ai",
+        "img-src": "'self' asset: data: blob: https: https://api.thunderbolt.io https://cdn.agentclientprotocol.com",
         "font-src": "'self' data:",
         "style-src": "'self' 'unsafe-inline'",
-        "script-src": "'self' 'wasm-unsafe-eval'"
+        "script-src": "'self' 'wasm-unsafe-eval'",
+        "worker-src": "'self' blob:"
       }
     },
     "withGlobalTauri": true
@@ -47,6 +49,9 @@
       "nsis"
     ],
     "createUpdaterArtifacts": true,
+    "publisher": "Окта Плюс",
+    "shortDescription": "Volt: клиент ИИ-ассистента",
+    "longDescription": "Volt, клиент ИИ-ассистента. Окта Плюс, info@oktaplus.ru",
     "windows": {
       "nsis": {
         "languages": ["Russian", "English"],
