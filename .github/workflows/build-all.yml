@@ -121,7 +121,7 @@ jobs:
         # left unsigned (no APPLE_SIGNING_IDENTITY) → an ad-hoc/unsigned .dmg.
         run: |
           bun install --frozen-lockfile
-          bun tauri build --features native_fetch --target ${{ matrix.target }}
+          bun tauri build --target ${{ matrix.target }}
         env:
           RUSTFLAGS: ''
           CARGO_INCREMENTAL: 0
@@ -252,7 +252,7 @@ jobs:
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
           VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
-        run: bun tauri android build --apk --features native_fetch --target aarch64
+        run: bun tauri android build --apk --target aarch64
 
       - name: Build debug APK (unsigned fallback)
         if: steps.signing.outputs.signed == 'false'
@@ -261,7 +261,7 @@ jobs:
           SCCACHE_DISABLE: '1'
           VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
           VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
-        run: bun tauri android build --apk --debug --features native_fetch --target aarch64
+        run: bun tauri android build --apk --debug --target aarch64
 
       - name: Collect APK
         run: |
