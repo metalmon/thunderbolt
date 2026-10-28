@@ -14,7 +14,14 @@
 param(
     [string]$Remote   = "fork",
     [string]$Upstream = "origin",
-    [switch]$Push
+    [switch]$Push,
+    # Assemble on `main` exactly where it stands: no fetch, no fast-forward.
+    # Use this while a sync is in flight. Upstream can advance between the moment
+    # the branches were rebased and the moment master is assembled, and without
+    # this the rebuild quietly puts master on a NEWER base than the branches sit
+    # on. Nothing conflicts and the log looks clean; it surfaces later as fork
+    # code that "lost" an upstream change the branches never saw (0.1.148 sync).
+    [switch]$PinnedBase
 )
 
 $ErrorActionPreference = "Stop"
@@ -62,20 +69,28 @@ function Get-CherryPickRange {
     return "main..$Branch"
 }
 
-Write-Host "==> fetching $Upstream and $Remote" -ForegroundColor Cyan
-git fetch $Upstream --prune
-git fetch $Remote --prune
-
-Write-Host "==> fast-forwarding main to $Upstream/main" -ForegroundColor Cyan
-$mainExists = git rev-parse --verify main 2>$null
-if ($LASTEXITCODE -eq 0) {
+if ($PinnedBase) {
+    Write-Host "==> PinnedBase: keeping main where it stands (no fetch, no ff)" -ForegroundColor Yellow
     git checkout main
     if ($LASTEXITCODE -ne 0) { throw "Failed to checkout main (is main checked out in another worktree?)" }
-    git merge --ff-only "$Upstream/main"
-    if ($LASTEXITCODE -ne 0) { throw "Failed to ff-only main to $Upstream/main" }
+    $pinned = git rev-parse --short main
+    Write-Host "    main = $pinned" -ForegroundColor Yellow
 } else {
-    git checkout -B main "$Upstream/main"
-    if ($LASTEXITCODE -ne 0) { throw "Failed to create main from $Upstream/main" }
+    Write-Host "==> fetching $Upstream and $Remote" -ForegroundColor Cyan
+    git fetch $Upstream --prune
+    git fetch $Remote --prune
+
+    Write-Host "==> fast-forwarding main to $Upstream/main" -ForegroundColor Cyan
+    $mainExists = git rev-parse --verify main 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        git checkout main
+        if ($LASTEXITCODE -ne 0) { throw "Failed to checkout main (is main checked out in another worktree?)" }
+        git merge --ff-only "$Upstream/main"
+        if ($LASTEXITCODE -ne 0) { throw "Failed to ff-only main to $Upstream/main" }
+    } else {
+        git checkout -B main "$Upstream/main"
+        if ($LASTEXITCODE -ne 0) { throw "Failed to create main from $Upstream/main" }
+    }
 }
 
 Write-Host "==> resetting master to main" -ForegroundColor Cyan
