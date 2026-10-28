@@ -247,11 +247,6 @@ export const useOnboardingState = ({
     }
   }
 
-  // A deployment with no OAuth client id configured cannot honour the auth step,
-  // so navigation steps over it. The reducer's own first/last comparisons stay
-  // correct because only an interior step is ever hidden.
-  const visibleSteps = visibleOnboardingSteps(useConfigStore((store) => selectHasOAuthProviders(store.config)))
-
   const actions = {
     setCurrentStep: (step: OnboardingStep) => dispatch({ type: 'SET_CURRENT_STEP', payload: step }),
     setPrivacyAgreed: (agreed: boolean) => dispatch({ type: 'SET_PRIVACY_AGREED', payload: agreed }),
