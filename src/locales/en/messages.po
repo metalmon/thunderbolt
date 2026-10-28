@@ -66,6 +66,10 @@ msgstr "{agentName} can't take attachments. Remove the attached files to send."
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (hosted, private)"
 
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
+msgstr "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
 msgstr "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
@@ -660,6 +664,10 @@ msgstr "By continuing, you agree to our <0>Terms of Service</0> and <1>Privacy P
 #: src/widgets/connect-integration/widget.tsx
 msgid "Calendar"
 msgstr "Calendar"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Can't reach the server"
+msgstr "Can't reach the server"
 
 #: src/components/app-error-screen.tsx
 #: src/components/approve-device-dialog.tsx
@@ -4665,6 +4673,7 @@ msgstr "Trusted devices"
 #: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
+#: src/fork/local-mode/server-unavailable-screen.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Try again"
 msgstr "Try again"

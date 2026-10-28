@@ -66,6 +66,10 @@ msgstr "{agentName} kann keine Anhänge annehmen. Entfernen Sie die angehängten
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (gehostet, privat)"
 
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
 msgstr "{appName} ist der in die App integrierte Agent – immer da, keine Einrichtung nötig. Er greift auf alles zurück, was Sie in Ihrer Bibliothek aktiviert haben (Skills, Integrationen und MCP-Server), um bei Ihrer Arbeit zu helfen."
@@ -660,6 +664,10 @@ msgstr "Wenn Sie fortfahren, stimmen Sie unseren <0>Nutzungsbedingungen</0> und 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Calendar"
 msgstr "Kalender"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Can't reach the server"
+msgstr ""
 
 #: src/components/app-error-screen.tsx
 #: src/components/approve-device-dialog.tsx
@@ -4665,6 +4673,7 @@ msgstr "Vertrauenswürdige Geräte"
 #: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
+#: src/fork/local-mode/server-unavailable-screen.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Try again"
 msgstr "Erneut versuchen"

@@ -68,6 +68,10 @@ msgstr "{agentName} n'accepte pas les pièces jointes. Retirez les fichiers join
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (hébergé, privé)"
 
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
 msgstr "{appName} est l'agent intégré à l'application — toujours présent, aucune configuration nécessaire. Il s'appuie sur tout ce que vous avez activé dans votre bibliothèque (compétences, intégrations et serveurs MCP) pour vous aider dans votre travail."
@@ -672,6 +676,10 @@ msgstr "En continuant, vous acceptez nos <0>conditions d'utilisation</0> et notr
 #: src/widgets/connect-integration/widget.tsx
 msgid "Calendar"
 msgstr "Agenda"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Can't reach the server"
+msgstr ""
 
 #: src/components/app-error-screen.tsx
 #: src/components/approve-device-dialog.tsx
@@ -4677,6 +4685,7 @@ msgstr "Appareils de confiance"
 #: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 #: src/components/sync-setup/sync-setup-modal.tsx
+#: src/fork/local-mode/server-unavailable-screen.tsx
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Try again"
 msgstr "Réessayer"
