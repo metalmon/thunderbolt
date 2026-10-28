@@ -140,9 +140,12 @@ describe('buildBrandingCss', () => {
       }),
       'html:root',
     )
-    expect(vars['--font-sans']).toStartWith('"DM Sans", ui-sans-serif, system-ui, "Hiragino Sans"')
+    // Fork: the bundled Cyrillic face sits between the operator's font and the
+    // system chain (see `sansFallback`), so an operator font without Cyrillic
+    // coverage falls back to it first.
+    expect(vars['--font-sans']).toStartWith('"DM Sans", "Plantin Cyr MT", ui-sans-serif, system-ui, "Hiragino Sans"')
     expect(vars['--font-sans']).toContain('"Noto Sans JP", sans-serif')
-    expect(vars['--font-heading']).toStartWith('"Space Grotesk", ui-sans-serif')
+    expect(vars['--font-heading']).toStartWith('"Space Grotesk", "Plantin Cyr MT", ui-sans-serif')
     expect(vars['--font-mono']).toBe(
       '"Space Mono", ui-monospace, "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace',
     )

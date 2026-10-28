@@ -181,6 +181,10 @@ const modeDeclarations = (mode: Mode, tokens: BrandingModeTokens): string[] => {
 }
 
 const sansFallback = [
+  // Fork: the bundled Cyrillic face comes first, so an operator font without
+  // Cyrillic coverage falls back to it rather than to a system face — the same
+  // chain `--font-heading` uses in src/index.css, which the parity test pins.
+  'Plantin Cyr MT',
   'ui-sans-serif',
   'system-ui',
   'Hiragino Sans',
