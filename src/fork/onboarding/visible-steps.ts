@@ -33,10 +33,21 @@ export type OnboardingStepNumber = (typeof allOnboardingSteps)[number]
  *
  * @param hasOAuthProviders - from `selectHasOAuthProviders`
  */
-export const visibleOnboardingSteps = (hasOAuthProviders: boolean): OnboardingStepNumber[] =>
-  hasOAuthProviders
+/** Steps an autonomous install cannot complete: the sign-in invitation (2), the
+ *  location search, which geocodes through `/v1/locations` (4), and the passkey
+ *  enrolment, which registers against `/passkey/*` (6). The wizard opens for
+ *  anyone whose `user_has_completed_onboarding` is unset, local mode included,
+ *  so without this it would walk them into three dead ends. */
+const backendOnlySteps = [providerOnboardingStep, 4, 6]
+
+export const visibleOnboardingSteps = (hasOAuthProviders: boolean, localMode: boolean): OnboardingStepNumber[] => {
+  if (localMode) {
+    return allOnboardingSteps.filter((step) => !backendOnlySteps.includes(step))
+  }
+  return hasOAuthProviders
     ? [...allOnboardingSteps]
     : allOnboardingSteps.filter((step) => step !== providerOnboardingStep)
+}
 
 /**
  * The next visible step after `current`, or `current` when it is already the last.
