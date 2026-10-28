@@ -7,6 +7,7 @@ import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { createClient } from '@/lib/http'
 import { createMockAuthClient } from '@/test-utils/auth-client'
 import { createTestProvider } from '@/test-utils/test-provider'
+import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { getClock } from '@/testing-library'
 import { createChallenge, verifySolution } from 'altcha-lib/v1'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
@@ -108,6 +109,9 @@ afterAll(async () => {
 })
 
 afterEach(() => {
+  // The mode is persisted global state: leaking 'local' into the next test would
+  // silently turn its gate into an unconditional `allowed`.
+  useLocalSettingsStore.setState({ operationMode: initialLocalSettings.operationMode })
   delete env.VITE_AUTH_MODE
   delete env.VITE_AUTH_ENABLE_ANONYMOUS
   delete env.VITE_BYPASS_WAITLIST
@@ -269,6 +273,41 @@ describe('useAuthGate — require="authenticated"', () => {
     await waitFor(() => expect(signInSpy).toHaveBeenCalledTimes(1))
     await waitFor(() => expect(result.current.status).toBe('offline'))
     expect(result.current).toHaveProperty('retry')
+  })
+
+  // Local mode has no account at all, so the gate must let the app through
+  // instead of looking for a session it will never have. TWO points are needed,
+  // not one: the anonymous sign-in fires from an effect that runs before any
+  // return, so an early `allowed` alone would still leave it firing at a backend
+  // that isn't there. Both are asserted here — a fix that only adds the return
+  // would pass a weaker test and keep the request.
+  it('allows the app through in local mode, and never attempts a sign-in', async () => {
+    env.VITE_AUTH_ENABLE_ANONYMOUS = 'true'
+    env.VITE_BYPASS_WAITLIST = 'true'
+    useLocalSettingsStore.setState({ operationMode: 'local' })
+    const { authClient, signInSpy } = createAuthClientWithAnonSpy({
+      initialSession: null,
+      initialPending: false,
+    })
+    const wrapper = createTestProvider({ authClient })
+    const { result, rerender } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+
+    expect(result.current).toEqual({ status: 'allowed' })
+    rerender()
+    rerender()
+    expect(signInSpy).not.toHaveBeenCalled()
+  })
+
+  // The session fetch is irrelevant in local mode, so the gate must not sit on
+  // `loading` waiting for it — with no backend it resolves only when the request
+  // times out, which is a blank screen for as long as that takes.
+  it('does not wait on a pending session in local mode', () => {
+    useLocalSettingsStore.setState({ operationMode: 'local' })
+    const authClient = createMockAuthClient({ session: null, isPending: true })
+    const wrapper = createTestProvider({ authClient })
+    const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+
+    expect(result.current).toEqual({ status: 'allowed' })
   })
 
   it('fires signIn.anonymous exactly once even under React StrictMode double-invoke', async () => {
