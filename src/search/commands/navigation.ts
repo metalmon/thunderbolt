@@ -21,7 +21,9 @@ import {
  * Experimental/build gate a navigation command depends on. `voice` and `tasks`
  * mirror their sidebar/route feature flags; `dev` mirrors `import.meta.env.DEV`.
  */
-export type NavGate = 'voice' | 'tasks' | 'dev'
+/** `account` is the fork's: open only when this install has a backend to hold
+ *  an account. Closed in local mode, where the route is not even mounted. */
+export type NavGate = 'voice' | 'tasks' | 'dev' | 'account'
 
 /** A route the Cmd+K palette can jump to. Pure data — no React, no hooks. */
 export type NavigationCommand = {
@@ -70,7 +72,14 @@ export const navigationCommands: NavigationCommand[] = [
     to: '/settings/preferences',
     keywords: ['theme', 'appearance'],
   },
-  { id: 'devices', title: msg`Devices`, icon: Smartphone, to: '/settings/devices', keywords: ['sync'] },
+  {
+    id: 'devices',
+    title: msg`Devices`,
+    icon: Smartphone,
+    to: '/settings/devices',
+    keywords: ['sync'],
+    gate: 'account',
+  },
   { id: 'tasks', title: msg`Tasks`, icon: CheckSquare, to: '/tasks', keywords: ['todo'], gate: 'tasks' },
   { id: 'dev-settings', title: msg`Dev Settings`, icon: Terminal, to: '/settings/dev-settings', gate: 'dev' },
   { id: 'message-simulator', title: msg`Message Simulator`, icon: Terminal, to: '/message-simulator', gate: 'dev' },
