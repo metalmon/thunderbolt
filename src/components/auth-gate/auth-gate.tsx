@@ -5,6 +5,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 
 import Loading from '@/loading'
+import { ServerUnavailableScreen } from '@/fork/local-mode/server-unavailable-screen'
 import { BrowserCheck } from './browser-check'
 import { useAuthGate, type AuthRequirement } from './use-auth-gate'
 
@@ -47,6 +48,9 @@ export const AuthGate = ({ require }: AuthGateProps) => {
   }
   if (state.status === 'verification-failed') {
     return <BrowserCheck onRetry={state.retry} />
+  }
+  if (state.status === 'offline') {
+    return <ServerUnavailableScreen onRetry={state.retry} />
   }
   if (state.status === 'redirect') {
     return (
