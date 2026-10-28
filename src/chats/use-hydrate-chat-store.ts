@@ -4,8 +4,9 @@
 
 import { defaultChatTitle } from '@/lib/constants'
 
-import { useAuth, useDatabase, useHttpClient } from '@/contexts'
+import { useDatabase, useHttpClient } from '@/contexts'
 import { useProxyFetchGetter } from '@/lib/proxy-fetch-context'
+import { useOptionalAuthClient } from '@/fork/auth/optional-auth-client'
 import { resolveThreadModel } from '@/fork/chat/selected-model'
 import {
   composeAllAgents,
@@ -124,7 +125,9 @@ const getSyncedTail = (session: ChatSession, saved: ChatMessage[]): ThunderboltU
  * managed models). Fire-and-forget.
  */
 const maybePrewarmBuiltInAgent = (agent: Agent, model: Model | null) => {
-  if (!model) {return}
+  if (!model) {
+    return
+  }
   if (agent.type === 'built-in') {
     void prewarmTinfoilModel(model)
   }
@@ -139,7 +142,7 @@ export const useHydrateChatStore = ({
   waitForSyncCatchUp = defaultWaitForSyncCatchUp,
 }: UseHydrateChatStoreParams) => {
   const db = useDatabase()
-  const authClient = useAuth()
+  const authClient = useOptionalAuthClient()
   const httpClient = useHttpClient()
   const getProxyFetch = useProxyFetchGetter()
   const navigate = useNavigate()
@@ -303,11 +306,12 @@ export const useHydrateChatStore = ({
     // common case; while it is still empty (this route's effect can run before the
     // app shell's) fall back to asking the auth client, so a thread never silently
     // resolves to the built-in agent just because hydration won the race.
-    const ownerId = getCurrentAgentOwner() ?? (await authClient.getSession()).data?.user?.id ?? null
+    const ownerId = getCurrentAgentOwner() ?? (await authClient?.getSession())?.data?.user?.id ?? null
 
-    const [defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
+    const [settings, defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([
-        resolveThreadModel(db, id, settings.selectedModel ?? undefined),
+        getSettings(db, { selected_model: String, selected_agent: String }),
+        resolveThreadModel(db, isNew ? null : id),
         isNew ? null : getChatThread(db, id),
         isNew ? [] : getChatMessages(db, id),
         getAvailableModels(db),

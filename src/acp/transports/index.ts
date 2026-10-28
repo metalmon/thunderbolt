@@ -94,9 +94,6 @@ export const resolveWebSocketFactory = (inputs: OpenTransportInputs): WebSocketF
     return resolveManagedAcpFactory(inputs)
   }
   const agentProtocols = buildAgentSubprotocols(inputs.agentAuthToken)
-  if (isStandaloneTransport(inputs.isStandalone, inputs.readProxyEnabled)) {
-    return (url) => new WebSocket(url, agentProtocols) as unknown as WebSocketLike
-  }
   const proxyWs = createProxyWebSocket({
     cloudUrl: cloudWsUrl(),
     isStandalone: inputs.isStandalone,
