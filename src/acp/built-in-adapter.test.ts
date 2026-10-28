@@ -12,7 +12,7 @@
 
 import '@/testing-library'
 
-import { defaultModels } from '@shared/defaults/models'
+import { defaultModelOpus55 } from '@shared/defaults/models'
 import { inferenceModelHeader } from '@shared/inference-usage'
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { clearImageSupportCache, setCachedImageSupport } from '@/ai/image-support'
@@ -298,7 +298,8 @@ describe('resolvePiModel — managed Anthropic', () => {
   // pi-ai 0.82.1 has no claude-opus-5-5. Without the alias the shipped Opus row
   // would resolve to null and silently drop every chat to the legacy pipeline.
   it('takes the Pi path for the shipped Opus row with Opus 5 catalog metadata and its own wire slug', async () => {
-    const shippedOpus = defaultModels.find(({ vendor }) => vendor === 'anthropic')!
+    // Named directly: this fork ships `defaultModels` empty, so searching it finds nothing.
+    const shippedOpus = defaultModelOpus55
     const model = { ...shippedOpus, apiKey: null } as Model
     const context = { selectedModel: model, getProxyFetch: () => noopFetch } as AgentAdapterContext
 
@@ -1331,17 +1332,28 @@ describe('real Pi web-budget payload', () => {
   })
 })
 
+/** Fork: the session's model is nullable now (an installation may ship none), while every
+ *  fixture here is built with one. Narrow once, loudly, rather than asserting non-null at
+ *  each use. */
+const fixtureModel = (context: AgentAdapterContext): Model => {
+  const model = context.selectedModel
+  if (!model) {
+    throw new Error('this adapter fixture is built with a model')
+  }
+  return model
+}
+
 it('injects explicit research before the Pi turn without loading a skill tool or promoting', async () => {
   await setupTestDatabase()
   const run = createBudgetAdapter(['Done.'], prepareAiRequestConfig)
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...fixtureModel(run.context), enabled: 1 })
     await updateSettings(getDb(), { integrations_pro_is_enabled: true })
     await updateSkill(getDb(), defaultSkillResearch.id, { enabled: 1, instruction: 'EXPLICIT_RESEARCH_BODY' })
     const messages: ThunderboltUIMessage[] = [
       { id: 'research-user', role: 'user', parts: [{ type: 'text', text: '/research a topic' }] },
     ]
-    const context = createEvalAdapterContext({ ...run.context, messages })
+    const context = createEvalAdapterContext({ ...run.context, selectedModel: fixtureModel(run.context), messages })
     const response = await run.adapter.fetch({ body: JSON.stringify({ messages }) }, context)
     const output = await response.text()
     expect(output).not.toContain('"type":"error"')
@@ -1362,13 +1374,13 @@ it('sends a /research token verbatim, without its instruction, in minimal mode',
   useConfigStore.setState({ config: { minimalMode: true } })
   const run = createBudgetAdapter(['Done.'], prepareAiRequestConfig)
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...run.context.selectedModel!, enabled: 1 })
     await updateSettings(getDb(), { integrations_pro_is_enabled: true })
     await updateSkill(getDb(), defaultSkillResearch.id, { enabled: 1, instruction: 'EXPLICIT_RESEARCH_BODY' })
     const messages: ThunderboltUIMessage[] = [
       { id: 'research-user', role: 'user', parts: [{ type: 'text', text: '/research a topic' }] },
     ]
-    const context = createEvalAdapterContext({ ...run.context, messages })
+    const context = createEvalAdapterContext({ ...run.context, selectedModel: run.context.selectedModel!, messages })
     await (await run.adapter.fetch({ body: JSON.stringify({ messages }) }, context)).text()
     const userMessages = JSON.stringify(run.requests[0].messages.filter(({ role }) => role === 'user'))
     expect(userMessages).toContain('/research a topic')
@@ -1387,7 +1399,7 @@ it.each([
   useConfigStore.setState({ config: { minimalMode } })
   const run = createBudgetAdapter(['Done.'], prepareAiRequestConfig)
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...run.context.selectedModel!, enabled: 1 })
     await run.send()
     const request = run.requests[0]
     const system = JSON.stringify(request.messages.filter(({ role }) => role === 'system'))
@@ -1418,7 +1430,7 @@ it('keeps real adapter citation metadata across a below-cap harness rebuild', as
     prepareAiRequestConfig,
   )
   try {
-    await insertModel(getDb(), { ...run.context.selectedModel, enabled: 1 })
+    await insertModel(getDb(), { ...fixtureModel(run.context), enabled: 1 })
     await updateSettings(getDb(), { integrations_pro_is_enabled: true })
     const first = await run.send()
     run.context.regenerationRevision = 1

@@ -5,6 +5,8 @@
 import { setupTestDatabase, teardownTestDatabase, resetTestDatabase } from '@/dal/test-utils'
 import { getCurrentSession, resetStore } from '@/test-utils/chat-store-mocks'
 import { createQueryTestWrapper } from '@/test-utils/react-query'
+import { createMockAuthClient } from '@/test-utils/auth-client'
+import { AuthProvider } from '@/contexts'
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { useHydrateChatStore } from './use-hydrate-chat-store'
@@ -138,12 +140,25 @@ const withAgentsSystemRead = (db: AnyDrizzleDatabase, onRead: () => void): AnyDr
 /**
  * Wrapper that includes Router context for useNavigate and MCPProvider
  */
+// Fork: hydration resolves the owner of the custom agents from the session, so the
+// hook needs an auth provider; 'u1' owns the agent rows these tests create.
+const mockAuthClient = createMockAuthClient({
+  session: { user: { id: 'u1', email: 'u1@example.test', name: 'U1', isAnonymous: false } },
+})
+
 const TestWrapper = ({ children }: { children: ReactNode }) => {
   const queryWrapper = createQueryTestWrapper()
   return createElement(
     BrowserRouter,
     null,
-    createElement(queryWrapper, null, createElement(MCPProvider, null, children)),
+    createElement(
+      queryWrapper,
+      null,
+      createElement(AuthProvider, {
+        authClient: mockAuthClient,
+        children: createElement(MCPProvider, null, children),
+      }),
+    ),
   )
 }
 
@@ -364,7 +379,7 @@ describe('useHydrateChatStore', () => {
       await hydrateNewChat()
 
       const session = getCurrentSession()
-      expect(session?.selectedModel.id).toBe(modelId)
+      expect(session?.selectedModel?.id).toBe(modelId)
       expect(session?.chatThread).toBeNull()
       expect(session?.chatInstance.messages).toEqual([])
       expect(session?.triggerData).toBeNull()
@@ -377,8 +392,8 @@ describe('useHydrateChatStore', () => {
 
       await hydrateNewChat()
 
-      expect(getCurrentSession()?.selectedModel.isSystem).toBe(1)
-      expect(getCurrentSession()?.selectedModel.id).not.toBe(modelId)
+      expect(getCurrentSession()?.selectedModel?.isSystem).toBe(1)
+      expect(getCurrentSession()?.selectedModel?.id).not.toBe(modelId)
     })
 
     it('keeps the last-used agent for a new chat ahead of the agent discovery names as default', async () => {
