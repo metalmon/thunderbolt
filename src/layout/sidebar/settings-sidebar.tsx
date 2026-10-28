@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { SidebarFooter } from '@/components/sidebar-footer'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import {
   SidebarContent,
   SidebarGroup,
@@ -77,15 +78,27 @@ export const SettingsSidebarContent = ({
   const { isMobile, toggleSidebar } = useSidebar()
   const location = useLocation()
   const { experimentalFeatureVoice } = useSettings({ experimental_feature_voice: false })
+  const localMode = useIsLocalMode()
 
   const isItemActive = ({ path, matchPrefix }: NavItem) =>
     matchPrefix ? location.pathname.startsWith(path) : location.pathname === path
 
   // Voice settings only exist to configure a custom (non-Thunderbolt) provider,
   // which is gated behind the experimental flag — hide the nav item otherwise.
-  const groups = experimentalFeatureVoice.value
-    ? navGroups
-    : navGroups.map((group) => ({ ...group, items: group.items.filter((item) => item.path !== '/settings/voice') }))
+  // Fork: Devices is `/v1/devices/*` end to end — the list, the revoke and the
+  // session binding — so an autonomous install has nothing to show there. Voice
+  // STAYS: its `openai-compatible` lane needs no backend of ours.
+  const hiddenPaths = [
+    ...(experimentalFeatureVoice.value ? [] : ['/settings/voice']),
+    ...(localMode ? ['/settings/devices'] : []),
+  ]
+  const groups =
+    hiddenPaths.length === 0
+      ? navGroups
+      : navGroups.map((group) => ({
+          ...group,
+          items: group.items.filter((item) => !hiddenPaths.includes(item.path)),
+        }))
 
   return (
     <SidebarContent className="flex flex-col h-full">

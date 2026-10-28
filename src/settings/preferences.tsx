@@ -18,6 +18,7 @@ import { clearLocalData } from '@/lib/cleanup'
 import { trackEvent, useTelemetryAvailable } from '@/lib/posthog'
 import { isTauri } from '@/lib/platform'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { useHttpClient } from '@/contexts'
 import { useMemo, useReducer, useRef, useState, type ChangeEvent } from 'react'
 
@@ -197,6 +198,7 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
   const isAuthenticated = !!session?.user
   const isAnonymous = session?.user?.isAnonymous === true
   const isFullUser = isAuthenticated && !isAnonymous
+  const localMode = useIsLocalMode()
   const { openSignInModal } = useSignInModal()
   const runningInTauri = isStandalone()
   const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -739,12 +741,17 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
             >
               <Trans>Location</Trans>
             </ModificationIndicator>
-            <LocationSearchCombobox
-              value={localizedLocationName}
-              onSelect={handleSelectLocation}
-              id="localization-location-trigger"
-              aria-labelledby="localization-location-label localization-location-trigger"
-            />
+            {/* Fork: geocoding goes through `/v1/locations` on our backend, so
+                there is nothing to search against in local mode. The stored
+                value still renders above and still resets. */}
+            {!localMode && (
+              <LocationSearchCombobox
+                value={localizedLocationName}
+                onSelect={handleSelectLocation}
+                id="localization-location-trigger"
+                aria-labelledby="localization-location-label localization-location-trigger"
+              />
+            )}
             <p className="text-sm text-muted-foreground">
               <Trans>Enables location-based responses</Trans>
             </p>
@@ -1055,7 +1062,11 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
 
       <SectionCard title={t`Data`}>
         <div className="flex flex-col gap-6">
-          {isFullUser ? (
+          {/* Fork: local mode has no account, so neither branch belongs here —
+              upstream's `isFullUser` already hides the toggle, but its ELSE
+              branch invites the user to sign in. The rest of this card (export,
+              import, local wipe) works without a backend and stays. */}
+          {localMode ? null : isFullUser ? (
             <div className="flex-row flex items-center gap-4 justify-between">
               <div>
                 <label className="text-sm font-medium">

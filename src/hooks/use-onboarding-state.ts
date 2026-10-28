@@ -9,6 +9,7 @@ import { useActiveLocale } from '@/i18n/use-active-locale'
 import { fetchEnglishLocationName } from '@/lib/locations'
 import { useEffect, useReducer } from 'react'
 import { selectHasOAuthProviders, useConfigStore } from '@/api/config-store'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { nextVisibleStep, prevVisibleStep, visibleOnboardingSteps } from '@/fork/onboarding/visible-steps'
 import { useIntegrationStatus } from './use-integration-status'
 import { useSettings } from './use-settings'
@@ -241,7 +242,10 @@ export const useOnboardingState = () => {
   // A deployment with no OAuth client id configured cannot honour the auth step,
   // so navigation steps over it. The reducer's own first/last comparisons stay
   // correct because only an interior step is ever hidden.
-  const visibleSteps = visibleOnboardingSteps(useConfigStore((store) => selectHasOAuthProviders(store.config)))
+  const visibleSteps = visibleOnboardingSteps(
+    useConfigStore((store) => selectHasOAuthProviders(store.config)),
+    useIsLocalMode(),
+  )
 
   const actions = {
     setCurrentStep: (step: OnboardingStep) => dispatch({ type: 'SET_CURRENT_STEP', payload: step }),
