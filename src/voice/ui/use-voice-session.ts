@@ -14,6 +14,7 @@ import { useDatabase } from '@/contexts'
 import { builtInAgent } from '@/defaults/agents'
 import { getSettings } from '@/dal'
 import { isDirectVoiceKeyMissing } from '@/fork/voice/direct-voice-gate'
+import { getActiveLocale } from '@/i18n/active-locale'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { showSignInModalEvent } from '@/hooks/use-credential-events'
 import { hasServerAuthentication } from '@/lib/provider-mode'
@@ -85,9 +86,13 @@ const toContextMessages = (messages: readonly ThunderboltUIMessage[]): ContextMe
     .filter((message) => message.text.length > 0)
 
 /**
- * The app's own UI language for the voice system instruction. Not `navigator.language`:
- * the fork rides upstream's Lingui, so the active locale is the one the user actually
- * sees — and on Windows WebView2 the browser language is the APP's, not the user's.
+ * The UI language for the voice system instruction, read from the app's own
+ * active locale — not `navigator.language`, which it used while the app had no
+ * language of its own. The two disagree for exactly the user who set the app to
+ * Russian in a browser that asks for English, and that user wants Russian voice.
+ *
+ * Read at session start rather than subscribed: the instruction is baked into the
+ * engine at construction, so a language change applies to the next session.
  */
 const resolveVoiceLang = (): VoiceLang => (getActiveLocale().toLowerCase().startsWith('ru') ? 'ru' : 'en')
 
