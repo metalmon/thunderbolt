@@ -48,6 +48,34 @@ msgstr "{0} доступно только в настольном приложе
 msgid "{agentName} can't take attachments. Remove the attached files to send."
 msgstr "{agentName} не принимает вложения. Удалите прикреплённые файлы, чтобы отправить."
 
+#: src/settings/voice.tsx
+msgid "{appName} (hosted, private)"
+msgstr "{appName} (хостинг, приватно)"
+
+#: src/components/settings/agents/agent-detail.tsx
+msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
+msgstr "{appName} — это агент, встроенный в приложение: всегда рядом, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с любой задачей."
+
+#: src/components/storage-unavailable-screen.tsx
+msgid "{appName} needs browser storage (IndexedDB) to work, but it's currently disabled."
+msgstr "{appName} нужно хранилище браузера (IndexedDB), но сейчас оно отключено."
+
+#: src/widgets/connect-integration/widget.tsx
+msgid "{appName} wants to connect to {providerName} Calendar"
+msgstr "{appName} хочет подключиться к календарю {providerName}"
+
+#: src/widgets/connect-integration/widget.tsx
+msgid "{appName} wants to connect to {providerName} Email"
+msgstr "{appName} хочет подключиться к почте {providerName}"
+
+#: src/widgets/connect-integration/widget.tsx
+msgid "{appName} wants to connect to {providerName} Email and Calendar"
+msgstr "{appName} хочет подключиться к почте и календарю {providerName}"
+
+#: src/components/onboarding/onboarding-language-step.tsx
+msgid "{appName} will use it across the app. You can change it later in Preferences."
+msgstr "{appName} будет использовать это во всём приложении. Позже можно изменить в настройках."
+
 #. js-lingui:icu=%7Bcount%2C+plural%2C+one+%7B%23+chat%7D+other+%7B%23+chats%7D%7D&pluralize_on=count
 #: src/projects/index.tsx
 msgid "# chat"
@@ -901,8 +929,12 @@ msgid "Complete new task"
 msgstr "Завершить новую задачу"
 
 #: src/components/onboarding/onboarding-dialog.tsx
-msgid "Complete the setup process to get started with Thunderbolt"
-msgstr "Завершите настройку, чтобы начать работу с Вольт"
+msgid "Complete the setup process to get started with {appName}"
+msgstr "Завершите настройку, чтобы начать работу с {appName}"
+
+#: src/components/onboarding/onboarding-dialog.tsx
+#~ msgid "Complete the setup process to get started with Thunderbolt"
+#~ msgstr "Завершите настройку, чтобы начать работу с Вольт"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Completing…"
@@ -2133,8 +2165,12 @@ msgid "Heavy snow showers"
 msgstr "Сильный снежный ливень"
 
 #: src/settings/preferences.tsx
-msgid "Help Thunderbolt Improve"
-msgstr "Помогите улучшить Вольт"
+msgid "Help {appName} Improve"
+msgstr "Помогите улучшить {appName}"
+
+#: src/settings/preferences.tsx
+#~ msgid "Help Thunderbolt Improve"
+#~ msgstr "Помогите улучшить Вольт"
 
 #: src/settings/preferences.tsx
 msgid "Help us improve the app by sending anonymous usage info such as crashes, performance, and usage. Read more about our <0>privacy policy</0>."
@@ -2158,12 +2194,20 @@ msgid "Hide the model's live thinking while it generates."
 msgstr "Скрывать живые рассуждения модели во время генерации."
 
 #: src/settings/preferences.tsx
-msgid "How Thunderbolt salutes you"
-msgstr "Как Вольт к вам обращается"
+msgid "How {appName} salutes you"
+msgstr "Как {appName} к вам обращается"
+
+#: src/settings/preferences.tsx
+#~ msgid "How Thunderbolt salutes you"
+#~ msgstr "Как Вольт к вам обращается"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
-msgid "I agree to share this chat session with the Thunderbolt team."
-msgstr "Я согласен поделиться этой сессией чата с командой Volt."
+msgid "I agree to share this chat session with the {recipient} team."
+msgstr "Я согласен поделиться этой сессией чата с командой {recipient}."
+
+#: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+#~ msgid "I agree to share this chat session with the Thunderbolt team."
+#~ msgstr "Я согласен поделиться этой сессией чата с командой Volt."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "I agree to the <0>Privacy Policy</0> and <1>Terms of Service</1>."
@@ -2174,8 +2218,12 @@ msgid "I have saved my recovery phrase"
 msgstr "Я сохранил(а) фразу восстановления"
 
 #: src/components/storage-unavailable-screen.tsx
-msgid "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app."
-msgstr "Если вы используете режим блокировки iOS, исключите Вольт из настройки «Configure Web Browsing» и снова откройте приложение."
+msgid "If you are using iOS Lockdown Mode, exclude {appName} from the \"Configure Web Browsing\" setting, then reopen the app."
+msgstr "Если вы используете режим блокировки iOS, исключите {appName} из настройки «Configure Web Browsing» и снова откройте приложение."
+
+#: src/components/storage-unavailable-screen.tsx
+#~ msgid "If you are using iOS Lockdown Mode, exclude Thunderbolt from the \"Configure Web Browsing\" setting, then reopen the app."
+#~ msgstr "Если вы используете режим блокировки iOS, исключите Вольт из настройки «Configure Web Browsing» и снова откройте приложение."
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "If you have access, we've sent an 8-digit code to <0>{email}</0>"
@@ -2846,8 +2894,12 @@ msgid "Objects"
 msgstr "Объекты"
 
 #: src/settings/preferences.tsx
-msgid "Off sends own-key model and MCP requests directly from this device. On routes them through Thunderbolt's backend. Local (loopback) models always connect directly."
-msgstr "Выключено — запросы к моделям по своему ключу и к MCP уходят прямо с этого устройства. Включено — они идут через сервер Вольта. Локальные (loopback) модели всегда подключаются напрямую."
+msgid "Off sends own-key model and MCP requests directly from this device. On routes them through {appName}'s backend. Local (loopback) models always connect directly."
+msgstr "Выключено — запросы к моделям по своему ключу и к MCP уходят прямо с этого устройства. Включено — они идут через сервер {appName}а. Локальные (loopback) модели всегда подключаются напрямую."
+
+#: src/settings/preferences.tsx
+#~ msgid "Off sends own-key model and MCP requests directly from this device. On routes them through Thunderbolt's backend. Local (loopback) models always connect directly."
+#~ msgstr "Выключено — запросы к моделям по своему ключу и к MCP уходят прямо с этого устройства. Включено — они идут через сервер Вольта. Локальные (loopback) модели всегда подключаются напрямую."
 
 #: src/components/sidebar-footer.tsx
 msgid "Offline. Changes will sync when back online."
@@ -2882,6 +2934,10 @@ msgstr "Доступны только в конфиденциальных чат
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
 msgstr "Открыть"
+
+#: src/components/sync-setup/approval-waiting-step.tsx
+msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
+msgstr "Откройте {appName} на одном из доверенных устройств и перейдите в Настройки → Устройства, чтобы одобрить это устройство."
 
 #: src/settings/models/models-list.tsx
 msgid "Open {modelName}"
@@ -2945,8 +3001,8 @@ msgid "Open Thunderbolt CLI"
 msgstr "Открыть Вольт CLI"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
-msgid "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
-msgstr "Откройте Вольт на одном из доверенных устройств и перейдите в Настройки → Устройства, чтобы одобрить это устройство."
+#~ msgid "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
+#~ msgstr "Откройте Вольт на одном из доверенных устройств и перейдите в Настройки → Устройства, чтобы одобрить это устройство."
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
@@ -3636,8 +3692,12 @@ msgid "Send this private chat to {agentName}?"
 msgstr "Отправить этот приватный чат агенту {agentName}?"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
-msgid "Send to the Thunderbolt team"
-msgstr "Отправить команде Volt"
+msgid "Send to the {recipient} team"
+msgstr "Отправить команде {recipient}"
+
+#: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+#~ msgid "Send to the Thunderbolt team"
+#~ msgstr "Отправить команде Volt"
 
 #: src/components/sync-setup/confirm-identity-step.tsx
 #: src/components/unsaved-recovery-phrase-prompt.tsx
@@ -3787,13 +3847,17 @@ msgstr "Войти"
 msgid "Sign in faster next time"
 msgstr "В следующий раз входите быстрее"
 
+#: src/components/sign-in-modal.tsx
+msgid "Sign in to {appName}"
+msgstr "Войти в {appName}"
+
 #: src/components/share-debug-transcript/use-share-debug-transcript-state.ts
 #~ msgid "Sign in to a full account to share a debug transcript."
 #~ msgstr ""
 
 #: src/components/device-approval.tsx
-msgid "Sign in to a Thunderbolt account to approve this CLI request."
-msgstr "Войдите в аккаунт Вольт, чтобы одобрить этот запрос CLI."
+#~ msgid "Sign in to a Thunderbolt account to approve this CLI request."
+#~ msgstr "Войдите в аккаунт Вольт, чтобы одобрить этот запрос CLI."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to continue"
@@ -3808,13 +3872,17 @@ msgid "Sign in to the CLI"
 msgstr "Вход в CLI"
 
 #: src/components/sign-in-modal.tsx
-msgid "Sign in to Thunderbolt"
-msgstr "Войти в Вольт"
+#~ msgid "Sign in to Thunderbolt"
+#~ msgstr "Войти в Вольт"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/waitlist/waitlist-page.tsx
 msgid "Sign in with passkey"
 msgstr "Войти по ключу доступа"
+
+#: src/components/device-approval.tsx
+msgid "Sign in with your {appName} account to approve this CLI request."
+msgstr "Войдите в свою учётную запись {appName}, чтобы одобрить этот запрос CLI."
 
 #: src/settings/encryption/passkey-section.tsx
 msgid "Sign in with your fingerprint, face, or device PIN."
@@ -3939,8 +4007,12 @@ msgid "Speech-to-text and text-to-speech run in Thunderbolt’s confidential enc
 msgstr "Распознавание и синтез речи выполняются в конфиденциальном анклаве Вольт."
 
 #: src/components/onboarding/onboarding-dialog.tsx
-msgid "Start Using Thunderbolt"
-msgstr "Начать пользоваться Вольт"
+msgid "Start Using {appName}"
+msgstr "Начать пользоваться {appName}"
+
+#: src/components/onboarding/onboarding-dialog.tsx
+#~ msgid "Start Using Thunderbolt"
+#~ msgstr "Начать пользоваться Вольт"
 
 #: src/voice/ui/voice-mode-button.tsx
 msgid "Start voice mode"
@@ -4129,6 +4201,10 @@ msgstr "Код неверен или истёк. Проверьте почту �
 msgid "That code isn't valid or has already been used. Check your terminal and try again."
 msgstr "Этот код неверен или уже использован. Проверьте терминал и попробуйте снова."
 
+#: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+msgid "The {recipient} team, for debugging. It's tied to your account — it isn't anonymous."
+msgstr "Команда {recipient} — для отладки. Привязано к вашей учётной записи — не анонимно."
+
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
 msgstr "Соединение с агентом было потеряно на предыдущем шаге. Повтор может продублировать уже выполненные агентом действия."
@@ -4150,6 +4226,10 @@ msgid "The AI provider took too long to respond. Try again."
 msgstr "Провайдер ИИ отвечал слишком долго. Попробуйте ещё раз."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+msgid "The chat will be retained by the {recipient} team."
+msgstr "Чат будет сохранён командой {recipient}."
+
+#: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #~ msgid "The chat will be retained by the current server as well as the Thunderbolt team until your account is deleted."
 #~ msgstr ""
 
@@ -4158,12 +4238,16 @@ msgstr "Провайдер ИИ отвечал слишком долго. Поп
 #~ msgstr ""
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
-msgid "The chat will be retained by the Thunderbolt team."
-msgstr "Чат будет сохранён командой Volt."
+#~ msgid "The chat will be retained by the Thunderbolt team."
+#~ msgstr "Чат будет сохранён командой Volt."
 
 #: src/components/revoke-device-dialog.tsx
-msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
-msgstr "CLI выйдет из аккаунта, и для доступа к вашему аккаунту Вольт потребуется войти снова."
+msgid "The CLI will be signed out and must sign in again before it can use your {appName} account."
+msgstr "CLI выйдет из аккаунта, и для доступа к вашему аккаунту {appName} потребуется войти снова."
+
+#: src/components/revoke-device-dialog.tsx
+#~ msgid "The CLI will be signed out and must sign in again before it can use your Thunderbolt account."
+#~ msgstr "CLI выйдет из аккаунта, и для доступа к вашему аккаунту Вольт потребуется войти снова."
 
 #: src/services/revoke-failure.ts
 msgid "The device lost access, but your account key was not replaced, so it can still read your data — the recovery keys the server offered could not be verified against this device. This can indicate tampering."
@@ -4214,8 +4298,8 @@ msgid "The sign-in service is unavailable right now. Check your connection and t
 msgstr "Служба входа сейчас недоступна. Проверьте соединение и попробуйте снова."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
-msgid "The Thunderbolt team, for debugging. It's tied to your account — it isn't anonymous."
-msgstr "Команда Volt — для отладки. Привязано к вашей учётной записи — не анонимно."
+#~ msgid "The Thunderbolt team, for debugging. It's tied to your account — it isn't anonymous."
+#~ msgstr "Команда Volt — для отладки. Привязано к вашей учётной записи — не анонимно."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #~ msgid "The Thunderbolt team, plus whoever operates the server you're connected to, for debugging. It's tied to your account — it isn't anonymous."
@@ -4296,8 +4380,12 @@ msgid "This device was signed out remotely and its local data has been cleared."
 msgstr "Это устройство было отключено от учётной записи удалённо, его локальные данные очищены."
 
 #: src/settings/preferences.tsx
-msgid "This file doesn't look like a Thunderbolt export."
-msgstr "Этот файл не похож на экспорт Вольт."
+msgid "This file doesn't look like a {appName} export."
+msgstr "Этот файл не похож на экспорт {appName}."
+
+#: src/settings/preferences.tsx
+#~ msgid "This file doesn't look like a Thunderbolt export."
+#~ msgstr "Этот файл не похож на экспорт Вольт."
 
 #: src/components/onboarding/onboarding-location-step.tsx
 msgid "This helps us personalize your experience with local settings and features."
@@ -4362,8 +4450,12 @@ msgid "this project"
 msgstr "этот проект"
 
 #: src/components/settings/agents/agent-detail.tsx
-msgid "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
-msgstr "Это удаляет подключение только из Вольт. На удалённом сервере ничего не меняется."
+msgid "This removes the connection from {appName} only. Nothing on the remote server is changed."
+msgstr "Это удаляет подключение только из {appName}. На удалённом сервере ничего не меняется."
+
+#: src/components/settings/agents/agent-detail.tsx
+#~ msgid "This removes the connection from Thunderbolt only. Nothing on the remote server is changed."
+#~ msgstr "Это удаляет подключение только из Вольт. На удалённом сервере ничего не меняется."
 
 #: src/settings/devices.tsx
 msgid "This replaces your 24-word phrase. The one you have now will stop working, and you will need to save the new one."
@@ -4386,8 +4478,12 @@ msgid "This server uses OAuth. Add it and authorize to connect."
 msgstr "Этот сервер использует OAuth. Добавьте его и авторизуйтесь для подключения."
 
 #: src/lib/sso-error-messages.ts
-msgid "This sign-in did not start from Thunderbolt. Open Thunderbolt and sign in from there."
-msgstr "Этот вход начат не из Вольта. Откройте Вольт и войдите оттуда."
+msgid "This sign-in did not start from {appName}. Open {appName} and sign in from there."
+msgstr "Этот вход начат не из {appName}а. Откройте {appName} и войдите оттуда."
+
+#: src/lib/sso-error-messages.ts
+#~ msgid "This sign-in did not start from Thunderbolt. Open Thunderbolt and sign in from there."
+#~ msgstr "Этот вход начат не из Вольта. Откройте Вольт и войдите оттуда."
 
 #: src/lib/device-grant.ts
 msgid "This sign-in request has expired. Start a new one from your terminal."
@@ -4398,8 +4494,12 @@ msgid "This transcript is too large to upload."
 msgstr "Эта расшифровка слишком велика для загрузки."
 
 #: src/components/upgrade-required.tsx
-msgid "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
-msgstr "Эта версия Вольт больше не поддерживается. Обновите приложение, чтобы продолжить общение и синхронизацию."
+msgid "This version of {appName} is no longer supported. Update the app to keep chatting and syncing."
+msgstr "Эта версия {appName} больше не поддерживается. Обновите приложение, чтобы продолжить общение и синхронизацию."
+
+#: src/components/upgrade-required.tsx
+#~ msgid "This version of Thunderbolt is no longer supported. Update the app to keep chatting and syncing."
+#~ msgstr "Эта версия Вольт больше не поддерживается. Обновите приложение, чтобы продолжить общение и синхронизацию."
 
 #: src/components/revoke-device-dialog.tsx
 msgid "This will deny the device access to your encrypted data. The device will need to set up sync again."
@@ -4430,8 +4530,12 @@ msgstr "Аккаунт и все данные на наших серверах �
 #~ msgstr ""
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
-msgid "This will share the current chat with the Thunderbolt team so that they can debug the problem."
-msgstr "Это отправит текущий чат команде Volt, чтобы они могли разобраться с проблемой."
+msgid "This will share the current chat with the {recipient} team so that they can debug the problem."
+msgstr "Это отправит текущий чат команде {recipient}, чтобы они могли разобраться с проблемой."
+
+#: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
+#~ msgid "This will share the current chat with the Thunderbolt team so that they can debug the problem."
+#~ msgstr "Это отправит текущий чат команде Volt, чтобы они могли разобраться с проблемой."
 
 #: src/components/approve-device-dialog.tsx
 msgid "This will share your encryption key with the device, allowing it to decrypt and sync your data."
@@ -4447,12 +4551,12 @@ msgstr "Думал {duration}"
 #: src/components/signed-out.tsx
 #: src/components/storage-unavailable-screen.tsx
 #: src/components/upgrade-required.tsx
-msgid "Thunderbolt"
-msgstr "Вольт"
+#~ msgid "Thunderbolt"
+#~ msgstr "Вольт"
 
 #: src/settings/voice.tsx
-msgid "Thunderbolt (hosted, private)"
-msgstr "Вольт (хостинг, приватно)"
+#~ msgid "Thunderbolt (hosted, private)"
+#~ msgstr "Вольт (хостинг, приватно)"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Thunderbolt CLI"
@@ -4463,32 +4567,32 @@ msgid "Thunderbolt is open-source"
 msgstr "Вольт — открытый исходный код"
 
 #: src/components/settings/agents/agent-detail.tsx
-msgid "Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
-msgstr "Вольт — это агент, встроенный в приложение: всегда рядом, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с любой задачей."
+#~ msgid "Thunderbolt is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
+#~ msgstr "Вольт — это агент, встроенный в приложение: всегда рядом, без настройки. Он использует всё, что включено в вашей библиотеке (навыки, интеграции и MCP-серверы), чтобы помочь с любой задачей."
 
 #: src/components/storage-unavailable-screen.tsx
-msgid "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled."
-msgstr "Вольт нужно хранилище браузера (IndexedDB), но сейчас оно отключено."
+#~ msgid "Thunderbolt needs browser storage (IndexedDB) to work, but it's currently disabled."
+#~ msgstr "Вольт нужно хранилище браузера (IndexedDB), но сейчас оно отключено."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Thunderbolt Pro is not available yet. Stay tuned!"
 msgstr "Вольт Про пока недоступен. Следите за новостями!"
 
 #: src/widgets/connect-integration/widget.tsx
-msgid "Thunderbolt wants to connect to {providerName} Calendar"
-msgstr "Вольт хочет подключиться к календарю {providerName}"
+#~ msgid "Thunderbolt wants to connect to {providerName} Calendar"
+#~ msgstr "Вольт хочет подключиться к календарю {providerName}"
 
 #: src/widgets/connect-integration/widget.tsx
-msgid "Thunderbolt wants to connect to {providerName} Email"
-msgstr "Вольт хочет подключиться к почте {providerName}"
+#~ msgid "Thunderbolt wants to connect to {providerName} Email"
+#~ msgstr "Вольт хочет подключиться к почте {providerName}"
 
 #: src/widgets/connect-integration/widget.tsx
-msgid "Thunderbolt wants to connect to {providerName} Email and Calendar"
-msgstr "Вольт хочет подключиться к почте и календарю {providerName}"
+#~ msgid "Thunderbolt wants to connect to {providerName} Email and Calendar"
+#~ msgstr "Вольт хочет подключиться к почте и календарю {providerName}"
 
 #: src/components/onboarding/onboarding-language-step.tsx
-msgid "Thunderbolt will use it across the app. You can change it later in Preferences."
-msgstr "Вольт будет использовать это во всём приложении. Позже можно изменить в настройках."
+#~ msgid "Thunderbolt will use it across the app. You can change it later in Preferences."
+#~ msgstr "Вольт будет использовать это во всём приложении. Позже можно изменить в настройках."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm"
@@ -4872,8 +4976,12 @@ msgid "Welcome"
 msgstr "Добро пожаловать"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
-msgid "Welcome to Thunderbolt!"
-msgstr "Добро пожаловать в Вольт!"
+msgid "Welcome to {appName}!"
+msgstr "Добро пожаловать в {appName}!"
+
+#: src/components/onboarding/onboarding-privacy-step.tsx
+#~ msgid "Welcome to Thunderbolt!"
+#~ msgstr "Добро пожаловать в Вольт!"
 
 #: src/components/magic-link-verify.tsx
 msgid "Welcome, {displayName}"

@@ -55,8 +55,8 @@ msgstr "Фраза восстановления изменена"
 
 #. js-lingui-explicit-id
 #: src/lib/security-notifications.tsx
-msgid "Your Thunderbolt recovery phrase was changed from device “{deviceName}”. Your previous phrase no longer works."
-msgstr "Фраза восстановления Volt изменена с устройства «{deviceName}». Предыдущая фраза больше не работает."
+msgid "Your {appName} recovery phrase was changed from device “{deviceName}”. Your previous phrase no longer works."
+msgstr "Фраза восстановления {appName} изменена с устройства «{deviceName}». Предыдущая фраза больше не работает."
 
 #. js-lingui-explicit-id
 #: src/lib/security-notifications.tsx
@@ -135,13 +135,13 @@ msgstr "Вы можете ответить на это письмо"
 
 #. js-lingui-explicit-id
 #: src/emails/magic-link.tsx
-msgid "Your Thunderbolt verification code"
-msgstr "Ваш код подтверждения Volt"
+msgid "Your {appName} verification code"
+msgstr "Ваш код подтверждения {appName}"
 
 #. js-lingui-explicit-id
 #: src/emails/magic-link.tsx
-msgid "Sign in to Thunderbolt"
-msgstr "Вход в Volt"
+msgid "Sign in to {appName}"
+msgstr "Вход в {appName}"
 
 #. js-lingui-explicit-id
 #: src/emails/magic-link.tsx
@@ -156,8 +156,8 @@ msgstr "Войти"
 #. js-lingui-explicit-id
 #: src/emails/waitlist-joined.tsx
 #: src/emails/waitlist-not-ready.tsx
-msgid "You're on the Thunderbolt waitlist!"
-msgstr "Вы в списке ожидания Volt!"
+msgid "You're on the {appName} waitlist!"
+msgstr "Вы в списке ожидания {appName}!"
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-joined.tsx
@@ -166,15 +166,15 @@ msgstr "Спасибо за регистрацию!"
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-joined.tsx
-msgid "You've been added to the Thunderbolt waitlist. We're working hard to get you access as soon as possible. We'll send you another email when it's your turn to join."
-msgstr "Вы добавлены в список ожидания Volt. Мы усердно работаем, чтобы открыть вам доступ как можно скорее. Мы пришлём ещё одно письмо, когда придёт ваша очередь."
+msgid "You've been added to the {appName} waitlist. We're working hard to get you access as soon as possible. We'll send you another email when it's your turn to join."
+msgstr "Вы добавлены в список ожидания {appName}. Мы усердно работаем, чтобы открыть вам доступ как можно скорее. Мы пришлём ещё одно письмо, когда придёт ваша очередь."
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-joined.tsx
 #: src/emails/waitlist-not-ready.tsx
 #: src/emails/waitlist-reminder.tsx
-msgid "The Thunderbolt Team"
-msgstr "Команда Volt"
+msgid "The {appName} Team"
+msgstr "Команда {appName}"
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-not-ready.tsx
@@ -183,8 +183,8 @@ msgstr "Пока не совсем готово!"
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-not-ready.tsx
-msgid "We noticed you tried to sign in to Thunderbolt. You're on our waitlist, but we're not quite ready for you yet. Don't worry — we're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
-msgstr "Мы заметили, что вы пытались войти в Volt. Вы в списке ожидания, но мы пока не готовы вас принять. Не волнуйтесь — мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
+msgid "We noticed you tried to sign in to {appName}. You're on our waitlist, but we're not quite ready for you yet. Don't worry — we're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
+msgstr "Мы заметили, что вы пытались войти в {appName}. Вы в списке ожидания, но мы пока не готовы вас принять. Не волнуйтесь — мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-reminder.tsx
@@ -193,5 +193,48 @@ msgstr "Вы уже в списке ожидания!"
 
 #. js-lingui-explicit-id
 #: src/emails/waitlist-reminder.tsx
-msgid "Good news — you're already on the Thunderbolt waitlist. No need to sign up again! We're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
-msgstr "Хорошая новость — вы уже в списке ожидания Volt. Регистрироваться заново не нужно! Мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
+msgid "Good news — you're already on the {appName} waitlist. No need to sign up again! We're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
+msgstr "Хорошая новость — вы уже в списке ожидания {appName}. Регистрироваться заново не нужно! Мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
+
+#. js-lingui-explicit-id
+#: src/lib/security-notifications.tsx
+#~ msgid "Your Thunderbolt recovery phrase was changed from device “{deviceName}”. Your previous phrase no longer works."
+#~ msgstr "Фраза восстановления Volt изменена с устройства «{deviceName}». Предыдущая фраза больше не работает."
+
+#. js-lingui-explicit-id
+#: src/emails/magic-link.tsx
+#~ msgid "Your Thunderbolt verification code"
+#~ msgstr "Ваш код подтверждения Volt"
+
+#. js-lingui-explicit-id
+#: src/emails/magic-link.tsx
+#~ msgid "Sign in to Thunderbolt"
+#~ msgstr "Вход в Volt"
+
+#. js-lingui-explicit-id
+#: src/emails/waitlist-joined.tsx
+#: src/emails/waitlist-not-ready.tsx
+#~ msgid "You're on the Thunderbolt waitlist!"
+#~ msgstr "Вы в списке ожидания Volt!"
+
+#. js-lingui-explicit-id
+#: src/emails/waitlist-joined.tsx
+#~ msgid "You've been added to the Thunderbolt waitlist. We're working hard to get you access as soon as possible. We'll send you another email when it's your turn to join."
+#~ msgstr "Вы добавлены в список ожидания Volt. Мы усердно работаем, чтобы открыть вам доступ как можно скорее. Мы пришлём ещё одно письмо, когда придёт ваша очередь."
+
+#. js-lingui-explicit-id
+#: src/emails/waitlist-joined.tsx
+#: src/emails/waitlist-not-ready.tsx
+#: src/emails/waitlist-reminder.tsx
+#~ msgid "The Thunderbolt Team"
+#~ msgstr "Команда Volt"
+
+#. js-lingui-explicit-id
+#: src/emails/waitlist-not-ready.tsx
+#~ msgid "We noticed you tried to sign in to Thunderbolt. You're on our waitlist, but we're not quite ready for you yet. Don't worry — we're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
+#~ msgstr "Мы заметили, что вы пытались войти в Volt. Вы в списке ожидания, но мы пока не готовы вас принять. Не волнуйтесь — мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
+
+#. js-lingui-explicit-id
+#: src/emails/waitlist-reminder.tsx
+#~ msgid "Good news — you're already on the Thunderbolt waitlist. No need to sign up again! We're working hard to get you access as soon as possible. We'll send you an email when it's your turn to join."
+#~ msgstr "Хорошая новость — вы уже в списке ожидания Volt. Регистрироваться заново не нужно! Мы усердно работаем, чтобы открыть доступ как можно скорее. Мы пришлём письмо, когда придёт ваша очередь."
