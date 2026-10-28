@@ -19,9 +19,10 @@ export const customProviderLabel = msg`Custom`
 
 // Brand names, deliberately not translated, in provider-picker menu order.
 // Managed models take the deployment's app name and `custom` is copy, so those
-// two are resolved by `getProviderLabel`; any other new provider must be added
-// here or `getProviderLabel` fails to compile.
-const providerBrandNames: Record<Exclude<Model['provider'], 'thunderbolt' | 'custom'>, string> = {
+// are resolved by `getProviderLabel`; any other new provider must be added here
+// or `getProviderLabel` fails to compile. Fork: `managed` is a managed lane too
+// — the key lives on the server — so it is named after the deployment as well.
+const providerBrandNames: Record<Exclude<Model['provider'], 'thunderbolt' | 'managed' | 'custom'>, string> = {
   tinfoil: 'Tinfoil',
   openai: 'OpenAI',
   openrouter: 'OpenRouter',
@@ -44,7 +45,7 @@ export const providerPickerOrder: Model['provider'][] = [
  * @param appName - The deployment's app name, from `useAppName()`.
  */
 export const getProviderLabel = (i18n: I18n, provider: Model['provider'], appName: string): string => {
-  if (provider === 'thunderbolt') {
+  if (provider === 'thunderbolt' || provider === 'managed') {
     return appName
   }
   if (provider === 'custom') {
