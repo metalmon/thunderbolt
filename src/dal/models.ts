@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { and, desc, eq, getTableColumns, isNotNull, isNull, or, sql } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, isNotNull, isNull, notInArray, or, sql, type SQL } from 'drizzle-orm'
 import type { AnyDrizzleDatabase } from '../db/database-interface'
 import { modelsSecretsTable, modelsTable, settingsTable } from '../db/tables'
 import { defaultModelId, hashModel, type SharedModel } from '@shared/defaults/models'
 import { clearNullableColumns, nowIso } from '../lib/utils'
 import type { DrizzleQueryWithPromise, Model } from '@/types'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { getLastMessage } from './chat-messages'
 import { createDefaultModelProfile, deleteModelProfileForModel } from './model-profiles'
 
@@ -25,12 +26,37 @@ const selectModelsWithSecrets = (db: AnyDrizzleDatabase) =>
     .leftJoin(modelsSecretsTable, eq(modelsTable.id, modelsSecretsTable.modelId))
 
 /**
+ * Fork: the model lanes an autonomous install cannot use, as a `where` fragment.
+ *
+ * `thunderbolt` and `managed` are our backend's own key — the paid lane — and a
+ * `tinfoil` row marked `isSystem` is reached as `<cloudUrl>/tinfoil` with that
+ * key injected server-side. A tinfoil model the USER keyed is none of our
+ * business and stays: the rule is to drop the lane that goes through us, never
+ * the capability.
+ *
+ * Rows are hidden, never deleted — switching back to server mode has to restore
+ * them, and the catalog is reconciled state, not scratch.
+ *
+ * Returns an empty array in server mode, so the spread adds nothing and the
+ * query is byte-for-byte upstream's there.
+ */
+const excludeBackendLanes = (): SQL[] =>
+  isLocalMode()
+    ? [
+        notInArray(modelsTable.provider, ['thunderbolt', 'managed']),
+        // Written as one fragment rather than `not(and(...))`: drizzle's
+        // combinators are typed `SQL | undefined`, which `and()` will not take.
+        sql`not (${modelsTable.provider} = 'tinfoil' and ${modelsTable.isSystem} = 1)`,
+      ]
+    : []
+
+/**
  * Gets all models from the database (excluding soft-deleted)
  * Sorted with system models first, then alphabetically by name
  */
 export const getAllModels = (db: AnyDrizzleDatabase) => {
   const query = selectModelsWithSecrets(db)
-    .where(isNull(modelsTable.deletedAt))
+    .where(and(isNull(modelsTable.deletedAt), ...excludeBackendLanes()))
     .orderBy(desc(modelsTable.isSystem), modelsTable.name)
 
   return query as typeof query & DrizzleQueryWithPromise<Model>
@@ -42,7 +68,7 @@ export const getAllModels = (db: AnyDrizzleDatabase) => {
  */
 export const getAvailableModels = (db: AnyDrizzleDatabase) => {
   const query = selectModelsWithSecrets(db)
-    .where(and(eq(modelsTable.enabled, 1), isNull(modelsTable.deletedAt)))
+    .where(and(eq(modelsTable.enabled, 1), isNull(modelsTable.deletedAt), ...excludeBackendLanes()))
     .orderBy(desc(modelsTable.isSystem), modelsTable.name)
 
   return query as typeof query & DrizzleQueryWithPromise<Model>
@@ -65,7 +91,13 @@ export const getSelectedModelQuery = (db: AnyDrizzleDatabase) => {
       settingsTable,
       and(eq(settingsTable.key, 'selected_model'), eq(settingsTable.value, modelsTable.id), eq(modelsTable.enabled, 1)),
     )
-    .where(and(isNull(modelsTable.deletedAt), or(eq(modelsTable.isSystem, 1), isNotNull(settingsTable.value))))
+    .where(
+      and(
+        isNull(modelsTable.deletedAt),
+        or(eq(modelsTable.isSystem, 1), isNotNull(settingsTable.value)),
+        ...excludeBackendLanes(),
+      ),
+    )
     .orderBy(
       sql`CASE WHEN ${settingsTable.value} IS NOT NULL THEN 0 ELSE 1 END`,
       desc(eq(modelsTable.id, defaultModelId)),
