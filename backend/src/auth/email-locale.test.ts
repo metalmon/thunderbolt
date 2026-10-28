@@ -50,23 +50,31 @@ describe('email locale from X-App-Language', () => {
   })
 
   it('sends the sign-in email in the requested language', async () => {
-    await sendOtp('signin@auto-approved.test', 'ja')
+    await sendOtp('signin@auto-approved.test', 'ru')
 
-    expect(sendSignInEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ja' }))
+    expect(sendSignInEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ru' }))
   })
 
   it('sends the waitlist-joined email in the requested language', async () => {
-    await sendOtp('newcomer@example.com', 'de')
+    await sendOtp('newcomer@example.com', 'ru')
 
-    expect(sendWaitlistJoinedEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'de' }))
+    expect(sendWaitlistJoinedEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ru' }))
   })
 
   it('sends the not-ready email in the requested language', async () => {
     await db.insert(waitlist).values({ id: crypto.randomUUID(), email: 'pending@example.com', status: 'pending' })
 
-    await sendOtp('pending@example.com', 'fr')
+    await sendOtp('pending@example.com', 'ru')
 
-    expect(sendWaitlistNotReadyEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'fr' }))
+    expect(sendWaitlistNotReadyEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ru' }))
+  })
+
+  // Fork: only en and ru are negotiable, so a header naming another shipped
+  // locale is an English email rather than that locale's.
+  it('falls back to English for a locale this build does not offer', async () => {
+    await sendOtp('other@auto-approved.test', 'de')
+
+    expect(sendSignInEmail).toHaveBeenCalledWith(expect.objectContaining({ locale: 'en' }))
   })
 
   it('falls back to English when the caller sends no language header', async () => {
