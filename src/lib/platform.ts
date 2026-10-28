@@ -5,7 +5,6 @@
 import { isTauri as isTauriCore } from '@tauri-apps/api/core'
 import { platform, type Platform } from '@tauri-apps/plugin-os'
 import type { DatabaseType } from '../db/database'
-import { memoize } from './memoize'
 import { forkDatabaseFilename } from '@/fork/db/database-filename'
 
 /** Matches Render PR preview hostnames: thunderbolt-pr-{number}.onrender.com */

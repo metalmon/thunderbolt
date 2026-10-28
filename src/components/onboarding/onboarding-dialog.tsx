@@ -170,7 +170,7 @@ export const OnboardingDialog = () => {
               </div>
             )}
             {state.currentStep === passkeyStep && shouldOfferPasskeyStep && <OnboardingPasskeyStep />}
-            {state.currentStep === onboardingStepCount && <OnboardingCelebrationStep />}
+            {state.currentStep === lastVisibleStep(visibleSteps) && <OnboardingCelebrationStep />}
           </div>
           <div className="relative flex w-full shrink-0 px-5 pt-2">
             <OnboardingActionButtons
