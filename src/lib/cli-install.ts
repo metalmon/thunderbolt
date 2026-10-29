@@ -57,8 +57,13 @@ export const installThunderboltCli = (invoke: InvokeFn = tauriInvoke): Promise<C
  */
 export type CliPathUpdate = { alreadyPresent: boolean; dir: string }
 
-/** Fork: append the CLI's install directory to the user's `PATH`. Windows only;
- *  always called behind an explicit confirmation (see `AddToPathButton`). */
+/** Fork: what a `PATH` change would touch on this machine — the Windows user
+ *  environment, or the shell startup file the user actually reads. Named in the
+ *  confirmation, because the change outlives the app. */
+export const cliPathTarget = (invoke: InvokeFn = tauriInvoke): Promise<string> => invoke<string>('cli_path_target')
+
+/** Fork: append the CLI's install directory to the user's `PATH`. Always called
+ *  behind an explicit confirmation (see `AddToPathButton`). */
 export const addCliDirToPath = async (invoke: InvokeFn = tauriInvoke): Promise<CliPathUpdate> => {
   const raw = await invoke<Record<string, { dir: string }>>('add_cli_dir_to_path')
   // Rust returns a serde-tagged enum: `{ added: { dir } }` or
