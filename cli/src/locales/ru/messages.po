@@ -19,6 +19,62 @@ msgid "Choice"
 msgstr "Выбор"
 
 #. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Working…"
+msgstr "Работаю…"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "check your connection — your message is kept in history (↑)"
+msgstr "проверьте связь — ваше сообщение сохранено в истории (↑)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "run /login to sign in again"
+msgstr "выполните /login, чтобы войти заново"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "set the provider's environment variable, pass --api-key, or repair the profile with {command} config"
+msgstr "задайте переменную окружения провайдера, передайте --api-key или исправьте профиль через {command} config"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "retry the message — it is kept in history (↑)"
+msgstr "повторите сообщение — оно сохранено в истории (↑)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Session expired"
+msgstr "Сеанс истёк"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Provider rejected the credential"
+msgstr "Провайдер отклонил учётные данные"
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+#: src/ui/tui.ts
+msgid "Provider setup was cancelled before a provider was selected."
+msgstr "Настройка прервана до выбора провайдера."
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Allow once"
+msgstr "Разрешить один раз"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Allow {tool} for the rest of this session"
+msgstr "Разрешить {tool} до конца сеанса"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Deny"
+msgstr "Отказать"
+
+#. js-lingui-explicit-id
 #: src/provider-runtime/manager.ts
 msgid "Models"
 msgstr "Модели"
@@ -228,3 +284,58 @@ msgstr "Сохранённый сеанс {app} больше не действу
 #: src/auth/logout.ts
 msgid "The stored session predates CLI device registration and was cleared. Log in again to continue."
 msgstr "Сохранённый сеанс старше регистрации устройств CLI и был очищен. Войдите заново, чтобы продолжить."
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Ask"
+msgstr "Спрашивать"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Prompt before bash, write, and edit"
+msgstr "Спрашивать перед bash, write и edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Accept edits"
+msgstr "Принимать правки"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow write and edit; ask before bash"
+msgstr "Разрешать write и edit; спрашивать перед bash"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Read only"
+msgstr "Только чтение"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Block bash, write, and edit"
+msgstr "Запрещать bash, write и edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Yolo"
+msgstr "Без вопросов"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow every tool call"
+msgstr "Разрешать любой вызов инструмента"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Permissions"
+msgstr "Разрешения"
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+msgid "Run {command} in a terminal to choose a provider before starting inference."
+msgstr "Запустите {command} в терминале, чтобы выбрать провайдера до начала работы модели."
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+msgid "Provider persistence was not committed."
+msgstr "Настройки провайдера не сохранились."

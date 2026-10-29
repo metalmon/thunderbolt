@@ -1174,8 +1174,8 @@ describe('runAgent orchestration', () => {
   })
 
   test('/permissions changes the live mode through plain manager IO and offers every mode', async () => {
-    const selected = permissionModeItems.find(({ id }) => id === 'accept-edits')!
-    const selectedIndex = permissionModeItems.findIndex(({ id }) => id === selected.id) + 1
+    const selected = permissionModeItems().find(({ id }) => id === 'accept-edits')!
+    const selectedIndex = permissionModeItems().findIndex(({ id }) => id === selected.id) + 1
     const terminal = terminalIO(['/permissions', String(selectedIndex), 'exit'])
     const state = runtime()
     let getMode: (() => PermissionMode) | undefined
@@ -1190,7 +1190,7 @@ describe('runAgent orchestration', () => {
 
     expect(getMode?.()).toBe(selected.id)
     expect(terminal.writes.join('')).toContain(selected.label)
-    expect(terminal.writes.join('')).toContain(permissionModeItems.find(({ id }) => id === 'yolo')!.label)
+    expect(terminal.writes.join('')).toContain(permissionModeItems().find(({ id }) => id === 'yolo')!.label)
   })
 
   test('one-shot provider errors set a nonzero exit code', async () => {
