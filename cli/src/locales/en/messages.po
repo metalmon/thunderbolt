@@ -14,9 +14,46 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/banner.ts
+msgid "type a task, or / for commands"
+msgstr "type a task, or / for commands"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Press Enter to open your browser"
+msgstr "Press Enter to open your browser"
+
+#. js-lingui-explicit-id
 #: src/ui/provider-manager.ts
 msgid "Choice"
 msgstr "Choice"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Enter a number from 1 to {max}."
+msgstr "Enter a number from 1 to {max}."
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Switch model"
+msgstr "Switch model"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+#: src/ui/tui.ts
+msgid "close"
+msgstr "close"
+
+#. js-lingui-explicit-id
+#: src/auth/login.ts
+#: src/ui/provider-manager.ts
+msgid "Waiting for approval…"
+msgstr "Waiting for approval…"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "browser opened"
+msgstr "browser opened"
 
 #. js-lingui-explicit-id
 #: src/ui/render.ts
@@ -81,6 +118,11 @@ msgstr "Provider setup was cancelled before a provider was selected."
 
 #. js-lingui-explicit-id
 #: src/ui/tui.ts
+msgid "Interrupted — partial reply kept"
+msgstr "Interrupted — partial reply kept"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
 msgid "Allow once"
 msgstr "Allow once"
 
@@ -93,6 +135,111 @@ msgstr "Allow {tool} for the rest of this session"
 #: src/ui/tui.ts
 msgid "Deny"
 msgstr "Deny"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "off"
+msgstr "off"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "min"
+msgstr "min"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "low"
+msgstr "low"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "med"
+msgstr "med"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "high"
+msgstr "high"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "xhigh"
+msgstr "xhigh"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "ctrl+c again to quit"
+msgstr "ctrl+c again to quit"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queue"
+msgstr "queue"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "interrupt"
+msgstr "interrupt"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queue list"
+msgstr "queue list"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "dismiss"
+msgstr "dismiss"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "complete"
+msgstr "complete"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "quit"
+msgstr "quit"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "commands"
+msgstr "commands"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "mode"
+msgstr "mode"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "permissions"
+msgstr "permissions"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "confidential"
+msgstr "confidential"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "thinking"
+msgstr "thinking"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "↑ select · enter send now · ⌫ remove · esc back"
+msgstr "↑ select · enter send now · ⌫ remove · esc back"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "not connected"
+msgstr "not connected"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queued"
+msgstr "queued"
 
 #. js-lingui-explicit-id
 #: src/provider-runtime/commands.ts
@@ -312,11 +459,6 @@ msgstr "Replacement API key"
 
 #. js-lingui-explicit-id
 #: src/auth/login.ts
-msgid "Waiting for approval…"
-msgstr "Waiting for approval…"
-
-#. js-lingui-explicit-id
-#: src/auth/login.ts
 msgid "Login successful."
 msgstr "Login successful."
 
@@ -362,18 +504,8 @@ msgstr "Ask"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Prompt before bash, write, and edit"
-msgstr "Prompt before bash, write, and edit"
-
-#. js-lingui-explicit-id
-#: src/agent/permissions.ts
 msgid "Accept edits"
 msgstr "Accept edits"
-
-#. js-lingui-explicit-id
-#: src/agent/permissions.ts
-msgid "Allow write and edit; ask before bash"
-msgstr "Allow write and edit; ask before bash"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
@@ -382,13 +514,23 @@ msgstr "Read only"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Block bash, write, and edit"
-msgstr "Block bash, write, and edit"
+msgid "Yolo"
+msgstr "Yolo"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Yolo"
-msgstr "Yolo"
+msgid "Prompt before bash, write, and edit"
+msgstr "Prompt before bash, write, and edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow write and edit; ask before bash"
+msgstr "Allow write and edit; ask before bash"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Block bash, write, and edit"
+msgstr "Block bash, write, and edit"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
