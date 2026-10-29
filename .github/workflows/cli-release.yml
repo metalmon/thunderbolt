@@ -44,8 +44,11 @@ concurrency:
   group: cli-release-${{ inputs.version }}
   cancel-in-progress: true
 
+# Least privilege by default. Only the job that uploads the release assets
+# needs to write; the build legs compile a binary and upload workflow artifacts,
+# which read access covers.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -167,6 +170,8 @@ jobs:
     # `needs: build` (default success()) gates this on EVERY leg succeeding, so
     # publishing is atomic: either all binaries + SHA256SUMS land, or nothing does.
     needs: build
+    permissions:
+      contents: write # uploads the CLI assets to the release
     runs-on: ubuntu-24.04
     steps:
       - name: Download all CLI binaries
