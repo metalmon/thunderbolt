@@ -9,7 +9,6 @@ import type { ImageSupport, SharedModel } from '../../../shared/defaults/models.
 import type { CliDeviceMetadata } from '../auth/account-client.ts'
 import { createCredentialedFetch, type CredentialResponseObserver } from '../agent/credentialed-fetch.ts'
 import { createByokBinding } from './byok.ts'
-import { bundledManagedCatalog } from './catalog.ts'
 import type {
   ByokProfile,
   CliAuth,
@@ -22,11 +21,16 @@ import type {
 import { providerRuntimeError } from './types.ts'
 import { createProviderStageContext } from './provider-stage.ts'
 import type { ProviderRuntimeDependencies } from './runtime.ts'
-import { createTestProviderRuntime, futureDirectCatalog } from './test-fixtures.ts'
+import {
+  createTestProviderRuntime,
+  futureDirectCatalog,
+  testConfidentialModel,
+  testDirectModel,
+  testManagedCatalog,
+} from './test-fixtures.ts'
 
-const directModel = bundledManagedCatalog.data.find(({ isConfidential }) => isConfidential === 0)
-const confidentialModel = bundledManagedCatalog.data.find(({ isConfidential }) => isConfidential === 1)
-if (!directModel || !confidentialModel) throw new Error('managed-model fixtures are incomplete')
+const directModel = testDirectModel
+const confidentialModel = testConfidentialModel
 
 const metadata: CliDeviceMetadata = { deviceName: 'Test CLI' }
 const sessionCredential: Extract<ResolvedAccountCredential, { type: 'session' }> = {
@@ -85,11 +89,7 @@ const config = (overrides: Partial<CliConfig> = {}): CliConfig => ({
 const runtimeError = (code: ProviderRuntimeError['code'], message: string = code): Error & ProviderRuntimeError =>
   providerRuntimeError(code, message)
 
-const binding = (
-  providerId: string,
-  modelId: string,
-  persistsCredentialStatus = true,
-): PreparedPiBinding => ({
+const binding = (providerId: string, modelId: string, persistsCredentialStatus = true): PreparedPiBinding => ({
   providerId,
   wireModel: modelId,
   persistsCredentialStatus,
@@ -154,7 +154,7 @@ const createRuntimeHarness = async (options: RuntimeHarnessOptions = {}) => {
       }),
       logout: async () => 'logged-out',
     },
-    loadCatalog: async () => options.catalog ?? bundledManagedCatalog,
+    loadCatalog: async () => options.catalog ?? testManagedCatalog,
     ensureRegisteredSession: async (credential) => {
       calls.register += 1
       return credential
@@ -176,11 +176,7 @@ const createRuntimeHarness = async (options: RuntimeHarnessOptions = {}) => {
     createManagedDirectBinding: async (bindingOptions) => {
       calls.direct += 1
       directArguments.push(bindingOptions)
-      return binding(
-        'thunderbolt',
-        bindingOptions.model.id,
-        false,
-      )
+      return binding('thunderbolt', bindingOptions.model.id, false)
     },
     createTinfoilBinding: async (bindingOptions) => {
       calls.tinfoil += 1
@@ -882,7 +878,7 @@ describe('ProviderRuntime account registration and rejection policy', () => {
     await runtime.manage({ type: 'load-models', providerId: 'thunderbolt' })
     const options = runtime.snapshot().thunderbolt.models
 
-    expect(options).toHaveLength(bundledManagedCatalog.data.length)
+    expect(options).toHaveLength(testManagedCatalog.data.length)
     expect(calls).toMatchObject({ direct: 0, tinfoil: 0, register: 0 })
     expect(runtime.snapshot().thunderbolt.status).toBe('not authenticated')
   })
@@ -898,7 +894,7 @@ describe('ProviderRuntime account registration and rejection policy', () => {
       loadCatalog: async (backendUrl) => {
         catalogLoads += 1
         expect(backendUrl).toBe(sessionCredential.backendUrl)
-        return bundledManagedCatalog
+        return testManagedCatalog
       },
     })
 
@@ -909,7 +905,7 @@ describe('ProviderRuntime account registration and rejection policy', () => {
 
     expect(catalogLoads).toBe(1)
     expect(runtime.snapshot().thunderbolt.models).toEqual(
-      bundledManagedCatalog.data.map((model) => ({
+      testManagedCatalog.data.map((model) => ({
         id: model.id,
         label: model.name,
         description: `${model.model} — ${model.description}`,
@@ -920,7 +916,7 @@ describe('ProviderRuntime account registration and rejection policy', () => {
   })
 
   test('persists the login-selected managed UUID in the same activation transaction', async () => {
-    const selected = bundledManagedCatalog.data[1]
+    const selected = testManagedCatalog.data[1]
     if (!selected) throw new Error('managed catalog fixture needs two models')
     const { runtime, saved } = await createRuntimeHarness({
       initialConfig: config({ activeProviderId: null }),
@@ -990,7 +986,6 @@ describe('ProviderRuntime account registration and rejection policy', () => {
     await directHarness.runtime.prepare({ model: directModel.id })
     expect(directHarness.calls).toMatchObject({ register: 0, direct: 1, tinfoil: 0 })
     expect(directHarness.runtime.snapshot().thunderbolt.status).toBe('not authenticated')
-
   })
 
   test('stored BYOK rejection marks only that profile while flag and environment paths remain process-only', async () => {
