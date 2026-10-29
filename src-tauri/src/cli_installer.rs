@@ -32,7 +32,13 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 /// Where prebuilt CLI binaries and their checksum manifest live.
-const RELEASE_BASE: &str = "https://github.com/thunderbird/thunderbolt/releases/download";
+///
+/// Fork: OUR releases, not upstream's. The URL is built from this app's own
+/// version, and by the version-parity rule our version tag also exists upstream
+/// — so pointing here at `thunderbird/thunderbolt` did not fail, it quietly
+/// installed THEIR CLI under a name our user trusts. A 404 is strictly better
+/// than that, which is why this moved before our CI had uploaded anything.
+const RELEASE_BASE: &str = "https://github.com/metalmon/thunderbolt/releases/download";
 
 /// Typed install failure. Each variant maps to a distinct UI message; `Unsupported`
 /// and `NotPublished` additionally drive the "build from source instead" fallback.
@@ -80,17 +86,31 @@ fn resolve_target(os: &str, arch: &str) -> Option<&'static str> {
         ("macos", "aarch64") => Some("darwin-arm64"),
         ("linux", "x86_64") => Some("linux-x64"),
         ("linux", "aarch64") => Some("linux-arm64"),
+        // Fork: Windows is the pilot's primary platform. Upstream never built it
+        // — not for a missing dependency, as with Intel macOS, but simply because
+        // no runner was added; `@number0/iroh-win32-x64-msvc` is published and
+        // listed in `cli/bun.lock`.
+        ("windows", "x86_64") => Some("win32-x64"),
         _ => None,
     }
 }
 
 /// The release asset filename for a target (matches the `SHA256SUMS` entries).
+///
+/// Fork: the Windows asset carries `.exe`. Not cosmetic — the workflow uploads
+/// what `bun build --compile` produced, and a manifest entry that disagrees with
+/// the filename fails verification rather than the download.
 fn asset_name(target: &str) -> String {
-    format!("thunderbolt-cli-{target}")
+    let suffix = if target.starts_with("win32") {
+        ".exe"
+    } else {
+        ""
+    };
+    format!("thunderbolt-cli-{target}{suffix}")
 }
 
 fn binary_url(version: &str, target: &str) -> String {
-    format!("{RELEASE_BASE}/v{version}/thunderbolt-cli-{target}")
+    format!("{RELEASE_BASE}/v{version}/{}", asset_name(target))
 }
 
 fn checksums_url(version: &str) -> String {
@@ -116,21 +136,57 @@ fn sha256_hex(bytes: &[u8]) -> String {
     hex::encode(hasher.finalize())
 }
 
-/// Whether `dir` appears in a `:`-separated `PATH` string (trailing slashes ignored).
+/// Whether `dir` appears in `PATH` (trailing separators ignored).
+///
+/// Fork: the list separator and the path separator both differ on Windows — `;`
+/// and `\` against `:` and `/` — and Windows paths are case-insensitive, so a
+/// `PATH` entry written with different casing is the same directory.
 fn is_dir_on_path(path_var: &str, dir: &str) -> bool {
-    fn normalize(s: &str) -> &str {
-        s.trim_end_matches('/')
+    fn normalize(s: &str) -> String {
+        let trimmed = s.trim_end_matches(['/', '\\']);
+        if cfg!(windows) {
+            trimmed.to_lowercase()
+        } else {
+            trimmed.to_string()
+        }
     }
+    let list_separator = if cfg!(windows) { ';' } else { ':' };
     let target = normalize(dir);
-    path_var.split(':').any(|entry| normalize(entry) == target)
+    path_var
+        .split(list_separator)
+        .any(|entry| normalize(entry) == target)
 }
 
-/// `~/.local/bin` — the XDG-conventional per-user binary dir.
+/// The per-user binary directory: `~/.local/bin` by XDG convention, and
+/// `%LOCALAPPDATA%\thunderbolt\bin` on Windows, which has no such convention.
+///
+/// Fork: `HOME` is not normally set on Windows, so reading it there would fail on
+/// every machine. Neither location is on `PATH` by default — hence the hint in
+/// the result.
 fn local_bin_dir() -> Result<PathBuf, CliInstallError> {
-    let home = std::env::var_os("HOME").ok_or_else(|| {
-        CliInstallError::Install("HOME environment variable is not set".to_string())
-    })?;
-    Ok(PathBuf::from(home).join(".local").join("bin"))
+    #[cfg(windows)]
+    {
+        let base = std::env::var_os("LOCALAPPDATA").ok_or_else(|| {
+            CliInstallError::Install("LOCALAPPDATA environment variable is not set".to_string())
+        })?;
+        Ok(PathBuf::from(base).join("thunderbolt").join("bin"))
+    }
+    #[cfg(not(windows))]
+    {
+        let home = std::env::var_os("HOME").ok_or_else(|| {
+            CliInstallError::Install("HOME environment variable is not set".to_string())
+        })?;
+        Ok(PathBuf::from(home).join(".local").join("bin"))
+    }
+}
+
+/// The installed filename. Windows will not execute a file without `.exe`.
+fn installed_file_name() -> &'static str {
+    if cfg!(windows) {
+        "thunderbolt.exe"
+    } else {
+        "thunderbolt"
+    }
 }
 
 /// Write `bytes` to `~/.local/bin/thunderbolt` with mode `0755` via a same-dir temp
@@ -140,7 +196,7 @@ fn install_binary(bytes: &[u8]) -> Result<PathBuf, CliInstallError> {
     let dir = local_bin_dir()?;
     std::fs::create_dir_all(&dir)?;
 
-    let final_path = dir.join("thunderbolt");
+    let final_path = dir.join(installed_file_name());
     // Same-dir temp keeps the rename atomic (both ends on one filesystem) and
     // pid-scoped so concurrent installs can't clobber each other's temp.
     let tmp_path = dir.join(format!(".thunderbolt.{}.tmp", std::process::id()));
@@ -151,6 +207,16 @@ fn install_binary(bytes: &[u8]) -> Result<PathBuf, CliInstallError> {
     {
         use std::os::unix::fs::PermissionsExt;
         std::fs::set_permissions(&tmp_path, std::fs::Permissions::from_mode(0o755))?;
+    }
+
+    // Fork: `rename` replaces the destination on Unix but FAILS on Windows when
+    // it exists, so a second install would error out with the first binary still
+    // in place. Removing first gives up atomicity for the instant between the two
+    // calls; the alternative — MoveFileEx with MOVEFILE_REPLACE_EXISTING — is not
+    // reachable through std, and a reinstall is an explicit, foreground act.
+    #[cfg(windows)]
+    if final_path.exists() {
+        std::fs::remove_file(&final_path)?;
     }
 
     std::fs::rename(&tmp_path, &final_path)?;
@@ -197,7 +263,7 @@ async fn fetch(client: &reqwest::Client, url: &str) -> Result<reqwest::Response,
 pub async fn install_cli(version: &str) -> Result<CliInstallResult, CliInstallError> {
     let target = resolve_target(std::env::consts::OS, std::env::consts::ARCH).ok_or_else(|| {
         CliInstallError::Unsupported(
-            "No prebuilt Thunderbolt CLI is published for this platform. Build it from source instead."
+            "No prebuilt CLI is published for this platform. Build it from source instead."
                 .to_string(),
         )
     })?;
@@ -255,7 +321,16 @@ pub async fn install_cli(version: &str) -> Result<CliInstallResult, CliInstallEr
     let dir = local_bin_dir()?;
     let dir_str = dir.to_string_lossy();
     let on_path = std::env::var("PATH").is_ok_and(|p| is_dir_on_path(&p, &dir_str));
-    let path_hint = (!on_path).then(|| "export PATH=\"$HOME/.local/bin:$PATH\"".to_string());
+    // Fork: the shell that needs telling differs. `setx` writes the user's
+    // persistent PATH (it does NOT affect the current console), which is the
+    // closest Windows equivalent of the line a user adds to their profile.
+    let path_hint = (!on_path).then(|| {
+        if cfg!(windows) {
+            format!("setx PATH \"%PATH%;{dir_str}\"")
+        } else {
+            "export PATH=\"$HOME/.local/bin:$PATH\"".to_string()
+        }
+    });
 
     Ok(CliInstallResult {
         path: path.to_string_lossy().to_string(),
@@ -266,6 +341,20 @@ pub async fn install_cli(version: &str) -> Result<CliInstallResult, CliInstallEr
 
 #[cfg(test)]
 mod tests {
+    /// The installer derives its URL from this app's version, and our version tag
+    /// exists upstream too — so an upstream base silently installs a foreign
+    /// binary rather than failing. Cheap, direct, and catches the constant being
+    /// reverted by a rebase.
+    #[test]
+    fn release_base_points_at_our_own_releases() {
+        assert!(
+            super::RELEASE_BASE.contains("metalmon/"),
+            "RELEASE_BASE must point at the fork's releases, got {}",
+            super::RELEASE_BASE
+        );
+        assert!(!super::RELEASE_BASE.contains("thunderbird/"));
+    }
+
     use super::*;
 
     #[test]
@@ -277,22 +366,44 @@ mod tests {
 
     #[test]
     fn resolve_target_rejects_unpublished_platforms() {
-        // Intel macOS has no iroh addon; Windows/mobile aren't built.
+        // Intel macOS has no iroh addon at all; mobile isn't built.
         assert_eq!(resolve_target("macos", "x86_64"), None);
-        assert_eq!(resolve_target("windows", "x86_64"), None);
         assert_eq!(resolve_target("android", "aarch64"), None);
         assert_eq!(resolve_target("ios", "aarch64"), None);
     }
 
+    /// Fork: the pilot's primary platform. Upstream published no Windows binary —
+    /// not for a missing dependency, as with Intel macOS, but because no runner
+    /// was ever added.
+    #[test]
+    fn resolve_target_publishes_windows_x64() {
+        assert_eq!(resolve_target("windows", "x86_64"), Some("win32-x64"));
+        // arm64 Windows is left out until a runner exists for it.
+        assert_eq!(resolve_target("windows", "aarch64"), None);
+    }
+
+    /// The manifest names the file, so the `.exe` has to be part of the asset
+    /// name or verification fails after a successful download.
+    #[test]
+    fn windows_asset_carries_the_exe_suffix() {
+        assert_eq!(asset_name("win32-x64"), "thunderbolt-cli-win32-x64.exe");
+        assert_eq!(asset_name("linux-x64"), "thunderbolt-cli-linux-x64");
+        assert!(binary_url("0.1.148", "win32-x64").ends_with("/thunderbolt-cli-win32-x64.exe"));
+    }
+
     #[test]
     fn urls_follow_the_release_scheme() {
+        // Built from RELEASE_BASE rather than spelled out: the owner is asserted
+        // once, by `release_base_points_at_our_own_releases`, so a deliberate move
+        // of the releases does not have to be transcribed in two places — and an
+        // accidental move still fails that one test.
         assert_eq!(
             binary_url("0.1.105", "darwin-arm64"),
-            "https://github.com/thunderbird/thunderbolt/releases/download/v0.1.105/thunderbolt-cli-darwin-arm64"
+            format!("{RELEASE_BASE}/v0.1.105/thunderbolt-cli-darwin-arm64")
         );
         assert_eq!(
             checksums_url("0.1.105"),
-            "https://github.com/thunderbird/thunderbolt/releases/download/v0.1.105/SHA256SUMS"
+            format!("{RELEASE_BASE}/v0.1.105/SHA256SUMS")
         );
     }
 
@@ -348,13 +459,36 @@ cccc3333  thunderbolt-cli-linux-arm64
     }
 
     #[test]
+    #[cfg(not(windows))]
     fn is_dir_on_path_detects_membership() {
         let path = "/usr/bin:/home/u/.local/bin:/opt/bin";
         assert!(is_dir_on_path(path, "/home/u/.local/bin"));
         assert!(!is_dir_on_path(path, "/home/u/bin"));
     }
 
+    /// Fork: `;` separates entries on Windows, a backslash ends them, and the
+    /// comparison is case-insensitive — the same directory can be spelled either
+    /// way in PATH.
     #[test]
+    #[cfg(windows)]
+    fn is_dir_on_path_detects_membership_windows() {
+        let path = r"C:\Windows;C:\Users\U\AppData\Local\thunderbolt\bin;C:\Tools";
+        assert!(is_dir_on_path(
+            path,
+            r"C:\Users\U\AppData\Local\thunderbolt\bin"
+        ));
+        assert!(is_dir_on_path(
+            path,
+            r"c:\users\u\appdata\local\thunderbolt\bin\"
+        ));
+        assert!(!is_dir_on_path(path, r"C:\Users\U\bin"));
+        // A `:`-separated list must NOT be read as entries here: a Windows drive
+        // letter contains a colon, so splitting on it would match nothing.
+        assert!(!is_dir_on_path("/usr/bin:/opt/bin", "/opt/bin"));
+    }
+
+    #[test]
+    #[cfg(not(windows))]
     fn is_dir_on_path_ignores_trailing_slashes() {
         assert!(is_dir_on_path(
             "/usr/bin:/home/u/.local/bin/",
