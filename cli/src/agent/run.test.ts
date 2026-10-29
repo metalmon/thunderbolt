@@ -27,6 +27,8 @@ import { applyCommandOutcome, bootstrapBeforeHarness, createRunAgent, shouldUseT
 import type { RunAgentDependencies } from './run.ts'
 import { permissionModeItems, type PermissionMode } from './permissions.ts'
 import { builtinProviders, type CommandSyntaxRunConfig } from './types.ts'
+import { commandName } from '../fork/identity.ts'
+import { i18n } from '../fork/i18n.ts'
 
 const activeProviderId = 'byok-work'
 
@@ -578,8 +580,14 @@ describe('runAgent orchestration', () => {
       terminalEnvironment: () => ({ interactive: false, stdoutIsTty: true, noTuiEnv: false }),
     })
 
+    // ⚠ Read from the catalog, not pinned. The message is translated AND carries
+    // the fork's command name, so a literal here goes stale on every rebrand or
+    // copy edit — which is exactly how it reached CI red.
     await expect(runner(repl(), state.runtime)).rejects.toThrow(
-      'Run thunderbolt in a terminal to choose a provider before starting inference.',
+      i18n._({
+        id: 'Run {command} in a terminal to choose a provider before starting inference.',
+        values: { command: commandName },
+      }),
     )
     expect(tuiRuns).toBe(0)
     expect(terminal.closes()).toBe(1)
