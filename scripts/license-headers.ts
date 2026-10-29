@@ -61,6 +61,8 @@ const skipPathPatterns: RegExp[] = [
   /(^|\/)src\/acp\/iroh\/pkg\//,
   // Lingui-generated email catalogs (`bun run i18n:extract` owns these).
   /(^|\/)backend\/src\/emails\/locales\//,
+  // Fork: the CLI's catalogs, generated the same way and for the same reason.
+  /(^|\/)cli\/src\/locales\//,
   /(^|\/)crates\/[^/]+\/target\//,
   /\.gen\.[a-z]+$/i,
 ]
