@@ -12,14 +12,21 @@ import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AssistantMessageEvent } from '@earendil-works/pi-ai'
 import type { HarnessRuntime } from '../provider-runtime/types.ts'
 import { amber, dim, gray, green, red, spark, symbols } from './theme.ts'
+import { commandName } from '../fork/identity.ts'
+import { i18n } from '../fork/i18n.ts'
 
-export const workingStatusText = 'Working…'
+export const workingStatusText = i18n._({ id: 'Working…' })
 const plainStreamingStatusText = `${workingStatusText} (Ctrl+C to interrupt)`
 const errorRecoveryHints = {
-  network: 'check your connection — your message is kept in history (↑)',
-  auth: 'run /login to sign in again',
-  byokAuth: "set the provider's environment variable, pass --api-key, or repair the profile with thunderbolt config",
-  generic: 'retry the message — it is kept in history (↑)',
+  // `/login`, `--api-key` and `{command} config` are syntax: they stay literal
+  // inside the sentence, only the prose around them is translated.
+  network: i18n._({ id: 'check your connection — your message is kept in history (↑)' }),
+  auth: i18n._({ id: 'run /login to sign in again' }),
+  byokAuth: i18n._({
+    id: "set the provider's environment variable, pass --api-key, or repair the profile with {command} config",
+    values: { command: commandName },
+  }),
+  generic: i18n._({ id: 'retry the message — it is kept in history (↑)' }),
 } as const
 
 /** Selects the provider-error headline and recovery hint in priority order. */
@@ -27,8 +34,8 @@ const turnErrorPresentation = (detail: string, providerId: string | null): reado
   const normalized = detail.toLowerCase()
   if (/network|fetch|connect|unreachable|econn/.test(normalized)) return [detail, errorRecoveryHints.network]
   if (!/auth|session|unauthorized|401/.test(normalized)) return [detail, errorRecoveryHints.generic]
-  if (providerId === 'thunderbolt') return ['Session expired', errorRecoveryHints.auth]
-  return ['Provider rejected the credential', errorRecoveryHints.byokAuth]
+  if (providerId === 'thunderbolt') return [i18n._({ id: 'Session expired' }), errorRecoveryHints.auth]
+  return [i18n._({ id: 'Provider rejected the credential' }), errorRecoveryHints.byokAuth]
 }
 
 /** Whether an assistant stream event carries content rather than protocol framing. */
@@ -62,8 +69,7 @@ export type StatusPhase = 'working' | 'reasoning'
 export const statusLadderMessage = (startedAt: number, now: number, phase: StatusPhase): string => {
   const elapsedSeconds = Math.max(0, Math.floor((now - startedAt) / 1_000))
   if (phase === 'reasoning') return `Reasoning… ${elapsedSeconds}s`
-  if (elapsedSeconds >= 15)
-    return `Still working… ${elapsedSeconds}s — this model can take ~30s for the first token`
+  if (elapsedSeconds >= 15) return `Still working… ${elapsedSeconds}s — this model can take ~30s for the first token`
   return elapsedSeconds >= 4 ? `${workingStatusText} ${elapsedSeconds}s` : workingStatusText
 }
 
@@ -141,11 +147,7 @@ const summarizeArgs = (args: ToolArguments): string => {
 const previewResult = (result: ToolResultPreview | null, max: number): string => {
   const content = result?.content
   if (content === undefined) return ''
-  const text = sanitizeTerminalText(
-    content
-      .map((block) => block.text ?? '')
-      .join(''),
-  ).trim()
+  const text = sanitizeTerminalText(content.map((block) => block.text ?? '').join('')).trim()
   return truncate(text.split('\n').slice(0, previewLines).join('\n'), max)
 }
 
