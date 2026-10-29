@@ -192,6 +192,19 @@ pub async fn install_thunderbolt_cli(
     crate::cli_installer::install_cli(&version).await
 }
 
+/// Fork: append the CLI's install directory to the user's persistent `PATH`.
+///
+/// ⚠ Called ONLY after the user confirms in the UI. It writes to
+/// `HKCU\Environment`, which outlives the app, so it is never part of the
+/// install itself — the install reports whether the directory is on `PATH` and
+/// the user decides.
+#[command]
+pub async fn add_cli_dir_to_path(
+) -> Result<crate::cli_path::PathUpdate, crate::cli_path::PathError> {
+    let dir = crate::cli_installer::cli_install_dir()?;
+    crate::cli_path::add_dir_to_user_path(&dir)
+}
+
 #[cfg(test)]
 mod tests {
     use serde_json::{json, Value};
