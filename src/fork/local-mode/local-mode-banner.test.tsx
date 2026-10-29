@@ -4,9 +4,9 @@
 
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'bun:test'
-import { readFileSync } from 'node:fs'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { LocalModeBanner } from './local-mode-banner'
+import { readRepoFile } from '../testing/source-file'
 
 afterEach(() => {
   cleanup()
@@ -31,7 +31,7 @@ describe('LocalModeBanner', () => {
   // A banner nobody mounts says nothing, and no other test would notice its
   // absence — the app renders fine without it, just silently.
   it('is mounted in the app shell', () => {
-    const app = readFileSync('src/app.tsx', 'utf8')
+    const app = readRepoFile('src/app.tsx')
     expect(app.includes('LocalModeBanner')).toBe(true)
   })
 })
