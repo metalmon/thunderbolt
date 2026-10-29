@@ -1,0 +1,49 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-29 13:10+0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ru\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "Authentication changed during logout; no stored web session remains."
+msgstr "Состояние входа изменилось во время выхода: сохранённого веб-сеанса больше нет."
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "Authentication changed during logout, so a newer local session was retained. Verify it by logging in again."
+msgstr "Состояние входа изменилось во время выхода, поэтому сохранён более новый локальный сеанс. Проверьте его, войдя заново."
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "{tokenVar} is managed by the environment and cannot be cleared by the CLI."
+msgstr "{tokenVar} задаётся окружением, и CLI его не очищает."
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "No stored {app} web session is available to log out."
+msgstr "Сохранённого веб-сеанса {app} нет — выходить не из чего."
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "Revoking this {app} CLI device…"
+msgstr "Отзываю это устройство {app} CLI…"
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "The stored {app} session is no longer valid. Log in again to continue."
+msgstr "Сохранённый сеанс {app} больше не действует. Войдите заново, чтобы продолжить."
+
+#. js-lingui-explicit-id
+#: src/auth/logout.ts
+msgid "The stored session predates CLI device registration and was cleared. Log in again to continue."
+msgstr "Сохранённый сеанс старше регистрации устройств CLI и был очищен. Войдите заново, чтобы продолжить."
