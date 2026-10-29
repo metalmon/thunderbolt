@@ -36,7 +36,8 @@ import { i18n } from '../fork/i18n.ts'
 
 type BrowserOpener = (url: string) => void | Promise<void>
 
-export const authBrowserPrompt = 'Press Enter to open your browser'
+/** ⚠ A function: module scope freezes before the stored language is read. */
+export const authBrowserPrompt = (): string => i18n._({ id: 'Press Enter to open your browser' })
 
 /** Opens a URL without keeping the CLI or browser process attached to each other. */
 const openBrowser: BrowserOpener = (url) => {
@@ -110,7 +111,7 @@ const choosePlain = async (
     if (answer === null) return null
     const choice = /^\d+$/.test(answer.trim()) ? items[Number(answer.trim()) - 1] : undefined
     if (choice) return choice.id
-    terminal.write(`Enter a number from 1 to ${items.length}.\n`)
+    terminal.write(`${i18n._({ id: 'Enter a number from 1 to {max}.', values: { max: items.length } })}\n`)
   }
 }
 
@@ -131,7 +132,7 @@ export const createPlainProviderManagerIO = (
   return {
     ...io,
     promptToOpenBrowser: async (url) => {
-      if ((await terminal.readLine(authBrowserPrompt)) === null) return
+      if ((await terminal.readLine(authBrowserPrompt())) === null) return
       await openQuietly(opener, url)
     },
   }
@@ -200,7 +201,7 @@ const chooseTui = (
 class ModelsOverlay extends Box {
   constructor(readonly list: SelectList) {
     super(1, 1, overlayBackground)
-    this.addChild(new Text(`${bold('Switch model')}  ${dim('· esc close')}`, 0, 0))
+    this.addChild(new Text(`${bold(i18n._({ id: 'Switch model' }))}  ${dim(`· esc ${i18n._({ id: 'close' })}`)}`, 0, 0))
     this.addChild(new Spacer(1))
     this.addChild(list)
     this.addChild(new Spacer(1))
@@ -361,7 +362,8 @@ export const createTuiProviderManagerIO = (
     }
     if (authWait) return
     const startedAt = Date.now()
-    const updateMessage = (): string => `${message ?? 'Waiting for approval…'} ${dim(elapsedClock(startedAt))}`
+    const updateMessage = (): string =>
+      `${message ?? i18n._({ id: 'Waiting for approval…' })} ${dim(elapsedClock(startedAt))}`
     const loader = new CancellableLoader(tui, boltYellow, (text) => text, updateMessage(), {
       frames: sparkFrames(),
       intervalMs: 600,
@@ -395,9 +397,9 @@ export const createTuiProviderManagerIO = (
     showStatus,
     promptToOpenBrowser: async (url) => {
       browserUrl = url
-      if ((await readTuiText(tui, scrollback, editor, authBrowserPrompt, activeSignal())) === null) return
+      if ((await readTuiText(tui, scrollback, editor, authBrowserPrompt(), activeSignal())) === null) return
       await openQuietly(opener, url)
-      appendText(tui, scrollback, `${green(symbols.ok)} ${dim('browser opened')}`)
+      appendText(tui, scrollback, `${green(symbols.ok)} ${dim(i18n._({ id: 'browser opened' }))}`)
     },
   }
 }
