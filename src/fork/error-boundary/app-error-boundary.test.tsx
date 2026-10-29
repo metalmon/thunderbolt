@@ -4,8 +4,8 @@
 
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { readFileSync } from 'node:fs'
 import { AppErrorBoundary } from './app-error-boundary'
+import { readRepoFile } from '../testing/source-file'
 
 const Boom = () => {
   throw new Error('render exploded')
@@ -58,7 +58,7 @@ describe('AppErrorBoundary', () => {
   // day something throws. Checked at the source level because mounting `app.tsx`
   // needs the database, PowerSync and a backend.
   it('is mounted around the app content in app.tsx', () => {
-    const app = readFileSync('src/app.tsx', 'utf8')
+    const app = readRepoFile('src/app.tsx')
     // Boolean, not toContain: a failure here would otherwise print all of app.tsx.
     expect(app.includes('AppErrorBoundary')).toBe(true)
   })
