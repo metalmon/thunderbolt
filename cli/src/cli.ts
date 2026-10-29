@@ -41,6 +41,7 @@ USAGE
   ${commandName} [options] [prompt]
   ${commandName} agent [options] [prompt]
   ${commandName} config
+  ${commandName} lang
   ${commandName} login
   ${commandName} logout
   ${commandName} acp serve [options]
@@ -56,6 +57,7 @@ USAGE
 SUBCOMMANDS
   agent       run the coding agent (default when omitted)
   config      manage ${displayName} and provider profiles
+  lang        choose the interface language (auto-detected by default)
   login       authenticate this CLI with your ${displayName} account in the browser
   logout      revoke and clear the stored ${displayName} web session
   acp serve   expose THIS coding agent, rooted at current directory, as a stdio ACP server
@@ -91,6 +93,7 @@ INTERACTIVE COMMANDS
   /login       authenticate a ${displayName} account with web login
   /logout      revoke and clear the stored ${displayName} web session
   /permissions choose any permission mode
+  /language    choose the interface language
   Shift+Tab    cycle ask → accept-edits → read-only → yolo (TUI only)
 
 BRIDGE OPTIONS (acp / mcp)
@@ -411,6 +414,12 @@ export const parseCommandSyntax = (
     if (argument === undefined) return { kind: 'config' }
     if (argument === '--help' || argument === '-h') return { kind: 'help' }
     return { kind: 'error', message: `${commandName} config: unexpected argument '${argument}'` }
+  }
+  if (subcommand === 'lang' || subcommand === 'language') {
+    const argument = argv[1]
+    if (argument === undefined) return { kind: 'language' }
+    if (argument === '--help' || argument === '-h') return { kind: 'help' }
+    return { kind: 'error', message: `${commandName} ${subcommand}: unexpected argument '${argument}'` }
   }
   if (subcommand === 'iroh') return parseIrohAdminArgs(argv.slice(1))
   if (subcommand === 'acp' || subcommand === 'mcp') {

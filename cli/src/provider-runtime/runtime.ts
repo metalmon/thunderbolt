@@ -4,6 +4,7 @@
 
 import { createHash } from 'node:crypto'
 import type { SharedModel } from '../../../shared/defaults/models.ts'
+import { applyCliLanguage } from '../fork/i18n.ts'
 import { toError } from '@earendil-works/pi-agent-core'
 import { builtinModels as piBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import type { CliDeviceMetadata, ensureRegisteredSession } from '../auth/account-client.ts'
@@ -90,6 +91,11 @@ const cloneConfig = (config: CliConfig): CliConfig => ({
   activeProviderId: config.activeProviderId,
   thunderbolt: { defaultModelId: config.thunderbolt.defaultModelId },
   providers: config.providers.map(cloneProfile),
+  // Fork: this clone is the gate every persisted config passes through, so a
+  // field missing here is silently ERASED by the next unrelated save — not
+  // merely ignored. Omitted rather than defaulted so an untouched file is not
+  // rewritten.
+  ...(config.language === undefined ? {} : { language: config.language }),
 })
 
 /** Resolves a managed model by stable UUID or public slug. */
@@ -125,6 +131,7 @@ const staleAccountPreparationError = (): RuntimeError =>
 /** Creates one runtime with atomically published config and exactly one binding producer per preparation. */
 export const createProviderRuntime = async (dependencies: ProviderRuntimeDependencies): Promise<ProviderRuntime> => {
   const loadedConfig = await dependencies.loadConfig()
+  applyCliLanguage(loadedConfig?.language)
   let currentConfig = cloneConfig(
     loadedConfig ?? {
       version: 3,
@@ -357,6 +364,12 @@ export const createProviderRuntime = async (dependencies: ProviderRuntimeDepende
 
       if (command.type === 'finalize-persistence') {
         finalizePersistence(command.revision)
+        return snapshot()
+      }
+
+      if (command.type === 'set-language') {
+        await commitConfig({ ...currentConfig, language: command.language })
+        applyCliLanguage(command.language)
         return snapshot()
       }
 

@@ -191,7 +191,7 @@ export const subscribeTuiRenderer = (
       updateStatus()
     } else {
       statusStartedAt = Date.now()
-      status = new Loader(tui, boltYellow, (text) => text, workingStatusText, {
+      status = new Loader(tui, boltYellow, (text) => text, workingStatusText(), {
         frames: sparkFrames(),
         intervalMs: 600,
       })
@@ -587,7 +587,7 @@ export const runTuiRepl = async (
   const statusContainer = new Container()
   const queueContainer = new Container()
   const editor = new Editor(tui, editorTheme)
-  editor.setAutocompleteProvider(new CombinedAutocompleteProvider(slashCommands, process.cwd()))
+  editor.setAutocompleteProvider(new CombinedAutocompleteProvider(slashCommands(), process.cwd()))
   editor.disableSubmit = true
   const connectController = new AbortController()
   let activeController: AbortController | undefined = connectController

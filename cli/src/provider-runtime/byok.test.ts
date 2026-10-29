@@ -251,7 +251,7 @@ describe('createByokBinding openai-compat profiles', () => {
     expect(binding.piModel.baseUrl).toBe(profile.baseUrl)
 
     await expect(prepare(profile, { baseUrl: 'https://other.example/v1' })).rejects.toThrow(
-      /stored key.*other\.example.*--api-key.*THUNDERBOLT_OPENAI_COMPAT_KEY/i,
+      /stored key.*other\.example.*--api-key.*VOLT_OPENAI_COMPAT_KEY/i,
     )
   })
 
@@ -290,5 +290,28 @@ describe('createByokBinding openai-compat profiles', () => {
     expect(installed.getProvider('local-a')?.baseUrl).toBe(firstProfile.baseUrl)
     expect(installed.getProvider('local-b')?.baseUrl).toBe(secondProfile.baseUrl)
     expect(installed.getModels().map(({ provider }) => provider)).toEqual(['local-a', 'local-b'])
+  })
+})
+
+describe('openai-compat dedicated environment credential — fork', () => {
+  // Reading both spellings is the back-compat contract: a pilot machine may
+  // already export the old name. Advertising is a separate question — the error
+  // copy names only the current one, pinned in `runtime.test.ts`.
+  test.each([
+    ['VOLT_OPENAI_COMPAT_KEY', 'current'],
+    ['THUNDERBOLT_OPENAI_COMPAT_KEY', 'legacy'],
+  ])('accepts the %s spelling (%s)', async (variable) => {
+    const profile = {
+      id: 'profile-env',
+      label: 'env',
+      provider: 'openai-compat',
+      baseUrl: 'https://models.example.com/v1',
+      defaultModel: 'compat-model',
+      apiKey: null,
+      credentialStatus: 'not-authenticated',
+    } as const satisfies ByokProfile
+    const binding = await prepare(profile, { model: profile.defaultModel }, { [variable]: 'dedicated-key' })
+    expect(binding.piModel.baseUrl).toBe(profile.baseUrl)
+    await binding.dispose()
   })
 })
