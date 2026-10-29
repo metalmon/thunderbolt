@@ -21,6 +21,20 @@ export type PermissionMode = (typeof permissionModeCycle)[number]
  *
  * The ids stay literal: they are compared and stored.
  */
+/**
+ * The short label the footer shows for the active mode. Lower case because it
+ * sits inside a sentence fragment ("разрешения спросить"), unlike the menu's
+ * `permissionModeItems`, whose labels head their own rows — but both resolve
+ * the SAME catalog entries, so the menu and the footer can never disagree.
+ */
+export const permissionModeLabel = (mode: PermissionMode): string =>
+  ({
+    ask: i18n._({ id: 'Ask' }),
+    'accept-edits': i18n._({ id: 'Accept edits' }),
+    'read-only': i18n._({ id: 'Read only' }),
+    yolo: i18n._({ id: 'Yolo' }),
+  })[mode].toLocaleLowerCase()
+
 export const permissionModeItems = (): readonly (ProviderManagerItem & { readonly id: PermissionMode })[] => [
   { id: 'ask', label: i18n._({ id: 'Ask' }), description: i18n._({ id: 'Prompt before bash, write, and edit' }) },
   {

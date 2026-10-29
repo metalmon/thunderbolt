@@ -100,8 +100,7 @@ const cloneConfig = (config: CliConfig): CliConfig => ({
 
 /** Resolves a managed model by stable UUID or public slug. */
 const managedModel = (catalog: ManagedCatalog, selector: string): SharedModel => {
-  const model =
-    catalog.data.find(({ id }) => id === selector) ?? catalog.data.find(({ model }) => model === selector)
+  const model = catalog.data.find(({ id }) => id === selector) ?? catalog.data.find(({ model }) => model === selector)
   if (model) return model
   throw providerRuntimeError('model-not-found', `Managed model "${selector}" was not found.`)
 }
@@ -166,39 +165,38 @@ export const createProviderRuntime = async (dependencies: ProviderRuntimeDepende
   const mutate = mutationQueue.run
 
   /** Builds a fresh plain snapshot from internal state. */
-  const snapshot = (): ProviderSnapshot =>
-    ({
-      revision,
-      activeProviderId: currentConfig.activeProviderId,
-      thunderbolt: {
-        status: effectiveThunderboltStatus(),
-        defaultModelId: currentConfig.thunderbolt.defaultModelId,
-        models: (latestCatalog?.data ?? []).map(({ id, model, name, description, isConfidential }) => ({
-          id,
-          label: name,
-          description: description ? `${model} — ${description}` : model,
-          wireModel: model,
-          confidential: isConfidential === 1,
-        })),
-      },
-      providers: currentConfig.providers.map((profile) => ({
-        id: profile.id,
-        label: profile.label,
-        provider: profile.provider,
-        status: ephemeralByokStatuses.get(profile.id) ?? toProviderStatus(profile.credentialStatus),
-        defaultModel: profile.defaultModel,
-        modelApi: profile.provider === 'fireworks' ? profile.modelApi : undefined,
-        models:
-          profile.provider === 'openai-compat'
-            ? [{ id: profile.defaultModel, label: profile.defaultModel }]
-            : [
-                { id: profile.defaultModel, label: profile.defaultModel },
-                ...piBuiltinModels()
-                  .getModels(profile.provider)
-                  .map(({ id, name }) => ({ id, label: name, description: id })),
-              ].filter((option, index, options) => options.findIndex(({ id }) => id === option.id) === index),
+  const snapshot = (): ProviderSnapshot => ({
+    revision,
+    activeProviderId: currentConfig.activeProviderId,
+    thunderbolt: {
+      status: effectiveThunderboltStatus(),
+      defaultModelId: currentConfig.thunderbolt.defaultModelId,
+      models: (latestCatalog?.data ?? []).map(({ id, model, name, description, isConfidential }) => ({
+        id,
+        label: name,
+        description: description ? `${model} — ${description}` : model,
+        wireModel: model,
+        confidential: isConfidential === 1,
       })),
-    })
+    },
+    providers: currentConfig.providers.map((profile) => ({
+      id: profile.id,
+      label: profile.label,
+      provider: profile.provider,
+      status: ephemeralByokStatuses.get(profile.id) ?? toProviderStatus(profile.credentialStatus),
+      defaultModel: profile.defaultModel,
+      modelApi: profile.provider === 'fireworks' ? profile.modelApi : undefined,
+      models:
+        profile.provider === 'openai-compat'
+          ? [{ id: profile.defaultModel, label: profile.defaultModel }]
+          : [
+              { id: profile.defaultModel, label: profile.defaultModel },
+              ...piBuiltinModels()
+                .getModels(profile.provider)
+                .map(({ id, name }) => ({ id, label: name, description: id })),
+            ].filter((option, index, options) => options.findIndex(({ id }) => id === option.id) === index),
+    })),
+  })
 
   /** Persists a complete candidate config before publishing the corresponding in-memory state. */
   const commitConfig = async (candidate: CliConfig, rollbackable: boolean = false): Promise<void> => {
@@ -462,10 +460,7 @@ export const createProviderRuntime = async (dependencies: ProviderRuntimeDepende
       if (requested.type === 'commit-staged-byok') {
         const stage = dependencies.providerStage.get(requested.providerId)
         if (stage === null) {
-          throw providerRuntimeError(
-            'config-invalid',
-            `Provider "${requested.providerId}" has no staged credentials.`,
-          )
+          throw providerRuntimeError('config-invalid', `Provider "${requested.providerId}" has no staged credentials.`)
         }
         const candidateProfile = stage.profile
         if (candidateProfile.id === 'thunderbolt' || candidateProfile.id.trim() === '') {
@@ -583,10 +578,7 @@ export const createProviderRuntime = async (dependencies: ProviderRuntimeDepende
     const prepared = await (async (): Promise<PreparedPiBinding> => {
       try {
         if (selected.provider === 'openai-compat' && !isSecureCloudUrl(selection.baseUrl ?? selected.baseUrl)) {
-          throw providerRuntimeError(
-            'config-invalid',
-            'OpenAI-compatible endpoints must use https (or loopback http).',
-          )
+          throw providerRuntimeError('config-invalid', 'OpenAI-compatible endpoints must use https (or loopback http).')
         }
         return await dependencies.createByokBinding(
           cloneProfile(selected),
@@ -650,12 +642,7 @@ export const createProviderRuntime = async (dependencies: ProviderRuntimeDepende
     const registeredCredential = await (async (): Promise<ResolvedAccountCredential> => {
       if (credential.type === 'pat') return credential
       try {
-        return await dependencies.ensureRegisteredSession(
-          credential,
-          dependencies.metadata,
-          undefined,
-          signal,
-        )
+        return await dependencies.ensureRegisteredSession(credential, dependencies.metadata, undefined, signal)
       } catch (error) {
         const failure = toError(error)
         if (
