@@ -1,3 +1,9 @@
+[test]
+# Fork: pin the interface language for the whole test run. Without it the suite
+# speaks the machine's language and the text assertions fail on a Russian
+# workstation while passing on an English CI runner.
+preload = ["./src/fork/test-locale.ts"]
+
 # Mirror the repo root's supply-chain quarantine: hold every new dependency
 # version for 7 days before it's installable (blunts a compromised-release window).
 # (Bun reads bunfig.toml from the current working directory, so install/build from
