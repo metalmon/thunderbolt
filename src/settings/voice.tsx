@@ -162,7 +162,10 @@ export const VoiceSettingsPage = () => {
       })
       setUi((s) => ({ ...s, conn: { status: 'ok', detail: t`Key is valid — Gemini Live is reachable.` } }))
     } catch (error) {
-      setUi((s) => ({ ...s, conn: { status: 'error', detail: error instanceof Error ? error.message : String(error) } }))
+      setUi((s) => ({
+        ...s,
+        conn: { status: 'error', detail: error instanceof Error ? error.message : String(error) },
+      }))
     }
   }
 
