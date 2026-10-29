@@ -60,6 +60,21 @@ export const resolveAppUrl = (env: Env = process.env, buildDefault = bakedAppUrl
   envVar('APP_URL', env) || buildDefault || defaultAppUrl
 
 /**
+ * The app URL only when one was actually CONFIGURED — environment or baked at
+ * build time — and `undefined` otherwise.
+ *
+ * ⚠ Distinct from {@link resolveAppUrl}, whose last resort is the development
+ * server at `localhost:1420`. In a released binary nothing is listening there,
+ * so printing it as "open the app here" sends the user to a dead address. A
+ * deployment without a web app (the autonomous product has none) must print no
+ * link at all rather than a plausible wrong one.
+ */
+export const resolveConfiguredAppUrl = (
+  env: Env = process.env,
+  buildDefault = bakedAppUrl,
+): string | undefined => envVar('APP_URL', env) || buildDefault || undefined
+
+/**
  * Resolve a personal access token / api key from the environment. It remains
  * separate from explicit web login and cannot be persisted or cleared by the
  * CLI. An empty string counts as unset.
