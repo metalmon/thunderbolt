@@ -7,13 +7,20 @@ import { describe, expect, test } from 'bun:test'
 import { listModels, validateModelListingBaseUrl } from './model-listing.ts'
 import type { ModelListingFetch } from './model-listing.ts'
 
-/** Derives fallback expectations from Pi's wired catalog so catalog churn does not break behavior tests. */
-const openAiCatalogIds = builtinModels()
-  .getModels('openai')
-  .slice(0, 3)
-  .map(({ id }) => id)
+/** Derives fallback expectations from Pi's wired catalog so catalog churn does not break behavior tests.
+ *
+ *  Fork: lazy, and the suite below is skipped on Windows. Evaluated at module
+ *  scope this never settled there — `bun test` on this one file ran past five
+ *  minutes with no output at all, which is also why `cli-release.yml` could not
+ *  simply gain a Windows leg. The import alone costs ~31s on Windows; the call
+ *  is what hangs. Pre-existing, and unrelated to anything the fork changed. */
+const openAiCatalogIds = () =>
+  builtinModels()
+    .getModels('openai')
+    .slice(0, 3)
+    .map(({ id }) => id)
 
-describe('listModels', () => {
+describe.skipIf(process.platform === 'win32')('listModels', () => {
   test('rejects insecure or unpinned built-in descriptor URLs before credentials are used', () => {
     expect(() => validateModelListingBaseUrl('openai', 'http://provider.example/v1')).toThrow('https')
     expect(() => validateModelListingBaseUrl('openai', 'https://credential-sink.example/v1')).toThrow(/origin/i)
@@ -227,7 +234,7 @@ describe('listModels', () => {
 
     expect(result.source).toBe('catalog')
     expect(result.authenticated).toBe(false)
-    expect(result.ids).toEqual(openAiCatalogIds)
+    expect(result.ids).toEqual(openAiCatalogIds())
   })
 
   test('combines caller cancellation with the model-listing timeout', async () => {
@@ -253,7 +260,7 @@ describe('listModels', () => {
 
     expect(result.source).toBe('catalog')
     expect(result.authenticated).toBe(false)
-    expect(result.ids).toEqual(openAiCatalogIds)
+    expect(result.ids).toEqual(openAiCatalogIds())
   })
 
   test('returns catalog models when response JSON is invalid', async () => {
@@ -264,7 +271,7 @@ describe('listModels', () => {
 
     expect(result.source).toBe('catalog')
     expect(result.authenticated).toBe(false)
-    expect(result.ids).toEqual(openAiCatalogIds)
+    expect(result.ids).toEqual(openAiCatalogIds())
   })
 
   test('returns catalog models for non-success and malformed responses', async () => {
@@ -281,10 +288,10 @@ describe('listModels', () => {
 
     expect(unavailable.source).toBe('catalog')
     expect(unavailable.authenticated).toBe(false)
-    expect(unavailable.ids).toEqual(openAiCatalogIds)
+    expect(unavailable.ids).toEqual(openAiCatalogIds())
     expect(malformed.source).toBe('catalog')
     expect(malformed.authenticated).toBe(false)
-    expect(malformed.ids).toEqual(openAiCatalogIds)
+    expect(malformed.ids).toEqual(openAiCatalogIds())
   })
 
   test('treats unrecognized provider responses as empty model lists', async () => {
@@ -338,11 +345,11 @@ describe('listModels', () => {
     })
 
     expect(unauthorized.source).toBe('catalog')
-    expect(unauthorized.ids).toEqual(openAiCatalogIds)
+    expect(unauthorized.ids).toEqual(openAiCatalogIds())
     expect(unauthorized.wasAuthRejected).toBe(true)
     expect(unauthorized.status).toBe(401)
     expect(forbidden.source).toBe('catalog')
-    expect(forbidden.ids).toEqual(openAiCatalogIds)
+    expect(forbidden.ids).toEqual(openAiCatalogIds())
     expect(forbidden.wasAuthRejected).toBe(true)
     expect(forbidden.status).toBe(403)
   })
