@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, mock } from 'bun:test'
 import { getClock } from '@/testing-library'
 import type { CliInstallError, CliInstallResult } from '@/lib/cli-install'
 import { ThunderboltCliDetail, ThunderboltCliRow } from './thunderbolt-cli'
+import { getAppName } from '@/lib/branding-selectors'
 
 const writeTextMock = mock(() => Promise.resolve())
 Object.defineProperty(navigator, 'clipboard', {
@@ -35,12 +36,15 @@ const clickInstall = async () => {
   })
 }
 
+// ⚠ The row names the DEPLOYMENT (`getAppName()`), which the fork resolves from
+// BRANDING rather than baking in, so pinning a spelling here would make this test
+// a hostage of a branding decision it does not test.
 describe('ThunderboltCliRow', () => {
   it('renders an agent-style row that opens the detail panel', () => {
     const onOpen = mock(() => {})
     renderRow({ onOpen })
 
-    const row = screen.getByRole('button', { name: 'Open Thunderbolt CLI' })
+    const row = screen.getByRole('button', { name: `Open ${getAppName()} CLI` })
     expect(row).toBeInTheDocument()
     expect(screen.getByText('Your agent · runs in your terminal')).toBeInTheDocument()
 
@@ -50,12 +54,12 @@ describe('ThunderboltCliRow', () => {
 
   it('marks the row as selected while its panel is open', () => {
     renderRow({ isSelected: true })
-    expect(screen.getByRole('button', { name: 'Open Thunderbolt CLI' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: `Open ${getAppName()} CLI` })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('renders on web builds (install guide lives in the detail)', () => {
     renderRow({ isTauriEnv: false })
-    expect(screen.getByRole('button', { name: 'Open Thunderbolt CLI' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: `Open ${getAppName()} CLI` })).toBeInTheDocument()
   })
 
   it('renders nothing on unsupported Tauri platforms', () => {
