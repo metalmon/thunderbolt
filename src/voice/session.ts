@@ -37,6 +37,17 @@ export type ReplyFn = (userText: string, signal: AbortSignal) => AsyncIterable<s
 
 export type VoiceSessionOptions = {
   engine: VoiceEngine
+  /**
+   * Fork: the playback queue factory, injectable for tests.
+   *
+   * ⚠ `session.test.ts` replaced `@/voice/audio/playback` with `mock.module`,
+   * which in bun is process-wide and never undone. Upstream had no suite
+   * testing the real queue, so nothing noticed; the fork's
+   * `voice/audio/playback.test.ts` then received the fake and failed in a full
+   * run while passing alone. A test may fake what it PASSES IN; it must not
+   * replace a module its siblings depend on.
+   */
+  createPlayback?: typeof createPlaybackQueue
   reply: ReplyFn
   onState?: (state: SessionState) => void
   onTranscript?: (text: string, role: 'user' | 'assistant') => void
@@ -65,8 +76,8 @@ const singleFrame = async function* (audio: Float32Array): AsyncIterable<Float32
 const tick = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 export const createVoiceSession = (options: VoiceSessionOptions): VoiceSession => {
-  const { engine, reply, onState, onTranscript, onError, onLevel } = options
-  const playback = createPlaybackQueue()
+  const { engine, reply, onState, onTranscript, onError, onLevel, createPlayback = createPlaybackQueue } = options
+  const playback = createPlayback()
   const earcons = options.earcons ?? createEarcons(playback.audioContext)
   let state: SessionState = 'idle'
   let turn: AbortController | null = null

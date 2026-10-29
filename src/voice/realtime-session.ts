@@ -40,6 +40,17 @@ const modelAudioSampleRate = 24000
 
 export type RealtimeSessionOptions = {
   engine: RealtimeEngine
+  /**
+   * The playback queue factory, injectable for tests.
+   *
+   * ⚠ Not indirection for its own sake: `realtime-session.test.ts` used to
+   * replace `@/voice/audio/playback` with `mock.module`, which in bun is
+   * process-wide and never undone — so `playback.test.ts`, which tests the REAL
+   * queue, silently received the fake and failed in a full run while passing
+   * alone. A test may fake what it PASSES IN; it must not replace a module its
+   * siblings depend on.
+   */
+  createPlayback?: typeof createPlaybackQueue
   onState?: (state: SessionState) => void
   onTranscript?: (text: string, role: 'user' | 'assistant') => void
   onError?: (error: unknown) => void
@@ -105,8 +116,18 @@ const float32ToInt16 = (frame: Float32Array): Int16Array => {
 }
 
 export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSession => {
-  const { engine, onState, onTranscript, onError, onLevel, hasChatHistory = false, lang = 'ru', chat } = options
-  const playback = createPlaybackQueue()
+  const {
+    engine,
+    onState,
+    onTranscript,
+    onError,
+    onLevel,
+    hasChatHistory = false,
+    lang = 'ru',
+    chat,
+    createPlayback = createPlaybackQueue,
+  } = options
+  const playback = createPlayback()
   let state: SessionState = 'idle'
   let mic: ReturnType<typeof createMicCapture> | null = null
   let drainTimer: ReturnType<typeof setTimeout> | null = null
