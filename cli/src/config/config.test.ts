@@ -123,7 +123,8 @@ describe('CLI config v3 persistence', () => {
     await expect(loadConfig(invalidPath)).rejects.toMatchObject({ code: 'config-invalid' })
   })
 
-  test('writes config owner-only with mode 0600', async () => {
+  // Fork: POSIX modes only — see the note in `iroh/identity.test.ts`.
+  test.skipIf(process.platform === 'win32')('writes config owner-only with mode 0600', async () => {
     const path = await temporaryConfigPath()
 
     await saveConfig(createConfig(), path)

@@ -34,6 +34,7 @@ import { isAllowed } from './allowlist.ts'
 import { bindServer } from './endpoint.ts'
 import { killProcessWhenConnectionCloses } from './lifecycle.ts'
 import { forwardFromRecv, forwardToSend, writeToStdin } from './pump.ts'
+import { displayName } from '../fork/identity.ts'
 
 /** QUIC application close code for a connection we actively reject (allowlist
  *  miss or spawn failure). Normal end-of-session is signalled by finishing the
@@ -443,7 +444,7 @@ export const accountTrustBanner = (enabled: boolean): string =>
  * @param nodeId - bridge's public iroh node id
  * @param ticket - bridge's current iroh connection ticket
  * @param accountTrustEnabled - whether same-account auto-trust initialized
- * @param appUrl - Thunderbolt app base URL
+ * @param appUrl - Volt app base URL
  */
 export const renderIrohBridgeBanner = (
   config: BridgeConfig,
@@ -458,7 +459,7 @@ export const renderIrohBridgeBanner = (
     `⚡ thunderbolt ${config.protocol} bridge (iroh) ready\n` +
     `   node id: ${nodeId}\n` +
     `   ticket:  ${ticket}\n` +
-    `   pair in Thunderbolt app: ${pairingUrl}\n` +
+    `   pair in ${displayName} app: ${pairingUrl}\n` +
     `   spawning per connection: ${redactArgv(config.command)}\n` +
     accountTrustBanner(accountTrustEnabled)
   )

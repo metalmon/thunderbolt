@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Command-line surface for the thunderbolt CLI: version, help text, canonical
+ * Command-line surface for the CLI: version, help text, canonical
  * syntax parsing. No I/O happens here — the caller decides what to do with the
  * result.
  */
@@ -18,6 +18,7 @@ import type {
   ThinkingLevel,
 } from './agent/types.ts'
 import { defaultCloudUrl } from './auth/config.ts'
+import { commandName, displayName, envVarNames } from './fork/identity.ts'
 import { cliVersion } from './version.ts'
 
 export { cliVersion }
@@ -34,29 +35,29 @@ const transports: readonly BridgeTransport[] = ['wss', 'iroh']
 const defaultBridgePort: Record<BridgeProtocol, number> = { acp: 8839, mcp: 8840 }
 
 /** Usage text printed by `--help`/`-h`. */
-export const helpText = `⚡ thunderbolt v${cliVersion} — a single-binary terminal coding agent.
+export const helpText = `⚡ ${commandName} v${cliVersion} — a single-binary terminal coding agent.
 
 USAGE
-  thunderbolt [options] [prompt]
-  thunderbolt agent [options] [prompt]
-  thunderbolt config
-  thunderbolt login
-  thunderbolt logout
-  thunderbolt acp serve [options]
-  thunderbolt acp --transport <wss|iroh> [--port N] -- <agent-cmd...>
-  thunderbolt mcp --transport <wss|iroh> [--port N] -- <server-cmd...>
-  thunderbolt acp connect <ticket|nodeid> [-- <local-client-cmd...>]
-  thunderbolt mcp connect <ticket|nodeid> [-- <local-client-cmd...>]
-  thunderbolt iroh <id | pair | allow <nodeid>>
+  ${commandName} [options] [prompt]
+  ${commandName} agent [options] [prompt]
+  ${commandName} config
+  ${commandName} login
+  ${commandName} logout
+  ${commandName} acp serve [options]
+  ${commandName} acp --transport <wss|iroh> [--port N] -- <agent-cmd...>
+  ${commandName} mcp --transport <wss|iroh> [--port N] -- <server-cmd...>
+  ${commandName} acp connect <ticket|nodeid> [-- <local-client-cmd...>]
+  ${commandName} mcp connect <ticket|nodeid> [-- <local-client-cmd...>]
+  ${commandName} iroh <id | pair | allow <nodeid>>
 
   With a prompt, runs it once and exits. With no prompt, starts an
   interactive REPL. Provider profiles and account models resolve when the run starts.
 
 SUBCOMMANDS
   agent       run the coding agent (default when omitted)
-  config      manage Thunderbolt and provider profiles
-  login       authenticate this CLI with your Thunderbolt account in the browser
-  logout      revoke and clear the stored Thunderbolt web session
+  config      manage ${displayName} and provider profiles
+  login       authenticate this CLI with your ${displayName} account in the browser
+  logout      revoke and clear the stored ${displayName} web session
   acp serve   expose THIS coding agent, rooted at current directory, as a stdio ACP server
   acp         bridge a local stdio ACP agent over the network the app can reach
   mcp         bridge a local stdio MCP server over the network the app can reach
@@ -87,8 +88,8 @@ OPTIONS
 INTERACTIVE COMMANDS
   /providers   manage and switch provider profiles
   /models      select a model for the active provider
-  /login       authenticate a Thunderbolt account with web login
-  /logout      revoke and clear the stored Thunderbolt web session
+  /login       authenticate a ${displayName} account with web login
+  /logout      revoke and clear the stored ${displayName} web session
   /permissions choose any permission mode
   Shift+Tab    cycle ask → accept-edits → read-only → yolo (TUI only)
 
@@ -98,38 +99,38 @@ BRIDGE OPTIONS (acp / mcp)
       --                everything after this is the stdio command to spawn
 
 IROH TRANSPORT (P2P, end-to-end encrypted)
-  thunderbolt iroh id                print the ACP bridge NodeId + connection ticket
-  thunderbolt iroh pair              print an ACP ticket to share out-of-band
-  thunderbolt iroh allow <nodeid>    trust a peer (the allowlist is the auth gate)
+  ${commandName} iroh id                print the ACP bridge NodeId + connection ticket
+  ${commandName} iroh pair              print an ACP ticket to share out-of-band
+  ${commandName} iroh allow <nodeid>    trust a peer (the allowlist is the auth gate)
   Only allowlisted peers may drive an iroh bridge; the NodeId is an ed25519 key,
   so the QUIC handshake authenticates and end-to-end encrypts every session.
   iroh id|pair are ACP-only — the MCP bridge has its own NodeId, printed by
-  thunderbolt mcp --transport iroh on startup.
+  ${commandName} mcp --transport iroh on startup.
 
 ACCOUNT AUTHENTICATION
-  thunderbolt login always uses the web device grant. Open the printed link (or scan
+  ${commandName} login always uses the web device grant. Open the printed link (or scan
   the QR) and approve in the app to bind this CLI to your account. Set
-  THUNDERBOLT_CLOUD_URL to a self-hosted backend (default ${defaultCloudUrl}).
-  THUNDERBOLT_TOKEN is an environment-managed PAT for direct managed inference and bridges only.
+  ${envVarNames('CLOUD_URL').current} to a self-hosted backend (default ${defaultCloudUrl}).
+  ${envVarNames('TOKEN').current} is an environment-managed PAT for direct managed inference and bridges only.
   It cannot be cleared or device-bound by the CLI. Confidential models require web login.
 
 EXAMPLES
-  thunderbolt "fix the failing test in utils.ts"
-  thunderbolt --thinking high "refactor the auth module"
-  thunderbolt --yolo "run the test suite and fix what breaks"
-  thunderbolt --provider work-openai --model gpt-custom "review this repository"
-  thunderbolt config
-  thunderbolt
-  thunderbolt --provider local --base-url http://localhost:11434/v1 --model llama3.3 "hello"
-  thunderbolt acp --transport wss -- npx @zed-industries/claude-code-acp
-  thunderbolt mcp --transport wss --port 9001 -- uvx mcp-server-fetch
-  thunderbolt acp --transport iroh -- thunderbolt acp serve   # share THIS agent
-  thunderbolt acp --transport iroh -- npx @zed-industries/claude-code-acp
-  thunderbolt iroh id
-  thunderbolt acp connect endpoint1abc…   # dial a remote iroh bridge
+  ${commandName} "fix the failing test in utils.ts"
+  ${commandName} --thinking high "refactor the auth module"
+  ${commandName} --yolo "run the test suite and fix what breaks"
+  ${commandName} --provider work-openai --model gpt-custom "review this repository"
+  ${commandName} config
+  ${commandName}
+  ${commandName} --provider local --base-url http://localhost:11434/v1 --model llama3.3 "hello"
+  ${commandName} acp --transport wss -- npx @zed-industries/claude-code-acp
+  ${commandName} mcp --transport wss --port 9001 -- uvx mcp-server-fetch
+  ${commandName} acp --transport iroh -- ${commandName} acp serve   # share THIS agent
+  ${commandName} acp --transport iroh -- npx @zed-industries/claude-code-acp
+  ${commandName} iroh id
+  ${commandName} acp connect endpoint1abc…   # dial a remote iroh bridge
 
 Provider, model, key, and URL flags affect only the current process and are never
-persisted. Run thunderbolt in a terminal for first-run setup, or thunderbolt config
+persisted. Run ${commandName} in a terminal for first-run setup, or ${commandName} config
 to manage saved profiles.`
 
 /** Type guard: is `value` one of the supported {@link ThinkingLevel}s? */
@@ -170,31 +171,31 @@ const scanTokens = (tokens: readonly string[], index: number, flags: Flags): Sca
   const next = tokens[index + 1]
 
   if (token === '--model' || token === '-m') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --model requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --model requires a value` }
     return scanTokens(tokens, index + 2, { ...flags, model: next })
   }
 
   if (token === '--provider') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --provider requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --provider requires a value` }
     return scanTokens(tokens, index + 2, { ...flags, provider: next })
   }
 
   if (token === '--base-url') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --base-url requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --base-url requires a value` }
     return scanTokens(tokens, index + 2, { ...flags, baseUrl: next })
   }
 
   if (token === '--api-key') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --api-key requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --api-key requires a value` }
     return scanTokens(tokens, index + 2, { ...flags, apiKey: next })
   }
 
   if (token === '--thinking') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --thinking requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --thinking requires a value` }
     if (!isThinkingLevel(next)) {
       return {
         ok: false,
-        message: `thunderbolt: invalid --thinking level '${next}' (expected one of: ${thinkingLevels.join(', ')})`,
+        message: `${commandName}: invalid --thinking level '${next}' (expected one of: ${thinkingLevels.join(', ')})`,
       }
     }
     return scanTokens(tokens, index + 2, { ...flags, thinking: next })
@@ -237,28 +238,28 @@ const scanBridgeFlags = (tokens: readonly string[], index: number, flags: Bridge
   const next = tokens[index + 1]
 
   if (token === '--transport') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --transport requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --transport requires a value` }
     if (!isTransport(next)) {
       return {
         ok: false,
-        message: `thunderbolt: invalid --transport '${next}' (expected one of: ${transports.join(', ')})`,
+        message: `${commandName}: invalid --transport '${next}' (expected one of: ${transports.join(', ')})`,
       }
     }
     return scanBridgeFlags(tokens, index + 2, { ...flags, transport: next })
   }
 
   if (token === '--port') {
-    if (next === undefined) return { ok: false, message: 'thunderbolt: --port requires a value' }
+    if (next === undefined) return { ok: false, message: `${commandName}: --port requires a value` }
     // Digits-only so `0x10`/`1e3`/` 5 ` don't slip past `Number` coercion.
     if (!/^\d+$/.test(next) || Number(next) > 65535) {
-      return { ok: false, message: `thunderbolt: invalid --port '${next}' (expected an integer 0-65535)` }
+      return { ok: false, message: `${commandName}: invalid --port '${next}' (expected an integer 0-65535)` }
     }
     return scanBridgeFlags(tokens, index + 2, { ...flags, port: Number(next) })
   }
 
   return {
     ok: false,
-    message: `thunderbolt: unrecognized bridge option '${token}' (did you forget '--' before the command?)`,
+    message: `${commandName}: unrecognized bridge option '${token}' (did you forget '--' before the command?)`,
   }
 }
 
@@ -282,7 +283,7 @@ const parseBridgeArgs = (protocol: BridgeProtocol, rest: string[]): ParsedSyntax
   if (command.length === 0) {
     return {
       kind: 'error',
-      message: `thunderbolt ${protocol}: missing agent command (e.g. thunderbolt ${protocol} --transport ${defaultTransport} -- <command...>)`,
+      message: `${commandName} ${protocol}: missing agent command (e.g. ${commandName} ${protocol} --transport ${defaultTransport} -- <command...>)`,
     }
   }
 
@@ -307,12 +308,12 @@ const parseConnectArgs = (
 
   const target = before[0]
   if (target === undefined) {
-    return { kind: 'error', message: `thunderbolt ${protocol} connect: missing <ticket|nodeid> to dial` }
+    return { kind: 'error', message: `${commandName} ${protocol} connect: missing <ticket|nodeid> to dial` }
   }
   if (before.length > 1) {
     return {
       kind: 'error',
-      message: `thunderbolt ${protocol} connect: unexpected argument '${before[1]}' (did you forget '--' before the command?)`,
+      message: `${commandName} ${protocol} connect: unexpected argument '${before[1]}' (did you forget '--' before the command?)`,
     }
   }
 
@@ -352,7 +353,7 @@ const parseServeSyntax = (
   const scan = scanTokens(rest, 0, defaultFlags)
   if (!scan.ok) return { kind: 'error', message: scan.message }
   if (scan.flags.positionals.length > 0) {
-    return { kind: 'error', message: `thunderbolt acp serve: unexpected argument '${scan.flags.positionals[0]}'` }
+    return { kind: 'error', message: `${commandName} acp serve: unexpected argument '${scan.flags.positionals[0]}'` }
   }
 
   const config = buildCommandExecutionConfig(scan.flags, cwd)
@@ -367,12 +368,12 @@ const parseAccountArgs = (
   rest: string[],
 ): ParsedSyntaxKind<'login'> | ParsedSyntaxKind<'logout'> | SyntaxParseFailure => {
   if (rest.includes('--help') || rest.includes('-h')) return { kind: 'help' }
-  if (rest.length > 0) return { kind: 'error', message: `thunderbolt ${action}: unexpected argument '${rest[0]}'` }
+  if (rest.length > 0) return { kind: 'error', message: `${commandName} ${action}: unexpected argument '${rest[0]}'` }
   return { kind: action }
 }
 
 /**
- * Parses a `thunderbolt iroh` admin invocation into its sub-action
+ * Parses a `volt iroh` admin invocation into its sub-action
  * (`id` | `pair` | `allow <nodeid>`).
  */
 const parseIrohAdminArgs = (rest: string[]): ParsedSyntaxKind<'iroh-admin'> | SyntaxParseFailure => {
@@ -382,12 +383,12 @@ const parseIrohAdminArgs = (rest: string[]): ParsedSyntaxKind<'iroh-admin'> | Sy
   if (action === 'pair') return { kind: 'iroh-admin', action: { kind: 'pair' } }
   if (action === 'allow') {
     const nodeId = rest[1]
-    if (nodeId === undefined) return { kind: 'error', message: 'thunderbolt iroh allow: missing <nodeid>' }
+    if (nodeId === undefined) return { kind: 'error', message: `${commandName} iroh allow: missing <nodeid>` }
     return { kind: 'iroh-admin', action: { kind: 'allow', nodeId } }
   }
   return {
     kind: 'error',
-    message: `thunderbolt iroh: unknown action '${action}' (expected: id | pair | allow <nodeid>)`,
+    message: `${commandName} iroh: unknown action '${action}' (expected: id | pair | allow <nodeid>)`,
   }
 }
 
@@ -409,7 +410,7 @@ export const parseCommandSyntax = (
     const argument = argv[1]
     if (argument === undefined) return { kind: 'config' }
     if (argument === '--help' || argument === '-h') return { kind: 'help' }
-    return { kind: 'error', message: `thunderbolt config: unexpected argument '${argument}'` }
+    return { kind: 'error', message: `${commandName} config: unexpected argument '${argument}'` }
   }
   if (subcommand === 'iroh') return parseIrohAdminArgs(argv.slice(1))
   if (subcommand === 'acp' || subcommand === 'mcp') {
