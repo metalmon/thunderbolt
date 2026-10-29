@@ -131,11 +131,21 @@ jobs:
             echo "::error::Repository variable VITE_THUNDERBOLT_CLOUD_URL is required"
             exit 1
           fi
+          # Fork: THUNDERBOLT_APP_URL is OPTIONAL, unlike the cloud URL.
+          #
+          # It is a WEB app address, used for exactly one thing: the "pair in the
+          # app" line the iroh bridge prints. The autonomous product ships no web
+          # app — the user installs the desktop client and connects the CLI to it
+          # directly — so demanding the variable would force an operator to name
+          # an address that does not exist. Absent, the CLI prints no pairing
+          # line at all (`resolveConfiguredAppUrl`), which is the honest output.
           if [ -z "$THUNDERBOLT_BUILD_APP_URL" ]; then
-            echo "::error::Repository variable THUNDERBOLT_APP_URL is required"
-            exit 1
+            echo "::notice::THUNDERBOLT_APP_URL is unset — the CLI will print no app pairing link"
           fi
           cd cli
+          # The define is always passed; unset bakes an EMPTY string, which
+          # `resolveConfiguredAppUrl` reads as "not configured" and so prints no
+          # link. Keeps this step POSIX — no conditional argument arrays.
           bun build --compile --minify \
             --target="${{ matrix.bun_target }}" \
             --define "process.env.THUNDERBOLT_BUILD_CLOUD_URL=\"$THUNDERBOLT_BUILD_CLOUD_URL\"" \
