@@ -7,7 +7,6 @@ import { AgentSideConnection } from '@agentclientprotocol/sdk'
 import type { Agent, Stream } from '@agentclientprotocol/sdk'
 import { InMemorySessionRepo } from '@earendil-works/pi-agent-core'
 import { fauxAssistantMessage, fauxProvider } from '@earendil-works/pi-ai/providers/faux'
-import { bundledManagedCatalog } from './catalog.ts'
 import { createHarnessAgent } from '../acp/harness-agent.ts'
 import type { SessionStore } from '../acp/session-store.ts'
 import { createHarnessRuntime } from '../agent/harness.ts'
@@ -15,7 +14,7 @@ import type { CommandSyntaxServeConfig, HarnessConfig } from '../agent/types.ts'
 import type { CliDeviceMetadata } from '../auth/account-client.ts'
 import { createProviderStageContext } from './provider-stage.ts'
 import type { ProviderRuntimeDependencies } from './runtime.ts'
-import { createTestProviderRuntime } from './test-fixtures.ts'
+import { createTestProviderRuntime, testDirectModel, testManagedCatalog } from './test-fixtures.ts'
 import type {
   ByokProfile,
   CliConfig,
@@ -25,8 +24,7 @@ import type {
   ResolvedAccountCredential,
 } from './types.ts'
 
-const directModel = bundledManagedCatalog.data.find(({ isConfidential }) => isConfidential === 0)
-if (!directModel) throw new Error('managed model fixtures require one direct model')
+const directModel = testDirectModel
 
 const byokProfile: ByokProfile = {
   id: 'work-profile',
@@ -156,7 +154,7 @@ const createRuntimeProbe = async (provenance: ParityProvenance): Promise<Runtime
       }),
       logout: async () => 'logged-out',
     },
-    loadCatalog: async () => bundledManagedCatalog,
+    loadCatalog: async () => testManagedCatalog,
     ensureRegisteredSession: async (credential) => credential,
     markSessionAuthenticationRequired: async () => {
       calls.sessionAuthenticationRequired += 1
@@ -164,13 +162,7 @@ const createRuntimeProbe = async (provenance: ParityProvenance): Promise<Runtime
     metadata,
     createByokBinding: async (profile, requested) => {
       calls.producer += 1
-      return createObservedBinding(
-        profile.id,
-        requested.model ?? profile.defaultModel,
-        provenance,
-        calls,
-        disposed,
-      )
+      return createObservedBinding(profile.id, requested.model ?? profile.defaultModel, provenance, calls, disposed)
     },
     createManagedDirectBinding: async ({ credential, model }) => {
       calls.producer += 1
