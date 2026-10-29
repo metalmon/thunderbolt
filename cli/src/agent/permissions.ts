@@ -6,18 +6,38 @@ import { isReadOnlyAgentTool } from '../../../shared/agent-tool-permissions.ts'
 import type { HarnessRuntime, ProviderManagerIO, ProviderManagerItem } from '../provider-runtime/types.ts'
 import { sanitizePermissionText } from '../ui/render.ts'
 import type { PermissionPrompt, PermissionRequest } from './types.ts'
+import { i18n } from '../fork/i18n.ts'
 
 export const permissionModeCycle = ['ask', 'accept-edits', 'read-only', 'yolo'] as const
 
 export type PermissionMode = (typeof permissionModeCycle)[number]
 
-export const permissionModeItems = [
-  { id: 'ask', label: 'Ask', description: 'Prompt before bash, write, and edit' },
-  { id: 'accept-edits', label: 'Accept edits', description: 'Allow write and edit; ask before bash' },
-  { id: 'read-only', label: 'Read only', description: 'Block bash, write, and edit' },
-  { id: 'yolo', label: 'Yolo', description: 'Allow every tool call' },
-] as const satisfies readonly (ProviderManagerItem & { readonly id: PermissionMode })[]
+/**
+ * Fork: a function, not a frozen array. The labels are read by a person, so they
+ * are localized — and resolving them at module scope would pin them to whatever
+ * the language was when the module first loaded. A CLI process has exactly one
+ * language, so that would work today, but it is the mistake the app's own i18n
+ * notes call out, and it costs nothing to avoid.
+ *
+ * The ids stay literal: they are compared and stored.
+ */
+export const permissionModeItems = (): readonly (ProviderManagerItem & { readonly id: PermissionMode })[] => [
+  { id: 'ask', label: i18n._({ id: 'Ask' }), description: i18n._({ id: 'Prompt before bash, write, and edit' }) },
+  {
+    id: 'accept-edits',
+    label: i18n._({ id: 'Accept edits' }),
+    description: i18n._({ id: 'Allow write and edit; ask before bash' }),
+  },
+  {
+    id: 'read-only',
+    label: i18n._({ id: 'Read only' }),
+    description: i18n._({ id: 'Block bash, write, and edit' }),
+  },
+  { id: 'yolo', label: i18n._({ id: 'Yolo' }), description: i18n._({ id: 'Allow every tool call' }) },
+]
 
+/** ⚠ Model-facing: this reason is returned as the tool result the agent reads,
+ *  so it stays English. Translating it would be translating an instruction. */
 export const readOnlyBlockReason = 'blocked: read-only mode — propose the change instead of applying it'
 
 /** Advances to the next permission mode. */
@@ -29,7 +49,7 @@ export const choosePermissionMode = async (
   io: ProviderManagerIO,
   currentMode: PermissionMode,
 ): Promise<PermissionMode> => {
-  const selected = await io.choose('Permissions', permissionModeItems)
+  const selected = await io.choose(i18n._({ id: 'Permissions' }), permissionModeItems())
   return permissionModeCycle.find((mode) => mode === selected) ?? currentMode
 }
 
