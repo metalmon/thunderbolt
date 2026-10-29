@@ -4,8 +4,8 @@
 
 import { describe, expect, it } from 'bun:test'
 import { cliVersion } from '../version.ts'
-import { bundledManagedCatalog, fetchManagedCatalog } from './catalog.ts'
-import { futureDirectCatalog } from './test-fixtures.ts'
+import { fetchManagedCatalog } from './catalog.ts'
+import { futureDirectCatalog, testManagedCatalog } from './test-fixtures.ts'
 import type { AccountFetch } from './types.ts'
 
 type FetchCall = { readonly url: string; readonly init: RequestInit | undefined }
@@ -20,14 +20,14 @@ const createJsonFetch = (body: string, status = 200) => {
   return { fetchFn, calls }
 }
 
-const firstModel = bundledManagedCatalog.data[0]!
+const firstModel = testManagedCatalog.data[0]!
 
 describe('fetchManagedCatalog', () => {
   it('fetches defaults.models over HTTPS in server display order', async () => {
     const reordered = {
-      ...bundledManagedCatalog,
-      defaultModelId: bundledManagedCatalog.data[1]!.id,
-      data: [bundledManagedCatalog.data[1]!, bundledManagedCatalog.data[0]!, ...bundledManagedCatalog.data.slice(2)],
+      ...testManagedCatalog,
+      defaultModelId: testManagedCatalog.data[1]!.id,
+      data: [testManagedCatalog.data[1]!, testManagedCatalog.data[0]!, ...testManagedCatalog.data.slice(2)],
     }
     const { fetchFn, calls } = createJsonFetch(
       JSON.stringify({
@@ -56,9 +56,9 @@ describe('fetchManagedCatalog', () => {
     ['localhost subdomain', 'http://dev.localhost/v1', 'http://dev.localhost/v1/config'],
     ['query and fragment', 'https://api.test/v1?#', 'https://api.test/v1/config'],
   ] as const)('allows plain HTTP for %s', async (_label, backendUrl, expectedUrl) => {
-    const { fetchFn, calls } = createJsonFetch(JSON.stringify({ defaults: { models: bundledManagedCatalog } }))
+    const { fetchFn, calls } = createJsonFetch(JSON.stringify({ defaults: { models: testManagedCatalog } }))
 
-    await expect(fetchManagedCatalog(backendUrl, fetchFn)).resolves.toEqual(bundledManagedCatalog)
+    await expect(fetchManagedCatalog(backendUrl, fetchFn)).resolves.toEqual(testManagedCatalog)
     expect(calls[0]?.url).toBe(expectedUrl)
   })
 
@@ -68,7 +68,7 @@ describe('fetchManagedCatalog', () => {
     ['malformed URL', 'not-a-url'],
     ['URL credentials', 'https://user:secret@api.test/v1'],
   ] as const)('rejects %s before issuing a request', async (_label, backendUrl) => {
-    const { fetchFn, calls } = createJsonFetch(JSON.stringify({ defaults: { models: bundledManagedCatalog } }))
+    const { fetchFn, calls } = createJsonFetch(JSON.stringify({ defaults: { models: testManagedCatalog } }))
 
     await expect(fetchManagedCatalog(backendUrl, fetchFn)).rejects.toMatchObject({ code: 'config-invalid' })
     expect(calls).toHaveLength(0)
@@ -84,25 +84,29 @@ describe('fetchManagedCatalog', () => {
     ['null', null],
     ['blank', ''],
   ] as const)('accepts %s vendor and description values', async (_label, value) => {
-    const catalog = { ...bundledManagedCatalog, defaultModelId: firstModel.id, data: [{ ...firstModel, vendor: value, description: value }] }
+    const catalog = {
+      ...testManagedCatalog,
+      defaultModelId: firstModel.id,
+      data: [{ ...firstModel, vendor: value, description: value }],
+    }
     const { fetchFn } = createJsonFetch(JSON.stringify({ defaults: { models: catalog } }))
 
     await expect(fetchManagedCatalog('https://api.test/v1', fetchFn)).resolves.toEqual(catalog)
   })
 
   it.each([
-    ['zero version', { ...bundledManagedCatalog, version: 0 }],
-    ['fractional version', { ...bundledManagedCatalog, version: 1.5 }],
-    ['blank default id', { ...bundledManagedCatalog, defaultModelId: ' ' }],
-    ['missing data array', { ...bundledManagedCatalog, data: null }],
-    ['non-object row', { ...bundledManagedCatalog, data: [null] }],
-    ['blank id', { ...bundledManagedCatalog, data: [{ ...firstModel, id: ' ' }] }],
-    ['blank model', { ...bundledManagedCatalog, data: [{ ...firstModel, model: ' ' }] }],
-    ['blank name', { ...bundledManagedCatalog, data: [{ ...firstModel, name: ' ' }] }],
-    ['invalid vendor', { ...bundledManagedCatalog, data: [{ ...firstModel, vendor: 1 }] }],
-    ['invalid description', { ...bundledManagedCatalog, data: [{ ...firstModel, description: 1 }] }],
-    ['invalid confidentiality', { ...bundledManagedCatalog, data: [{ ...firstModel, isConfidential: 2 }] }],
-    ['invalid context window', { ...bundledManagedCatalog, data: [{ ...firstModel, contextWindow: null }] }],
+    ['zero version', { ...testManagedCatalog, version: 0 }],
+    ['fractional version', { ...testManagedCatalog, version: 1.5 }],
+    ['blank default id', { ...testManagedCatalog, defaultModelId: ' ' }],
+    ['missing data array', { ...testManagedCatalog, data: null }],
+    ['non-object row', { ...testManagedCatalog, data: [null] }],
+    ['blank id', { ...testManagedCatalog, data: [{ ...firstModel, id: ' ' }] }],
+    ['blank model', { ...testManagedCatalog, data: [{ ...firstModel, model: ' ' }] }],
+    ['blank name', { ...testManagedCatalog, data: [{ ...firstModel, name: ' ' }] }],
+    ['invalid vendor', { ...testManagedCatalog, data: [{ ...firstModel, vendor: 1 }] }],
+    ['invalid description', { ...testManagedCatalog, data: [{ ...firstModel, description: 1 }] }],
+    ['invalid confidentiality', { ...testManagedCatalog, data: [{ ...firstModel, isConfidential: 2 }] }],
+    ['invalid context window', { ...testManagedCatalog, data: [{ ...firstModel, contextWindow: null }] }],
   ] as const)('rejects invalid required field: %s', async (_label, catalog) => {
     const { fetchFn } = createJsonFetch(JSON.stringify({ defaults: { models: catalog } }))
 
@@ -110,7 +114,7 @@ describe('fetchManagedCatalog', () => {
   })
 
   it('rejects a default model id absent from data', async () => {
-    const catalog = { ...bundledManagedCatalog, defaultModelId: `${bundledManagedCatalog.defaultModelId}-missing` }
+    const catalog = { ...testManagedCatalog, defaultModelId: `${testManagedCatalog.defaultModelId}-missing` }
     const { fetchFn } = createJsonFetch(JSON.stringify({ defaults: { models: catalog } }))
 
     await expect(fetchManagedCatalog('https://api.test/v1', fetchFn)).rejects.toMatchObject({ code: 'config-invalid' })
