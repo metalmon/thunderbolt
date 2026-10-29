@@ -25,6 +25,11 @@ msgstr "Работаю…"
 
 #. js-lingui-explicit-id
 #: src/ui/render.ts
+msgid "Working… (Ctrl+C to interrupt)"
+msgstr "Работает… (Ctrl+C — прервать)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
 msgid "check your connection — your message is kept in history (↑)"
 msgstr "проверьте связь — ваше сообщение сохранено в истории (↑)"
 
@@ -54,6 +59,21 @@ msgid "Provider rejected the credential"
 msgstr "Провайдер отклонил учётные данные"
 
 #. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Reasoning… {seconds}s"
+msgstr "Размышляет… {seconds} с"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Still working… {seconds}s — this model can take ~30s for the first token"
+msgstr "Ещё работает… {seconds} с — первой лексемы от этой модели можно ждать около 30 с"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Working… {seconds}s"
+msgstr "Работает… {seconds} с"
+
+#. js-lingui-explicit-id
 #: src/agent/run.ts
 #: src/ui/tui.ts
 msgid "Provider setup was cancelled before a provider was selected."
@@ -73,6 +93,36 @@ msgstr "Разрешить {tool} до конца сеанса"
 #: src/ui/tui.ts
 msgid "Deny"
 msgstr "Отказать"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Manage provider profiles"
+msgstr "Управление учётными записями провайдеров"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the active model"
+msgstr "Выбор действующей модели"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Sign in to {app}"
+msgstr "Вход в {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Sign out of {app}"
+msgstr "Выход из {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the permission mode"
+msgstr "Выбор режима разрешений"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the interface language"
+msgstr "Выбор языка интерфейса"
 
 #. js-lingui-explicit-id
 #: src/provider-runtime/manager.ts
@@ -159,6 +209,26 @@ msgstr "{subject} по пути {path} записан более новой ве
 #: src/lib/state-error.ts
 msgid "{subject} at {path} is invalid"
 msgstr "{subject} по пути {path} повреждён"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "Interface language"
+msgstr "Язык интерфейса"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "System language"
+msgstr "Язык системы"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "follow the operating system"
+msgstr "как в операционной системе"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "Interface language saved."
+msgstr "Язык интерфейса сохранён."
 
 #. js-lingui-explicit-id
 #: src/fork/provider-status-label.ts

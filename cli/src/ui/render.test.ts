@@ -32,7 +32,7 @@ const textResult = (text: string): ToolResultPreview => ({ content: [{ type: 'te
 test('status ladder derives working, reasoning, and reassurance from an injected clock', () => {
   const startedAt = 1_000
 
-  expect(statusLadderMessage(startedAt, startedAt, 'working')).toBe(workingStatusText)
+  expect(statusLadderMessage(startedAt, startedAt, 'working')).toBe(workingStatusText())
   expect(statusLadderMessage(startedAt, startedAt + 4_000, 'working')).toContain('4s')
   expect(statusLadderMessage(startedAt, startedAt + 12_000, 'reasoning')).toContain('Reasoning')
   expect(statusLadderMessage(startedAt, startedAt + 15_000, 'working')).toContain('~30s')
@@ -51,7 +51,7 @@ describe('attachRenderer — prompt status', () => {
     const message = assistantMessage()
     events.emit({ type: 'agent_start' })
     events.emit({ type: 'message_start', message })
-    expect(stderr.join('')).toContain(workingStatusText)
+    expect(stderr.join('')).toContain(workingStatusText())
     expect(stderr.join('')).toContain('(Ctrl+C to interrupt)')
     expect(stdout).toEqual([])
 
