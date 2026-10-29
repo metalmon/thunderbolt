@@ -25,6 +25,11 @@ msgstr "Working…"
 
 #. js-lingui-explicit-id
 #: src/ui/render.ts
+msgid "Working… (Ctrl+C to interrupt)"
+msgstr "Working… (Ctrl+C to interrupt)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
 msgid "check your connection — your message is kept in history (↑)"
 msgstr "check your connection — your message is kept in history (↑)"
 
@@ -54,6 +59,21 @@ msgid "Provider rejected the credential"
 msgstr "Provider rejected the credential"
 
 #. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Reasoning… {seconds}s"
+msgstr "Reasoning… {seconds}s"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Still working… {seconds}s — this model can take ~30s for the first token"
+msgstr "Still working… {seconds}s — this model can take ~30s for the first token"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Working… {seconds}s"
+msgstr "Working… {seconds}s"
+
+#. js-lingui-explicit-id
 #: src/agent/run.ts
 #: src/ui/tui.ts
 msgid "Provider setup was cancelled before a provider was selected."
@@ -73,6 +93,36 @@ msgstr "Allow {tool} for the rest of this session"
 #: src/ui/tui.ts
 msgid "Deny"
 msgstr "Deny"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Manage provider profiles"
+msgstr "Manage provider profiles"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the active model"
+msgstr "Choose the active model"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Sign in to {app}"
+msgstr "Sign in to {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Sign out of {app}"
+msgstr "Sign out of {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the permission mode"
+msgstr "Choose the permission mode"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/commands.ts
+msgid "Choose the interface language"
+msgstr "Choose the interface language"
 
 #. js-lingui-explicit-id
 #: src/provider-runtime/manager.ts
@@ -159,6 +209,26 @@ msgstr "{subject} at {path} was written by a newer {app} CLI version"
 #: src/lib/state-error.ts
 msgid "{subject} at {path} is invalid"
 msgstr "{subject} at {path} is invalid"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "Interface language"
+msgstr "Interface language"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "System language"
+msgstr "System language"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "follow the operating system"
+msgstr "follow the operating system"
+
+#. js-lingui-explicit-id
+#: src/fork/language-command.ts
+msgid "Interface language saved."
+msgstr "Interface language saved."
 
 #. js-lingui-explicit-id
 #: src/fork/provider-status-label.ts
@@ -339,3 +409,8 @@ msgstr "Run {command} in a terminal to choose a provider before starting inferen
 #: src/agent/run.ts
 msgid "Provider persistence was not committed."
 msgstr "Provider persistence was not committed."
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+#~ msgid "{status} {seconds}s"
+#~ msgstr "{status} {seconds}s"

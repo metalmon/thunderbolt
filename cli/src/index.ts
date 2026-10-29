@@ -198,6 +198,7 @@ export const runCli = async (
         return
       }
       case 'config':
+      case 'language':
       case 'login':
       case 'logout': {
         const runtime = await dependencies.createProviderRuntime()

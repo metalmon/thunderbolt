@@ -126,6 +126,8 @@ export type CommandSyntaxRunConfig = CommandExecutionConfig & { readonly fullscr
 export type ParsedCommandSyntax =
   | { readonly kind: 'run'; readonly config: CommandSyntaxRunConfig }
   | { readonly kind: 'config' }
+  /** Fork: the interface-language picker, reachable without entering the REPL. */
+  | { readonly kind: 'language' }
   | { readonly kind: 'bridge'; readonly config: BridgeConfig }
   | { readonly kind: 'connect'; readonly config: ConnectConfig }
   | { readonly kind: 'acp-serve'; readonly config: CommandSyntaxServeConfig }
