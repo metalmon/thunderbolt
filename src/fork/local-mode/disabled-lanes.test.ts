@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, describe, expect, it } from 'bun:test'
-import { readFileSync } from 'node:fs'
 import { hasProAccess } from '@/integrations/thunderbolt-pro/utils'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
+import { readRepoFile } from '../testing/source-file'
 
 const setMode = (operationMode: 'server' | 'local') => useLocalSettingsStore.setState({ operationMode })
 
@@ -30,7 +30,7 @@ describe('local mode disables the lanes that go through our backend', () => {
   // MODEL. Hiding Pro in the UI alone would leave the model holding a search
   // tool that can only fail, and it would keep calling it.
   it('gates the model-facing tool set on the same predicate, not just the UI', () => {
-    const tools = readFileSync('src/lib/tools.ts', 'utf8')
+    const tools = readRepoFile('src/lib/tools.ts')
     expect(tools.includes('hasProAccess')).toBe(true)
     // The Pro tool configs must sit behind that check rather than being pushed
     // unconditionally.

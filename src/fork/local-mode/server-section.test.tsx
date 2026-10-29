@@ -5,11 +5,12 @@
 import '@testing-library/jest-dom'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
-import { readFileSync } from 'node:fs'
+import { useConfigStore } from '@/api/config-store'
 import { getAuthToken, setAuthToken } from '@/lib/auth-token'
 import { getCachedSession, setCachedSession } from '@/lib/session-cache'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { ServerSection } from './server-section'
+import { readRepoFile } from '../testing/source-file'
 
 const env = import.meta.env as Record<string, string | undefined>
 
@@ -78,7 +79,14 @@ describe('ServerSection', () => {
     expect(useLocalSettingsStore.getState().cloudUrl).toBe('https://other.example.ru/v1')
     expect(getAuthToken()).toBeFalsy()
     expect(getCachedSession()).toBeNull()
-    expect(useLocalSettingsStore.getState().syncEnabled).toBe(false)
+    // The cached `/config` describes the OLD deployment — auth mode, branding,
+    // the OTA model set — and must not survive a change of host.
+    expect(useConfigStore.getState().config).toEqual({})
+    // ⚠ `syncEnabled` is deliberately NOT asserted here. Two upstream suites
+    // replace `setSyncEnabled` with a mock that never writes the flag, and that
+    // registration is process-wide, so this would pass alone and fail in a full
+    // run. The guarantee itself is covered in `switch-mode.test.ts`, which
+    // injects the dependency instead of importing it.
   })
 
   // Leaving local mode is where this device's unowned history could be claimed
@@ -109,7 +117,7 @@ describe('ServerSection', () => {
 
   // A section nobody mounts is not an editor.
   it('is mounted in the preferences page', () => {
-    const page = readFileSync('src/settings/preferences.tsx', 'utf8')
+    const page = readRepoFile('src/settings/preferences.tsx')
     expect(page.includes('ServerSection')).toBe(true)
   })
 })
