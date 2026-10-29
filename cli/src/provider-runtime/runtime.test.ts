@@ -512,7 +512,7 @@ describe('ProviderRuntime state and selection', () => {
       }),
     ).rejects.toMatchObject({
       code: 'authentication-required',
-      message: expect.stringMatching(/THUNDERBOLT_OPENAI_COMPAT_KEY/),
+      message: expect.stringMatching(/VOLT_OPENAI_COMPAT_KEY/),
     })
     expect(dependencies.providerStage.get('openai-compat')).toBeNull()
   })
@@ -1504,5 +1504,26 @@ describe('ProviderRuntime migrated BYOK validation', () => {
       expect(failingRuntime.snapshot().activeProviderId).toBe(migrated.id)
       expect(failingRuntime.snapshot().providers[0]?.status).toBe('authentication required')
     }
+  })
+})
+
+describe('ProviderRuntime interface language — fork', () => {
+  test('stores the choice and keeps it through an unrelated later save', async () => {
+    const harness = await createRuntimeHarness({ initialConfig: config() })
+
+    await harness.runtime.manage({ type: 'set-language', language: 'ru' })
+    expect(harness.saved.at(-1)?.language).toBe('ru')
+
+    // The real regression: `cloneConfig` gates every persisted config, so a
+    // field it drops is ERASED by the next save rather than merely ignored.
+    await harness.runtime.manage({ type: 'select-model', providerId: 'personal-openai', model: 'gpt-5.6-sol-mini' })
+    expect(harness.saved.at(-1)?.language).toBe('ru')
+  })
+
+  test('a config with no stored language is not rewritten to carry one', async () => {
+    const harness = await createRuntimeHarness({ initialConfig: config() })
+
+    await harness.runtime.manage({ type: 'select-model', providerId: 'personal-openai', model: 'gpt-5.6-sol-mini' })
+    expect(harness.saved.at(-1)).not.toHaveProperty('language')
   })
 })

@@ -15,27 +15,34 @@ import { amber, dim, gray, green, red, spark, symbols } from './theme.ts'
 import { commandName } from '../fork/identity.ts'
 import { i18n } from '../fork/i18n.ts'
 
-export const workingStatusText = i18n._({ id: 'Working…' })
-const plainStreamingStatusText = `${workingStatusText} (Ctrl+C to interrupt)`
+/**
+ * ⚠ A function, not a constant. Module scope is evaluated at import time, which
+ * is before the stored language preference has been read out of `config.json` —
+ * a constant here would pin the English (or system) wording for the whole run.
+ */
+export const workingStatusText = (): string => i18n._({ id: 'Working…' })
+const plainStreamingStatusText = (): string => i18n._({ id: 'Working… (Ctrl+C to interrupt)' })
+// Same reason as above: resolved per call, not per import.
+// `/login`, `--api-key` and `{command} config` are syntax: they stay literal
+// inside the sentence, only the prose around them is translated.
 const errorRecoveryHints = {
-  // `/login`, `--api-key` and `{command} config` are syntax: they stay literal
-  // inside the sentence, only the prose around them is translated.
-  network: i18n._({ id: 'check your connection — your message is kept in history (↑)' }),
-  auth: i18n._({ id: 'run /login to sign in again' }),
-  byokAuth: i18n._({
-    id: "set the provider's environment variable, pass --api-key, or repair the profile with {command} config",
-    values: { command: commandName },
-  }),
-  generic: i18n._({ id: 'retry the message — it is kept in history (↑)' }),
+  network: () => i18n._({ id: 'check your connection — your message is kept in history (↑)' }),
+  auth: () => i18n._({ id: 'run /login to sign in again' }),
+  byokAuth: () =>
+    i18n._({
+      id: "set the provider's environment variable, pass --api-key, or repair the profile with {command} config",
+      values: { command: commandName },
+    }),
+  generic: () => i18n._({ id: 'retry the message — it is kept in history (↑)' }),
 } as const
 
 /** Selects the provider-error headline and recovery hint in priority order. */
 const turnErrorPresentation = (detail: string, providerId: string | null): readonly [string, string] => {
   const normalized = detail.toLowerCase()
-  if (/network|fetch|connect|unreachable|econn/.test(normalized)) return [detail, errorRecoveryHints.network]
-  if (!/auth|session|unauthorized|401/.test(normalized)) return [detail, errorRecoveryHints.generic]
-  if (providerId === 'thunderbolt') return [i18n._({ id: 'Session expired' }), errorRecoveryHints.auth]
-  return [i18n._({ id: 'Provider rejected the credential' }), errorRecoveryHints.byokAuth]
+  if (/network|fetch|connect|unreachable|econn/.test(normalized)) return [detail, errorRecoveryHints.network()]
+  if (!/auth|session|unauthorized|401/.test(normalized)) return [detail, errorRecoveryHints.generic()]
+  if (providerId === 'thunderbolt') return [i18n._({ id: 'Session expired' }), errorRecoveryHints.auth()]
+  return [i18n._({ id: 'Provider rejected the credential' }), errorRecoveryHints.byokAuth()]
 }
 
 /** Whether an assistant stream event carries content rather than protocol framing. */
@@ -68,9 +75,18 @@ export type StatusPhase = 'working' | 'reasoning'
 /** Derives the waiting-state copy from an injected wall clock. */
 export const statusLadderMessage = (startedAt: number, now: number, phase: StatusPhase): string => {
   const elapsedSeconds = Math.max(0, Math.floor((now - startedAt) / 1_000))
-  if (phase === 'reasoning') return `Reasoning… ${elapsedSeconds}s`
-  if (elapsedSeconds >= 15) return `Still working… ${elapsedSeconds}s — this model can take ~30s for the first token`
-  return elapsedSeconds >= 4 ? `${workingStatusText} ${elapsedSeconds}s` : workingStatusText
+  if (phase === 'reasoning') return i18n._({ id: 'Reasoning… {seconds}s', values: { seconds: elapsedSeconds } })
+  if (elapsedSeconds >= 15) {
+    return i18n._({
+      id: 'Still working… {seconds}s — this model can take ~30s for the first token',
+      values: { seconds: elapsedSeconds },
+    })
+  }
+  // A whole message rather than `${status} ${seconds}s`: the elapsed time does
+  // not sit after the verb in every language.
+  return elapsedSeconds >= 4
+    ? i18n._({ id: 'Working… {seconds}s', values: { seconds: elapsedSeconds } })
+    : workingStatusText()
 }
 
 /**
@@ -233,12 +249,12 @@ export const attachRenderer = (
     switch (event.type) {
       case 'agent_start':
       case 'turn_start':
-        showStatus(workingStatusText)
+        showStatus(workingStatusText())
         break
       case 'message_start':
         if (event.message.role === 'assistant') {
           thinking = false
-          showStatus(plainStreamingStatusText)
+          showStatus(plainStreamingStatusText())
         }
         break
       case 'message_update': {

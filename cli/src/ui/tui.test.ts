@@ -94,11 +94,11 @@ describe('TUI renderer status', () => {
     subscribeTuiRenderer(events.runtime, tui, scrollback, status)
 
     events.emit({ type: 'agent_start' })
-    expect(status.render(120).join('\n')).toContain(workingStatusText)
+    expect(status.render(120).join('\n')).toContain(workingStatusText())
 
     const message = assistantMessage()
     events.emit({ type: 'message_start', message })
-    expect(status.render(120).join('\n')).toContain(workingStatusText)
+    expect(status.render(120).join('\n')).toContain(workingStatusText())
 
     const starts: AssistantMessageEvent[] = [
       { type: 'start', partial: message },

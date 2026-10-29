@@ -28,5 +28,27 @@ export const hasExactKeys = <Key extends string>(
   return actualKeys.length === expectedKeys.size && actualKeys.every((key) => expectedKeys.has(key))
 }
 
+/**
+ * Like {@link hasExactKeys}, but tolerates a set of keys being absent.
+ *
+ * Fork: a field added after a release has to survive meeting a file written
+ * before it. `hasExactKeys` rejects the whole object when a key it does not know
+ * appears — and, read the other way, when a key it expects is missing — so a
+ * strict schema plus a new field turns every existing `config.json` into
+ * "config is invalid". Optional keys are the difference between adding a setting
+ * and losing everyone's configuration.
+ */
+export const hasKeys = <Required extends string, Optional extends string>(
+  value: Readonly<Record<string, unknown>>,
+  required: readonly Required[],
+  optional: readonly Optional[] = [] as readonly Optional[],
+): value is Record<Required, unknown> & Partial<Record<Optional, unknown>> => {
+  const actual = Object.keys(value)
+  const requiredKeys = new Set<string>(required)
+  const allowed = new Set<string>([...required, ...optional])
+  if (!actual.every((key) => allowed.has(key))) return false
+  return [...requiredKeys].every((key) => actual.includes(key))
+}
+
 /** Narrows strings that contain at least one non-whitespace character without changing their value. */
 export const isNonblankString = (value: unknown): value is string => typeof value === 'string' && value.trim() !== ''
