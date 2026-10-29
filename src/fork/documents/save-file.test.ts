@@ -3,9 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import * as platform from '@/lib/platform'
 
 let isMobileValue = false
-mock.module('@/lib/platform', () => ({ isMobile: () => isMobileValue }))
+// ⚠ The real module is SPREAD IN, and only `isMobile` is overridden.
+//
+// `mock.module` in bun is process-wide and is never undone, so a stub that
+// lists only the exports THIS file needs replaces the module for every other
+// suite in the run too — the other 23 exports of `@/lib/platform` (`isTauri`,
+// `getPlatform`, `isDesktop`, …) become `undefined` for half the app. That is
+// not a visible failure here; it surfaces as dozens of unrelated suites failing
+// later in the run, which reads exactly like a code bug.
+mock.module('@/lib/platform', () => ({ ...platform, isMobile: () => isMobileValue }))
 
 const { saveBlobUrl } = await import('./save-file')
 
