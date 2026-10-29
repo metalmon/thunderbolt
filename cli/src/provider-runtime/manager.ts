@@ -14,6 +14,8 @@ import type {
   ProviderSnapshot,
 } from './types.ts'
 import { displayName } from '../fork/identity.ts'
+import { i18n } from '../fork/i18n.ts'
+import { providerStatusLabel } from '../fork/provider-status-label.ts'
 
 export type ProviderManagerDependencies = {
   readonly listByokModels: typeof listModels
@@ -53,7 +55,7 @@ const login = async (
   })
   const options = state.thunderbolt.models ?? []
   if (options.length === 0) throw new Error('Managed model catalog is unavailable after login.')
-  const selectedModel = (await io.choose('Models', options)) ?? state.thunderbolt.defaultModelId
+  const selectedModel = (await io.choose(i18n._({ id: 'Models' }), options)) ?? state.thunderbolt.defaultModelId
   if (!forceActivation && previousProviderId !== null && previousProviderId !== 'thunderbolt') {
     await runtime.manage({ type: 'select-model', providerId: 'thunderbolt', model: selectedModel })
     return handled
@@ -165,9 +167,9 @@ const manageThunderbolt = async (
   signal?: AbortSignal,
 ): Promise<CommandOutcome> => {
   const action = await io.choose(displayName, [
-    { id: 'use', label: `Use ${displayName}` },
-    { id: 'login', label: 'Log in' },
-    { id: 'logout', label: 'Log out' },
+    { id: 'use', label: i18n._({ id: 'Use {app}', values: { app: displayName } }) },
+    { id: 'login', label: i18n._({ id: 'Log in' }) },
+    { id: 'logout', label: i18n._({ id: 'Log out' }) },
   ])
   if (action === 'use') return switchProvider('thunderbolt')
   if (action === 'login') return login(io, runtime, false, liveProviderId, signal)
@@ -188,9 +190,9 @@ const manageByok = async (
   const selected = snapshot.providers.find(({ id }) => id === providerId)
   if (selected === undefined) return handled
   const action = await io.choose(selected.label, [
-    { id: 'use', label: 'Use provider' },
-    { id: 'repair', label: 'Repair credentials' },
-    { id: 'remove', label: 'Remove provider' },
+    { id: 'use', label: i18n._({ id: 'Use provider' }) },
+    { id: 'repair', label: i18n._({ id: 'Repair credentials' }) },
+    { id: 'remove', label: i18n._({ id: 'Remove provider' }) },
   ])
   if (action === 'use') return switchProvider(providerId)
   if (action === 'repair') return repairByok(io, runtime, snapshot, providerId, dependencies, liveProviderId, signal)
@@ -207,14 +209,14 @@ const providers = async (
   signal?: AbortSignal,
 ): Promise<CommandOutcome> => {
   const state = runtime.snapshot()
-  const selected = await io.choose('Providers', [
-    { id: 'thunderbolt', label: displayName, description: state.thunderbolt.status },
+  const selected = await io.choose(i18n._({ id: 'Providers' }), [
+    { id: 'thunderbolt', label: displayName, description: providerStatusLabel(state.thunderbolt.status) },
     ...state.providers.map((provider) => ({
       id: provider.id,
       label: provider.label,
-      description: `${provider.provider} — ${provider.status}`,
+      description: `${provider.provider} — ${providerStatusLabel(provider.status)}`,
     })),
-    { id: 'add-byok', label: 'Add provider API key' },
+    { id: 'add-byok', label: i18n._({ id: 'Add provider API key' }) },
   ])
   if (selected === null) return handled
   if (selected === 'add-byok') return addByok(io, dependencies, signal)
@@ -244,7 +246,7 @@ const models = async (
       ? (state.thunderbolt.models ?? [])
       : (state.providers.find(({ id }) => id === providerId)?.models ?? [])
   if (options.length === 0) throw new Error(`Model catalog is unavailable for provider "${providerId}".`)
-  const selectedModel = await io.choose('Models', options)
+  const selectedModel = await io.choose(i18n._({ id: 'Models' }), options)
   if (selectedModel === null) return handled
   return {
     kind: 'switch',
@@ -262,9 +264,13 @@ const firstRun = async (
   liveProviderId: LiveProviderId | undefined,
   signal?: AbortSignal,
 ): Promise<CommandOutcome> => {
-  const selected = await io.choose('Choose how to connect', [
-    { id: 'thunderbolt-account', label: `${displayName} account`, description: 'recommended' },
-    { id: 'provider-api-key', label: 'Provider API key' },
+  const selected = await io.choose(i18n._({ id: 'Choose how to connect' }), [
+    {
+      id: 'thunderbolt-account',
+      label: i18n._({ id: '{app} account', values: { app: displayName } }),
+      description: i18n._({ id: 'recommended' }),
+    },
+    { id: 'provider-api-key', label: i18n._({ id: 'Provider API key' }) },
   ])
   if (selected === 'thunderbolt-account') return login(io, runtime, true, liveProviderId, signal)
   if (selected === 'provider-api-key') return addByok(io, dependencies, signal)
