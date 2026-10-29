@@ -51,13 +51,35 @@ export const installThunderboltCli = (invoke: InvokeFn = tauriInvoke): Promise<C
   invoke<CliInstallResult>('install_thunderbolt_cli')
 
 /**
+ * Fork: the result of adding the CLI's directory to the user's persistent
+ * `PATH`. `alreadyPresent` is reported rather than swallowed so the UI can say
+ * "already there" instead of claiming it changed something.
+ */
+export type CliPathUpdate = { alreadyPresent: boolean; dir: string }
+
+/** Fork: append the CLI's install directory to the user's `PATH`. Windows only;
+ *  always called behind an explicit confirmation (see `AddToPathButton`). */
+export const addCliDirToPath = async (invoke: InvokeFn = tauriInvoke): Promise<CliPathUpdate> => {
+  const raw = await invoke<Record<string, { dir: string }>>('add_cli_dir_to_path')
+  // Rust returns a serde-tagged enum: `{ added: { dir } }` or
+  // `{ alreadyPresent: { dir } }`.
+  const alreadyPresent = 'alreadyPresent' in raw
+  return { alreadyPresent, dir: (raw.alreadyPresent ?? raw.added)?.dir ?? '' }
+}
+
+/**
  * Whether the CLI release pipeline publishes a prebuilt binary for this
  * OS/architecture pair. Mirrors Rust `resolve_target`. Callers gate on the
  * Tauri runtime separately — this is a pure target lookup.
  */
 export const canInstallThunderboltCli = (platform: CliInstallPlatform, architecture: CliInstallArchitecture): boolean =>
   (platform === 'macos' && architecture === 'aarch64') ||
-  (platform === 'linux' && (architecture === 'x86_64' || architecture === 'aarch64'))
+  (platform === 'linux' && (architecture === 'x86_64' || architecture === 'aarch64')) ||
+  // Fork: Windows is the pilot's primary platform and `cli-release.yml` builds
+  // it. ⚠ This gate runs BEFORE the Rust side: a target missing here hides the
+  // row entirely, so `resolve_target` is never consulted and the omission looks
+  // like the feature does not exist rather than like a bug.
+  (platform === 'windows' && architecture === 'x86_64')
 
 /** Narrows an unknown rejection value to a typed {@link CliInstallError}. */
 export const isCliInstallError = (value: unknown): value is CliInstallError =>
