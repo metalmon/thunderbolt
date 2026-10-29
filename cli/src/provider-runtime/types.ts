@@ -8,6 +8,9 @@ import type { RequestInfo } from 'undici-types'
 import type { SharedModel } from '../../../shared/defaults/models.ts'
 import type { BuiltinProvider } from '../agent/types.ts'
 import type { LogoutResult } from '../auth/logout.ts'
+import type { CliLanguagePreference } from '../fork/i18n.ts'
+
+export type { CliLanguagePreference }
 
 export type AccountFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 export type ManagedCatalog = {
@@ -63,6 +66,9 @@ export type CliConfig = {
   readonly activeProviderId: 'thunderbolt' | string | null
   readonly thunderbolt: { readonly defaultModelId: string }
   readonly providers: readonly ByokProfile[]
+  /** Fork: OPTIONAL on purpose — a config written before this field existed must
+   *  stay valid, or adding a setting would invalidate everyone's file. */
+  readonly language?: CliLanguagePreference
 }
 
 export type CliAuth = {
@@ -110,6 +116,8 @@ export type ProviderCommand =
   | { readonly type: 'login'; readonly presentation: DeviceGrantPresentation; readonly signal?: AbortSignal }
   | { readonly type: 'logout'; readonly presentation: DeviceGrantPresentation; readonly signal?: AbortSignal }
   | { readonly type: 'clear-active' }
+  /** Fork: the interface language, stored beside the provider state. */
+  | { readonly type: 'set-language'; readonly language: CliLanguagePreference }
   | { readonly type: 'rollback-persistence'; readonly revision: number }
   | { readonly type: 'finalize-persistence'; readonly revision: number }
 
@@ -223,7 +231,7 @@ export type CommandOutcome =
   | { readonly kind: 'handled' }
   | { readonly kind: 'forward'; readonly text: string }
   | { readonly kind: 'exit' }
-export type ProviderManagerMode = 'providers' | 'models' | 'first-run' | 'login' | 'logout'
+export type ProviderManagerMode = 'providers' | 'models' | 'first-run' | 'login' | 'logout' | 'language'
 export type ProviderManagerRunner = (mode: ProviderManagerMode) => Promise<CommandOutcome>
 export type AccountActions = {
   readonly login: (

@@ -15,6 +15,7 @@ import type {
 } from './types.ts'
 import { displayName } from '../fork/identity.ts'
 import { i18n } from '../fork/i18n.ts'
+import { chooseLanguage } from '../fork/language-command.ts'
 import { providerStatusLabel } from '../fork/provider-status-label.ts'
 
 export type ProviderManagerDependencies = {
@@ -290,6 +291,7 @@ export const createProviderManager =
     if (mode === 'providers') return providers(io, runtime, dependencies, liveProviderId, signal)
     if (mode === 'models') return models(io, runtime, liveProviderId)
     if (mode === 'first-run') return firstRun(io, runtime, dependencies, liveProviderId, signal)
+    if (mode === 'language') return chooseLanguage(io, runtime)
     if (mode === 'login') return login(io, runtime, false, liveProviderId, signal)
     return logout(io, runtime, liveProviderId, signal)
   }
