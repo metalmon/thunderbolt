@@ -57,6 +57,7 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::start_oauth_server,
             commands::install_thunderbolt_cli,
             commands::add_cli_dir_to_path,
+            commands::cli_path_target,
             fork_boot_log::fork_boot_log,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,

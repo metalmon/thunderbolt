@@ -4,38 +4,63 @@
 
 /* Fork-owned (metalmon / Volt). Do not upstream. */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Check, Loader2, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmActionDialog } from '@/components/ui/confirm-action-dialog'
-import { addCliDirToPath, type CliPathUpdate } from '@/lib/cli-install'
+import { addCliDirToPath, cliPathTarget, type CliPathUpdate } from '@/lib/cli-install'
 
 type AddToPathButtonProps = {
   /** The directory the CLI was installed into, named in the confirmation. */
   directory: string
-  /** Test seam; production calls the Tauri command. */
+  /** Test seams; production calls the Tauri commands. */
   addToPath?: typeof addCliDirToPath
+  readTarget?: typeof cliPathTarget
 }
+
+type State =
+  | { status: 'idle' | 'pending' }
+  | { status: 'done'; result: CliPathUpdate }
+  | { status: 'error'; message: string }
 
 /**
  * Offers to put the CLI's directory on the user's persistent `PATH`.
  *
- * ⚠ Behind an explicit confirmation, always. The write lands in
- * `HKCU\Environment` and outlives the app, so it is not something an install
- * button may do on the user's behalf — the dialog names the exact directory and
- * says the change is permanent before anything is written.
+ * ⚠ Behind an explicit confirmation, always, and the confirmation NAMES THE
+ * TARGET. The change lands outside the app and outlives it — the Windows user
+ * environment, or a shell startup file the user maintains by hand — so "we'll
+ * edit your PATH" is not enough to agree to.
  *
- * Windows only. On POSIX the `PATH` is assembled by whichever shell the user
- * runs, from a profile file we must not rewrite behind their back; there the
- * panel keeps showing the one-line hint to paste.
+ * The target is read from the backend rather than guessed here: only the
+ * running process knows which shell `$SHELL` names, and offering to edit
+ * `~/.bashrc` to someone running fish would be worse than offering nothing.
  */
-export const AddToPathButton = ({ directory, addToPath = addCliDirToPath }: AddToPathButtonProps) => {
+export const AddToPathButton = ({
+  directory,
+  addToPath = addCliDirToPath,
+  readTarget = cliPathTarget,
+}: AddToPathButtonProps) => {
   const { t } = useLingui()
   const [confirming, setConfirming] = useState(false)
-  const [state, setState] = useState<
-    { status: 'idle' | 'pending' } | { status: 'done'; result: CliPathUpdate } | { status: 'error'; message: string }
-  >({ status: 'idle' })
+  const [target, setTarget] = useState('')
+  const [state, setState] = useState<State>({ status: 'idle' })
+
+  // External system read with no render-time answer: the target depends on the
+  // host's environment, not on props or state.
+  useEffect(() => {
+    let cancelled = false
+    readTarget()
+      .then((value) => {
+        if (!cancelled) setTarget(value)
+      })
+      // A missing description must not hide the button; the directory below is
+      // named either way, and the backend refuses what it cannot do.
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [readTarget])
 
   const confirm = async () => {
     setState({ status: 'pending' })
@@ -77,7 +102,11 @@ export const AddToPathButton = ({ directory, addToPath = addCliDirToPath }: AddT
       <ConfirmActionDialog
         open={confirming}
         title={t`Add the CLI to your PATH?`}
-        description={t`${directory} will be added to your user PATH. The change is permanent and affects every terminal you open from now on.`}
+        description={
+          target
+            ? t`${directory} will be added to ${target}. The change is permanent and affects every terminal you open from now on.`
+            : t`${directory} will be added to your PATH. The change is permanent and affects every terminal you open from now on.`
+        }
         confirmLabel={t`Add to PATH`}
         confirmVariant="default"
         onConfirm={confirm}

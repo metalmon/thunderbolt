@@ -169,24 +169,24 @@ export const ThunderboltCliDetail = ({
                     Installed to <code className="font-mono">{installedPath}</code>
                   </Trans>
                 </p>
-                {!state.result.onPath &&
-                  state.result.pathHint &&
-                  // Fork: on Windows the app can do this properly — behind a
-                  // confirmation — instead of handing the user a `setx` line that
-                  // TRUNCATES a long PATH at 1024 characters. Elsewhere the shell
-                  // owns PATH, so the hint to paste stays.
-                  (getPlatform() === 'windows' ? (
+                {/* Fork: the app can do this itself on every desktop platform —
+                    behind a confirmation that names the target — instead of
+                    handing over a line to paste. The hint stays underneath for
+                    anyone who would rather do it by hand, or whose shell we
+                    guessed wrong. */}
+                {!state.result.onPath && (
+                  <div className="flex flex-col gap-3">
                     <AddToPathButton directory={installedDirectory} />
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                        <Trans>
-                          Add <code className="font-mono">~/.local/bin</code> to your PATH, then restart your shell:
-                        </Trans>
-                      </p>
-                      <CopyCommandRow command={state.result.pathHint} label={t`Copy PATH command`} />
-                    </div>
-                  ))}
+                    {state.result.pathHint && (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                          <Trans>Or add it yourself:</Trans>
+                        </p>
+                        <CopyCommandRow command={state.result.pathHint} label={t`Copy PATH command`} />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

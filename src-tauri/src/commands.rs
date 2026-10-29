@@ -192,6 +192,12 @@ pub async fn install_thunderbolt_cli(
     crate::cli_installer::install_cli(&version).await
 }
 
+/// Fork: what the `PATH` change would touch, so the confirmation can name it.
+#[command]
+pub async fn cli_path_target() -> String {
+    crate::cli_path::path_target_description()
+}
+
 /// Fork: append the CLI's install directory to the user's persistent `PATH`.
 ///
 /// ⚠ Called ONLY after the user confirms in the UI. It writes to
