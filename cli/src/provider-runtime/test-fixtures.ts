@@ -3,12 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createModels, type Api, type AssistantMessage, type Model } from '@earendil-works/pi-ai'
-import { defaultModelOpus55, type SharedModel } from '../../../shared/defaults/models.ts'
-import { bundledManagedCatalog } from './catalog.ts'
+import { defaultModelDeepSeekV41Flash, defaultModelOpus55, type SharedModel } from '../../../shared/defaults/models.ts'
 import { createProviderStageContext } from './provider-stage.ts'
 import { createProviderRuntime, type ProviderRuntimeDependencies } from './runtime.ts'
 import { noopBindingLifecycle } from './types.ts'
 import type { CliAuth, ManagedCatalog, PreparedPiBinding, ResolvedAccountCredential } from './types.ts'
+
+/**
+ * Fork: the managed catalog the CLI tests run against.
+ *
+ * ⚠ It is NOT `bundledManagedCatalog`. The fork ships **no** default models —
+ * `defaultModels` is deliberately empty, because the lineup arrives from the
+ * deployment's `DEFAULT_MODELS` rather than from the source tree — so mining the
+ * shipped catalog for fixtures yields nothing and the test file throws before a
+ * single test runs. The named model constants survive that decision, so the
+ * fixtures are built from them and stay independent of what the product ships.
+ */
+export const testDirectModel: SharedModel = {
+  ...defaultModelOpus55,
+  id: '019f0000-0000-7000-8000-00000000000a',
+  isConfidential: 0,
+}
+
+export const testConfidentialModel: SharedModel = {
+  ...defaultModelDeepSeekV41Flash,
+  id: '019f0000-0000-7000-8000-00000000000b',
+  isConfidential: 1,
+}
+
+export const testManagedCatalog: ManagedCatalog = {
+  version: 1,
+  defaultModelId: testDirectModel.id,
+  data: [testDirectModel, testConfidentialModel],
+}
 
 const futureDirectModelId = '019f0000-0000-7000-8000-000000000001'
 
@@ -108,7 +135,7 @@ export const createTestProviderRuntime = async (overrides: Partial<ProviderRunti
     resolveAccountCredential: async () => null,
     loadAuthConfig: async () => null,
     accountActions: { login: async () => auth, logout: async () => 'logged-out' },
-    loadCatalog: async () => bundledManagedCatalog,
+    loadCatalog: async () => testManagedCatalog,
     ensureRegisteredSession: async (credential) => credential,
     markSessionAuthenticationRequired: async () => {},
     metadata: { deviceName: 'Test CLI' },

@@ -6,8 +6,8 @@ import type { Api, AssistantMessage, Model } from '@earendil-works/pi-ai'
 import { describe, expect, test } from 'bun:test'
 import { getEventListeners } from 'node:events'
 import { PassThrough } from 'node:stream'
-import { bundledManagedCatalog } from '../provider-runtime/catalog.ts'
 import { defaultProviderStageContext } from '../provider-runtime/provider-stage.ts'
+import { testManagedCatalog } from '../provider-runtime/test-fixtures.ts'
 import { createProviderManager, runProviderManager } from '../provider-runtime/manager.ts'
 import { createProviderRuntime, type ProviderRuntimeDependencies } from '../provider-runtime/runtime.ts'
 import type {
@@ -140,7 +140,7 @@ const accountFirstRunRuntime = async (
   loginGate?: Promise<void>,
   onLoginStart: () => void = () => {},
 ) => {
-  const selectedModel = bundledManagedCatalog.data.find(({ isConfidential }) => isConfidential === 0)
+  const selectedModel = testManagedCatalog.data.find(({ isConfidential }) => isConfidential === 0)
   if (selectedModel === undefined) {
     throw new Error('The account first-run fixture requires a direct managed model.')
   }
@@ -181,7 +181,7 @@ const accountFirstRunRuntime = async (
     },
     loadCatalog: async () => {
       events.push('catalog')
-      return bundledManagedCatalog
+      return testManagedCatalog
     },
     ensureRegisteredSession: async (credential) => {
       events.push('register')
@@ -295,7 +295,7 @@ describe('bootstrapBeforeHarness', () => {
         loadConfig: async () => ({
           version: 3,
           activeProviderId: 'thunderbolt',
-          thunderbolt: { defaultModelId: bundledManagedCatalog.defaultModelId },
+          thunderbolt: { defaultModelId: testManagedCatalog.defaultModelId },
           providers: [],
         }),
         loadAuthConfig: async () => ({
@@ -320,7 +320,7 @@ describe('bootstrapBeforeHarness', () => {
           },
           logout: async () => 'logged-out',
         },
-        loadCatalog: async () => bundledManagedCatalog,
+        loadCatalog: async () => testManagedCatalog,
         ensureRegisteredSession: async (credential, _metadata, _fetchFn, signal) => {
           receivedSignal = signal
           registrationStarted.resolve()
@@ -797,7 +797,7 @@ describe('runAgent orchestration', () => {
           },
           logout: async () => 'authentication-required',
         },
-        loadCatalog: async () => bundledManagedCatalog,
+        loadCatalog: async () => testManagedCatalog,
         ensureRegisteredSession: async (credential) => credential,
         markSessionAuthenticationRequired: async () => {},
         metadata: { deviceName: 'Task 14 test' },
