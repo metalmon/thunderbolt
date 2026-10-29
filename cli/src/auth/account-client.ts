@@ -20,6 +20,7 @@ import { createHttpTransport } from './http-transport.ts'
 import { createTerminalQrBlock, performLogin } from './login.ts'
 import { performLogout } from './logout.ts'
 import { compareAndSetAuthConfig, loadAuthConfig, toAuth, type AuthStateExpectation } from './token-store.ts'
+import { displayName } from '../fork/identity.ts'
 
 type AccountClientError = Error & ProviderRuntimeError
 
@@ -161,7 +162,7 @@ export const ensureRegisteredSession = async (
       if (changed) return
       throw createAccountClientError(
         'authentication-required',
-        'Thunderbolt authentication changed during device registration. Retry the command.',
+        `${displayName} authentication changed during device registration. Retry the command.`,
       )
     }
     const attemptAuth = ownsInstallation(durableAuth, current)
@@ -182,7 +183,7 @@ export const ensureRegisteredSession = async (
 
     if (response.status === 401) {
       await persistAuth({ kind: 'exact', auth: expectedAuth }, toAuth(current, 'authentication-required'))
-      throw createAccountClientError('authentication-required', 'the stored Thunderbolt session is no longer valid')
+      throw createAccountClientError(`authentication-required`, `the stored ${displayName} session is no longer valid`)
     }
 
     const conflict =
@@ -193,13 +194,13 @@ export const ensureRegisteredSession = async (
       if (!rotated) return ensure(rotateInstallation(current), true, expectedAuth)
       await persistAuth({ kind: 'exact', auth: expectedAuth }, toAuth(current, 'authentication-required'))
       if (conflict === 'device-disconnected') {
-        throw createAccountClientError('device-disconnected', 'the Thunderbolt CLI device was disconnected')
+        throw createAccountClientError(`device-disconnected`, `the ${displayName} CLI device was disconnected`)
       }
     }
 
     throw createAccountClientError(
       response.status >= 500 ? 'network' : 'authentication-rejected',
-      `Thunderbolt CLI device registration failed (${response.status} ${response.statusText})`,
+      `${displayName} CLI device registration failed (${response.status} ${response.statusText})`,
     )
   }
 
