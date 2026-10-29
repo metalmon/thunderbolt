@@ -8,6 +8,7 @@ import { patRemainsActiveNote } from './config.ts'
 import { pollForToken, type Clock, type DeviceGrantTransport } from './device-grant.ts'
 import { renderTerminalQr, shouldRenderQr } from './qr.ts'
 import { toAuth } from './token-store.ts'
+import { i18n } from '../fork/i18n.ts'
 
 type RegisteredCliAuth = Extract<CliAuth, { bearer: string }>
 
@@ -33,12 +34,13 @@ export const performLogin = async (deps: LoginDeps): Promise<RegisteredCliAuth> 
       qrBlock,
     })
     await deps.presentation.promptToOpenBrowser?.(code.verificationUriComplete)
-    deps.presentation.showStatus('waiting', 'Waiting for approval…')
+    deps.presentation.showStatus('waiting', i18n._({ id: 'Waiting for approval…' }))
 
     const bearer = await pollForToken(code, deps.transport, deps.clock, deps.signal)
     const registered = await deps.ensureRegistered(bearer)
     deps.signal?.throwIfAborted()
-    const message = deps.patToken ? `Login successful. ${patRemainsActiveNote}` : 'Login successful.'
+    const loginSucceeded = i18n._({ id: 'Login successful.' })
+    const message = deps.patToken ? `${loginSucceeded} ${patRemainsActiveNote}` : loginSucceeded
     deps.presentation.showStatus('success', message)
     return toAuth(registered, 'registered') as RegisteredCliAuth
   } catch (error) {

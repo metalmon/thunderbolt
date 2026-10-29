@@ -12,6 +12,7 @@ import type { BuiltinProvider } from '../agent/types.ts'
 import type { ByokProfile, ProviderManagerIO, ProviderSnapshot } from '../provider-runtime/types.ts'
 import { listModels } from './model-listing.ts'
 import type { ModelListingResult } from './model-listing.ts'
+import { i18n } from '../fork/i18n.ts'
 
 type BuiltinChoice = {
   readonly id: `builtin:${BuiltinProvider}`
@@ -75,23 +76,29 @@ const providerChoices: readonly ProviderChoice[] = [
   {
     id: 'compat:ollama',
     kind: 'compat',
-    label: 'Ollama (local)',
+    label: `Ollama (${i18n._({ id: 'local' })})`,
     baseUrl: 'http://localhost:11434/v1',
     isLocal: true,
   },
   {
     id: 'compat:lm-studio',
     kind: 'compat',
-    label: 'LM Studio (local)',
+    label: `LM Studio (${i18n._({ id: 'local' })})`,
     baseUrl: 'http://localhost:1234/v1',
     isLocal: true,
   },
-  { id: 'compat:custom', kind: 'compat', label: 'Custom OpenAI-compatible endpoint', isLocal: false },
+  { id: 'compat:custom', kind: 'compat', label: i18n._({ id: 'Custom OpenAI-compatible endpoint' }), isLocal: false },
 ]
 
 /** Builds unique default-first model suggestions from live then Pi catalog ids. */
 const modelChoices = (provider: BuiltinProvider, ids: readonly string[]): readonly string[] => [
-  ...new Set([defaultModels[provider], ...ids, ...piBuiltinModels().getModels(provider).map(({ id }) => id)]),
+  ...new Set([
+    defaultModels[provider],
+    ...ids,
+    ...piBuiltinModels()
+      .getModels(provider)
+      .map(({ id }) => id),
+  ]),
 ]
 
 /** Reads one nonblank value, allowing the caller to supply an empty-input fallback. */
@@ -111,14 +118,14 @@ const readNonblank = async (
 
 const readManagerRequiredText = (io: ProviderManagerIO, prompt: string): Promise<string | null> =>
   readNonblank(io.readText, prompt, () => {
-    io.write('Value required.\n')
+    io.write(`${i18n._({ id: 'Value required.' })}\n`)
     return undefined
   })
 
 const readManagerSecret = (io: ProviderManagerIO, prompt: string, isLocal: boolean): Promise<string | null> =>
   readNonblank(io.readSecret, prompt, () => {
     if (isLocal) return 'local'
-    io.write('API key required.\n')
+    io.write(`${i18n._({ id: 'API key required.' })}\n`)
     return undefined
   })
 
@@ -129,7 +136,7 @@ const resolveManagerChoice = async (
 ): Promise<ResolvedProvider | null> => {
   if (choice.kind === 'builtin') return { provider: choice.provider }
   if (choice.baseUrl !== undefined) return { provider: 'openai-compat', baseUrl: choice.baseUrl }
-  const baseUrl = await readManagerRequiredText(io, 'Base URL: ')
+  const baseUrl = await readManagerRequiredText(io, `${i18n._({ id: 'Base URL' })}: `)
   return baseUrl === null ? null : { provider: 'openai-compat', baseUrl }
 }
 
@@ -140,18 +147,18 @@ const chooseManagerModel = async (
   listing: ModelListingResult,
 ): Promise<string | null> => {
   const choices = choice.kind === 'builtin' ? modelChoices(choice.provider, listing.ids) : [...new Set(listing.ids)]
-  if (choices.length === 0) return readManagerRequiredText(io, 'Model id: ')
-  const selected = await io.choose(listing.source === 'catalog' ? 'Models (offline list)' : 'Models', [
+  if (choices.length === 0) return readManagerRequiredText(io, `${i18n._({ id: 'Model id' })}: `)
+  const selected = await io.choose(listing.source === 'catalog' ? i18n._({ id: 'Models (offline list)' }) : 'Models', [
     ...choices.map((id, index) => ({
       id,
       label: id,
       description: choice.kind === 'builtin' && index === 0 ? 'default' : undefined,
     })),
     ...(choice.kind === 'builtin' && choice.provider === 'fireworks'
-      ? [{ id: 'fireworks:custom', label: 'Other Fireworks model' }]
+      ? [{ id: 'fireworks:custom', label: i18n._({ id: 'Other {provider} model', values: { provider: 'Fireworks' } }) }]
       : []),
   ])
-  if (selected === 'fireworks:custom') return readManagerRequiredText(io, 'Fireworks model id: ')
+  if (selected === 'fireworks:custom') return readManagerRequiredText(io, `Fireworks ${i18n._({ id: 'model id' })}: `)
   return selected
 }
 
@@ -163,7 +170,7 @@ const fireworksModelApi = async (
   const known = piBuiltinModels().getModel('fireworks', modelId)
   if (known?.api === 'anthropic-messages') return 'anthropic-messages'
   if (known?.api === 'openai-completions') return 'openai-completions'
-  const selected = await io.choose('Fireworks API format', [
+  const selected = await io.choose(`Fireworks ${i18n._({ id: 'API format' })}`, [
     { id: 'anthropic-messages', label: 'Anthropic Messages', description: '/inference' },
     { id: 'openai-completions', label: 'OpenAI Completions', description: '/inference/v1' },
   ])
@@ -195,19 +202,23 @@ const listManagerModels = async (
   const first = await listForKey(options.initialApiKey)
   if (first.authenticated) return { apiKey: options.initialApiKey, listing: first }
   if (!first.wasAuthRejected) {
-    io.write('Provider authentication could not be verified; saving as not authenticated.\n')
+    io.write(`${i18n._({ id: 'Provider authentication could not be verified; saving as not authenticated.' })}\n`)
     return { apiKey: options.initialApiKey, listing: first }
   }
 
   io.write(`Provider rejected this API key (${first.status}) — check it.\n`)
   const isLocal = options.choice.kind === 'compat' && options.choice.isLocal
-  const retriedApiKey = await readManagerSecret(io, isLocal ? 'API key [local]: ' : 'API key: ', isLocal)
+  const retriedApiKey = await readManagerSecret(
+    io,
+    isLocal ? `${i18n._({ id: 'API key' })} [${i18n._({ id: 'local' })}]: ` : `${i18n._({ id: 'API key' })}: `,
+    isLocal,
+  )
   if (retriedApiKey === null) return null
   const second = await listForKey(retriedApiKey)
   const message = second.wasAuthRejected
     ? `Provider rejected this API key too (${second.status}); saving as authentication required.\n`
     : !second.authenticated
-      ? 'Provider authentication could not be verified; saving as not authenticated.\n'
+      ? `${i18n._({ id: 'Provider authentication could not be verified; saving as not authenticated.' })}\n`
       : undefined
   if (message !== undefined) io.write(message)
   return { apiKey: retriedApiKey, listing: second }
@@ -236,7 +247,10 @@ const assembleProfile = (options: {
     credentialStatus: statusOf(options.listing),
   }
   if (options.resolved.provider === 'openai-compat') {
-    return { profile: { ...base, provider: 'openai-compat', baseUrl: options.resolved.baseUrl }, apiKey: options.apiKey }
+    return {
+      profile: { ...base, provider: 'openai-compat', baseUrl: options.resolved.baseUrl },
+      apiKey: options.apiKey,
+    }
   }
   if (options.resolved.provider === 'fireworks') {
     return { profile: { ...base, provider: 'fireworks', modelApi: options.modelApi }, apiKey: options.apiKey }
@@ -251,7 +265,7 @@ export const collectByokProfile = async (
   signal?: AbortSignal,
 ): Promise<CollectedByokProfile | null> => {
   const choiceId = await io.choose(
-    'Provider API key',
+    i18n._({ id: 'Provider API key' }),
     providerChoices.map(({ id, label }) => ({ id, label })),
   )
   if (choiceId === null) return null
@@ -265,7 +279,11 @@ export const collectByokProfile = async (
   const resolved = await resolveManagerChoice(io, choice)
   if (resolved === null) return null
   const isLocal = choice.kind === 'compat' && choice.isLocal
-  const initialApiKey = await readManagerSecret(io, isLocal ? 'API key [local]: ' : 'API key: ', isLocal)
+  const initialApiKey = await readManagerSecret(
+    io,
+    isLocal ? `${i18n._({ id: 'API key' })} [${i18n._({ id: 'local' })}]: ` : `${i18n._({ id: 'API key' })}: `,
+    isLocal,
+  )
   if (initialApiKey === null) return null
   const listed = await listManagerModels(
     io,
@@ -305,14 +323,14 @@ export const collectByokRepair = async (
     throw new Error(`Unsupported BYOK provider "${selected.provider}".`)
   }
 
-  const initialApiKey = await readManagerSecret(io, 'Replacement API key: ', false)
+  const initialApiKey = await readManagerSecret(io, `${i18n._({ id: 'Replacement API key' })}: `, false)
   if (initialApiKey === null) return null
   const choice =
     selected.provider === 'openai-compat'
       ? ({
           id: 'compat:custom',
           kind: 'compat',
-          label: 'Custom OpenAI-compatible endpoint',
+          label: i18n._({ id: 'Custom OpenAI-compatible endpoint' }),
           isLocal: false,
         } as const)
       : providerChoices.find(
