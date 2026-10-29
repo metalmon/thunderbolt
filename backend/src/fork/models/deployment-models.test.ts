@@ -89,7 +89,9 @@ describe('parseDeploymentModels', () => {
   })
 
   it('rejects input that is not an array', () => {
-    expect(quiet(() => parseDeploymentModels({ raw: JSON.stringify(row), version: '12', bundledVersion: 11 }))).toBeNull()
+    expect(
+      quiet(() => parseDeploymentModels({ raw: JSON.stringify(row), version: '12', bundledVersion: 11 })),
+    ).toBeNull()
   })
 
   it('rejects an empty array — that is a typo, not "publish zero models"', () => {

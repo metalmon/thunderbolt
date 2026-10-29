@@ -133,11 +133,7 @@ const defaultReadFile = (path: string): string => readFileSync(path, 'utf-8')
  * @param path - the `*_FILE` variable
  * @param readFile - injected for tests
  */
-const readKey = (
-  inline: string | undefined,
-  path: string | undefined,
-  readFile: (path: string) => string,
-): string => {
+const readKey = (inline: string | undefined, path: string | undefined, readFile: (path: string) => string): string => {
   if (inline?.trim()) return inline
   const trimmedPath = path?.trim()
   if (!trimmedPath) return ''

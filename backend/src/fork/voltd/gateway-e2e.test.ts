@@ -61,10 +61,7 @@ const startGateway = () =>
                 protocolVersion: 1,
                 _meta: {
                   zeroclaw: {
-                    agents: [
-                      { alias: 'crm_bot', display_name: 'CRM', default: true },
-                      { alias: 'payroll_bot' },
-                    ],
+                    agents: [{ alias: 'crm_bot', display_name: 'CRM', default: true }, { alias: 'payroll_bot' }],
                   },
                 },
               },
@@ -140,10 +137,7 @@ describe('voltd discovery over a real socket', () => {
       resolveUser: async () => ({ id: 'user-1', isAnonymous: false, groups: ['volt-crm'] }) as never,
     })!
 
-    const descriptors = await provider.list(
-      new Request('https://backend.volt.example/v1/agents'),
-      {} as never,
-    )
+    const descriptors = await provider.list(new Request('https://backend.volt.example/v1/agents'), {} as never)
 
     expect(descriptors.map((d) => d.id)).toEqual(['voltd-crm_bot', 'voltd-payroll_bot'])
     expect(descriptors[0].url).toBe('wss://backend.volt.example/v1/voltd/ws?agent=crm_bot')

@@ -70,12 +70,7 @@ describe('fetchVoltdRoster', () => {
   it('reads the roster out of the initialize result', async () => {
     const roster = await run((socket) =>
       socket.onmessage?.(
-        message(
-          initializeResult([
-            { alias: 'crm_bot', display_name: 'CRM', default: true },
-            { alias: 'payroll_bot' },
-          ]),
-        ),
+        message(initializeResult([{ alias: 'crm_bot', display_name: 'CRM', default: true }, { alias: 'payroll_bot' }])),
       ),
     )
     expect(roster).toEqual([
@@ -110,9 +105,7 @@ describe('fetchVoltdRoster', () => {
   // into a failed discovery response so the client keeps its existing agents.
   it('rejects when the gateway refuses initialize', async () => {
     await expect(
-      run((socket) =>
-        socket.onmessage?.(message({ jsonrpc: '2.0', id: 1, error: { message: 'unauthorized' } })),
-      ),
+      run((socket) => socket.onmessage?.(message({ jsonrpc: '2.0', id: 1, error: { message: 'unauthorized' } }))),
     ).rejects.toThrow(/unauthorized/)
   })
 
