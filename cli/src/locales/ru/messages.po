@@ -14,6 +14,187 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Choice"
+msgstr "Выбор"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Models"
+msgstr "Модели"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Use {app}"
+msgstr "Использовать {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Log in"
+msgstr "Войти"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Log out"
+msgstr "Выйти"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Use provider"
+msgstr "Использовать провайдера"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Repair credentials"
+msgstr "Исправить учётные данные"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Remove provider"
+msgstr "Удалить провайдера"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Providers"
+msgstr "Провайдеры"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Add provider API key"
+msgstr "Добавить ключ провайдера"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "Choose how to connect"
+msgstr "Выберите способ подключения"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "{app} account"
+msgstr "Учётная запись {app}"
+
+#. js-lingui-explicit-id
+#: src/provider-runtime/manager.ts
+msgid "recommended"
+msgstr "рекомендуется"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+#: src/provider-runtime/manager.ts
+msgid "Provider API key"
+msgstr "Ключ провайдера"
+
+#. js-lingui-explicit-id
+#: src/lib/state-error.ts
+msgid "config"
+msgstr "файл настроек"
+
+#. js-lingui-explicit-id
+#: src/lib/state-error.ts
+msgid "auth config"
+msgstr "файл учётных данных"
+
+#. js-lingui-explicit-id
+#: src/lib/state-error.ts
+msgid "{subject} at {path} was written by a newer {app} CLI version"
+msgstr "{subject} по пути {path} записан более новой версией {app} CLI"
+
+#. js-lingui-explicit-id
+#: src/lib/state-error.ts
+msgid "{subject} at {path} is invalid"
+msgstr "{subject} по пути {path} повреждён"
+
+#. js-lingui-explicit-id
+#: src/fork/provider-status-label.ts
+msgid "authenticated"
+msgstr "доступ подтверждён"
+
+#. js-lingui-explicit-id
+#: src/fork/provider-status-label.ts
+msgid "authentication required"
+msgstr "нужен вход"
+
+#. js-lingui-explicit-id
+#: src/fork/provider-status-label.ts
+msgid "not authenticated"
+msgstr "доступ не подтверждён"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "local"
+msgstr "локально"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Custom OpenAI-compatible endpoint"
+msgstr "Своя точка, совместимая с OpenAI"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Value required."
+msgstr "Нужно указать значение."
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "API key required."
+msgstr "Нужно указать ключ."
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Base URL"
+msgstr "Базовый адрес"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Model id"
+msgstr "Идентификатор модели"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Models (offline list)"
+msgstr "Модели (список без сети)"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Other {provider} model"
+msgstr "Другая модель {provider}"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "model id"
+msgstr "идентификатор модели"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "API format"
+msgstr "формат API"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Provider authentication could not be verified; saving as not authenticated."
+msgstr "Проверить доступ у провайдера не удалось; сохраняю как не прошедшего проверку."
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "API key"
+msgstr "Ключ"
+
+#. js-lingui-explicit-id
+#: src/config/wizard.ts
+msgid "Replacement API key"
+msgstr "Новый ключ"
+
+#. js-lingui-explicit-id
+#: src/auth/login.ts
+msgid "Waiting for approval…"
+msgstr "Ожидаю подтверждения…"
+
+#. js-lingui-explicit-id
+#: src/auth/login.ts
+msgid "Login successful."
+msgstr "Вход выполнен."
+
+#. js-lingui-explicit-id
 #: src/auth/logout.ts
 msgid "Authentication changed during logout; no stored web session remains."
 msgstr "Состояние входа изменилось во время выхода: сохранённого веб-сеанса больше нет."
