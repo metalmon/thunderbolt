@@ -30,7 +30,9 @@ export const edgeResizeZoneCoarse = 12
  * unavailable, since every desktop this ships to has a mouse.
  */
 export const resolveEdgeResizeZone = (): number =>
-  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches
     ? edgeResizeZoneCoarse
     : edgeResizeZone
 
