@@ -16,13 +16,7 @@ describe('isRegistryAbsent', () => {
   it('keeps every other failure a failure', () => {
     // 502 is the one that matters: a gateway blip must stay retryable, and the
     // caller must go on telling "we do not know" apart from "there are none".
-    expect([500, 502, 503, 400, 401].map(failedWith).map(isRegistryAbsent)).toEqual([
-      false,
-      false,
-      false,
-      false,
-      false,
-    ])
+    expect([500, 502, 503, 400, 401].map(failedWith).map(isRegistryAbsent)).toEqual([false, false, false, false, false])
   })
 
   it('is not fooled by a timeout, an unreadable body, or nothing at all', () => {
