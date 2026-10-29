@@ -570,6 +570,16 @@ describe('parseCommandSyntax — account and config subcommands', () => {
       message: `${commandName} config: unexpected argument 'extra'`,
     })
   })
+
+  test('routes the language picker under both spellings and rejects extra arguments', () => {
+    expect(parseCommandSyntax(['lang'])).toEqual({ kind: 'language' })
+    expect(parseCommandSyntax(['language'])).toEqual({ kind: 'language' })
+    expect(parseCommandSyntax(['lang', '--help'])).toEqual({ kind: 'help' })
+    expect(parseCommandSyntax(['lang', 'ru'])).toEqual({
+      kind: 'error',
+      message: `${commandName} lang: unexpected argument 'ru'`,
+    })
+  })
 })
 
 describe('parseCommandSyntax — external bridge compatibility', () => {

@@ -12,6 +12,9 @@ export type CliLocale = 'en' | 'ru'
 
 const catalogs: Record<CliLocale, Messages> = { en, ru }
 
+/** How the user asked for the interface to be named. Mirrors `CliConfig.language`. */
+export type CliLanguagePreference = 'system' | CliLocale
+
 /**
  * ⚠ **No macros here.** Bun has no Babel pass, so `@lingui/core/macro` resolves
  * to Lingui's stub and throws when called — the same trap the backend's email
@@ -75,5 +78,27 @@ export const resolveCliLocale = (
   return base === 'ru' ? 'ru' : 'en'
 }
 
-/** The `I18n` for this run. Resolved once: a CLI process has one language. */
-export const i18n = getI18n(resolveCliLocale())
+/**
+ * The `I18n` for this run.
+ *
+ * ⚠ It carries **both** catalogs and is switched with `activate`, rather than
+ * being one instance per locale. `config.json` is read asynchronously, through
+ * the lock layer, so the stored preference cannot be known at import time — the
+ * run starts in the system's language and `applyCliLanguage` corrects it once
+ * the config is in hand. A per-locale instance could not be corrected: every
+ * module already holds a reference to this one.
+ *
+ * The corollary is the module-scope rule the app's i18n doc states: a string
+ * resolved at import time freezes before the preference arrives. Resolve at the
+ * point of use (see `src/ui/render.ts` for the lazy variants).
+ */
+export const i18n = setupI18n({ locale: resolveCliLocale(), messages: catalogs })
+
+/**
+ * Applies the stored language preference. Call once, right after the config is
+ * loaded; `'system'` and absence both mean "re-derive from the environment", so
+ * switching back in the wizard takes effect without a restart.
+ */
+export const applyCliLanguage = (preference: CliLanguagePreference | undefined): void => {
+  i18n.activate(preference === undefined || preference === 'system' ? resolveCliLocale() : preference)
+}
