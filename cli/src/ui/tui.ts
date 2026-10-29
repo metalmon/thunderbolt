@@ -46,6 +46,7 @@ import {
   attachPermissionGate,
   choosePermissionMode,
   cyclePermissionMode,
+  permissionModeLabel,
   type PermissionMode,
 } from '../agent/permissions.ts'
 import type { PermissionDecision, PermissionPrompt, PermissionRequest, ThinkingLevel } from '../agent/types.ts'
@@ -271,7 +272,9 @@ export const subscribeTuiRenderer = (
         clearStatus()
         if (turnActive) {
           turnActive = false
-          scrollback.addChild(new Text(dim(`${symbols.interrupted} Interrupted — partial reply kept`)))
+          scrollback.addChild(
+            new Text(dim(`${symbols.interrupted} ${i18n._({ id: 'Interrupted — partial reply kept' })}`)),
+          )
           tui.requestRender()
         }
         break
@@ -363,28 +366,38 @@ type FooterIdentity = {
 
 type FooterHintState = 'idle' | 'active' | 'active-queue' | 'autocomplete' | 'models' | 'quit-confirm'
 
-const thinkingLabel = {
-  off: 'off',
-  minimal: 'min',
-  low: 'low',
-  medium: 'med',
-  high: 'high',
-  xhigh: 'xhigh',
-} as const satisfies Readonly<Record<ThinkingLevel, string>>
+/** ⚠ A function, not a table: module scope resolves before the stored language
+ *  preference is read, so a constant would pin the boot language for the run. */
+const thinkingLabel = (level: ThinkingLevel): string =>
+  ({
+    off: i18n._({ id: 'off' }),
+    minimal: i18n._({ id: 'min' }),
+    low: i18n._({ id: 'low' }),
+    medium: i18n._({ id: 'med' }),
+    high: i18n._({ id: 'high' }),
+    xhigh: i18n._({ id: 'xhigh' }),
+  })[level]
 
 /** Styles one footer key and its subdued action label. */
 const keyHint = (key: string, label: string): string => `${amber(key)}${dim(` ${label}`)}`
 
 /** Selects the wide or essential footer hint for the current interaction state. */
 const footerHint = (state: FooterHintState, narrow: boolean): string => {
-  if (state === 'quit-confirm') return boltYellow('ctrl+c again to quit')
-  if (state === 'active') return `${keyHint('enter', 'queue')} ${dim('·')} ${keyHint('esc', 'interrupt')}`
+  // The KEY names stay literal — `enter`, `esc`, `ctrl+c` are what the keyboard
+  // says — and only the action beside each one is translated.
+  if (state === 'quit-confirm') return boltYellow(i18n._({ id: 'ctrl+c again to quit' }))
+  if (state === 'active')
+    return `${keyHint('enter', i18n._({ id: 'queue' }))} ${dim('·')} ${keyHint('esc', i18n._({ id: 'interrupt' }))}`
   if (state === 'active-queue')
-    return `${keyHint('enter', 'queue')} ${dim('·')} ${keyHint('↑', 'queue list')} ${dim('·')} ${keyHint('esc', 'interrupt')}`
-  if (state === 'models') return keyHint('esc', 'close')
+    return `${keyHint('enter', i18n._({ id: 'queue' }))} ${dim('·')} ${keyHint('↑', i18n._({ id: 'queue list' }))} ${dim('·')} ${keyHint('esc', i18n._({ id: 'interrupt' }))}`
+  if (state === 'models') return keyHint('esc', i18n._({ id: 'close' }))
   if (state === 'autocomplete')
-    return narrow ? keyHint('esc', 'dismiss') : `${keyHint('tab', 'complete')} ${dim('·')} ${keyHint('esc', 'dismiss')}`
-  return narrow ? keyHint('ctrl+c', 'quit') : `${keyHint('/', 'commands')} ${dim('·')} ${keyHint('ctrl+c', 'quit')}`
+    return narrow
+      ? keyHint('esc', i18n._({ id: 'dismiss' }))
+      : `${keyHint('tab', i18n._({ id: 'complete' }))} ${dim('·')} ${keyHint('esc', i18n._({ id: 'dismiss' }))}`
+  return narrow
+    ? keyHint('ctrl+c', i18n._({ id: 'quit' }))
+    : `${keyHint('/', i18n._({ id: 'commands' }))} ${dim('·')} ${keyHint('ctrl+c', i18n._({ id: 'quit' }))}`
 }
 
 /** Persistent single-line model identity and context-sensitive key hints. */
@@ -406,16 +419,17 @@ export class Footer implements Component {
 
   render(width: number): string[] {
     const narrow = width < 60
-    const permissionLabel = narrow ? 'mode' : 'permissions'
+    const permissionLabel = narrow ? i18n._({ id: 'mode' }) : i18n._({ id: 'permissions' })
     const permissionModeStyle = this.identity.permissionMode === 'yolo' ? red : raspberry
+    const modeName = permissionModeLabel(this.identity.permissionMode)
     const permissionMode =
       this.identity.permissionMode === 'ask'
-        ? dim(`${permissionLabel} ask`)
-        : `${dim(`${permissionLabel} `)}${permissionModeStyle(this.identity.permissionMode)}`
+        ? dim(`${permissionLabel} ${modeName}`)
+        : `${dim(`${permissionLabel} `)}${permissionModeStyle(modeName)}`
     const left = narrow
       ? `${spark()} ${permissionMode}`
       : `${spark()} ${amber(this.identity.model)}${dim(
-          `${this.identity.confidential ? ' · confidential' : ''} · thinking ${thinkingLabel[this.identity.thinking]} · `,
+          `${this.identity.confidential ? ` · ${i18n._({ id: 'confidential' })}` : ''} · ${i18n._({ id: 'thinking' })} ${thinkingLabel(this.identity.thinking)} · `,
         )}${permissionMode}`
     const right = footerHint(this.hintState(), narrow)
     const rightWidth = visibleWidth(right)
@@ -426,7 +440,7 @@ export class Footer implements Component {
   }
 }
 
-const queueHint = '↑ select · enter send now · ⌫ remove · esc back'
+const queueHint = (): string => i18n._({ id: '↑ select · enter send now · ⌫ remove · esc back' })
 
 class MessageQueue implements Component, Focusable {
   focused = false
@@ -460,7 +474,7 @@ class MessageQueue implements Component, Focusable {
   render(width: number): string[] {
     if (!this.hasItems()) return []
     const title = bold(`Queued (${this.items.length})`)
-    const hint = dim(queueHint)
+    const hint = dim(queueHint())
     const gap = width - visibleWidth(title) - visibleWidth(hint)
     const header =
       gap > 0
@@ -601,7 +615,7 @@ export const runTuiRepl = async (
   let quitResetTimer: ReturnType<typeof setTimeout> | undefined
   const footer = new Footer(
     {
-      model: 'not connected',
+      model: i18n._({ id: 'not connected' }),
       confidential: false,
       thinking: options.thinking,
       permissionMode,
@@ -797,7 +811,7 @@ export const runTuiRepl = async (
       editor.addToHistory(historyText)
       if (activeController) {
         messageQueue.enqueue(text)
-        scrollback.addChild(new Text(`\n${dim(`[queued] ${sanitizeTerminalText(text)}`)}`))
+        scrollback.addChild(new Text(`\n${dim(`[${i18n._({ id: 'queued' })}] ${sanitizeTerminalText(text)}`)}`))
         return
       }
       startInput(text)
