@@ -11,7 +11,11 @@ describe('mintGeminiEphemeralToken', () => {
   it('rejects a key with non-ASCII characters before touching fetch', async () => {
     const fetchImpl = mock(async () => new Response('{}', { status: 200 }))
     await expect(
-      mintGeminiEphemeralToken({ apiKey: 'AIzaКириллица', model: 'm', fetchImpl: fetchImpl as unknown as typeof fetch }),
+      mintGeminiEphemeralToken({
+        apiKey: 'AIzaКириллица',
+        model: 'm',
+        fetchImpl: fetchImpl as unknown as typeof fetch,
+      }),
     ).rejects.toThrow(GeminiEphemeralTokenError)
     expect(fetchImpl).not.toHaveBeenCalled()
   })
@@ -58,10 +62,16 @@ describe('mintGeminiEphemeralToken', () => {
 
   it('mints on the API version matching the model (native-audio → v1alpha, else v1beta)', async () => {
     const run = async (model: string) => {
-      const fetchImpl = mock(async (_url: string, _init: RequestInit) =>
-        new Response(JSON.stringify({ name: 'auth_tokens/x' }), { status: 200 }),
+      const fetchImpl = mock(
+        async (_url: string, _init: RequestInit) =>
+          new Response(JSON.stringify({ name: 'auth_tokens/x' }), { status: 200 }),
       )
-      await mintGeminiEphemeralToken({ apiKey: 'k', model, fetchImpl: fetchImpl as unknown as typeof fetch, now: fixedNow })
+      await mintGeminiEphemeralToken({
+        apiKey: 'k',
+        model,
+        fetchImpl: fetchImpl as unknown as typeof fetch,
+        now: fixedNow,
+      })
       return fetchImpl.mock.calls[0][0]
     }
     expect(await run('gemini-2.5-flash-native-audio-preview-12-2025')).toContain('/v1alpha/auth_tokens')
