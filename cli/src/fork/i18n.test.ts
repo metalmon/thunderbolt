@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { getI18n, resolveCliLocale } from './i18n.ts'
 
 // A stub for the OS language, so the tests do not depend on the machine running
@@ -88,10 +89,15 @@ describe('the macro ban', () => {
   // backend's email copy documents. Cheap, direct, and catches a well-meaning
   // "modernisation" of a string.
   it('no source file imports a lingui macro', () => {
-    const offenders = new Bun.Glob('src/**/*.ts').scanSync({ cwd: 'C:/dev/thunderbolt/cli' })
+    // ⚠ Anchored on this file, NOT on an absolute path and NOT on the CWD.
+    // It carried `C:/dev/thunderbolt/cli` — one developer's machine — so it
+    // passed there and failed everywhere else, including CI, where it was the
+    // first thing to break the CLI release.
+    const cliRoot = join(import.meta.dir, '..', '..')
+    const offenders = new Bun.Glob('src/**/*.ts').scanSync({ cwd: cliRoot })
     const bad: string[] = []
     for (const file of offenders) {
-      const source = readFileSync(`C:/dev/thunderbolt/cli/${file}`, 'utf8')
+      const source = readFileSync(join(cliRoot, file), 'utf8')
       // An IMPORT, not any mention: this file and `i18n.ts` both name the macro
       // paths in prose to explain why they are banned, and a substring check
       // would flag the explanation itself.
