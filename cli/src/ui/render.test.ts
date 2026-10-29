@@ -24,6 +24,7 @@ import {
   workingStatusText,
 } from './render.ts'
 import { assistantMessage, assistantUpdate, rendererEvents } from './test-fixtures.ts'
+import { commandName } from '../fork/identity.ts'
 
 /** A Pi tool result carrying a single text content block. */
 const textResult = (text: string): ToolResultPreview => ({ content: [{ type: 'text', text }] })
@@ -64,9 +65,7 @@ describe('attachRenderer — prompt status', () => {
     for (const start of starts) events.emit(assistantUpdate(message, start))
     expect(stderr).toHaveLength(statusWrites)
 
-    events.emit(
-      assistantUpdate(message, { type: 'text_delta', contentIndex: 0, delta: 'answer', partial: message }),
-    )
+    events.emit(assistantUpdate(message, { type: 'text_delta', contentIndex: 0, delta: 'answer', partial: message }))
     expect(stderr.at(-1)).toContain('\x1b[2K')
     expect(stdout.join('')).toBe('answer')
   })
@@ -292,7 +291,7 @@ describe('formatTurnError — error gate', () => {
     expect(byokError).toContain('Provider rejected the credential')
     expect(byokError).not.toContain('Session expired')
     expect(byokError).toContain(
-      "set the provider's environment variable, pass --api-key, or repair the profile with thunderbolt config",
+      `set the provider's environment variable, pass --api-key, or repair the profile with ${commandName} config`,
     )
   })
 

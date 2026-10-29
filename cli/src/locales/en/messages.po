@@ -19,6 +19,62 @@ msgid "Choice"
 msgstr "Choice"
 
 #. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Working…"
+msgstr "Working…"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "check your connection — your message is kept in history (↑)"
+msgstr "check your connection — your message is kept in history (↑)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "run /login to sign in again"
+msgstr "run /login to sign in again"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "set the provider's environment variable, pass --api-key, or repair the profile with {command} config"
+msgstr "set the provider's environment variable, pass --api-key, or repair the profile with {command} config"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "retry the message — it is kept in history (↑)"
+msgstr "retry the message — it is kept in history (↑)"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Session expired"
+msgstr "Session expired"
+
+#. js-lingui-explicit-id
+#: src/ui/render.ts
+msgid "Provider rejected the credential"
+msgstr "Provider rejected the credential"
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+#: src/ui/tui.ts
+msgid "Provider setup was cancelled before a provider was selected."
+msgstr "Provider setup was cancelled before a provider was selected."
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Allow once"
+msgstr "Allow once"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Allow {tool} for the rest of this session"
+msgstr "Allow {tool} for the rest of this session"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "Deny"
+msgstr "Deny"
+
+#. js-lingui-explicit-id
 #: src/provider-runtime/manager.ts
 msgid "Models"
 msgstr "Models"
@@ -228,3 +284,58 @@ msgstr "The stored {app} session is no longer valid. Log in again to continue."
 #: src/auth/logout.ts
 msgid "The stored session predates CLI device registration and was cleared. Log in again to continue."
 msgstr "The stored session predates CLI device registration and was cleared. Log in again to continue."
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Ask"
+msgstr "Ask"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Prompt before bash, write, and edit"
+msgstr "Prompt before bash, write, and edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Accept edits"
+msgstr "Accept edits"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow write and edit; ask before bash"
+msgstr "Allow write and edit; ask before bash"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Read only"
+msgstr "Read only"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Block bash, write, and edit"
+msgstr "Block bash, write, and edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Yolo"
+msgstr "Yolo"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow every tool call"
+msgstr "Allow every tool call"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Permissions"
+msgstr "Permissions"
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+msgid "Run {command} in a terminal to choose a provider before starting inference."
+msgstr "Run {command} in a terminal to choose a provider before starting inference."
+
+#. js-lingui-explicit-id
+#: src/agent/run.ts
+msgid "Provider persistence was not committed."
+msgstr "Provider persistence was not committed."
