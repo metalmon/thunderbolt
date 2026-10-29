@@ -13,6 +13,7 @@
  */
 
 import { cliVersion } from '../version.ts'
+import { envVar, envVarNames } from '../fork/identity.ts'
 
 /** Env values, defaulting to the process environment. Kept as a plain map so the
  *  pure resolvers can be unit-tested without touching `process.env`. */
@@ -22,12 +23,15 @@ export const defaultCloudUrl = 'http://localhost:8000/v1'
 
 export const defaultAppUrl = 'http://localhost:1420'
 
+// Fork: the BUILD_* pair keeps upstream's spelling on purpose. These are not
+// user-facing — `cli-release.yml` bakes them with `--define`, and nobody exports
+// them by hand — so renaming them would churn the workflow for no one's benefit.
 const bakedCloudUrl = process.env.THUNDERBOLT_BUILD_CLOUD_URL
 const bakedAppUrl = process.env.THUNDERBOLT_BUILD_APP_URL
 
 export const cliClientId = 'thunderbolt-cli'
 
-/** Preserves caller headers and adds the outer-hop app version sent to the Thunderbolt backend. */
+/** Preserves caller headers and adds the outer-hop app version sent to the Volt backend. */
 export const backendHeaders = (headers?: RequestInit['headers']): Headers => {
   const result = new Headers(headers)
   result.set('X-App-Version', cliVersion)
@@ -35,7 +39,7 @@ export const backendHeaders = (headers?: RequestInit['headers']): Headers => {
 }
 
 /**
- * Resolve the backend cloud URL: the `THUNDERBOLT_CLOUD_URL` env var (the CLI's
+ * Resolve the backend cloud URL: the `VOLT_CLOUD_URL` env var (the CLI's
  * mirror of the app's `VITE_THUNDERBOLT_CLOUD_URL`), the baked release default,
  * or the localhost development default.
  *
@@ -43,17 +47,17 @@ export const backendHeaders = (headers?: RequestInit['headers']): Headers => {
  * @param buildDefault - URL baked into a release binary at compile time
  */
 export const resolveCloudUrl = (env: Env = process.env, buildDefault = bakedCloudUrl): string =>
-  env.THUNDERBOLT_CLOUD_URL || buildDefault || defaultCloudUrl
+  envVar('CLOUD_URL', env) || buildDefault || defaultCloudUrl
 
 /**
- * Resolve the Thunderbolt app URL used in pairing instructions: the runtime
- * `THUNDERBOLT_APP_URL`, the baked release default, or local development.
+ * Resolve the Volt app URL used in pairing instructions: the runtime
+ * `VOLT_APP_URL`, the baked release default, or local development.
  *
  * @param env - environment map (defaults to `process.env`)
  * @param buildDefault - URL baked into a release binary at compile time
  */
 export const resolveAppUrl = (env: Env = process.env, buildDefault = bakedAppUrl): string =>
-  env.THUNDERBOLT_APP_URL || buildDefault || defaultAppUrl
+  envVar('APP_URL', env) || buildDefault || defaultAppUrl
 
 /**
  * Resolve a personal access token / api key from the environment. It remains
@@ -62,9 +66,9 @@ export const resolveAppUrl = (env: Env = process.env, buildDefault = bakedAppUrl
  *
  * @param env - environment map (defaults to `process.env`)
  */
-export const resolvePatToken = (env: Env = process.env): string | undefined => env.THUNDERBOLT_TOKEN || undefined
+export const resolvePatToken = (env: Env = process.env): string | undefined => envVar('TOKEN', env) || undefined
 
-export const patRemainsActiveNote = 'THUNDERBOLT_TOKEN remains active until it is removed from the environment.'
+export const patRemainsActiveNote = `${envVarNames('TOKEN').current} remains active until it is removed from the environment.`
 
 /** Hosts for which plain HTTP is safe (the token never leaves the machine). */
 const loopbackHosts = new Set(['localhost', '::1', '[::1]'])

@@ -8,13 +8,14 @@
  *
  * Transport shape (verified against the n0 relays):
  *   builder → configureTransport (n0 preset: relays + discovery + crypto, with
- *   the relay optionally overridden via THUNDERBOLT_IROH_RELAY_URL) → secretKey
+ *   the relay optionally overridden via VOLT_IROH_RELAY_URL) → secretKey
  *   (stable NodeId) → [server only] alpns → bind → online (home relay ready).
  * A connection ticket embeds the NodeId + home-relay URL, so it is the natural
  * out-of-band pairing primitive; a bare NodeId also dials via n0 DNS discovery.
  */
 
 import { Endpoint, EndpointAddr, EndpointId, EndpointTicket, RelayMode, presetN0 } from '@number0/iroh'
+import { envVarNames } from '../fork/identity.ts'
 import type { Connection, EndpointBuilder } from '@number0/iroh'
 import { irohAlpnFor } from '../../../shared/iroh.ts'
 import type { BridgeProtocol } from '../agent/types.ts'
@@ -23,13 +24,13 @@ import { loadOrCreateIdentity } from './identity.ts'
 /** Env var that overrides the iroh relay. Unset/empty keeps the n0 public relays
  *  (today's behavior); set it to a self-hosted iroh-relay wss URL to switch with
  *  no code change. Read at runtime, so the CLI binary needs no rebuild. */
-const relayUrlEnv = 'THUNDERBOLT_IROH_RELAY_URL'
+const relayUrlEnv = envVarNames('IROH_RELAY_URL').current
 
 /** The self-hosted relay override from {@link relayUrlEnv}, or `undefined` to
  *  keep the n0 public relays. Whitespace-only is treated as unset, so an exported
  *  but blank var is byte-for-byte the default. */
 export const relayUrlOverride = (env: NodeJS.ProcessEnv = process.env): string | undefined => {
-  const url = env[relayUrlEnv]?.trim()
+  const url = (env[relayUrlEnv] ?? env[envVarNames('IROH_RELAY_URL').legacy])?.trim()
   return url ? url : undefined
 }
 
