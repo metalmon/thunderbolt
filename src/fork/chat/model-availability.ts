@@ -28,14 +28,20 @@ export type ModelAvailability = 'checking' | 'none' | 'present'
  *
  * @returns 'checking' until the first read lands, then whether any model exists
  */
-export const useModelAvailability = (): ModelAvailability => {
+/** The one read this hook needs, injectable so its test does not have to replace
+ *  the `@/dal` barrel. `mock.module` is process-wide in bun and never undone, so
+ *  a barrel stubbed down to one export breaks every sibling file in the same run
+ *  — which is what it did to `selected-model.test.ts`. */
+export type ModelAvailabilityRead = typeof getAvailableModels
+
+export const useModelAvailability = (read: ModelAvailabilityRead = getAvailableModels): ModelAvailability => {
   const db = useDatabase()
   const [availability, setAvailability] = useState<ModelAvailability>('checking')
 
   useEffect(() => {
     let cancelled = false
     const check = async () => {
-      const models = await getAvailableModels(db)
+      const models = await read(db)
       if (!cancelled) {
         setAvailability(models.length > 0 ? 'present' : 'none')
       }
@@ -46,7 +52,7 @@ export const useModelAvailability = (): ModelAvailability => {
     return () => {
       cancelled = true
     }
-  }, [db])
+  }, [db, read])
 
   return availability
 }
