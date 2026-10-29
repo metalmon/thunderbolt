@@ -19,7 +19,7 @@ import {
   installThunderboltCli,
 } from '@/lib/cli-install'
 import { getPlatform, isTauri } from '@/lib/platform'
-import { forkHideCliRow } from '@/fork/agents/hide-cli-row'
+import { useAppName } from '@/lib/branding-selectors'
 import { AgentListRow } from './agent-list-row'
 import { IconTile } from '@/components/settings/icon-tile'
 
@@ -64,14 +64,11 @@ export const ThunderboltCliRow = ({
   isTauriEnv: isTauriEnvProp,
 }: ThunderboltCliRowProps) => {
   const { i18n, t } = useLingui()
+  // Fork: the row names the DEPLOYMENT, not the upstream product — the operator's
+  // brand is what the user installed and what the binary will be called.
+  const appName = useAppName()
   const isTauriEnv = isTauriEnvProp ?? isTauri()
   const runtimeArchitecture = architecture ?? (isTauriEnv ? arch() : 'unknown')
-
-  // Fork: the standalone CLI is not distributed in the closed perimeter — hide
-  // the row everywhere (web + desktop), collapsing upstream's platform gate.
-  if (forkHideCliRow()) {
-    return null
-  }
 
   // Hide the row only on a Tauri build with no published binary for this
   // OS/architecture; web builds always show it (the detail links to the guide).
@@ -84,9 +81,9 @@ export const ThunderboltCliRow = ({
       testId="agent-row-thunderbolt-cli"
       isSelected={isSelected}
       onOpen={onOpen}
-      ariaLabel={t`Open Thunderbolt CLI`}
+      ariaLabel={t`Open ${appName} CLI`}
       icon={<Terminal className="size-5 text-muted-foreground" aria-hidden="true" />}
-      title={t`Thunderbolt CLI`}
+      title={t`${appName} CLI`}
       subtitle={i18n._(cliProvenanceLine)}
     />
   )
