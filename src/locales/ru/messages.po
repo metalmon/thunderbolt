@@ -5193,9 +5193,7 @@ msgstr "Чтобы импортировать данные, нужно войт�
 
 #: src/fork/local-mode/server-section.tsx
 msgid "You will be signed out and sync will stop: the credentials you hold were issued by the current server and must not be sent to a different one."
-msgstr ""
-"Из учётной записи вас выведет, синхронизация остановится: имеющиеся у вас "
-"учётные данные выдал текущий сервер, и отправлять их другому нельзя."
+msgstr "Из учётной записи вас выведет, синхронизация остановится: имеющиеся у вас учётные данные выдал текущий сервер, и отправлять их другому нельзя."
 
 #: src/settings/encryption/passkey-section.tsx
 msgid "You won't be able to sign in or unlock sync with this passkey anymore. Devices that are already set up keep working."
