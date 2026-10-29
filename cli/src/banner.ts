@@ -7,10 +7,13 @@
  */
 
 import { cliVersion } from './cli.ts'
+import { i18n } from './fork/i18n.ts'
 import { commandName } from './fork/identity.ts'
 import { amber, bold, brandGradient, dim, spark } from './ui/theme.ts'
 
-export const bannerHint = 'type a task, or / for commands'
+/** ⚠ A function: module scope resolves at import time, before the stored
+ *  language preference has been read out of `config.json`. */
+export const bannerHint = (): string => i18n._({ id: 'type a task, or / for commands' })
 
 /**
  * Builds the two-line REPL header (title + version, then a one-line hint) as a
@@ -32,7 +35,7 @@ export const bannerText = (width: number = process.stdout.columns ?? 80): string
   const hairlineLength = Math.min(28, Math.max(8, Math.floor(width / 5)))
   return `${bold(spark())} ${bold(amber(commandName))} ${dim(`v${cliVersion}`)}\n${brandGradient(
     '─'.repeat(hairlineLength),
-  )}\n${dim(bannerHint)}`
+  )}\n${dim(bannerHint())}`
 }
 
 /**
