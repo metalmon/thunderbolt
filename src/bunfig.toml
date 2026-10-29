@@ -1,2 +1,2 @@
 [test]
-preload = ["../happydom.ts", "./testing-library.ts"]
+preload = ["../happydom.ts", "./fork/local-mode/test-env.ts", "./testing-library.ts"]
