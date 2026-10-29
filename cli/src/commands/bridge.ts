@@ -21,6 +21,7 @@
  */
 
 import { randomBytes, timingSafeEqual } from 'node:crypto'
+import { envVar } from '../fork/identity.ts'
 import type { ServerWebSocket, Subprocess } from 'bun'
 import type { BridgeConfig } from '../agent/types.ts'
 
@@ -173,19 +174,19 @@ export const redactArgv = (argv: readonly string[]): string => {
   return out.join(' ')
 }
 
-/** Origins the Thunderbolt app's webview presents as `Origin` on the WebSocket
+/** Origins the Volt app's webview presents as `Origin` on the WebSocket
  *  handshake: the Vite dev server plus the native Tauri webview origins (which
  *  vary by OS). A drive-by page the user visits in a normal browser cannot forge
  *  any of these. A self-hosted/cloud build adds its own origin(s) via the
- *  comma-separated `THUNDERBOLT_APP_ORIGIN`. */
+ *  comma-separated `VOLT_APP_ORIGIN`. */
 const defaultAppOrigins = ['http://localhost:1420', 'tauri://localhost', 'http://tauri.localhost'] as const
 
 /**
  * The set of `Origin` header values allowed to upgrade the loopback bridge: the
- * built-in app origins plus any configured via `THUNDERBOLT_APP_ORIGIN`.
+ * built-in app origins plus any configured via `VOLT_APP_ORIGIN`.
  */
 export const bridgeAllowedOrigins = (): ReadonlySet<string> => {
-  const configured = (process.env.THUNDERBOLT_APP_ORIGIN ?? '')
+  const configured = (envVar('APP_ORIGIN') ?? '')
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0)
@@ -214,7 +215,7 @@ export type UpgradeDecision =
 /**
  * Authorize a WebSocket upgrade for the loopback bridge. Three independent gates,
  * all required: the request path must be exactly `/`, the `Origin` header must be
- * an allowlisted Thunderbolt app origin, and the `token` query param must equal
+ * an allowlisted Volt app origin, and the `token` query param must equal
  * the per-run secret (constant-time compared).
  *
  * This closes the drive-by host-access vector. The bridge spawns a host coding

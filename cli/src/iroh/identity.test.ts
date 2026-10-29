@@ -50,7 +50,9 @@ describe('loadOrCreateIdentity', () => {
   for (const protocol of protocols) {
     it(`derives the returned NodeId from the returned secret bytes (${protocol})`, async () => {
       const { secretKeyBytes, nodeId } = await loadOrCreateIdentity(protocol)
-      const expected = SecretKey.fromBytes([...secretKeyBytes]).public().toString()
+      const expected = SecretKey.fromBytes([...secretKeyBytes])
+        .public()
+        .toString()
       expect(nodeId).toBe(expected)
     })
 
@@ -61,19 +63,28 @@ describe('loadOrCreateIdentity', () => {
       expect([...second.secretKeyBytes]).toEqual([...first.secretKeyBytes])
     })
 
-    it(`writes the private-key file owner-only, 0600 (${protocol})`, async () => {
+    // Fork: POSIX modes only. Windows has none — `fchmod` throws there, and
+    // `secure-fs` skips it by design (see `applyMode`), so the state's protection
+    // comes from the user-profile ACL instead and there is no mode to assert.
+    it.skipIf(process.platform === 'win32')(`writes the private-key file owner-only, 0600 (${protocol})`, async () => {
       await loadOrCreateIdentity(protocol)
       expect(await modeOf(identityPath(protocol))).toBe(0o600)
     })
 
-    it(`self-heals a key restored with lax permissions back to 0600 (${protocol})`, async () => {
-      const { nodeId } = await loadOrCreateIdentity(protocol)
-      await chmod(identityPath(protocol), 0o644)
-      expect(await modeOf(identityPath(protocol))).toBe(0o644)
-      const reloaded = await loadOrCreateIdentity(protocol)
-      expect(reloaded.nodeId).toBe(nodeId)
-      expect(await modeOf(identityPath(protocol))).toBe(0o600)
-    })
+    // Fork: POSIX modes only. Windows has none — `fchmod` throws there, and
+    // `secure-fs` skips it by design (see `applyMode`), so the state's protection
+    // comes from the user-profile ACL instead and there is no mode to assert.
+    it.skipIf(process.platform === 'win32')(
+      `self-heals a key restored with lax permissions back to 0600 (${protocol})`,
+      async () => {
+        const { nodeId } = await loadOrCreateIdentity(protocol)
+        await chmod(identityPath(protocol), 0o644)
+        expect(await modeOf(identityPath(protocol))).toBe(0o644)
+        const reloaded = await loadOrCreateIdentity(protocol)
+        expect(reloaded.nodeId).toBe(nodeId)
+        expect(await modeOf(identityPath(protocol))).toBe(0o600)
+      },
+    )
 
     it(`tolerates trailing whitespace in the stored hex — trims before decoding (${protocol})`, async () => {
       const { nodeId } = await loadOrCreateIdentity(protocol)
@@ -91,7 +102,9 @@ describe('loadOrCreateIdentity', () => {
 
   it('reads the legacy `identity` file for acp so existing pairings survive, and does NOT reuse it for mcp', async () => {
     const legacySecret = SecretKey.generate().toBytes()
-    const legacyNodeId = SecretKey.fromBytes([...legacySecret]).public().toString()
+    const legacyNodeId = SecretKey.fromBytes([...legacySecret])
+      .public()
+      .toString()
     await mkdir(irohDir(), { recursive: true })
     await writeFile(identityPath('acp'), Buffer.from(legacySecret).toString('hex'))
 

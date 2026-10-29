@@ -18,6 +18,7 @@ import {
   toAuth,
 } from './auth/token-store.ts'
 import { cliVersion, helpText, parseCommandSyntax } from './cli.ts'
+import { commandName, displayName } from './fork/identity.ts'
 import { runBridge } from './commands/bridge.ts'
 import { loadConfig, saveConfig } from './config/config.ts'
 import { runIrohAdmin } from './iroh/admin.ts'
@@ -61,7 +62,7 @@ const markSessionAuthenticationRequired = async (
 const createProductionProviderRuntime = async (): Promise<ProviderRuntime> => {
   const environment = process.env
   const backendUrl = resolveCloudUrl(environment)
-  const metadata = { deviceName: 'Thunderbolt CLI' }
+  const metadata = { deviceName: `${displayName} CLI` }
   return createProviderRuntime({
     loadConfig,
     loadAuthConfig,
@@ -219,7 +220,7 @@ export const runCli = async (
       }
     }
   } catch (error) {
-    dependencies.writeError(`thunderbolt: ${toError(error).message}\n`)
+    dependencies.writeError(`${commandName}: ${toError(error).message}\n`)
     dependencies.setExitCode(1)
   }
 }

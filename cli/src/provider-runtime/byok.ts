@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Api, Model, Provider } from '@earendil-works/pi-ai'
+import { envVarNames } from '../fork/identity.ts'
 import { builtinModels } from '@earendil-works/pi-ai/providers/all'
 import { buildOpenAiCompatModel } from '../../../shared/agent-core/openai-compat-model.ts'
 import { builtinProviderEnvVars } from '../agent/defaults.ts'
@@ -25,7 +26,7 @@ type ResolvedByokCredential = {
   readonly persistsCredentialStatus: boolean
 }
 
-const openAiCompatEnvironmentKey = 'THUNDERBOLT_OPENAI_COMPAT_KEY'
+const openAiCompatEnvironmentKey = envVarNames('OPENAI_COMPAT_KEY').current
 
 /** Creates a BYOK binding error carrying the requested code and message. */
 const createByokBindingError = (

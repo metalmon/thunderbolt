@@ -5,6 +5,7 @@
 /** Provider-aware bootstrap and direct CLI run loops. */
 
 import { toError } from '@earendil-works/pi-agent-core'
+import { envVar } from '../fork/identity.ts'
 import { printBanner } from '../banner.ts'
 import { createCommandRouter, mustApplyAfterCancellation } from '../provider-runtime/commands.ts'
 import { runProviderManager } from '../provider-runtime/manager.ts'
@@ -337,7 +338,7 @@ const defaultDependencies: RunAgentDependencies = {
   terminalEnvironment: () => ({
     interactive: Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY),
     stdoutIsTty: Boolean(process.stdout.isTTY),
-    noTuiEnv: Boolean(process.env.THUNDERBOLT_NO_TUI),
+    noTuiEnv: Boolean(envVar('NO_TUI')),
   }),
 }
 
