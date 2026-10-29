@@ -9,11 +9,11 @@ import { builtinModels as piBuiltinModels } from '@earendil-works/pi-ai/provider
 import { defaultModelId } from '../../../shared/defaults/models.ts'
 import { isBuiltinProvider } from '../agent/types.ts'
 import type { BuiltinProvider } from '../agent/types.ts'
-import { hasExactKeys, isNonblankString, isRecord, parseJson, uuidPattern } from '../lib/json.ts'
+import { hasExactKeys, hasKeys, isNonblankString, isRecord, parseJson, uuidPattern } from '../lib/json.ts'
 import { readFileOrNull, withSecureFileLock, writeSecureFile } from '../lib/secure-fs.ts'
 import { createStateError } from '../lib/state-error.ts'
 import { configPath } from '../paths.ts'
-import type { ByokProfile, CliConfig as CliConfigV3 } from '../provider-runtime/types.ts'
+import type { ByokProfile, CliConfig as CliConfigV3, CliLanguagePreference } from '../provider-runtime/types.ts'
 
 export type { CliConfig } from '../provider-runtime/types.ts'
 
@@ -87,9 +87,11 @@ const migrateFireworksProfile = (profile: ByokProfile): ByokProfile => {
 
 /** Reconstructs the strict v3 config schema from untrusted JSON. */
 const parseConfig = (value: unknown): CliConfigV3 | null => {
-  if (!isRecord(value) || !hasExactKeys(value, ['version', 'activeProviderId', 'thunderbolt', 'providers'])) {
+  if (!isRecord(value) || !hasKeys(value, ['version', 'activeProviderId', 'thunderbolt', 'providers'], ['language'])) {
     return null
   }
+  // Fork: absent means "follow the system", so an older file parses unchanged.
+  if (value.language !== undefined && !['system', 'en', 'ru'].includes(value.language as string)) return null
   if (value.version !== 3 || !isRecord(value.thunderbolt)) return null
   if (
     !hasExactKeys(value.thunderbolt, ['defaultModelId']) ||
@@ -123,6 +125,9 @@ const parseConfig = (value: unknown): CliConfigV3 | null => {
     activeProviderId: value.activeProviderId,
     thunderbolt: { defaultModelId: value.thunderbolt.defaultModelId },
     providers,
+    // Omitted rather than defaulted to 'system': writing it back would rewrite
+    // every existing file on first read for no behavioural difference.
+    ...(value.language === undefined ? {} : { language: value.language as CliLanguagePreference }),
   }
 }
 

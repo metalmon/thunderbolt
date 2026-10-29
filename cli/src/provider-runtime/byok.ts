@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Api, Model, Provider } from '@earendil-works/pi-ai'
-import { envVarNames } from '../fork/identity.ts'
+import { commandName, envVarNames } from '../fork/identity.ts'
 import { builtinModels } from '@earendil-works/pi-ai/providers/all'
 import { buildOpenAiCompatModel } from '../../../shared/agent-core/openai-compat-model.ts'
 import { builtinProviderEnvVars } from '../agent/defaults.ts'
@@ -26,7 +26,18 @@ type ResolvedByokCredential = {
   readonly persistsCredentialStatus: boolean
 }
 
-const openAiCompatEnvironmentKey = envVarNames('OPENAI_COMPAT_KEY').current
+/**
+ * Fork: BOTH spellings, current first.
+ *
+ * `envVar` accepts the legacy `THUNDERBOLT_*` name everywhere else, so reading
+ * only the current one here would silently ignore a key an existing user has
+ * already exported — and the error message would name a variable they had set.
+ */
+const openAiCompatEnvironmentKeys = (() => {
+  const names = envVarNames('OPENAI_COMPAT_KEY')
+  return [names.current, names.legacy] as const
+})()
+const openAiCompatEnvironmentKey = openAiCompatEnvironmentKeys[0]
 
 /** Creates a BYOK binding error carrying the requested code and message. */
 const createByokBindingError = (
@@ -40,7 +51,7 @@ const usableCredential = (value: string | undefined | null): string | null =>
 
 /** Returns only environment variables dedicated to the selected provider. */
 const dedicatedEnvironmentNames = (profile: ByokProfile): readonly string[] =>
-  profile.provider === 'openai-compat' ? [openAiCompatEnvironmentKey] : builtinProviderEnvVars[profile.provider]
+  profile.provider === 'openai-compat' ? openAiCompatEnvironmentKeys : builtinProviderEnvVars[profile.provider]
 
 /** Selects the first usable dedicated environment credential in provider-defined order. */
 const environmentCredential = (
@@ -52,8 +63,17 @@ const environmentCredential = (
     .find((value): value is string => value !== null) ?? null
 
 /** Explains when an endpoint override makes a stored OpenAI-compatible key unsafe to reuse. */
+/**
+ * Fork: the names we TELL people to set, which is the current spelling only.
+ * The legacy `THUNDERBOLT_*` name is still read (see
+ * `openAiCompatEnvironmentKeys`) but advertising it would teach the old name to
+ * someone who has not got it set.
+ */
+const advertisedEnvironmentNames = (profile: ByokProfile): readonly string[] =>
+  profile.provider === 'openai-compat' ? [openAiCompatEnvironmentKey] : builtinProviderEnvVars[profile.provider]
+
 const missingCredentialMessage = (profile: ByokProfile, effectiveBaseUrl?: string): string => {
-  const environmentNames = dedicatedEnvironmentNames(profile).join(' or ')
+  const environmentNames = advertisedEnvironmentNames(profile).join(' or ')
   if (
     profile.provider === 'openai-compat' &&
     effectiveBaseUrl !== profile.baseUrl &&
@@ -67,7 +87,7 @@ const missingCredentialMessage = (profile: ByokProfile, effectiveBaseUrl?: strin
   }
   return (
     `No API key is available for BYOK profile "${profile.id}". Set ${environmentNames}, pass --api-key, ` +
-    'or repair the profile in `thunderbolt config`.'
+    `or repair the profile in \`${commandName} config\`.`
   )
 }
 
