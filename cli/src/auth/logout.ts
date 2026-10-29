@@ -8,6 +8,7 @@ import { isProviderRuntimeError, providerRuntimeError } from '../provider-runtim
 import type { AccountFetch, CliAuth, DeviceGrantPresentation, ProviderRuntimeError } from '../provider-runtime/types.ts'
 import { apiBaseUrl, backendHeaders, patRemainsActiveNote } from './config.ts'
 import type { AuthStateExpectation, CompareAndSetAuth } from './token-store.ts'
+import { displayName } from '../fork/identity.ts'
 
 export type LogoutResult =
   | 'logged-out'
@@ -47,7 +48,7 @@ const createConfirmedLogoutPersistenceError = (
   authenticationRequired: boolean = false,
 ): ConfirmedLogoutPersistenceError => {
   const message = authenticationRequired
-    ? `Thunderbolt rejected the stored session, but local authentication state could not be updated: ${error.message}`
+    ? `${displayName} rejected the stored session, but local authentication state could not be updated: ${error.message}`
     : `Remote logout succeeded, but local authentication state could not be cleared: ${error.message}`
   return Object.assign(createLogoutError('persistence-failed', message), {
     remoteLogoutConfirmed: true as const,
@@ -103,14 +104,14 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
       )
       return 'pat-managed-externally'
     }
-    deps.presentation.showStatus('error', 'No stored Thunderbolt web session is available to log out.')
+    deps.presentation.showStatus(`error`, `No stored ${displayName} web session is available to log out.`)
     return 'authentication-required'
   }
 
   const auth = deps.auth
   const backendUrl = apiBaseUrl(auth.backendUrl)
 
-  deps.presentation.showStatus('waiting', 'Revoking this Thunderbolt CLI device…')
+  deps.presentation.showStatus(`waiting`, `Revoking this ${displayName} CLI device…`)
   const fetchFn = deps.fetchFn ?? fetch
   const response = await (async (): Promise<Response> => {
     try {
@@ -146,7 +147,7 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
     if (raceResult !== null) return raceResult
     deps.presentation.showStatus(
       'error',
-      'The stored Thunderbolt session is no longer valid. Log in again to continue.',
+      `The stored ${displayName} session is no longer valid. Log in again to continue.`,
     )
     return 'authentication-required'
   }
@@ -168,7 +169,7 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
 
   const failure = createLogoutError(
     response.status >= 500 ? 'network' : 'authentication-rejected',
-    `Thunderbolt logout failed (${response.status} ${response.statusText})`,
+    `${displayName} logout failed (${response.status} ${response.statusText})`,
   )
   deps.presentation.showStatus('error', failure.message)
   throw failure
