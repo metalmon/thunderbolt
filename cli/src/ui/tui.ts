@@ -88,6 +88,7 @@ import {
   symbols,
   underline,
 } from './theme.ts'
+import { i18n } from '../fork/i18n.ts'
 
 /** Markdown styling for the TUI, built from plain ANSI helpers so it needs no
  *  on-disk theme files (unlike pi-coding-agent's loader). */
@@ -112,7 +113,7 @@ const markdownTheme: MarkdownTheme = {
 const editorTheme: EditorTheme = { borderColor: gray, selectList: selectListTheme }
 
 const providerSetupCancellation = (): Error =>
-  new Error('Provider setup was cancelled before a provider was selected.')
+  new Error(i18n._({ id: 'Provider setup was cancelled before a provider was selected.' }))
 
 /** Reports one detached operation failure without leaving an unhandled rejection. */
 const reportDetachedFailure = async (operation: Promise<void>, report: (error: Error) => void): Promise<void> => {
@@ -284,7 +285,10 @@ export const subscribeTuiRenderer = (
 
 /** Warning header shown above the permission choices. */
 const formatPermissionHeader = (request: PermissionRequest): string => {
-  const lines = [`\n${boltYellow('⚠')} ${bold(request.toolName)} ${dim('wants to run')}`, `    ${bold(request.summary)}`]
+  const lines = [
+    `\n${boltYellow('⚠')} ${bold(request.toolName)} ${dim('wants to run')}`,
+    `    ${bold(request.summary)}`,
+  ]
   if (request.detail) lines.push('', request.detail)
   return lines.join('\n')
 }
@@ -304,9 +308,15 @@ export const buildTuiPermissionPrompt = (
   return (request) =>
     new Promise<PermissionDecision>((resolve) => {
       const items: SelectItem[] = [
-        { value: 'allow-once', label: 'Allow once' },
-        { value: 'allow-session', label: `Allow ${request.toolName} for the rest of this session` },
-        { value: 'deny', label: 'Deny' },
+        { value: 'allow-once', label: i18n._({ id: 'Allow once' }) },
+        {
+          value: 'allow-session',
+          label: i18n._({
+            id: 'Allow {tool} for the rest of this session',
+            values: { tool: request.toolName },
+          }),
+        },
+        { value: 'deny', label: i18n._({ id: 'Deny' }) },
       ]
       scrollback.addChild(new Text(formatPermissionHeader(request)))
       const list = new SelectList(items, items.length, selectListTheme)
@@ -333,15 +343,10 @@ export const buildTuiPermissionPrompt = (
 type ModelPresentation = { readonly id: string; readonly label: string; readonly confidential: boolean }
 
 /** Resolves either a catalog id or wire model to its footer presentation. */
-const modelPresentation = (
-  runtime: Pick<ProviderRuntime, 'snapshot'>,
-  model: string,
-): ModelPresentation => {
+const modelPresentation = (runtime: Pick<ProviderRuntime, 'snapshot'>, model: string): ModelPresentation => {
   const snapshot = runtime.snapshot()
   const items = [snapshot.thunderbolt.models ?? [], ...snapshot.providers.map((provider) => provider.models ?? [])]
-  const match = items
-    .flat()
-    .find((item) => item.id === model || item.wireModel === model)
+  const match = items.flat().find((item) => item.id === model || item.wireModel === model)
   return {
     id: match?.id ?? model,
     label: match?.label ?? model,
@@ -463,9 +468,10 @@ class MessageQueue implements Component, Focusable {
         : [...new TruncatedText(title).render(width), ...new Text(hint, 0, 0).render(width)]
     const items = this.items.map((text, index) => {
       const selected = this.focused && index === this.selectedIndex
-      const line = new TruncatedText(
-        `${selected ? '> ' : '  '}${index + 1}. ${sanitizeTerminalText(text).replace(/\s+/g, ' ').trim()}`,
-      ).render(width)[0] ?? ''
+      const line =
+        new TruncatedText(
+          `${selected ? '> ' : '  '}${index + 1}. ${sanitizeTerminalText(text).replace(/\s+/g, ' ').trim()}`,
+        ).render(width)[0] ?? ''
       return selected ? selectListTheme.selectedText(line) : line
     })
     return [...header, ...items]
@@ -525,8 +531,7 @@ class MessageQueue implements Component, Focusable {
 }
 
 /** Sanitizes only the terminal echo; command routing still receives the original editor text. */
-export const formatTuiInputEcho = (text: string): string =>
-  `${bold(brandGradient('›'))} ${sanitizeTerminalText(text)}`
+export const formatTuiInputEcho = (text: string): string => `${bold(brandGradient('›'))} ${sanitizeTerminalText(text)}`
 
 /** @deprecated Retained until the out-of-scope run tests migrate to the editor submission path. */
 export const submitTuiText = (
@@ -620,7 +625,7 @@ export const runTuiRepl = async (
     scrollback,
     editor,
     () => activeController?.signal,
-    () => currentModel === undefined ? undefined : modelPresentation(runtime, currentModel).id,
+    () => (currentModel === undefined ? undefined : modelPresentation(runtime, currentModel).id),
   )
 
   const done = Promise.withResolvers<void>()
@@ -691,7 +696,8 @@ export const runTuiRepl = async (
       ask: buildTuiPermissionPrompt(tui, scrollback, editor, () => activeController?.signal),
     })
     const router = createCommandRouter(
-      (mode) => runProviderManager(managerIO, runtime, mode, activeController?.signal, connected.harness.currentProviderId),
+      (mode) =>
+        runProviderManager(managerIO, runtime, mode, activeController?.signal, connected.harness.currentProviderId),
       async () => {
         permissionMode = await choosePermissionMode(managerIO, permissionMode)
         footer.setPermissionMode(permissionMode)

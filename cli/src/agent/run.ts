@@ -5,14 +5,12 @@
 /** Provider-aware bootstrap and direct CLI run loops. */
 
 import { toError } from '@earendil-works/pi-agent-core'
-import { envVar } from '../fork/identity.ts'
+import { commandName, envVar } from '../fork/identity.ts'
+import { i18n } from '../fork/i18n.ts'
 import { printBanner } from '../banner.ts'
 import { createCommandRouter, mustApplyAfterCancellation } from '../provider-runtime/commands.ts'
 import { runProviderManager } from '../provider-runtime/manager.ts'
-import {
-  prepareProviderBinding,
-  type ProviderPreparationOptions,
-} from '../provider-runtime/provider-stage.ts'
+import { prepareProviderBinding, type ProviderPreparationOptions } from '../provider-runtime/provider-stage.ts'
 import type {
   CommandOutcome,
   HarnessBindingTransaction,
@@ -94,12 +92,17 @@ export const bootstrapBeforeHarness = async (
   }
 
   if (!terminal.interactive) {
-    throw new Error('Run thunderbolt in a terminal to choose a provider before starting inference.')
+    throw new Error(
+      i18n._({
+        id: 'Run {command} in a terminal to choose a provider before starting inference.',
+        values: { command: commandName },
+      }),
+    )
   }
 
   const outcome = await manager(io, runtime, 'first-run', terminal.signal)
   if (outcome.kind === 'switch') return commitBootstrapSwitch(config, outcome, runtime, terminal)
-  throw new Error('Provider setup was cancelled before a provider was selected.')
+  throw new Error(i18n._({ id: 'Provider setup was cancelled before a provider was selected.' }))
 }
 
 /** Applies one routed command while keeping HarnessRuntime the live transaction owner. */
@@ -118,11 +121,11 @@ export const applyCommandOutcome = async (
         persistenceRevision = committed.revision
       },
       rollback: async () => {
-        if (persistenceRevision === null) throw new Error('Provider persistence was not committed.')
+        if (persistenceRevision === null) throw new Error(i18n._({ id: 'Provider persistence was not committed.' }))
         await runtime.manage({ type: 'rollback-persistence', revision: persistenceRevision })
       },
       finalize: async () => {
-        if (persistenceRevision === null) throw new Error('Provider persistence was not committed.')
+        if (persistenceRevision === null) throw new Error(i18n._({ id: 'Provider persistence was not committed.' }))
         await runtime.manage({ type: 'finalize-persistence', revision: persistenceRevision })
       },
     }
@@ -315,10 +318,12 @@ export const createRunAgent =
   (dependencies: RunAgentDependencies) =>
   async (config: CommandSyntaxRunConfig, runtime: ProviderRuntime): Promise<void> => {
     const environment = dependencies.terminalEnvironment()
-    const useTui = environment.interactive && shouldUseTui(config, {
-      isTty: environment.stdoutIsTty,
-      noTuiEnv: environment.noTuiEnv,
-    })
+    const useTui =
+      environment.interactive &&
+      shouldUseTui(config, {
+        isTty: environment.stdoutIsTty,
+        noTuiEnv: environment.noTuiEnv,
+      })
     return useTui
       ? runTuiSession(config, runtime, dependencies)
       : runPlainSession(config, runtime, dependencies, environment)
