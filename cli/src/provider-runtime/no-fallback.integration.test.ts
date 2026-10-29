@@ -7,7 +7,7 @@ import { describe, expect, it, spyOn } from 'bun:test'
 import { createHarnessRuntime } from '../agent/harness.ts'
 import { resolveAccountCredential } from '../auth/token-store.ts'
 import { createByokBinding } from './byok.ts'
-import { bundledManagedCatalog, fetchManagedCatalog } from './catalog.ts'
+import { fetchManagedCatalog } from './catalog.ts'
 import { createManagedDirectBinding } from './direct.ts'
 import { createProviderStageContext } from './provider-stage.ts'
 import type { ProviderRuntimeDependencies } from './runtime.ts'
@@ -16,6 +16,8 @@ import {
   failedCompletion,
   futureDirectCatalog,
   runBinding,
+  testConfidentialModel,
+  testManagedCatalog,
   successfulCompletion,
 } from './test-fixtures.ts'
 import type { AccountFetch, CliConfig, ManagedCatalog, PreparedPiBinding } from './types.ts'
@@ -133,9 +135,8 @@ describe('ProviderRuntime acceptance without fallback or replay', () => {
   })
 
   it('rejects PAT GLM with WEB_LOGIN_REQUIRED before any producer or inference request', async () => {
-    const confidentialModel = bundledManagedCatalog.data.find(({ isConfidential }) => isConfidential === 1)
-    if (!confidentialModel) throw new Error('managed catalog requires a confidential acceptance model')
-    const harness = await createPatRuntime(bundledManagedCatalog, () => {
+    const confidentialModel = testConfidentialModel
+    const harness = await createPatRuntime(testManagedCatalog, () => {
       throw new Error('PAT confidential selection must not send inference')
     })
 
@@ -186,7 +187,7 @@ describe('ProviderRuntime acceptance without fallback or replay', () => {
       loadConfig: async () => ({
         version: 3,
         activeProviderId: profile.id,
-        thunderbolt: { defaultModelId: bundledManagedCatalog.defaultModelId },
+        thunderbolt: { defaultModelId: testManagedCatalog.defaultModelId },
         providers: [profile],
       }),
       loadAuthConfig: async () => null,
@@ -200,7 +201,7 @@ describe('ProviderRuntime acceptance without fallback or replay', () => {
         },
         logout: async () => 'logged-out',
       },
-      loadCatalog: async () => bundledManagedCatalog,
+      loadCatalog: async () => testManagedCatalog,
       ensureRegisteredSession: async (credential) => credential,
       markSessionAuthenticationRequired: async () => {},
       metadata: { deviceName: 'Acceptance CLI' },
