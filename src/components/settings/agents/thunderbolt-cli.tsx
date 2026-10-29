@@ -9,6 +9,7 @@ import { AlertTriangle, Check, Download, ExternalLink, Loader2, Terminal } from 
 import { useState, useTransition } from 'react'
 import { DetailDivider, DetailPanel, DetailSectionTitle } from '@/components/detail-panel'
 import { CopyCommandRow } from '@/components/settings/copy-command-row'
+import { AddToPathButton } from '@/fork/cli/add-to-path-button'
 import { Button } from '@/components/ui/button'
 import {
   type CliInstallArchitecture,
@@ -114,6 +115,8 @@ export const ThunderboltCliDetail = ({
   const [state, setState] = useState<InstallState>({ status: 'idle' })
   const [isPending, startTransition] = useTransition()
   const installedPath = state.status === 'success' ? state.result.path : ''
+  // The directory, for the PATH offer: everything before the last separator.
+  const installedDirectory = installedPath.replace(/[\\/][^\\/]*$/, '')
 
   const isTauriEnv = isTauriEnvProp ?? isTauri()
 
@@ -170,16 +173,24 @@ export const ThunderboltCliDetail = ({
                     Installed to <code className="font-mono">{installedPath}</code>
                   </Trans>
                 </p>
-                {!state.result.onPath && state.result.pathHint && (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                      <Trans>
-                        Add <code className="font-mono">~/.local/bin</code> to your PATH, then restart your shell:
-                      </Trans>
-                    </p>
-                    <CopyCommandRow command={state.result.pathHint} label={t`Copy PATH command`} />
-                  </div>
-                )}
+                {!state.result.onPath &&
+                  state.result.pathHint &&
+                  // Fork: on Windows the app can do this properly — behind a
+                  // confirmation — instead of handing the user a `setx` line that
+                  // TRUNCATES a long PATH at 1024 characters. Elsewhere the shell
+                  // owns PATH, so the hint to paste stays.
+                  (getPlatform() === 'windows' ? (
+                    <AddToPathButton directory={installedDirectory} />
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                        <Trans>
+                          Add <code className="font-mono">~/.local/bin</code> to your PATH, then restart your shell:
+                        </Trans>
+                      </p>
+                      <CopyCommandRow command={state.result.pathHint} label={t`Copy PATH command`} />
+                    </div>
+                  ))}
               </div>
             )}
 
