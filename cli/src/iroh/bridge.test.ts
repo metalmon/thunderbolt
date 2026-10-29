@@ -21,6 +21,7 @@ import type { BridgeConfig } from '../agent/types.ts'
 import type { AccountAllowlist, FetchFn } from './account-allowlist.ts'
 import { maxActiveProcs, redactArgv, type BridgeProc } from '../commands/bridge.ts'
 import { add } from './allowlist.ts'
+import { commandName, displayName } from '../fork/identity.ts'
 import {
   admitConnection,
   accountTrustBanner,
@@ -59,7 +60,7 @@ describe('renderIrohBridgeBanner', () => {
       'https://app.example.com/',
     )
 
-    expect(banner).toContain('   pair in Thunderbolt app: https://app.example.com/settings/agents\n')
+    expect(banner).toContain(`   pair in ${displayName} app: https://app.example.com/settings/agents\n`)
   })
 
   it('directs MCP bridge pairing to the app MCP servers page', () => {
@@ -71,7 +72,7 @@ describe('renderIrohBridgeBanner', () => {
       'https://app.example.com',
     )
 
-    expect(banner).toContain('   pair in Thunderbolt app: https://app.example.com/settings/mcp-servers\n')
+    expect(banner).toContain(`   pair in ${displayName} app: https://app.example.com/settings/mcp-servers\n`)
   })
 })
 
@@ -749,7 +750,7 @@ describe('startAccountTrust — degradation boundary', () => {
     )
     expect(accountTrustBanner(accountTrust !== undefined)).toBe(
       '   same-account auto-trust: off (manual allowlist only)\n' +
-        '   allow a peer with: thunderbolt iroh allow <their-node-id>\n',
+        `   allow a peer with: ${commandName} iroh allow <their-node-id>\n`,
     )
     expect(await isConnectionAllowed('manual-peer', accountTrust?.accountAllowlist)).toBe(true)
   })
