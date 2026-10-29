@@ -10,12 +10,7 @@ import { msg } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import { FileTypeIcon } from './file-type-icon'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { canOpenNatively, downloadAndOpenNatively, downloadStoredFile } from './file-actions'
 
 /** Alternative delivery modes a remediated file can be resent as. */

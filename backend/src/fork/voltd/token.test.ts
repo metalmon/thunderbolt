@@ -105,7 +105,9 @@ describe('readVoltdTokenConfig', () => {
   })
 
   it('returns null when the issuer cannot be resolved', () => {
-    expect(readVoltdTokenConfig({ VOLTD_JWT_PRIVATE_KEY_PEM: privateKeyPem, VOLTD_JWT_PUBLIC_KEY_PEM: publicKeyPem })).toBeNull()
+    expect(
+      readVoltdTokenConfig({ VOLTD_JWT_PRIVATE_KEY_PEM: privateKeyPem, VOLTD_JWT_PUBLIC_KEY_PEM: publicKeyPem }),
+    ).toBeNull()
   })
 
   it('defaults the audience to volt and the lifetime to the gateway ceiling', () => {
@@ -131,7 +133,11 @@ describe('readVoltdTokenConfig', () => {
         VOLTD_JWT_PRIVATE_KEY_FILE: '/keys/priv.pem',
         VOLTD_JWT_PUBLIC_KEY_FILE: '/keys/pub.pem',
       },
-      (path) => files[path] ?? (() => { throw new Error('ENOENT') })(),
+      (path) =>
+        files[path] ??
+        (() => {
+          throw new Error('ENOENT')
+        })(),
     )
     expect(resolved?.privateKeyPem).toBe(privateKeyPem)
     expect(resolved?.publicKeyPem).toBe(publicKeyPem)

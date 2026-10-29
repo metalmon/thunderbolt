@@ -133,7 +133,11 @@ describe('forkProvisionVoltdGroups', () => {
   it('skips the write when nothing changed — this runs on every sign-in', async () => {
     const { database, writes } = fakeDb()
     const provision = forkProvisionVoltdGroups({ database, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
-    await provision({ provider: fromTrustedProvider, user: { id: 'user-1', groups: ['volt-crm'] }, userInfo: { groups: ['volt-crm'] } })
+    await provision({
+      provider: fromTrustedProvider,
+      user: { id: 'user-1', groups: ['volt-crm'] },
+      userInfo: { groups: ['volt-crm'] },
+    })
     expect(writes).toHaveLength(0)
   })
 
@@ -142,8 +146,15 @@ describe('forkProvisionVoltdGroups', () => {
   it('swallows a failing write so the user can still sign in', async () => {
     const { database } = fakeDb(true)
     const { logger, entries } = logs()
-    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
-    await expect(provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } })).resolves.toBeUndefined()
+    const provision = forkProvisionVoltdGroups({
+      database,
+      logger,
+      claimPath: 'groups',
+      trustedIssuers: [trustedIssuer],
+    })
+    await expect(
+      provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo: { groups: ['volt-crm'] } }),
+    ).resolves.toBeUndefined()
     expect(entries.some((entry) => entry.level === 'warn')).toBe(true)
   })
 
@@ -221,7 +232,12 @@ describe('forkProvisionVoltdGroups', () => {
   it('logs the claim NAMES once, and never their values', async () => {
     const { database } = fakeDb()
     const { logger, entries } = logs()
-    const provision = forkProvisionVoltdGroups({ database, logger, claimPath: 'groups', trustedIssuers: [trustedIssuer] })
+    const provision = forkProvisionVoltdGroups({
+      database,
+      logger,
+      claimPath: 'groups',
+      trustedIssuers: [trustedIssuer],
+    })
     const userInfo = { groups: ['volt-crm'], email: 'person@example.test', sub: 'abc' }
 
     await provision({ provider: fromTrustedProvider, user: { id: 'user-1' }, userInfo })

@@ -16,5 +16,4 @@ import { HttpError } from '@/lib/http'
  * Only 404 counts. A 500, a 502 or an unreadable body still mean "we do not
  * know", and the caller must keep telling those apart from an empty registry.
  */
-export const isRegistryAbsent = (error: unknown): boolean =>
-  error instanceof HttpError && error.response.status === 404
+export const isRegistryAbsent = (error: unknown): boolean => error instanceof HttpError && error.response.status === 404
