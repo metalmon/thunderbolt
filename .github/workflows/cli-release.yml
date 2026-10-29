@@ -56,12 +56,31 @@ jobs:
         include:
           - os: macos-latest
             target: darwin-arm64
+            bun_target: bun-darwin-arm64
           - os: ubuntu-24.04
             target: linux-x64
+            bun_target: bun-linux-x64
           - os: ubuntu-24.04-arm
             target: linux-arm64
+            bun_target: bun-linux-arm64
+          # Fork: the pilot's primary platform. Upstream never added the runner —
+          # unlike Intel macOS, which is impossible (no iroh addon exists), this
+          # one only lacked a row: `@number0/iroh-win32-x64-msvc` is published and
+          # pinned in `cli/bun.lock`. `bun build --compile` appends `.exe` itself
+          # when targeting Windows, which is why the asset slug and the produced
+          # filename differ here and `asset_name()` in cli_installer.rs adds it.
+          - os: windows-latest
+            target: win32-x64
+            bun_target: bun-windows-x64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    # Fork: one shell for every leg. The steps below are POSIX (`if [ -z ... ]`),
+    # and the Windows runner would otherwise read them as PowerShell. Git Bash
+    # ships on the Windows image, so this keeps all three legs byte-identical
+    # instead of growing a second dialect.
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -115,7 +134,7 @@ jobs:
           fi
           cd cli
           bun build --compile --minify \
-            --target="bun-${{ matrix.target }}" \
+            --target="${{ matrix.bun_target }}" \
             --define "process.env.THUNDERBOLT_BUILD_CLOUD_URL=\"$THUNDERBOLT_BUILD_CLOUD_URL\"" \
             --define "process.env.THUNDERBOLT_BUILD_APP_URL=\"$THUNDERBOLT_BUILD_APP_URL\"" \
             src/index.ts \
@@ -124,8 +143,12 @@ jobs:
       - name: Smoke CLI binary
         run: |
           cd cli
-          ./dist/thunderbolt-cli-${{ matrix.target }} --version
-          ./dist/thunderbolt-cli-${{ matrix.target }} --help >/dev/null
+          # `bun build --compile` adds `.exe` on the Windows target, so the
+          # produced name is resolved rather than assumed.
+          binary="dist/thunderbolt-cli-${{ matrix.target }}"
+          [ -f "$binary" ] || binary="$binary.exe"
+          "./$binary" --version
+          "./$binary" --help >/dev/null
 
       # Upload as a workflow artifact rather than straight to the Release, so a
       # failed leg can never leave a partial set of binaries on the release with
