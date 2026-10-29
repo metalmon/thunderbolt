@@ -99,12 +99,91 @@ pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
     Ok(PathUpdate::Added { dir: dir.to_string() })
 }
 
+/// The shell startup file that owns `PATH` for `shell`, relative to `$HOME`.
+///
+/// POSIX has no machine-readable `PATH`: the shell assembles it from its own
+/// startup file, so the right file depends on which shell the user runs. The
+/// fallback is `.profile`, which every Bourne-compatible login shell reads.
+pub fn profile_for_shell(shell: &str) -> &'static str {
+    match shell.rsplit('/').next().unwrap_or(shell) {
+        "zsh" => ".zshrc",
+        "bash" => ".bashrc",
+        "fish" => ".config/fish/config.fish",
+        _ => ".profile",
+    }
+}
+
+/// The line that puts `dir` on `PATH`, in `shell`'s own syntax.
+///
+/// fish is not Bourne-compatible — `export PATH=...` is a syntax error there —
+/// and `fish_add_path` is idempotent by itself, which is exactly what a file
+/// that may be sourced twice needs.
+pub fn export_line(shell: &str, dir: &str) -> String {
+    if shell.rsplit('/').next().unwrap_or(shell) == "fish" {
+        format!("fish_add_path {dir}")
+    } else {
+        format!("export PATH=\"{dir}:$PATH\"")
+    }
+}
+
+/// Marks our block so a second install recognises its own work instead of
+/// appending a duplicate. Matched as a substring, so the user may reformat the
+/// block freely as long as this comment survives.
+pub const PROFILE_MARKER: &str = "# Added by the desktop app: CLI on PATH";
+
 #[cfg(not(target_os = "windows"))]
-pub fn add_dir_to_user_path(_dir: &str) -> Result<PathUpdate, PathError> {
-    // POSIX has no machine-readable equivalent: `PATH` is assembled by whichever
-    // shell the user runs, from a profile file we must not rewrite behind their
-    // back. The install result keeps carrying the one-line hint instead.
-    Err(PathError { message: "Editing PATH automatically is Windows-only".to_string() })
+pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
+    use std::io::Write;
+
+    let home = std::env::var("HOME")
+        .map_err(|_| PathError { message: "HOME environment variable is not set".to_string() })?;
+    let shell = std::env::var("SHELL").unwrap_or_default();
+    let profile = std::path::Path::new(&home).join(profile_for_shell(&shell));
+
+    // Already on the live PATH — nothing to add, whatever the profile says.
+    if std::env::var("PATH").is_ok_and(|value| path_contains_posix(&value, dir)) {
+        return Ok(PathUpdate::AlreadyPresent { dir: dir.to_string() });
+    }
+
+    let existing = std::fs::read_to_string(&profile).unwrap_or_default();
+    if existing.contains(PROFILE_MARKER) {
+        return Ok(PathUpdate::AlreadyPresent { dir: dir.to_string() });
+    }
+
+    if let Some(parent) = profile.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    // Appended, never rewritten: this is a file the user maintains by hand, and
+    // a leading newline keeps our block off the end of whatever line is there.
+    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(&profile)?;
+    writeln!(file, "\n{PROFILE_MARKER}\n{}", export_line(&shell, dir))?;
+
+    Ok(PathUpdate::Added { dir: dir.to_string() })
+}
+
+/// Whether `dir` is one of the `:`-separated entries of a POSIX `PATH`.
+/// Case-SENSITIVE, unlike the Windows form — POSIX filesystems are.
+#[cfg(not(target_os = "windows"))]
+fn path_contains_posix(value: &str, dir: &str) -> bool {
+    let normalize = |s: &str| s.trim_end_matches('/').to_string();
+    let target = normalize(dir);
+    value.split(':').any(|entry| !entry.is_empty() && normalize(entry) == target)
+}
+
+/// What the confirmation dialog must name before anything is written.
+///
+/// The user is agreeing to a change OUTSIDE the app that outlives it, so saying
+/// "we'll edit your PATH" is not enough — it has to say where.
+pub fn path_target_description() -> String {
+    #[cfg(target_os = "windows")]
+    {
+        "your user PATH (Windows environment variables)".to_string()
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let shell = std::env::var("SHELL").unwrap_or_default();
+        format!("~/{}", profile_for_shell(&shell))
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -161,6 +240,26 @@ mod tests {
     #[test]
     fn ignores_empty_entries_rather_than_matching_them() {
         assert!(!path_contains(r"C:\Windows;;", ""));
+    }
+
+    #[test]
+    fn picks_the_startup_file_each_shell_actually_reads() {
+        assert_eq!(profile_for_shell("/bin/zsh"), ".zshrc");
+        assert_eq!(profile_for_shell("/usr/bin/fish"), ".config/fish/config.fish");
+        assert_eq!(profile_for_shell("/bin/bash"), ".bashrc");
+        // Unknown or unset: .profile is read by every Bourne-compatible login shell.
+        assert_eq!(profile_for_shell(""), ".profile");
+        assert_eq!(profile_for_shell("/usr/bin/nu"), ".profile");
+    }
+
+    #[test]
+    fn writes_fish_syntax_for_fish_and_bourne_syntax_elsewhere() {
+        // `export PATH=...` is a syntax error in fish, so this is not cosmetic.
+        assert_eq!(export_line("/usr/bin/fish", "/home/x/.local/bin"), "fish_add_path /home/x/.local/bin");
+        assert_eq!(
+            export_line("/bin/bash", "/home/x/.local/bin"),
+            "export PATH=\"/home/x/.local/bin:$PATH\""
+        );
     }
 
     #[test]

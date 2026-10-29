@@ -10,13 +10,14 @@ import { AddToPathButton } from './add-to-path-button'
 afterEach(cleanup)
 
 const dir = String.raw`C:\Users\x\AppData\Local\volt\bin`
+const readTarget = async () => 'your user PATH (Windows environment variables)'
 
 describe('AddToPathButton', () => {
   // The whole point of the control: the write lands in the user's registry and
   // outlives the app, so a single click must not perform it.
   it('writes nothing until the user confirms', () => {
     const addToPath = mock(async () => ({ alreadyPresent: false, dir }))
-    render(<AddToPathButton directory={dir} addToPath={addToPath} />)
+    render(<AddToPathButton directory={dir} addToPath={addToPath} readTarget={readTarget} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Add to PATH' }))
 
@@ -27,7 +28,7 @@ describe('AddToPathButton', () => {
 
   it('cancelling leaves the PATH alone', () => {
     const addToPath = mock(async () => ({ alreadyPresent: false, dir }))
-    render(<AddToPathButton directory={dir} addToPath={addToPath} />)
+    render(<AddToPathButton directory={dir} addToPath={addToPath} readTarget={readTarget} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Add to PATH' }))
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
@@ -37,7 +38,7 @@ describe('AddToPathButton', () => {
 
   it('reports an existing entry as unchanged rather than as a change', async () => {
     const addToPath = mock(async () => ({ alreadyPresent: true, dir }))
-    render(<AddToPathButton directory={dir} addToPath={addToPath} />)
+    render(<AddToPathButton directory={dir} addToPath={addToPath} readTarget={readTarget} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Add to PATH' }))
     await act(async () => {
