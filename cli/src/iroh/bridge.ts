@@ -34,7 +34,7 @@ import { isAllowed } from './allowlist.ts'
 import { bindServer } from './endpoint.ts'
 import { killProcessWhenConnectionCloses } from './lifecycle.ts'
 import { forwardFromRecv, forwardToSend, writeToStdin } from './pump.ts'
-import { displayName } from '../fork/identity.ts'
+import { commandName, displayName } from '../fork/identity.ts'
 
 /** QUIC application close code for a connection we actively reject (allowlist
  *  miss or spawn failure). Normal end-of-session is signalled by finishing the
@@ -435,7 +435,7 @@ export const accountTrustBanner = (enabled: boolean): string =>
   enabled
     ? '   same-account auto-trust: on (backend allowlist, 45s heartbeat)\n'
     : '   same-account auto-trust: off (manual allowlist only)\n' +
-      '   allow a peer with: thunderbolt iroh allow <their-node-id>\n'
+      `   allow a peer with: ${commandName} iroh allow <their-node-id>\n`
 
 /**
  * Render startup details, including exact app page where this bridge is paired.
@@ -456,7 +456,7 @@ export const renderIrohBridgeBanner = (
   const settingsPath = config.protocol === 'acp' ? '/settings/agents' : '/settings/mcp-servers'
   const pairingUrl = `${appUrl.replace(/\/+$/, '')}${settingsPath}`
   return (
-    `⚡ thunderbolt ${config.protocol} bridge (iroh) ready\n` +
+    `⚡ ${commandName} ${config.protocol} bridge (iroh) ready\n` +
     `   node id: ${nodeId}\n` +
     `   ticket:  ${ticket}\n` +
     `   pair in ${displayName} app: ${pairingUrl}\n` +
