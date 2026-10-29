@@ -8,7 +8,8 @@ import { isProviderRuntimeError, providerRuntimeError } from '../provider-runtim
 import type { AccountFetch, CliAuth, DeviceGrantPresentation, ProviderRuntimeError } from '../provider-runtime/types.ts'
 import { apiBaseUrl, backendHeaders, patRemainsActiveNote } from './config.ts'
 import type { AuthStateExpectation, CompareAndSetAuth } from './token-store.ts'
-import { displayName } from '../fork/identity.ts'
+import { displayName, envVarNames } from '../fork/identity.ts'
+import { i18n } from '../fork/i18n.ts'
 
 export type LogoutResult =
   | 'logged-out'
@@ -67,12 +68,17 @@ const applyAuthTransition = async (
     if (await deps.compareAndSetAuth(expected, next)) return null
     const current = await deps.loadAuth()
     if (current === null || current.registration === 'authentication-required') {
-      deps.presentation.showStatus('error', 'Authentication changed during logout; no stored web session remains.')
+      deps.presentation.showStatus(
+        'error',
+        i18n._({ id: 'Authentication changed during logout; no stored web session remains.' }),
+      )
       return 'authentication-required'
     }
     deps.presentation.showStatus(
       'error',
-      'Authentication changed during logout, so a newer local session was retained. Verify it by logging in again.',
+      i18n._({
+        id: 'Authentication changed during logout, so a newer local session was retained. Verify it by logging in again.',
+      }),
     )
     return 'authentication-changed'
   } catch (error) {
@@ -100,18 +106,27 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
     if (deps.patToken) {
       deps.presentation.showStatus(
         'error',
-        'THUNDERBOLT_TOKEN is managed by the environment and cannot be cleared by the CLI.',
+        i18n._({
+          id: '{tokenVar} is managed by the environment and cannot be cleared by the CLI.',
+          values: { tokenVar: envVarNames('TOKEN').current },
+        }),
       )
       return 'pat-managed-externally'
     }
-    deps.presentation.showStatus(`error`, `No stored ${displayName} web session is available to log out.`)
+    deps.presentation.showStatus(
+      `error`,
+      i18n._({ id: 'No stored {app} web session is available to log out.', values: { app: displayName } }),
+    )
     return 'authentication-required'
   }
 
   const auth = deps.auth
   const backendUrl = apiBaseUrl(auth.backendUrl)
 
-  deps.presentation.showStatus(`waiting`, `Revoking this ${displayName} CLI device…`)
+  deps.presentation.showStatus(
+    `waiting`,
+    i18n._({ id: 'Revoking this {app} CLI device…', values: { app: displayName } }),
+  )
   const fetchFn = deps.fetchFn ?? fetch
   const response = await (async (): Promise<Response> => {
     try {
@@ -147,7 +162,10 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
     if (raceResult !== null) return raceResult
     deps.presentation.showStatus(
       'error',
-      `The stored ${displayName} session is no longer valid. Log in again to continue.`,
+      i18n._({
+        id: 'The stored {app} session is no longer valid. Log in again to continue.',
+        values: { app: displayName },
+      }),
     )
     return 'authentication-required'
   }
@@ -162,7 +180,9 @@ export const performLogout = async (deps: LogoutDeps): Promise<LogoutResult> => 
     if (raceResult !== null) return raceResult
     deps.presentation.showStatus(
       'error',
-      'The stored session predates CLI device registration and was cleared. Log in again to continue.',
+      i18n._({
+        id: 'The stored session predates CLI device registration and was cleared. Log in again to continue.',
+      }),
     )
     return 'authentication-required'
   }
