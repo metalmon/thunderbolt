@@ -37,12 +37,20 @@ const clickInstall = async () => {
 
 describe('ThunderboltCliRow', () => {
   // Fork: the standalone CLI is not distributed in the closed perimeter, so
-  // `forkHideCliRow()` collapses upstream's platform gate — the row renders
-  // nothing anywhere. Upstream's per-platform render cases would assert a row
-  // the fork deliberately does not mount; the detail panel below is untouched
-  // (it stays reachable, and stays covered).
-  it('renders nothing — the fork hides the CLI row on every platform', () => {
-    for (const props of [{}, { isTauriEnv: false }, { platform: 'windows' as const }, { platform: 'ios' as const }]) {
+  // The row is back (the fork used to hide it everywhere), so the platform gate
+  // matters again — and Windows is now on the published side of it.
+  it('renders on Windows x64 — the pilot platform the fork builds for', () => {
+    const { container } = renderRow({ platform: 'windows', architecture: 'x86_64' })
+    expect(container).not.toBeEmptyDOMElement()
+  })
+
+  it('renders nothing where no binary is published', () => {
+    for (const props of [
+      // Intel macOS: the iroh addon has no build for it.
+      { platform: 'macos' as const, architecture: 'x86_64' as const },
+      { platform: 'windows' as const, architecture: 'aarch64' as const },
+      { platform: 'ios' as const },
+    ]) {
       const { container } = renderRow(props)
       expect(container).toBeEmptyDOMElement()
       cleanup()
