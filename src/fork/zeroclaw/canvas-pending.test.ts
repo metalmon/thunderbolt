@@ -45,9 +45,7 @@ describe('findResolvedPending', () => {
   const pending: PendingCall = { callId, nonce, jsonRpcId: 7 }
 
   it('matches a completed tool part by parsed (nonce, appCallId)', () => {
-    const messages = [
-      msg([toolPart(`${canvasToolCallPrefix}${callId}`, 'output-available', { output: { ok: true } })]),
-    ]
+    const messages = [msg([toolPart(`${canvasToolCallPrefix}${callId}`, 'output-available', { output: { ok: true } })])]
     const resolved = findResolvedPending(messages as never, [pending])
     expect(resolved).toEqual([{ pending, output: { ok: true }, failed: false }])
   })

@@ -89,7 +89,9 @@ export type ProvisionVoltdGroupsOptions = {
  * @param settings - resolved app settings
  */
 export const readTrustedIssuers = (settings: Pick<Settings, 'oidcIssuer' | 'samlIdpIssuer'>): string[] =>
-  [settings.oidcIssuer, settings.samlIdpIssuer].map((issuer) => issuer?.trim()).filter((issuer): issuer is string => !!issuer)
+  [settings.oidcIssuer, settings.samlIdpIssuer]
+    .map((issuer) => issuer?.trim())
+    .filter((issuer): issuer is string => !!issuer)
 
 /**
  * Resolve the configured claim path.
