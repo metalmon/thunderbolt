@@ -10,11 +10,14 @@ describe('canInstallThunderboltCli', () => {
     expect(canInstallThunderboltCli('macos', 'aarch64')).toBe(true)
     expect(canInstallThunderboltCli('linux', 'x86_64')).toBe(true)
     expect(canInstallThunderboltCli('linux', 'aarch64')).toBe(true)
+    // Fork: Windows x64 is built by `cli-release.yml` and is the pilot's primary
+    // platform; this gate runs before the Rust one, so omitting it hides the row.
+    expect(canInstallThunderboltCli('windows', 'x86_64')).toBe(true)
   })
 
   it('hides the install for unpublished OS and architecture pairs', () => {
     expect(canInstallThunderboltCli('macos', 'x86_64')).toBe(false)
-    expect(canInstallThunderboltCli('windows', 'x86_64')).toBe(false)
+    expect(canInstallThunderboltCli('windows', 'aarch64')).toBe(false)
     expect(canInstallThunderboltCli('ios', 'aarch64')).toBe(false)
     expect(canInstallThunderboltCli('android', 'aarch64')).toBe(false)
     expect(canInstallThunderboltCli('web', 'unknown')).toBe(false)
