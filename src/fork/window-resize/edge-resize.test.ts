@@ -5,7 +5,16 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import * as tauriWindow from '@tauri-apps/api/window'
 import * as platformModule from '@/lib/platform'
-import { edgeCursorAt, edgeDirectionAt, edgeResizeZone, edgeResizeZoneCoarse, isInteractiveTarget, resizeDirectionFromPointerEvent, resolveEdgeResizeZone, startLinuxEdgeResize } from './edge-resize'
+import {
+  edgeCursorAt,
+  edgeDirectionAt,
+  edgeResizeZone,
+  edgeResizeZoneCoarse,
+  isInteractiveTarget,
+  resizeDirectionFromPointerEvent,
+  resolveEdgeResizeZone,
+  startLinuxEdgeResize,
+} from './edge-resize'
 
 const width = 1400
 const height = 900
