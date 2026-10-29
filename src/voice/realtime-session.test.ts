@@ -63,25 +63,31 @@ const resetPlayback = () => {
   playing = false
 }
 
-mock.module('@/voice/audio/playback', () => ({
-  createPlaybackQueue: (): PlaybackQueue =>
-    ({
-      // Mirror the real queue: enqueuing starts playback; flush stops it.
-      enqueue: (chunk: AudioChunk) => {
-        enqueued.push(chunk)
-        playing = true
-      },
-      flush: () => {
-        flushCalls++
-        playing = false
-      },
-      close: () => {},
-      getLevel: () => 0,
-      get isPlaying() {
-        return playing
-      },
-    }) as unknown as PlaybackQueue,
-}))
+/**
+ * ⚠ PASSED IN, not registered with `mock.module`.
+ *
+ * `mock.module` in bun is process-wide and never undone, so replacing
+ * `@/voice/audio/playback` here handed this fake to `playback.test.ts` as well
+ * — the suite that tests the REAL queue. It passed alone and failed in a full
+ * run, which reads exactly like a product bug.
+ */
+const fakePlayback = (): PlaybackQueue =>
+  ({
+    // Mirror the real queue: enqueuing starts playback; flush stops it.
+    enqueue: (chunk: AudioChunk) => {
+      enqueued.push(chunk)
+      playing = true
+    },
+    flush: () => {
+      flushCalls++
+      playing = false
+    },
+    close: () => {},
+    getLevel: () => 0,
+    get isPlaying() {
+      return playing
+    },
+  }) as unknown as PlaybackQueue
 
 const { createRealtimeSession } = await import('@/voice/realtime-session')
 
@@ -149,7 +155,7 @@ describe('createRealtimeSession — continuous mic capture', () => {
 
   test('pipes every mic frame to engine.sendAudio, in order, with no drops', async () => {
     const { engine, sendAudioCalls } = makeEngine()
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
 
@@ -174,7 +180,7 @@ describe('createRealtimeSession — continuous mic capture', () => {
 
   test('never references createVadGate — the realtime path must not gate the mic', async () => {
     const { engine } = makeEngine()
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
     capturedOnFrame?.(makeFrame(0.1))
@@ -194,7 +200,7 @@ describe('createRealtimeSession — continuous mic capture', () => {
           resolveConnect = resolve
         }),
     })
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     const starting = session.start()
     // connect() hasn't resolved yet — mic capture must not have been created.
@@ -218,7 +224,7 @@ describe('createRealtimeSession — continuous mic capture', () => {
           yield audioEvent
         })(),
     })
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
     // Let the background event-processing loop consume the yielded audio event.
@@ -248,7 +254,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
           yield { type: 'ready' } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
     await flushMicrotasks()
@@ -265,7 +271,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
           yield { type: 'ready' } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine, lang: 'en' })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine, lang: 'en' })
 
     await session.start()
     await flushMicrotasks()
@@ -282,7 +288,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
           yield { type: 'ready' } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine, hasChatHistory: true })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine, hasChatHistory: true })
 
     await session.start()
     await flushMicrotasks()
@@ -300,7 +306,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
           yield { type: 'interrupted' } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
     await flushMicrotasks()
@@ -321,7 +327,7 @@ describe('createRealtimeSession — proactive greeting + barge-in', () => {
           yield { type: 'audio', pcm: new Float32Array([0.1]) } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine, onState: (s) => states.push(s) })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine, onState: (s) => states.push(s) })
 
     await session.start()
     await flushMicrotasks()
@@ -376,7 +382,7 @@ describe('createRealtimeSession — submit_prompt tool-call', () => {
           } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine, chat })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine, chat })
 
     await session.start()
     await flushMicrotasks()
@@ -407,7 +413,7 @@ describe('createRealtimeSession — submit_prompt tool-call', () => {
           } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine, chat })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine, chat })
 
     await session.start()
     await flushMicrotasks()
@@ -428,7 +434,7 @@ describe('createRealtimeSession — submit_prompt tool-call', () => {
           } as RealtimeEvent
         })(),
     })
-    const session = createRealtimeSession({ engine })
+    const session = createRealtimeSession({ createPlayback: fakePlayback, engine })
 
     await session.start()
     await flushMicrotasks()
