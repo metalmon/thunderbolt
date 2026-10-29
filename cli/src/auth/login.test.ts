@@ -6,6 +6,7 @@ import { describe, expect, it } from 'bun:test'
 import type { CliAuth, DeviceGrantPresentation, SessionCredential } from '../provider-runtime/types.ts'
 import type { DeviceCodeResponse } from './device-grant.ts'
 import { performLogin, type LoginDeps } from './login.ts'
+import { envVarNames } from '../fork/identity.ts'
 
 const code: DeviceCodeResponse = {
   deviceCode: 'dev-code',
@@ -109,7 +110,7 @@ describe('performLogin', () => {
     ])
     expect(events).toEqual(['verification', 'waiting', 'registration', 'success'])
     expect(statuses.map(({ status }) => status)).toEqual(['waiting', 'success'])
-    expect(statuses.at(-1)?.message).toContain('THUNDERBOLT_TOKEN')
+    expect(statuses.at(-1)?.message).toContain(envVarNames('TOKEN').current)
     expect(registered).toHaveLength(1)
     expect(registered[0]).toMatchObject({
       backendUrl: 'https://api.test/v1',
