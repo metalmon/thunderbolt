@@ -12,7 +12,7 @@ test('banner uses the approved wordmark, hairline, and discoverability hint', ()
   expect(lines[0]).toContain('⚡')
   expect(lines[0]).toContain(commandName)
   expect(lines[1]).toContain('─')
-  expect(lines[2]).toContain(bannerHint)
+  expect(lines[2]).toContain(bannerHint())
 })
 
 test('banner hairline contracts with terminal width', () => {

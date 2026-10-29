@@ -14,9 +14,46 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/banner.ts
+msgid "type a task, or / for commands"
+msgstr "опишите задачу или / для команд"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Press Enter to open your browser"
+msgstr "Нажмите Enter, чтобы открыть браузер"
+
+#. js-lingui-explicit-id
 #: src/ui/provider-manager.ts
 msgid "Choice"
 msgstr "Выбор"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Enter a number from 1 to {max}."
+msgstr "Введите число от 1 до {max}."
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "Switch model"
+msgstr "Сменить модель"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+#: src/ui/tui.ts
+msgid "close"
+msgstr "закрыть"
+
+#. js-lingui-explicit-id
+#: src/auth/login.ts
+#: src/ui/provider-manager.ts
+msgid "Waiting for approval…"
+msgstr "Ожидаю подтверждения…"
+
+#. js-lingui-explicit-id
+#: src/ui/provider-manager.ts
+msgid "browser opened"
+msgstr "браузер открыт"
 
 #. js-lingui-explicit-id
 #: src/ui/render.ts
@@ -81,6 +118,11 @@ msgstr "Настройка прервана до выбора провайдер
 
 #. js-lingui-explicit-id
 #: src/ui/tui.ts
+msgid "Interrupted — partial reply kept"
+msgstr "Прервано — часть ответа сохранена"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
 msgid "Allow once"
 msgstr "Разрешить один раз"
 
@@ -93,6 +135,111 @@ msgstr "Разрешить {tool} до конца сеанса"
 #: src/ui/tui.ts
 msgid "Deny"
 msgstr "Отказать"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "off"
+msgstr "выкл"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "min"
+msgstr "мин"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "low"
+msgstr "низк"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "med"
+msgstr "сред"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "high"
+msgstr "выс"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "xhigh"
+msgstr "макс"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "ctrl+c again to quit"
+msgstr "ctrl+c ещё раз — выход"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queue"
+msgstr "в очередь"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "interrupt"
+msgstr "прервать"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queue list"
+msgstr "список очереди"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "dismiss"
+msgstr "скрыть"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "complete"
+msgstr "дополнить"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "quit"
+msgstr "выход"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "commands"
+msgstr "команды"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "mode"
+msgstr "режим"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "permissions"
+msgstr "разрешения"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "confidential"
+msgstr "конфиденциально"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "thinking"
+msgstr "рассуждения"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "↑ select · enter send now · ⌫ remove · esc back"
+msgstr "↑ выбрать · enter отправить · ⌫ убрать · esc назад"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "not connected"
+msgstr "нет подключения"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
+msgid "queued"
+msgstr "в очереди"
 
 #. js-lingui-explicit-id
 #: src/provider-runtime/commands.ts
@@ -312,11 +459,6 @@ msgstr "Новый ключ"
 
 #. js-lingui-explicit-id
 #: src/auth/login.ts
-msgid "Waiting for approval…"
-msgstr "Ожидаю подтверждения…"
-
-#. js-lingui-explicit-id
-#: src/auth/login.ts
 msgid "Login successful."
 msgstr "Вход выполнен."
 
@@ -362,18 +504,8 @@ msgstr "Спрашивать"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Prompt before bash, write, and edit"
-msgstr "Спрашивать перед bash, write и edit"
-
-#. js-lingui-explicit-id
-#: src/agent/permissions.ts
 msgid "Accept edits"
 msgstr "Принимать правки"
-
-#. js-lingui-explicit-id
-#: src/agent/permissions.ts
-msgid "Allow write and edit; ask before bash"
-msgstr "Разрешать write и edit; спрашивать перед bash"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
@@ -382,13 +514,23 @@ msgstr "Только чтение"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Block bash, write, and edit"
-msgstr "Запрещать bash, write и edit"
+msgid "Yolo"
+msgstr "Без вопросов"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
-msgid "Yolo"
-msgstr "Без вопросов"
+msgid "Prompt before bash, write, and edit"
+msgstr "Спрашивать перед bash, write и edit"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Allow write and edit; ask before bash"
+msgstr "Разрешать write и edit; спрашивать перед bash"
+
+#. js-lingui-explicit-id
+#: src/agent/permissions.ts
+msgid "Block bash, write, and edit"
+msgstr "Запрещать bash, write и edit"
 
 #. js-lingui-explicit-id
 #: src/agent/permissions.ts
