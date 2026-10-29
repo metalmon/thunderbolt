@@ -17,6 +17,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock 
 import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import AgentsSettingsPage from './index'
+import { getAppName } from '@/lib/branding-selectors'
 
 const anonSession = {
   user: { id: 'anon-1', email: '', name: '', isAnonymous: true },
@@ -85,14 +86,21 @@ describe('AgentsSettingsPage — availability', () => {
     // Nothing selected — the built-in detail heading only exists in the panel.
     expect(screen.queryByRole('button', { name: 'Close details' })).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open Volt' }))
+    // ⚠ Read, not hardcoded. `builtInAgent.name` is a getter over `getAppName()`,
+    // which the fork resolves from the deployment's BRANDING rather than baking a
+    // name in — so an unbranded test config yields the upstream default. Pinning
+    // either spelling makes this test a hostage of a branding decision it does
+    // not test.
+    const appName = getAppName()
 
-    expect(screen.getByRole('heading', { name: 'Volt' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: `Open ${appName}` }))
+
+    expect(screen.getByRole('heading', { name: appName })).toBeInTheDocument()
     // The detail copy was reworded ("always here, no setup needed") and names the
     // brand from the catalogs, so match the one fragment that is neither: "built
     // into the app" alone also matches the row's provenance line behind the panel.
-    // The button and heading above DO say Volt — that name is a plain constant in
-    // src/defaults/agents, not a catalog message, so the harness reads it as shipped.
+    // The button and heading above carry the DEPLOYMENT's name, read above, which
+    // is not a catalog message, so the harness reads it as shipped.
     expect(screen.getByText(/no setup needed/i)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Close details' }))

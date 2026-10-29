@@ -12,7 +12,7 @@ minimumReleaseAgeExcludes = [
 ]
 
 [test]
-preload = ["./happydom.ts", "./src/testing-library.ts"]
+preload = ["./happydom.ts", "./src/fork/local-mode/test-env.ts", "./src/testing-library.ts"]
 # Bun walks cwd recursively to discover test files. From the repo root that pulls in
 # `backend/src/**/*.test.ts` and `e2e/**/*.spec.ts` — neither belongs in the frontend
 # runner. Backend has its own `bunfig.toml` and `cd backend && bun test` flow; e2e is
