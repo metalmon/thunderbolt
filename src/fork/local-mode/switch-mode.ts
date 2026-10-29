@@ -9,6 +9,30 @@ import { clearCachedSession } from '@/lib/session-cache'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 /**
+ * The pieces these two reach for, injectable for tests.
+ *
+ * ⚠ Not a taste for indirection: `mock.module` in bun is process-wide and is
+ * never undone, and two upstream suites replace `setSyncEnabled` with a mock
+ * that does not write the flag. Whichever of them runs first wins for the whole
+ * process, so a test here that imports the symbol asserts against whatever was
+ * registered last — it passed alone and failed in the full run. Taking the
+ * dependency as an argument makes the test state what it is testing.
+ */
+export type SwitchModeDeps = {
+  readonly setSyncEnabled: (enabled: boolean) => Promise<void> | void
+  readonly clearAuthToken: () => void
+  readonly clearCachedSession: () => void
+  readonly markConfigAbsent: () => void
+}
+
+const defaultDeps: SwitchModeDeps = {
+  setSyncEnabled,
+  clearAuthToken,
+  clearCachedSession,
+  markConfigAbsent,
+}
+
+/**
  * Switch this installation to autonomous operation.
  *
  * Flipping the flag alone is not enough, and each of these is a real leak:
@@ -34,15 +58,15 @@ import { useLocalSettingsStore } from '@/stores/local-settings-store'
  * issued by one server must never be presented to a different one, and the
  * config describing the old deployment must not survive into the new one.
  */
-export const dropServerCredentials = async () => {
-  await setSyncEnabled(false)
-  clearAuthToken()
-  clearCachedSession()
-  markConfigAbsent()
+export const dropServerCredentials = async (deps: SwitchModeDeps = defaultDeps) => {
+  await deps.setSyncEnabled(false)
+  deps.clearAuthToken()
+  deps.clearCachedSession()
+  deps.markConfigAbsent()
 }
 
-export const enterLocalMode = async () => {
-  await dropServerCredentials()
+export const enterLocalMode = async (deps: SwitchModeDeps = defaultDeps) => {
+  await dropServerCredentials(deps)
   useLocalSettingsStore.getState().setLocalSetting('operationMode', 'local')
 }
 
