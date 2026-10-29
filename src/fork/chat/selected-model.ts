@@ -18,9 +18,22 @@ import type { Model } from '@/types'
  * broken database, a corrupt row — still throws, because a chat that silently opens
  * model-less on a real failure is harder to diagnose than one that fails loudly.
  */
-export const resolveThreadModel = async (db: AnyDrizzleDatabase, threadId: string | null): Promise<Model | null> => {
+/** The two DAL reads this needs, injectable so the unit test does not have to
+ *  replace the `@/dal` barrel. `mock.module` is process-wide in bun and never
+ *  undone, so a barrel stubbed down to two exports breaks every sibling test
+ *  file in the same run — which is exactly what it did here. */
+export type ThreadModelReads = {
+  getSelectedModel: typeof getSelectedModel
+  getDefaultModelForThread: typeof getDefaultModelForThread
+}
+
+export const resolveThreadModel = async (
+  db: AnyDrizzleDatabase,
+  threadId: string | null,
+  reads: ThreadModelReads = { getSelectedModel, getDefaultModelForThread },
+): Promise<Model | null> => {
   try {
-    return threadId === null ? await getSelectedModel(db) : await getDefaultModelForThread(db, threadId)
+    return threadId === null ? await reads.getSelectedModel(db) : await reads.getDefaultModelForThread(db, threadId)
   } catch (error) {
     if (error instanceof Error && error.message === 'No system model found') {
       return null
