@@ -32,6 +32,7 @@ import {
   sparkFrames,
   symbols,
 } from './theme.ts'
+import { i18n } from '../fork/i18n.ts'
 
 type BrowserOpener = (url: string) => void | Promise<void>
 
@@ -105,7 +106,7 @@ const choosePlain = async (
   })
 
   while (true) {
-    const answer = await terminal.readLine(`Choice [1-${items.length}]: `)
+    const answer = await terminal.readLine(`${i18n._({ id: 'Choice' })} [1-${items.length}]: `)
     if (answer === null) return null
     const choice = /^\d+$/.test(answer.trim()) ? items[Number(answer.trim()) - 1] : undefined
     if (choice) return choice.id
