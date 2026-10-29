@@ -30,6 +30,7 @@
 //!   2. the postMessage transport is not delivered to native from an opaque-origin
 //!      sub-frame by WebView2/WKWebView — a platform behaviour (verified live: a
 //!      `dialog|save` invoke opened no dialog).
+//!
 //! The safe canvas bridge is a separate channel (`window.parent.postMessage`, frame→
 //! app JS), not Tauri IPC. If invariant (1) is ever weakened, or (2) changes upstream,
 //! this becomes a real sandbox escape — re-evaluate (options: serve the artifact in a
