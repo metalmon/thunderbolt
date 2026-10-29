@@ -184,6 +184,19 @@ const readLockFileOrNull = async (path: string): Promise<string | null> => {
     } catch (error) {
       const failure = toError(error)
       if ('code' in failure && failure.code === 'ENOENT') return null
+      // Fork: on Windows a lock file another holder has open cannot be opened at
+      // all — `EPERM`/`EBUSY` instead of contents. That is not a malformed lock,
+      // it is the strongest possible evidence the lock IS held, so report it as
+      // unreadable rather than throwing; `isStaleLock` then declines to reclaim
+      // it and the caller retries, which is the correct behaviour.
+      //
+      // POSIX lets a reader open a file others hold, so upstream had no reason to
+      // consider this. Surfaced once `applyMode` stopped failing earlier: the
+      // concurrent singleflight path in `token-store` could finally reach here,
+      // and then raced about one run in three.
+      if (process.platform === 'win32' && 'code' in failure && (failure.code === 'EPERM' || failure.code === 'EBUSY')) {
+        return null
+      }
       throw error
     }
   })()
@@ -202,7 +215,15 @@ const readLockFileOrNull = async (path: string): Promise<string | null> => {
 /** Returns whether an abandoned or malformed lock file can be removed. */
 const isStaleLock = async (path: string): Promise<boolean> => {
   const contents = await readLockFileOrNull(path)
-  if (contents === null) return true
+  if (contents === null) {
+    // Fork: on Windows `null` can also mean "held by a live holder, unreadable"
+    // (see `readLockFileOrNull`). Reclaiming then would break the lock while it
+    // is in use, so the entry is treated as fresh whenever it still exists.
+    if (process.platform === 'win32' && (await lstatOrNull(path)) !== null) {
+      return false
+    }
+    return true
+  }
   const pid = Number(contents.trim())
   if (Number.isSafeInteger(pid) && pid > 0) return isProcessGone(pid)
   const stats = await lstatOrNull(path)
@@ -253,7 +274,15 @@ const acquireSecureFileLock = async (path: string): Promise<FileHandle> => {
     return await createSecureFileLock(path)
   } catch (error) {
     const failure = toError(error)
-    if (!('code' in failure) || failure.code !== 'EEXIST') throw error
+    // Fork: Windows reports a HELD existing file as `EPERM`/`EBUSY` rather than
+    // `EEXIST` — same situation, different errno, so it has to mean "contended"
+    // here too or the lock escapes as a hard failure. The symmetric half of the
+    // read path in `readLockFileOrNull`.
+    const contended =
+      'code' in failure &&
+      (failure.code === 'EEXIST' ||
+        (process.platform === 'win32' && (failure.code === 'EPERM' || failure.code === 'EBUSY')))
+    if (!contended) throw error
     if (await isStaleLock(path)) {
       await reclaimStaleLock(path)
       return acquireSecureFileLock(path)
