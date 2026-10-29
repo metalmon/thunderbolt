@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//! One-click install of the standalone `thunderbolt` CLI.
+//! One-click install of the standalone `volt` CLI.
 //!
 //! The desktop app derives per-release download URLs from its own version and the
 //! scheme the CLI release pipeline defines (`.github/workflows/cli-release.yml`):
 //!
 //! ```text
-//! https://github.com/thunderbird/thunderbolt/releases/download/v{version}/thunderbolt-cli-{target}
-//! https://github.com/thunderbird/thunderbolt/releases/download/v{version}/SHA256SUMS
+//! https://github.com/metalmon/thunderbolt/releases/download/v{version}/volt-cli-{target}
+//! https://github.com/metalmon/thunderbolt/releases/download/v{version}/SHA256SUMS
 //! ```
 //!
 //! It downloads the binary and the `SHA256SUMS` manifest, checks the binary's
 //! digest against the manifest before touching the filesystem (hard-fail on
-//! mismatch), then installs it into `~/.local/bin/thunderbolt` via an atomic
+//! mismatch), then installs it into `~/.local/bin/volt` via an atomic
 //! rename. Every failure is a typed [`CliInstallError`] the UI renders honestly —
 //! in particular a release predating the CLI pipeline yields
 //! [`CliInstallError::NotPublished`], never a silent fallback.
@@ -68,7 +68,7 @@ impl From<std::io::Error> for CliInstallError {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CliInstallResult {
-    /// Absolute path the binary was installed to (`~/.local/bin/thunderbolt`).
+    /// Absolute path the binary was installed to (`~/.local/bin/volt`).
     pub path: String,
     /// Whether `~/.local/bin` is already on the user's `PATH`.
     pub on_path: bool,
@@ -106,7 +106,7 @@ fn asset_name(target: &str) -> String {
     } else {
         ""
     };
-    format!("thunderbolt-cli-{target}{suffix}")
+    format!("volt-cli-{target}{suffix}")
 }
 
 fn binary_url(version: &str, target: &str) -> String {
@@ -158,7 +158,7 @@ fn is_dir_on_path(path_var: &str, dir: &str) -> bool {
 }
 
 /// The per-user binary directory: `~/.local/bin` by XDG convention, and
-/// `%LOCALAPPDATA%\thunderbolt\bin` on Windows, which has no such convention.
+/// `%LOCALAPPDATA%\volt\bin` on Windows, which has no such convention.
 ///
 /// Fork: `HOME` is not normally set on Windows, so reading it there would fail on
 /// every machine. Neither location is on `PATH` by default — hence the hint in
@@ -169,7 +169,7 @@ fn local_bin_dir() -> Result<PathBuf, CliInstallError> {
         let base = std::env::var_os("LOCALAPPDATA").ok_or_else(|| {
             CliInstallError::Install("LOCALAPPDATA environment variable is not set".to_string())
         })?;
-        Ok(PathBuf::from(base).join("thunderbolt").join("bin"))
+        Ok(PathBuf::from(base).join("volt").join("bin"))
     }
     #[cfg(not(windows))]
     {
@@ -183,13 +183,13 @@ fn local_bin_dir() -> Result<PathBuf, CliInstallError> {
 /// The installed filename. Windows will not execute a file without `.exe`.
 fn installed_file_name() -> &'static str {
     if cfg!(windows) {
-        "thunderbolt.exe"
+        "volt.exe"
     } else {
-        "thunderbolt"
+        "volt"
     }
 }
 
-/// Write `bytes` to `~/.local/bin/thunderbolt` with mode `0755` via a same-dir temp
+/// Write `bytes` to `~/.local/bin/volt` with mode `0755` via a same-dir temp
 /// file plus atomic rename, so a partial write never leaves a broken binary in
 /// place. Returns the final installed path.
 fn install_binary(bytes: &[u8]) -> Result<PathBuf, CliInstallError> {
@@ -199,7 +199,7 @@ fn install_binary(bytes: &[u8]) -> Result<PathBuf, CliInstallError> {
     let final_path = dir.join(installed_file_name());
     // Same-dir temp keeps the rename atomic (both ends on one filesystem) and
     // pid-scoped so concurrent installs can't clobber each other's temp.
-    let tmp_path = dir.join(format!(".thunderbolt.{}.tmp", std::process::id()));
+    let tmp_path = dir.join(format!(".volt.{}.tmp", std::process::id()));
 
     std::fs::write(&tmp_path, bytes)?;
 
@@ -386,9 +386,9 @@ mod tests {
     /// name or verification fails after a successful download.
     #[test]
     fn windows_asset_carries_the_exe_suffix() {
-        assert_eq!(asset_name("win32-x64"), "thunderbolt-cli-win32-x64.exe");
-        assert_eq!(asset_name("linux-x64"), "thunderbolt-cli-linux-x64");
-        assert!(binary_url("0.1.148", "win32-x64").ends_with("/thunderbolt-cli-win32-x64.exe"));
+        assert_eq!(asset_name("win32-x64"), "volt-cli-win32-x64.exe");
+        assert_eq!(asset_name("linux-x64"), "volt-cli-linux-x64");
+        assert!(binary_url("0.1.148", "win32-x64").ends_with("/volt-cli-win32-x64.exe"));
     }
 
     #[test]
@@ -399,7 +399,7 @@ mod tests {
         // accidental move still fails that one test.
         assert_eq!(
             binary_url("0.1.105", "darwin-arm64"),
-            format!("{RELEASE_BASE}/v0.1.105/thunderbolt-cli-darwin-arm64")
+            format!("{RELEASE_BASE}/v0.1.105/volt-cli-darwin-arm64")
         );
         assert_eq!(
             checksums_url("0.1.105"),
@@ -409,7 +409,7 @@ mod tests {
 
     #[test]
     fn asset_name_matches_the_binary_filename() {
-        assert_eq!(asset_name("linux-x64"), "thunderbolt-cli-linux-x64");
+        assert_eq!(asset_name("linux-x64"), "volt-cli-linux-x64");
     }
 
     #[test]

@@ -72,6 +72,11 @@ $ForkBranches = @(
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/perm-title-interim",
+    # Own branch because `cli/` is upstream's fastest-moving tree (40 commits in
+    # its last 90 days) and touches nothing the other branches do, so its
+    # conflicts stay out of theirs. Applied late, but before fork/dev, whose
+    # release matrix builds what this branch names.
+    "fork/cli",
     "fork/dev"
 )
 
@@ -94,5 +99,10 @@ $ForkMainRangeBranches = @(
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/perm-title-interim",
+    # Own branch because `cli/` is upstream's fastest-moving tree (40 commits in
+    # its last 90 days) and touches nothing the other branches do, so its
+    # conflicts stay out of theirs. Applied late, but before fork/dev, whose
+    # release matrix builds what this branch names.
+    "fork/cli",
     "fork/dev"
 )
