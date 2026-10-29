@@ -96,15 +96,17 @@ describe('ThunderboltCliDetail', () => {
     expect(screen.queryByText(/add.*to your PATH/i)).not.toBeInTheDocument()
   })
 
-  it('surfaces the PATH hint when the install dir is not on PATH', async () => {
+  it('offers to add the directory to PATH, and keeps the line to paste', async () => {
     const hint = 'export PATH="$HOME/.local/bin:$PATH"'
     const result: CliInstallResult = { path: '/home/u/.local/bin/thunderbolt', onPath: false, pathHint: hint }
     renderDetail({ install: () => Promise.resolve(result) })
 
     await clickInstall()
 
+    // The app now OFFERS to do it (behind a confirmation), and keeps the line to
+    // paste underneath for anyone who would rather do it by hand.
+    expect(screen.getByRole('button', { name: 'Add to PATH' })).toBeInTheDocument()
     expect(screen.getByText(hint)).toBeInTheDocument()
-    expect(screen.getByText(/add.*to your PATH/i)).toBeInTheDocument()
   })
 
   it('shows the error message and the manual build fallback for an unpublished release', async () => {
