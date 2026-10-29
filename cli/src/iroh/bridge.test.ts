@@ -74,6 +74,25 @@ describe('renderIrohBridgeBanner', () => {
 
     expect(banner).toContain(`   pair in ${displayName} app: https://app.example.com/settings/mcp-servers\n`)
   })
+
+  // A deployment without a web app — the autonomous product has none — must
+  // print NO pairing line rather than one naming the development server, which
+  // is what the fallback inside `resolveAppUrl` would have produced.
+  it('omits the pairing line entirely when no app URL is configured', () => {
+    const banner = renderIrohBridgeBanner(
+      { protocol: 'acp', transport: 'iroh', port: 0, command: ['local-agent'] },
+      'acp-node',
+      'acp-ticket',
+      false,
+      undefined,
+    )
+
+    expect(banner).not.toContain('pair in')
+    expect(banner).not.toContain('localhost:1420')
+    // The rest of the banner is unaffected.
+    expect(banner).toContain('   ticket:  acp-ticket\n')
+    expect(banner).toContain('   spawning per connection: local-agent\n')
+  })
 })
 
 describe('createRateLimiter — sliding window', () => {

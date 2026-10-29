@@ -18,7 +18,7 @@
 import type { Connection, Incoming } from '@number0/iroh'
 import { hostname } from 'node:os'
 import type { BridgeConfig } from '../agent/types.ts'
-import { isSecureCloudUrl, resolveAppUrl } from '../auth/config.ts'
+import { isSecureCloudUrl, resolveConfiguredAppUrl } from '../auth/config.ts'
 import type { Clock } from '../auth/device-grant.ts'
 import { resolveBridgeCredential } from '../auth/token-store.ts'
 import { atProcCapacity, redactArgv, spawnAgent, type BridgeProc } from '../commands/bridge.ts'
@@ -451,15 +451,21 @@ export const renderIrohBridgeBanner = (
   nodeId: string,
   ticket: string,
   accountTrustEnabled: boolean,
-  appUrl: string = resolveAppUrl(),
+  appUrl: string | undefined = resolveConfiguredAppUrl(),
 ): string => {
   const settingsPath = config.protocol === 'acp' ? '/settings/agents' : '/settings/mcp-servers'
-  const pairingUrl = `${appUrl.replace(/\/+$/, '')}${settingsPath}`
+  // ⚠ Printed only when the deployment actually HAS a web app. Without one this
+  // line would name the development server at localhost:1420 and send the
+  // reader to an address with nothing behind it — the autonomous product ships
+  // no web app at all, so no link is the honest output.
+  const pairingLine = appUrl
+    ? `   pair in ${displayName} app: ${appUrl.replace(/\/+$/, '')}${settingsPath}\n`
+    : ''
   return (
     `⚡ ${commandName} ${config.protocol} bridge (iroh) ready\n` +
     `   node id: ${nodeId}\n` +
     `   ticket:  ${ticket}\n` +
-    `   pair in ${displayName} app: ${pairingUrl}\n` +
+    pairingLine +
     `   spawning per connection: ${redactArgv(config.command)}\n` +
     accountTrustBanner(accountTrustEnabled)
   )
