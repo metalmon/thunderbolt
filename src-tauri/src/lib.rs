@@ -5,6 +5,7 @@
 // These modules are used by Tauri's command system through macros
 // The compiler can't see the usage, so we allow dead_code warnings
 pub mod cli_installer;
+pub mod cli_path;
 #[allow(dead_code)]
 pub mod commands;
 pub mod fork_boot_log;
@@ -80,6 +81,7 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             fork_page_fetch::fork_resolve_host,
             fork_page_fetch::fork_fetch_pinned,
             commands::save_bytes_to_path,
+            commands::add_cli_dir_to_path,
             fork_boot_log::fork_boot_log,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
