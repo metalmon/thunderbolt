@@ -7,6 +7,7 @@
 import { describe, expect, spyOn, test } from 'bun:test'
 import packageJson from '../package.json' with { type: 'json' }
 import rootPackageJson from '../../package.json' with { type: 'json' }
+import { commandName } from './fork/identity.ts'
 import { cliVersion, helpText, parseCommandSyntax } from './cli.ts'
 import { runCli, type RunCliDependencies } from './index.ts'
 import type { CommandSyntaxRunConfig, CommandSyntaxServeConfig } from './agent/types.ts'
@@ -235,7 +236,7 @@ describe('runCli provider-runtime dispatch', () => {
     await runCli(['logout'], probe.dependencies)
 
     expect(probe.persistedCommands).toEqual([persist])
-    expect(probe.errors).toEqual(['thunderbolt: local auth clear failed\n'])
+    expect(probe.errors).toEqual([`${commandName}: local auth clear failed\n`])
     expect(probe.exitCodes).toEqual([1])
   })
 
@@ -458,23 +459,23 @@ describe('parseCommandSyntax — validation and local run flags', () => {
   test('reports the specific missing-value message for every value-taking flag', () => {
     expect(parseCommandSyntax(['--provider'])).toEqual({
       kind: 'error',
-      message: 'thunderbolt: --provider requires a value',
+      message: `${commandName}: --provider requires a value`,
     })
     expect(parseCommandSyntax(['--model'])).toEqual({
       kind: 'error',
-      message: 'thunderbolt: --model requires a value',
+      message: `${commandName}: --model requires a value`,
     })
     expect(parseCommandSyntax(['--base-url'])).toEqual({
       kind: 'error',
-      message: 'thunderbolt: --base-url requires a value',
+      message: `${commandName}: --base-url requires a value`,
     })
     expect(parseCommandSyntax(['--api-key'])).toEqual({
       kind: 'error',
-      message: 'thunderbolt: --api-key requires a value',
+      message: `${commandName}: --api-key requires a value`,
     })
     expect(parseCommandSyntax(['--thinking'])).toEqual({
       kind: 'error',
-      message: 'thunderbolt: --thinking requires a value',
+      message: `${commandName}: --thinking requires a value`,
     })
   })
 
@@ -542,11 +543,11 @@ describe('parseCommandSyntax — account and config subcommands', () => {
     expect(parseCommandSyntax(['logout', '-h']).kind).toBe('help')
     expect(parseCommandSyntax(['login', 'extra'])).toEqual({
       kind: 'error',
-      message: "thunderbolt login: unexpected argument 'extra'",
+      message: `${commandName} login: unexpected argument 'extra'`,
     })
     expect(parseCommandSyntax(['logout', 'extra'])).toEqual({
       kind: 'error',
-      message: "thunderbolt logout: unexpected argument 'extra'",
+      message: `${commandName} logout: unexpected argument 'extra'`,
     })
   })
 
@@ -566,7 +567,7 @@ describe('parseCommandSyntax — account and config subcommands', () => {
     expect(parseCommandSyntax(['config'])).toEqual({ kind: 'config' })
     expect(parseCommandSyntax(['config', 'extra'])).toEqual({
       kind: 'error',
-      message: "thunderbolt config: unexpected argument 'extra'",
+      message: `${commandName} config: unexpected argument 'extra'`,
     })
   })
 })
@@ -650,7 +651,7 @@ describe('parseCommandSyntax — acp serve', () => {
   test('rejects a positional prompt', () => {
     expect(parseCommandSyntax(['acp', 'serve', 'unexpected'])).toEqual({
       kind: 'error',
-      message: "thunderbolt acp serve: unexpected argument 'unexpected'",
+      message: `${commandName} acp serve: unexpected argument 'unexpected'`,
     })
   })
 })

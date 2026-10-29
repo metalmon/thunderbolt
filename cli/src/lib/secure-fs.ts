@@ -61,6 +61,27 @@ const assertSameEntry = (path: string, expected: Stats, opened: Stats): void => 
   }
 }
 
+/**
+ * Fork: apply POSIX permissions, except on Windows, which has none.
+ *
+ * `FileHandle.chmod` throws `EPERM: fchmod` there, and every piece of CLI state
+ * goes through this module — the token, the config, the iroh allowlist, the usage
+ * receipts — so without this the binary fails on its first write rather than
+ * degrading. The whole test suite for these paths is red on Windows for the same
+ * reason.
+ *
+ * The guarantee IS weaker there, and worth stating plainly: `0600` on `auth.json`
+ * is not enforced. What protects it instead is the ACL on the user's own
+ * `%LOCALAPPDATA%`, which excludes other users but not other processes of the
+ * same user — the same limit the symlink note above already accepts.
+ */
+const applyMode = async (handle: { chmod: (mode: number) => Promise<void> }, mode: number): Promise<void> => {
+  if (process.platform === 'win32') {
+    return
+  }
+  await handle.chmod(mode)
+}
+
 /** Rejects user-owned symlinks in existing lexical ancestors of a state root. */
 const assertNoSymlinkAncestors = async (path: string): Promise<void> => {
   const absolutePath = resolve(path)
@@ -92,7 +113,7 @@ const secureDirectoryHandle = async (path: string, expected: Stats): Promise<voi
     const opened = await handle.stat()
     assertDirectory(path, opened)
     assertSameEntry(path, expected, opened)
-    await handle.chmod(dirMode)
+    await applyMode(handle, dirMode)
   } finally {
     await handle.close()
   }
@@ -118,7 +139,7 @@ const openRegularFile = async (path: string, expected: Stats): Promise<FileHandl
     const opened = await handle.stat()
     assertRegularFile(path, opened)
     assertSameEntry(path, expected, opened)
-    await handle.chmod(fileMode)
+    await applyMode(handle, fileMode)
     return handle
   } catch (error) {
     await handle.close()
@@ -133,7 +154,7 @@ const writeExclusiveTempFile = async (path: string, contents: string): Promise<v
     const opened = await handle.stat()
     assertRegularFile(path, opened)
     await handle.writeFile(contents, 'utf8')
-    await handle.chmod(fileMode)
+    await applyMode(handle, fileMode)
   } finally {
     await handle.close()
   }
@@ -171,7 +192,7 @@ const readLockFileOrNull = async (path: string): Promise<string | null> => {
     const opened = await handle.stat()
     assertRegularFile(path, opened)
     if (expected.dev !== opened.dev || expected.ino !== opened.ino) return null
-    await handle.chmod(fileMode)
+    await applyMode(handle, fileMode)
     return await handle.readFile({ encoding: 'utf8' })
   } finally {
     await handle.close()

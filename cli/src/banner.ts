@@ -7,6 +7,7 @@
  */
 
 import { cliVersion } from './cli.ts'
+import { commandName } from './fork/identity.ts'
 import { bold, brandGradient, dim, spark } from './ui/theme.ts'
 
 export const bannerHint = 'type a task, or / for commands'
@@ -19,7 +20,7 @@ export const bannerHint = 'type a task, or / for commands'
  */
 export const bannerText = (width: number = process.stdout.columns ?? 80): string => {
   const hairlineLength = Math.min(28, Math.max(8, Math.floor(width / 5)))
-  return `${bold(spark())} ${bold(brandGradient('thunderbolt'))} ${dim(`v${cliVersion}`)}\n${brandGradient(
+  return `${bold(spark())} ${bold(brandGradient(commandName))} ${dim(`v${cliVersion}`)}\n${brandGradient(
     '─'.repeat(hairlineLength),
   )}\n${dim(bannerHint)}`
 }

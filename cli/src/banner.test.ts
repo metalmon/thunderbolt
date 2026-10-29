@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from 'bun:test'
+import { commandName } from './fork/identity.ts'
 import { bannerHint, bannerText } from './banner.ts'
 
 test('banner uses the approved wordmark, hairline, and discoverability hint', () => {
   const lines = bannerText(80).split('\n')
 
   expect(lines[0]).toContain('⚡')
-  expect(lines[0]).toContain('thunderbolt')
+  expect(lines[0]).toContain(commandName)
   expect(lines[1]).toContain('─')
   expect(lines[2]).toContain(bannerHint)
 })
