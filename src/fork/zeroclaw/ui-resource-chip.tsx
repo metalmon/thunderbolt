@@ -9,12 +9,7 @@ import { ChevronDown, Download, PanelRight } from 'lucide-react'
 import { CanvasArtifactIcon } from './canvas-artifact-icon'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { saveBlobUrl } from '@/fork/documents/save-file'
 import { useContentView } from '@/content-view/context'
 import type { ToolOrDynamicToolUIPart } from '@/lib/assistant-message'
