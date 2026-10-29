@@ -42,14 +42,19 @@ const getRejectedError = async (action: () => Promise<void>): Promise<Error | nu
   }
 }
 
-// These assert POSIX file modes, symlink refusal and no-follow open flags — the actual
-// security guarantees of secure-fs. Windows has none of them: Node reports 0666 for every
-// file on NTFS whatever chmod did, so the mode assertions fail there while the code is
-// correct. Skipped on Windows rather than weakened, so Linux — where the CLI's state
-// directory really is multi-user, and where CI runs — keeps the full coverage.
-const describePosix = process.platform === 'win32' ? describe.skip : describe
+/**
+ * Fork: POSIX-only guarantees.
+ *
+ * These assert mode bits and symlink semantics. On Windows `fchmod` is
+ * unsupported — `applyMode` in `secure-fs.ts` deliberately no-ops there and
+ * says so — creating a symlink needs elevation, and there is no `O_NOFOLLOW`.
+ * The behaviour under test is therefore not implementable on Windows, not
+ * merely untested, so these are skipped rather than weakened: CI runs Linux and
+ * macOS, where the guarantee is real and these tests remain the gate.
+ */
+const posixOnly = process.platform === 'win32' ? it.skip : it
 
-describePosix('withSecureFileLock', () => {
+describe('withSecureFileLock', () => {
   it('reclaims a lock whose recorded owner process no longer exists', async () => {
     const path = join(dir, 'credential')
     await writeFile(`${path}.lock`, '2147483647\n')
@@ -117,12 +122,12 @@ describePosix('withSecureFileLock', () => {
   })
 })
 
-describePosix('readFileOrNull', () => {
+describe('readFileOrNull', () => {
   it('returns null for a non-existent file (expected first-run, not a failure)', async () => {
     expect(await readFileOrNull(join(dir, 'nope'))).toBeNull()
   })
 
-  it('returns file contents and repairs owner-only permissions', async () => {
+  posixOnly('returns file contents and repairs owner-only permissions', async () => {
     const path = join(dir, 'f')
     await writeFile(path, 'hello')
     await chmod(dir, 0o755)
@@ -207,8 +212,8 @@ describePosix('readFileOrNull', () => {
   })
 })
 
-describePosix('writeSecureFile', () => {
-  it('creates the dir 0700 and the file 0600', async () => {
+describe('writeSecureFile', () => {
+  posixOnly('creates the dir 0700 and the file 0600', async () => {
     const sub = join(dir, 'iroh')
     const path = join(sub, 'identity')
     await writeSecureFile(path, 'secret')
@@ -217,7 +222,7 @@ describePosix('writeSecureFile', () => {
     expect(await modeOf(sub)).toBe(0o700)
   })
 
-  it('repairs an existing too-permissive parent dir down to 0700', async () => {
+  posixOnly('repairs an existing too-permissive parent dir down to 0700', async () => {
     const sub = join(dir, 'iroh')
     await mkdir(sub, { mode: 0o755 })
     await chmod(sub, 0o755)
@@ -225,7 +230,7 @@ describePosix('writeSecureFile', () => {
     expect(await modeOf(sub)).toBe(0o700)
   })
 
-  it('re-chmods an existing too-permissive file back to 0600 (defeats a lax umask)', async () => {
+  posixOnly('re-chmods an existing too-permissive file back to 0600 (defeats a lax umask)', async () => {
     const path = join(dir, 'f')
     await writeFile(path, 'old', { mode: 0o644 })
     await chmod(path, 0o644)
@@ -235,7 +240,7 @@ describePosix('writeSecureFile', () => {
     expect(await readFileOrNull(path)).toBe('new')
   })
 
-  it('rejects an owning-directory symlink before chmod or write', async () => {
+  posixOnly('rejects an owning-directory symlink before chmod or write', async () => {
     const destination = join(dir, 'destination')
     const linkedDir = join(dir, 'linked')
     const destinationFile = join(destination, 'sentinel')
@@ -255,7 +260,7 @@ describePosix('writeSecureFile', () => {
     expect(destinationEntries).toEqual(['sentinel'])
   })
 
-  it('rejects a THUNDERBOLT_HOME with a symlink in its lexical ancestry', async () => {
+  posixOnly('rejects a THUNDERBOLT_HOME with a symlink in its lexical ancestry', async () => {
     const destination = join(dir, 'destination')
     const linkedAncestor = join(dir, 'linked-ancestor')
     const stateRoot = thunderboltHomeDir({ THUNDERBOLT_HOME: join(linkedAncestor, 'thunderbolt-home') })
@@ -288,7 +293,7 @@ describePosix('writeSecureFile', () => {
     expect((await lstat(path)).isSymbolicLink()).toBe(true)
   })
 
-  it('opens directories and temporary files with no-follow flags', async () => {
+  posixOnly('opens directories and temporary files with no-follow flags', async () => {
     const path = join(dir, 'credential')
     const realOpen = fsPromises.open
     let directoryFlags: number | null = null
