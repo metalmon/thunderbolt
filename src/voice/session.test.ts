@@ -52,19 +52,22 @@ mock.module('@/voice/audio/vad', () => ({
 }))
 
 let enqueued: AudioChunk[] = []
-let playbackRunning = false
-mock.module('@/voice/audio/playback', () => ({
-  createPlaybackQueue: (): PlaybackQueue =>
-    ({
-      enqueue: (chunk: AudioChunk) => enqueued.push(chunk),
-      flush: () => {},
-      close: () => {},
-      getLevel: () => 0,
-      get isPlaying() {
-        return playbackRunning
-      },
-    }) as unknown as PlaybackQueue,
-}))
+/** ⚠ PASSED IN, not registered with `mock.module`: that registration is
+ *  process-wide and handed this fake to the suite that tests the REAL
+ *  queue (`voice/audio/playback.test.ts`), which then failed only in a
+ *  full run. */
+const fakePlayback = (): PlaybackQueue =>
+  ({
+    enqueue: (chunk: AudioChunk) => enqueued.push(chunk),
+    flush: () => {},
+    close: () => {},
+    getLevel: () => 0,
+    // Always drained so the session's "wait for playback" loop exits at once
+    // (the real loop polls a timer we don't want to run in tests).
+    get isPlaying() {
+      return false
+    },
+  }) as unknown as PlaybackQueue
 
 const { createVoiceSession } = await import('@/voice/session')
 
@@ -129,6 +132,7 @@ describe('createVoiceSession', () => {
     const states: SessionState[] = []
     const transcripts: Array<[string, string]> = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hello world'),
       reply: makeReply(['Hi', ' there.']),
@@ -150,6 +154,7 @@ describe('createVoiceSession', () => {
     const states: SessionState[] = []
     const transcripts: Array<[string, string]> = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('thanks for watching'),
       reply: makeReply(['should not run']),
@@ -183,6 +188,7 @@ describe('createVoiceSession', () => {
       },
     }
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine,
       reply: makeReply(['done.']),
@@ -206,7 +212,12 @@ describe('createVoiceSession', () => {
     // before start() has assigned the VAD gate.
     let resolveLoad: () => void = () => {}
     const engine = makeEngine('hi', { load: () => new Promise<void>((resolve) => (resolveLoad = resolve)) })
-    const session = createVoiceSession({ earcons: makeEarcons().earcons, engine, reply: makeReply(['hi']) })
+    const session = createVoiceSession({
+      createPlayback: fakePlayback,
+      earcons: makeEarcons().earcons,
+      engine,
+      reply: makeReply(['hi']),
+    })
 
     const startPromise = session.start()
     await session.stop()
@@ -226,6 +237,7 @@ describe('createVoiceSession', () => {
 
   test('stop() after the gate is running tears it down', async () => {
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi'),
       reply: makeReply(['hi']),
@@ -382,6 +394,7 @@ describe('createVoiceSession', () => {
   test('barge-in: onSpeechStart while speaking aborts the turn and returns to listening', async () => {
     const transcripts: Array<[string, string]> = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('user turn'),
       reply: makeReply(['Hello, ', 'this is a long-winded reply.']),
@@ -409,6 +422,7 @@ describe('createVoiceSession', () => {
 
   test('onSpeechStart is a no-op when not thinking or speaking', async () => {
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi'),
       reply: makeReply(['hi']),
@@ -422,7 +436,12 @@ describe('createVoiceSession', () => {
   describe('earcons (THU-856)', () => {
     test('announces the mic opening, which is the moment nothing on screen marks', async () => {
       const { earcons, played } = makeEarcons()
-      const session = createVoiceSession({ earcons, engine: makeEngine('hi'), reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons,
+        engine: makeEngine('hi'),
+        reply: makeReply(['ok']),
+      })
 
       await session.start()
 
@@ -431,7 +450,12 @@ describe('createVoiceSession', () => {
 
     test('does not announce again when a finished turn hands the mic back', async () => {
       const { earcons, played } = makeEarcons()
-      const session = createVoiceSession({ earcons, engine: makeEngine('hi'), reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons,
+        engine: makeEngine('hi'),
+        reply: makeReply(['ok']),
+      })
 
       await session.start()
       await vadHandlers!.onUtterance(new Float32Array(16000))
@@ -443,7 +467,12 @@ describe('createVoiceSession', () => {
 
     test('acknowledges each committed utterance', async () => {
       const { earcons, played } = makeEarcons()
-      const session = createVoiceSession({ earcons, engine: makeEngine('hi'), reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons,
+        engine: makeEngine('hi'),
+        reply: makeReply(['ok']),
+      })
 
       await session.start()
       await vadHandlers!.onUtterance(new Float32Array(16000))
@@ -462,7 +491,7 @@ describe('createVoiceSession', () => {
           yield { text: 'hi', isFinal: true }
         },
       })
-      const session = createVoiceSession({ earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({ createPlayback: fakePlayback, earcons, engine, reply: makeReply(['ok']) })
 
       await session.start()
       await vadHandlers!.onUtterance(new Float32Array(16000))
@@ -473,6 +502,7 @@ describe('createVoiceSession', () => {
     test('barge-in does not re-invite the user who is already talking', async () => {
       const { earcons, played } = makeEarcons()
       const session = createVoiceSession({
+        createPlayback: fakePlayback,
         earcons,
         engine: makeEngine('user turn'),
         reply: makeReply(['a long-winded reply.']),
@@ -501,7 +531,12 @@ describe('createVoiceSession', () => {
           order.push('load:end')
         },
       })
-      const session = createVoiceSession({ earcons: makeEarcons().earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons: makeEarcons().earcons,
+        engine,
+        reply: makeReply(['ok']),
+      })
 
       const starting = session.start()
       await Promise.resolve()
@@ -524,7 +559,12 @@ describe('createVoiceSession', () => {
             finishLoad = resolve
           }),
       })
-      const session = createVoiceSession({ earcons: makeEarcons().earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons: makeEarcons().earcons,
+        engine,
+        reply: makeReply(['ok']),
+      })
 
       const starting = session.start()
       await drainMicrotasks()
@@ -547,7 +587,12 @@ describe('createVoiceSession', () => {
           throw new Error('attestation failed')
         },
       })
-      const session = createVoiceSession({ earcons: makeEarcons().earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons: makeEarcons().earcons,
+        engine,
+        reply: makeReply(['ok']),
+      })
 
       // Racing the two means a live mic can outlive a failed start, and nothing
       // else holds a reference to it — the caller's stop() sees vadGate as null.
@@ -566,7 +611,12 @@ describe('createVoiceSession', () => {
           throw new Error('attestation failed')
         },
       })
-      const session = createVoiceSession({ earcons: makeEarcons().earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({
+        createPlayback: fakePlayback,
+        earcons: makeEarcons().earcons,
+        engine,
+        reply: makeReply(['ok']),
+      })
 
       // Surface the engine failure immediately. The pending gate owns its own
       // late cleanup when the user subsequently accepts the permission prompt.
@@ -587,7 +637,7 @@ describe('createVoiceSession', () => {
           throw new Error('attestation failed')
         },
       })
-      const session = createVoiceSession({ earcons, engine, reply: makeReply(['ok']) })
+      const session = createVoiceSession({ createPlayback: fakePlayback, earcons, engine, reply: makeReply(['ok']) })
 
       await session.start().catch(() => {})
 
