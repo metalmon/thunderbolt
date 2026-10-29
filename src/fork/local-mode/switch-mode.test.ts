@@ -3,18 +3,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
-import { readFileSync } from 'node:fs'
 import { useConfigStore } from '@/api/config-store'
-import { getAuthToken, setAuthToken } from '@/lib/auth-token'
-import { getCachedSession, setCachedSession } from '@/lib/session-cache'
+import { clearAuthToken, getAuthToken, setAuthToken } from '@/lib/auth-token'
+import { clearCachedSession, getCachedSession, setCachedSession } from '@/lib/session-cache'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 
-// NOT mocked. `mock.module` in bun is process-wide and never undone, so stubbing
-// `@/db/powersync/sync-state` down to two exports here broke every other suite in
-// the run that imports it — 200-odd failures that looked like a code bug. The real
-// `setSyncEnabled` is safe to call: it writes the flag, then catches the missing
-// database instance itself (`sync-state.ts`: "Failed to connect/disconnect").
-import { enterLocalMode, enterServerMode } from './switch-mode'
+// ⚠ Nothing is stubbed with `mock.module` here, in EITHER direction.
+//
+// Stubbing `@/db/powersync/sync-state` from this file broke every sibling suite
+// that imports it (process-wide, never undone). And simply importing the real
+// `setSyncEnabled` does not work either: two upstream suites replace it with a
+// mock that never writes the flag, so this file asserted against whichever
+// registration happened to be last — green alone, red in the full run.
+//
+// So the subject takes its dependencies and this file passes them in. The sync
+// flag is then written by the test's own stub, and the assertion is about what
+// `enterLocalMode` CALLS, which is the actual contract.
+import { enterLocalMode, enterServerMode, type SwitchModeDeps } from './switch-mode'
+import { markConfigAbsent } from './config-absent'
+import { readRepoFile } from '../testing/source-file'
+
+/** The real effects, except that sync is written here rather than through a
+ *  module another suite may already have replaced. */
+const testDeps = (): SwitchModeDeps => ({
+  setSyncEnabled: (enabled) => {
+    useLocalSettingsStore.setState({ syncEnabled: enabled })
+  },
+  clearAuthToken,
+  clearCachedSession,
+  markConfigAbsent,
+})
 
 beforeEach(() => {
   useLocalSettingsStore.setState({ operationMode: 'server', syncEnabled: true })
@@ -35,7 +53,7 @@ afterEach(() => {
 
 describe('enterLocalMode', () => {
   it('stops sync, drops the credentials and forgets the deployment config', async () => {
-    await enterLocalMode()
+    await enterLocalMode(testDeps())
 
     expect(useLocalSettingsStore.getState().operationMode).toBe('local')
     // Read on every boot: left set, the install keeps uploading in "local" mode.
@@ -53,7 +71,7 @@ describe('enterLocalMode', () => {
   // `selectConfigSettled`, and `configLoaded` is not persisted — so without this
   // the deployment-gated controls never appear after a local-mode restart.
   it('leaves the config settled, not merely empty', async () => {
-    await enterLocalMode()
+    await enterLocalMode(testDeps())
     expect(useConfigStore.getState().configLoaded).toBe(true)
   })
 
@@ -69,7 +87,7 @@ describe('enterLocalMode', () => {
         order.push('mode')
       }
     })
-    await enterLocalMode()
+    await enterLocalMode(testDeps())
     unsubscribe()
 
     expect(order).toEqual(['sync', 'mode'])
@@ -94,7 +112,7 @@ describe('boot in local mode', () => {
   // never asks. Source-level because `fetchConfig`'s own suite covers its HTTP
   // behaviour, and what matters here is that the guard exists at all.
   it('does not fetch /config', () => {
-    const source = readFileSync('src/api/config.ts', 'utf8')
+    const source = readRepoFile('src/api/config.ts')
     expect(source.includes('isLocalMode')).toBe(true)
   })
 })
