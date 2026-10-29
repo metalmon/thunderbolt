@@ -102,9 +102,13 @@ describe('add', () => {
     expect(await isAllowed('   ')).toBe(false)
   })
 
-  it('persists the allowlist through the secure store (0600 file in a 0700 dir)', async () => {
-    await add('peerA')
-    expect((await stat(allowlistPath())).mode & 0o777).toBe(0o600)
-    expect((await stat(irohDir())).mode & 0o777).toBe(0o700)
-  })
+  // Fork: POSIX modes only — see the note in `identity.test.ts`.
+  it.skipIf(process.platform === 'win32')(
+    'persists the allowlist through the secure store (0600 file in a 0700 dir)',
+    async () => {
+      await add('peerA')
+      expect((await stat(allowlistPath())).mode & 0o777).toBe(0o600)
+      expect((await stat(irohDir())).mode & 0o777).toBe(0o700)
+    },
+  )
 })
