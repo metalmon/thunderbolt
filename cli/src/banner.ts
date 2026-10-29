@@ -8,7 +8,7 @@
 
 import { cliVersion } from './cli.ts'
 import { commandName } from './fork/identity.ts'
-import { bold, brandGradient, dim, spark } from './ui/theme.ts'
+import { amber, bold, brandGradient, dim, spark } from './ui/theme.ts'
 
 export const bannerHint = 'type a task, or / for commands'
 
@@ -19,8 +19,18 @@ export const bannerHint = 'type a task, or / for commands'
  * which would corrupt the differential renderer.
  */
 export const bannerText = (width: number = process.stdout.columns ?? 80): string => {
+  // Fork: the wordmark is FLAT, the hairline keeps the gradient.
+  //
+  // `brandGradient` interpolates per character, so its smoothness depends on how
+  // many characters it has to spend. Upstream's eleven-letter name moved ~7 RGB
+  // units per letter; `volt` has four and moves ~23 — not a sweep but four
+  // visibly different colours in a row, which reads as broken precisely because
+  // the 28-character hairline underneath does sweep smoothly.
+  //
+  // Amber rather than raspberry: it is the gradient's START, so the hairline
+  // below reads as continuing the word rather than departing from it.
   const hairlineLength = Math.min(28, Math.max(8, Math.floor(width / 5)))
-  return `${bold(spark())} ${bold(brandGradient(commandName))} ${dim(`v${cliVersion}`)}\n${brandGradient(
+  return `${bold(spark())} ${bold(amber(commandName))} ${dim(`v${cliVersion}`)}\n${brandGradient(
     '─'.repeat(hairlineLength),
   )}\n${dim(bannerHint)}`
 }
