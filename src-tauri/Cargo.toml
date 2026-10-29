@@ -76,6 +76,14 @@ rustls = { version = "0.23", default-features = false, features = ["aws-lc-rs"] 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
 
+# Fork: writing the user's persistent PATH for the one-click CLI install.
+# ⚠ NOT `setx`: it truncates the value at 1024 characters, so appending to an
+# already-long PATH silently DESTROYS the tail. The registry is the only
+# non-destructive way to do this. Already in the lock as a transitive dep.
+[target.'cfg(target_os = "windows")'.dependencies]
+winreg = "0.55"
+windows-sys = { version = "0.61", features = ["Win32_UI_WindowsAndMessaging"] }
+
 [target.'cfg(target_os = "ios")'.dependencies]
 objc2-ui-kit = { version = "0.3.2", features = ["UIApplication", "UIWindow", "UIView", "UIInterface", "UIScene", "UIWindowScene"] }
 objc2-foundation = "0.3.2"

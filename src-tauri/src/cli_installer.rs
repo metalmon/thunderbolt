@@ -163,6 +163,15 @@ fn is_dir_on_path(path_var: &str, dir: &str) -> bool {
 /// Fork: `HOME` is not normally set on Windows, so reading it there would fail on
 /// every machine. Neither location is on `PATH` by default — hence the hint in
 /// the result.
+/// Fork: the directory the CLI installs into, as a string, for the `PATH`
+/// helper. Separate from [`local_bin_dir`] so the one caller outside this module
+/// cannot reach the rest of the install machinery.
+pub fn cli_install_dir() -> Result<String, crate::cli_path::PathError> {
+    local_bin_dir()
+        .map(|dir| dir.to_string_lossy().to_string())
+        .map_err(|error| crate::cli_path::PathError { message: format!("{error:?}") })
+}
+
 fn local_bin_dir() -> Result<PathBuf, CliInstallError> {
     #[cfg(windows)]
     {
