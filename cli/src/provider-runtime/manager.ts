@@ -5,11 +5,7 @@
 import { isConfirmedLogoutPersistenceError, type ConfirmedLogoutPersistenceError } from '../auth/logout.ts'
 import { listModels } from '../config/model-listing.ts'
 import { collectByokProfile, collectByokRepair } from '../config/wizard.ts'
-import {
-  defaultProviderStageContext,
-  prepareProviderBinding,
-  type ProviderStageContext,
-} from './provider-stage.ts'
+import { defaultProviderStageContext, prepareProviderBinding, type ProviderStageContext } from './provider-stage.ts'
 import type {
   CommandOutcome,
   ProviderManagerIO,
@@ -17,6 +13,7 @@ import type {
   ProviderRuntime,
   ProviderSnapshot,
 } from './types.ts'
+import { displayName } from '../fork/identity.ts'
 
 export type ProviderManagerDependencies = {
   readonly listByokModels: typeof listModels
@@ -160,15 +157,15 @@ const removeByok = async (
   return handled
 }
 
-/** Handles the action menu for structural Thunderbolt. */
+/** Handles the action menu for the structural managed lane. */
 const manageThunderbolt = async (
   io: ProviderManagerIO,
   runtime: ProviderRuntime,
   liveProviderId: LiveProviderId | undefined,
   signal?: AbortSignal,
 ): Promise<CommandOutcome> => {
-  const action = await io.choose('Thunderbolt', [
-    { id: 'use', label: 'Use Thunderbolt' },
+  const action = await io.choose(displayName, [
+    { id: 'use', label: `Use ${displayName}` },
     { id: 'login', label: 'Log in' },
     { id: 'logout', label: 'Log out' },
   ])
@@ -201,7 +198,7 @@ const manageByok = async (
   return handled
 }
 
-/** Displays structural Thunderbolt first, followed only by user-created BYOK profiles. */
+/** Displays the structural managed lane first, followed only by user-created BYOK profiles. */
 const providers = async (
   io: ProviderManagerIO,
   runtime: ProviderRuntime,
@@ -211,7 +208,7 @@ const providers = async (
 ): Promise<CommandOutcome> => {
   const state = runtime.snapshot()
   const selected = await io.choose('Providers', [
-    { id: 'thunderbolt', label: 'Thunderbolt', description: state.thunderbolt.status },
+    { id: 'thunderbolt', label: displayName, description: state.thunderbolt.status },
     ...state.providers.map((provider) => ({
       id: provider.id,
       label: provider.label,
@@ -266,7 +263,7 @@ const firstRun = async (
   signal?: AbortSignal,
 ): Promise<CommandOutcome> => {
   const selected = await io.choose('Choose how to connect', [
-    { id: 'thunderbolt-account', label: 'Thunderbolt account', description: 'recommended' },
+    { id: 'thunderbolt-account', label: `${displayName} account`, description: 'recommended' },
     { id: 'provider-api-key', label: 'Provider API key' },
   ])
   if (selected === 'thunderbolt-account') return login(io, runtime, true, liveProviderId, signal)
