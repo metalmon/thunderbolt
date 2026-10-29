@@ -6,27 +6,56 @@ import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { getI18n, resolveCliLocale } from './i18n.ts'
 
+// A stub for the OS language, so the tests do not depend on the machine running
+// them. The real one reads `Intl`.
+const system = (tag: string | undefined) => () => tag
+
 describe('resolveCliLocale', () => {
+  // The case that makes this a product rather than a setting: a person installs
+  // the binary on a Russian Windows and it speaks Russian, with nothing to set.
+  it('follows the operating system when nothing is set', () => {
+    expect(resolveCliLocale({}, system('ru-RU'))).toBe('ru')
+    expect(resolveCliLocale({}, system('en-GB'))).toBe('en')
+  })
+
+  // ⚠ Measured, not assumed: Git Bash exports LANG=en_US.UTF-8 on Windows by
+  // itself. Trusting it over the system language handed every Russian Windows
+  // user an English interface.
+  it('prefers the system language over a shell-provided LANG', () => {
+    expect(resolveCliLocale({ LANG: 'en_US.UTF-8' }, system('ru-RU'))).toBe('ru')
+  })
+
+  // The override has to win in BOTH directions, or it is not an override.
+  it('lets the explicit variable force a language against the system', () => {
+    expect(resolveCliLocale({ VOLT_LANG: 'en' }, system('ru-RU'))).toBe('en')
+    expect(resolveCliLocale({ VOLT_LANG: 'ru' }, system('en-US'))).toBe('ru')
+  })
+
+  // When the runtime reports nothing (a trimmed ICU, say), POSIX still answers.
+  it('falls back to POSIX variables when the runtime reports no locale', () => {
+    expect(resolveCliLocale({ LC_ALL: 'ru_RU.UTF-8' }, system(undefined))).toBe('ru')
+  })
+
   // The dedicated variable comes first because Windows sets neither LANG nor
   // LC_ALL, so it is the only way to ask for Russian there.
   it('prefers the dedicated variable over POSIX locale vars', () => {
-    expect(resolveCliLocale({ VOLT_LANG: 'ru', LANG: 'en_US.UTF-8' })).toBe('ru')
+    expect(resolveCliLocale({ VOLT_LANG: 'ru', LANG: 'en_US.UTF-8' }, system('en-US'))).toBe('ru')
   })
 
   it('honours the legacy spelling of the dedicated variable', () => {
-    expect(resolveCliLocale({ THUNDERBOLT_LANG: 'ru' })).toBe('ru')
+    expect(resolveCliLocale({ THUNDERBOLT_LANG: 'ru' }, system('en-US'))).toBe('ru')
   })
 
   // What a Linux or macOS user already has set, and what a terminal tool is
   // expected to read.
   it.each(['ru', 'ru_RU', 'ru_RU.UTF-8', 'ru-RU'])('matches the base language of %s', (tag) => {
-    expect(resolveCliLocale({ LANG: tag })).toBe('ru')
-    expect(resolveCliLocale({ LC_ALL: tag })).toBe('ru')
+    expect(resolveCliLocale({ LANG: tag }, system(undefined))).toBe('ru')
+    expect(resolveCliLocale({ LC_ALL: tag }, system(undefined))).toBe('ru')
   })
 
   it('falls back to English for an unshipped language and for nothing at all', () => {
-    expect(resolveCliLocale({ LANG: 'de_DE.UTF-8' })).toBe('en')
-    expect(resolveCliLocale({})).toBe('en')
+    expect(resolveCliLocale({ LANG: 'de_DE.UTF-8' }, system(undefined))).toBe('en')
+    expect(resolveCliLocale({}, system(undefined))).toBe('en')
   })
 })
 

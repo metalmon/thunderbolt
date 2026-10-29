@@ -33,24 +33,45 @@ export const getI18n = (locale: CliLocale): I18n => {
 }
 
 /**
- * The language this run speaks, from the environment.
+ * The language this run speaks.
  *
- * Order: `VOLT_LANG` (and its legacy spelling) wins, because it is the one knob
- * that exists for this purpose; then the POSIX `LC_ALL`/`LANG`, which is what a
- * Linux or macOS user has already set and what a terminal tool is expected to
- * honour; then English.
+ * Nobody should have to set anything: the common case is a person who installed
+ * the binary and expects it to speak their system's language. So the ORDER is:
  *
- * Matching is on the base language only — `ru_RU.UTF-8`, `ru-RU` and `ru` all
- * mean Russian here. The CLI ships one Russian catalog, so distinguishing
- * regions would buy nothing and would turn a perfectly good `LANG` into English.
+ * 1. `VOLT_LANG` — the explicit override, for forcing a language against the
+ *    system's (and for scripts and tests). It wins everywhere.
+ * 2. **The operating system's own language**, via `Intl`. This is the one that
+ *    makes the product work without instructions.
+ * 3. POSIX `LC_ALL`/`LANG`, as a last resort.
  *
- * Windows sets neither `LANG` nor `LC_ALL`, so a Russian user there names the
- * language explicitly — that is why the dedicated variable comes first rather
- * than as a fallback.
+ * ⚠ `LANG` is NOT trusted ahead of the system language, and this is measured
+ * rather than assumed: on Windows, Git Bash exports `LANG=en_US.UTF-8` by
+ * itself. On a Russian Windows — the pilot's primary platform — `Intl` reports
+ * `ru-RU` while `LANG` claims English. Reading `LANG` first would hand every
+ * such user an English interface and look like the detection simply did not
+ * work. On Linux the question does not arise: ICU derives its default locale
+ * from `LC_ALL`/`LC_MESSAGES`/`LANG`, so `Intl` already carries the same answer,
+ * and the POSIX fallback stays only for a runtime that reports nothing useful.
+ *
+ * Matching is on the base language: `ru_RU.UTF-8`, `ru-RU` and `ru` all mean
+ * Russian. One Russian catalog ships, so distinguishing regions would buy
+ * nothing and would turn a perfectly good signal into English.
  */
-export const resolveCliLocale = (env: Readonly<Record<string, string | undefined>> = process.env): CliLocale => {
-  const requested = envVar('LANG', env) ?? env.LC_ALL ?? env.LANG
-  const base = requested?.trim().toLowerCase().split(/[_.@-]/)[0]
+export const resolveCliLocale = (
+  env: Readonly<Record<string, string | undefined>> = process.env,
+  systemLocale: () => string | undefined = () => Intl.DateTimeFormat().resolvedOptions().locale,
+): CliLocale => {
+  const baseOf = (tag: string | undefined): string | undefined =>
+    tag
+      ?.trim()
+      .toLowerCase()
+      .split(/[_.@-]/)[0] || undefined
+  // First DEFINED candidate decides — not "any candidate says ru". `VOLT_LANG=en`
+  // on a Russian system must give English, which is the whole point of having an
+  // override.
+  const base = [baseOf(envVar('LANG', env)), baseOf(systemLocale()), baseOf(env.LC_ALL ?? env.LANG)].find(
+    (candidate) => candidate !== undefined,
+  )
   return base === 'ru' ? 'ru' : 'en'
 }
 
