@@ -24,7 +24,13 @@ describe('forkSearxngSearch', () => {
     const fetchFn = mock(() =>
       Promise.resolve(
         jsonResults([
-          { url: 'https://a.com/p', title: 'A', img_src: 'https://a.com/i.png', content: 'A snippet', publishedDate: '2026-01-01' },
+          {
+            url: 'https://a.com/p',
+            title: 'A',
+            img_src: 'https://a.com/i.png',
+            content: 'A snippet',
+            publishedDate: '2026-01-01',
+          },
         ]),
       ),
     )

@@ -319,7 +319,7 @@ describe('createSessionSendQueue', () => {
    *  decide exactly when a "turn" completes, independent of the queue (which
    *  never awaits `start()`'s return value itself — it only reacts to
    *  `onTurnSettled`). */
-  const createDeferred = <T,>(): { promise: Promise<T>; resolve: (value: T) => void } => {
+  const createDeferred = <T>(): { promise: Promise<T>; resolve: (value: T) => void } => {
     let resolve!: (value: T) => void
     const promise = new Promise<T>((res) => {
       resolve = res

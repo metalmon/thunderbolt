@@ -17,7 +17,14 @@ describe('FileChip', () => {
 
   it('primary Open button invokes onOpen (side panel)', () => {
     const onOpen = mock(() => {})
-    render(<FileChip localFileId="f1" filename="a.docx" mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" onOpen={onOpen} />)
+    render(
+      <FileChip
+        localFileId="f1"
+        filename="a.docx"
+        mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        onOpen={onOpen}
+      />,
+    )
     // The visible primary button (the dropdown item with the same label is portalled/closed).
     fireEvent.click(screen.getByRole('button', { name: 'Open' }))
     expect(onOpen).toHaveBeenCalledTimes(1)

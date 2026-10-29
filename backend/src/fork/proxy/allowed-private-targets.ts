@@ -57,11 +57,7 @@ const isPrivateHost = (url: URL): boolean => {
   return /\.(local|internal|lan|home|intranet)$/.test(host)
 }
 
-export const isAllowedPrivateTarget = (
-  url: URL,
-  allowed: readonly string[],
-  allowAllPrivate = false,
-): boolean => {
+export const isAllowedPrivateTarget = (url: URL, allowed: readonly string[], allowAllPrivate = false): boolean => {
   const host = url.hostname.toLowerCase()
   // Link-local is refused even by the blanket switch: nobody's model server lives at
   // 169.254.x.x, and that range is where a cloud instance keeps its credentials

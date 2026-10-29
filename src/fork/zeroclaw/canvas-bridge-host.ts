@@ -43,9 +43,7 @@ export const parseCanvasBridgeMessage = (
  * result.
  */
 export const stampCanvasNonce = (message: unknown, nonce: string): unknown =>
-  message && typeof message === 'object'
-    ? { ...(message as Record<string, unknown>), artifactNonce: nonce }
-    : message
+  message && typeof message === 'object' ? { ...(message as Record<string, unknown>), artifactNonce: nonce } : message
 
 /**
  * Build a successful JSON-RPC response to a `tools/call` (or other)
