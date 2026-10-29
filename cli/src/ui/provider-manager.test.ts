@@ -151,7 +151,7 @@ describe('plain provider-manager IO', () => {
 
     await io.promptToOpenBrowser?.('https://accounts.example/activate?user_code=ABCD-EFGH')
 
-    expect(prompts).toEqual([authBrowserPrompt])
+    expect(prompts).toEqual([authBrowserPrompt()])
     expect(opened).toEqual(['https://accounts.example/activate?user_code=ABCD-EFGH'])
   })
 
@@ -336,7 +336,7 @@ describe('TUI provider-manager IO', () => {
     })
 
     const prompt = io.promptToOpenBrowser?.('https://accounts.example/activate?user_code=ABCD-EFGH')
-    expect(scrollback.render(120).join('\n')).toContain(authBrowserPrompt)
+    expect(scrollback.render(120).join('\n')).toContain(authBrowserPrompt())
     editor.onSubmit?.('')
     await prompt
 
