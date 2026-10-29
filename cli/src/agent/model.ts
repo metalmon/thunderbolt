@@ -93,17 +93,36 @@ export const buildBuiltinProfileModel = (
   const baseStreamSimple: ProviderStreams['streamSimple'] = sourceProvider.streamSimple
   const credentialOrigin = sourceModel.baseUrl || sourceProvider.baseUrl
   if (!credentialOrigin) throw new Error(`Pi catalog provider "${options.provider}" has no base URL.`)
-  const credentialedFetch = createCredentialedFetch(
-    credentialOrigin,
-    options.fetchFn,
-    options.observeResponse,
-  )
+  const credentialedFetch = createCredentialedFetch(credentialOrigin, options.fetchFn, options.observeResponse)
 
   const provider: Provider = {
     ...sourceProvider,
     id: options.profileId,
     baseUrl: credentialOrigin,
-    auth: { apiKey: envApiKeyAuth(`${options.profileId} API key`, []) },
+    // ⚠ The descriptor must KNOW the key, it cannot merely be a label.
+    //
+    // `Models.stream()` resolves auth BEFORE it calls `provider.stream()`, so a
+    // credential injected inside the wrapper below is refused before the
+    // wrapper runs — every key-based profile failed its first message with
+    // "Provider is not configured: byok-…". The upstream descriptor was built
+    // with an EMPTY env-var list and no stored credential, so there was nothing
+    // left for Pi to resolve.
+    //
+    // `resolve` is consulted only when the caller passed no explicit key, so a
+    // per-call `--api-key` still wins (`resolveProviderAuth` checks overrides
+    // first).
+    auth: {
+      apiKey: {
+        ...envApiKeyAuth(`${options.profileId} API key`, []),
+        // ⚠ `credential` FIRST. `resolveProviderAuth` routes an explicit
+        // per-call key (`--api-key`) through this same `resolve`, so ignoring
+        // it here would make the flag silently lose to the stored profile.
+        resolve: async ({ credential }) => ({
+          auth: { apiKey: credential?.key ?? options.apiKey },
+          source: credential?.key ? 'explicit key' : 'profile',
+        }),
+      },
+    },
     getModels: () => [model],
     refreshModels: undefined,
     stream: (resolved, context, streamOptions) =>
