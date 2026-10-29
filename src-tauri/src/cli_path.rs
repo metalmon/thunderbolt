@@ -188,7 +188,10 @@ pub fn path_target_description() -> String {
 
 #[cfg(target_os = "windows")]
 fn to_u16(bytes: &[u8]) -> Vec<u16> {
-    bytes.chunks_exact(2).map(|pair| u16::from_ne_bytes([pair[0], pair[1]])).collect()
+    // `as_chunks` rather than `chunks_exact(2)`: clippy rejects a constant
+    // chunk size, and the trailing remainder cannot exist for a UTF-16 buffer.
+    let (pairs, _) = bytes.as_chunks::<2>();
+    pairs.iter().map(|pair| u16::from_ne_bytes(*pair)).collect()
 }
 
 #[cfg(target_os = "windows")]
