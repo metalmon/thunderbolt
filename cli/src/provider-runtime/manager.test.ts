@@ -20,6 +20,36 @@ import { createProviderManager, runProviderManager } from './manager.ts'
 import { createProviderStageContext } from './provider-stage.ts'
 import type { ProviderRuntimeDependencies } from './runtime.ts'
 import { createTestProviderRuntime } from './test-fixtures.ts'
+import { displayName } from '../fork/identity.ts'
+
+/**
+ * Fork: the managed catalog this suite exercises is a FIXTURE, not the shipped
+ * one. `managedCatalog.data` is EMPTY here by design — the fork ships no
+ * models and the system lineup arrives from the backend — so every `data[1]`
+ * below read `undefined` and the suite failed on its own fixture guard. Same
+ * reason `createDefaultModelProfile` takes its bundle as a parameter.
+ *
+ * Two entries, because several tests pick the non-default one to prove the
+ * selection is carried rather than defaulted.
+ */
+const managedCatalog: typeof bundledManagedCatalog = {
+  version: 1,
+  defaultModelId: 'fixture-default',
+  data: [
+    {
+      id: 'fixture-default',
+      model: 'managed-default',
+      name: 'Managed Default',
+      description: 'the lane default',
+    },
+    {
+      id: 'fixture-alternate',
+      model: 'managed-alternate',
+      name: 'Managed Alternate',
+      description: 'a deliberate non-default choice',
+    },
+  ] as unknown as typeof managedCatalog.data,
+}
 
 const byokId = 'byok-work'
 const inactiveByokId = 'byok-personal'
@@ -36,8 +66,8 @@ const snapshot = (activeProviderId: string | null = byokId): ProviderSnapshot =>
   activeProviderId,
   thunderbolt: {
     status: 'not authenticated',
-    defaultModelId: bundledManagedCatalog.defaultModelId,
-    models: bundledManagedCatalog.data.map(({ id, model, name, description }) => ({
+    defaultModelId: managedCatalog.defaultModelId,
+    models: managedCatalog.data.map(({ id, model, name, description }) => ({
       id,
       label: name,
       description: `${model} — ${description}`,
@@ -176,7 +206,7 @@ describe('provider manager deferred outcomes', () => {
   })
 
   test('uses the live Thunderbolt owner for models when persisted active remains BYOK', async () => {
-    const selectedModel = bundledManagedCatalog.data[1]
+    const selectedModel = managedCatalog.data[1]
     if (!selectedModel) throw new Error('managed catalog fixture needs two models')
     const { io, menus } = scriptedIO({ choices: [selectedModel.id] })
     const initial = snapshot(byokId)
@@ -190,7 +220,7 @@ describe('provider manager deferred outcomes', () => {
 
     const outcome = await manager(io, runtime, 'models', undefined, () => 'thunderbolt')
 
-    expect(menus[0]?.items).toHaveLength(bundledManagedCatalog.data.length)
+    expect(menus[0]?.items).toHaveLength(managedCatalog.data.length)
     expect(outcome).toEqual({
       kind: 'switch',
       selection: { providerId: 'thunderbolt', model: selectedModel.id },
@@ -231,13 +261,13 @@ describe('provider manager deferred outcomes', () => {
   })
 
   test('lists the complete managed catalog and persists its stable UUID instead of free text', async () => {
-    const chosen = bundledManagedCatalog.data[1]
+    const chosen = managedCatalog.data[1]
     if (!chosen) throw new Error('managed catalog fixture needs two models')
     const managedSnapshot: ProviderSnapshot = {
       ...snapshot('thunderbolt'),
       thunderbolt: {
         status: 'authenticated',
-        defaultModelId: bundledManagedCatalog.defaultModelId,
+        defaultModelId: managedCatalog.defaultModelId,
         models: snapshot('thunderbolt').thunderbolt.models,
       },
     }
@@ -246,7 +276,7 @@ describe('provider manager deferred outcomes', () => {
 
     const outcome = await runProviderManager(io, runtime, 'models')
 
-    expect(menus[0]?.items).toHaveLength(bundledManagedCatalog.data.length)
+    expect(menus[0]?.items).toHaveLength(managedCatalog.data.length)
     expect(menus[0]?.items[1]).toMatchObject({ id: chosen.id, label: chosen.name })
     expect(outcome).toEqual({
       kind: 'switch',
@@ -331,7 +361,7 @@ describe('provider manager deferred outcomes', () => {
   })
 
   test('refreshes the live binding when login starts with Thunderbolt active', async () => {
-    const selectedModel = bundledManagedCatalog.data[1]
+    const selectedModel = managedCatalog.data[1]
     if (!selectedModel) throw new Error('managed catalog fixture needs two models')
     const { io, menus, verifications, statuses } = scriptedIO({ choices: [selectedModel.id] })
     const initial = snapshot('thunderbolt')
@@ -367,11 +397,11 @@ describe('provider manager deferred outcomes', () => {
       ['waiting', 'Waiting for approval…'],
       ['success', 'Login successful.'],
     ])
-    expect(menus.at(-1)?.items).toHaveLength(bundledManagedCatalog.data.length)
+    expect(menus.at(-1)?.items).toHaveLength(managedCatalog.data.length)
   })
 
   test('activates Thunderbolt when standalone login starts without an active provider', async () => {
-    const selectedModel = bundledManagedCatalog.data[1]
+    const selectedModel = managedCatalog.data[1]
     if (!selectedModel) throw new Error('managed catalog fixture needs two models')
     const { io } = scriptedIO({ choices: [selectedModel.id] })
     const { runtime, managed } = runtimeHarness(snapshot(null))
@@ -397,7 +427,11 @@ describe('provider manager deferred outcomes', () => {
 
     await runProviderManager(presentationIO, runtime, 'login', controller.signal)
 
-    expect(managed[0]).toMatchObject({ type: 'login', presentation: { promptToOpenBrowser }, signal: controller.signal })
+    expect(managed[0]).toMatchObject({
+      type: 'login',
+      presentation: { promptToOpenBrowser },
+      signal: controller.signal,
+    })
   })
 
   test('carries cancellation through the first-run account login path', async () => {
@@ -505,7 +539,9 @@ describe('provider manager deferred outcomes', () => {
       providerStage: createProviderStageContext(),
     })
 
-    expect(await liveByokManager(scriptedIO({}).io, savedThunderbolt.runtime, 'logout', undefined, () => byokId)).toEqual({
+    expect(
+      await liveByokManager(scriptedIO({}).io, savedThunderbolt.runtime, 'logout', undefined, () => byokId),
+    ).toEqual({
       kind: 'handled',
     })
 
@@ -568,7 +604,7 @@ describe('provider manager menus', () => {
     expect(menus[0]).toEqual({
       title: 'Providers',
       items: [
-        { id: 'thunderbolt', label: 'Thunderbolt', description: 'not authenticated' },
+        { id: 'thunderbolt', label: displayName, description: 'not authenticated' },
         { id: byokId, label: 'Work OpenAI', description: 'openai — authentication required' },
         { id: inactiveByokId, label: 'Personal Google', description: 'google — authenticated' },
         { id: 'add-byok', label: 'Add provider API key' },
@@ -601,7 +637,7 @@ describe('provider manager menus', () => {
     let persisted: CliConfig = {
       version: 3,
       activeProviderId: null,
-      thunderbolt: { defaultModelId: bundledManagedCatalog.defaultModelId },
+      thunderbolt: { defaultModelId: managedCatalog.defaultModelId },
       providers: [],
     }
     const dependencies: ProviderRuntimeDependencies = {
@@ -619,7 +655,7 @@ describe('provider manager menus', () => {
           throw new Error('unexpected logout')
         },
       },
-      loadCatalog: async () => bundledManagedCatalog,
+      loadCatalog: async () => managedCatalog,
       ensureRegisteredSession: async (credential) => credential,
       markSessionAuthenticationRequired: async () => {},
       metadata: { deviceName: 'Test CLI' },
@@ -668,7 +704,7 @@ describe('provider manager menus', () => {
     const emptyConfig: CliConfig = {
       version: 3,
       activeProviderId: null,
-      thunderbolt: { defaultModelId: bundledManagedCatalog.defaultModelId },
+      thunderbolt: { defaultModelId: managedCatalog.defaultModelId },
       providers: [],
     }
     const persistenceFailure = new Error('disk full')
@@ -688,7 +724,7 @@ describe('provider manager menus', () => {
           throw new Error('unexpected logout')
         },
       },
-      loadCatalog: async () => bundledManagedCatalog,
+      loadCatalog: async () => managedCatalog,
       ensureRegisteredSession: async (credential) => credential,
       markSessionAuthenticationRequired: async () => {},
       metadata: { deviceName: 'Test CLI' },
