@@ -54,12 +54,12 @@ describe('OnboardingPrivacyStep', () => {
       renderComponent()
 
       expect(screen.getByText(/Welcome to/)).toBeInTheDocument()
-      // The macro mock renders the English SOURCE (see src/testing-library.ts), and
-      // the source says "Thunderbolt" — the fork's brand lives in the catalogs,
-      // rewritten by dev-local/i18n-brand-swap.mjs. Asserting /Volt/ here could
-      // never pass; that the brand is actually swapped is covered by
-      // src/i18n/brand.test.ts.
-      expect(screen.getByText(/Thunderbolt/)).toBeInTheDocument()
+      // The macro mock renders the English SOURCE (see src/testing-library.ts),
+      // but the source here is `Welcome to {appName}!` — a placeholder, not a
+      // brand — so what lands is whatever `useAppName()` resolves, and with no
+      // operator branding in the store that is the fork's own default. The
+      // catalog side of the brand stays covered by src/i18n/brand.test.ts.
+      expect(screen.getByText(new RegExp('Вольт'))).toBeInTheDocument()
       expect(screen.getByText(/Your private AI assistant/)).toBeInTheDocument()
     })
 
