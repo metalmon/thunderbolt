@@ -24,6 +24,7 @@ import {
 import { customRowToAgent, systemRowToAgent } from '@/dal/agents'
 import { isHostedAgent } from '@/defaults/agents'
 import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { getOrCreateChatThread, updateChatThread } from '@/dal/chat-threads'
 import { selectBuiltInAgentEnabled, useConfigStore } from '@/api/config-store'
 import { markChatReady } from '@/lib/init-timing'
@@ -231,7 +232,12 @@ export const useHydrateChatStore = ({
     // common case; while it is still empty (this route's effect can run before the
     // app shell's) fall back to asking the auth client, so a thread never silently
     // resolves to the built-in agent just because hydration won the race.
-    const ownerId = getCurrentAgentOwner() ?? (await authClient?.getSession())?.data?.user?.id ?? null
+    // ⚠ And never through the auth client in local mode: there is no account to
+    // ask about, the request goes to a backend this install does not have, and
+    // its rejection took the whole hydration down — a working sidebar beside an
+    // empty chat pane, which is exactly what a user reported on 0.1.148.
+    const ownerId =
+      getCurrentAgentOwner() ?? (isLocalMode() ? null : ((await authClient?.getSession())?.data?.user?.id ?? null))
 
     const [settings, defaultModel, chatThread, initialMessages, models, triggerData, customAgentRows, systemAgentRows] =
       await Promise.all([

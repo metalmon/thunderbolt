@@ -22,6 +22,7 @@ import { getModel, updateModel } from '@/dal/models'
 import { saveMessagesWithContextUpdate } from '@/dal/chat-messages'
 import type { ThunderboltUIMessage } from '@/types'
 import { createElement, type ReactNode } from 'react'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { BrowserRouter, MemoryRouter, useLocation } from 'react-router'
 import { MCPProvider } from '@/lib/mcp-provider'
 import { DatabaseProvider } from '@/contexts/database-context'
@@ -225,6 +226,56 @@ describe('useHydrateChatStore', () => {
         await result.current.hydrateChatStore()
       })
 
+      expect(result.current.isReady).toBe(true)
+    })
+  })
+
+  // Fork: in local mode there is no account and no backend, so the owner lookup
+  // must never reach the auth client. It did, and the rejection took the whole
+  // hydration down: a working sidebar beside an empty chat pane. Reported on
+  // 0.1.148, after the user chose "Continue without a server".
+  describe('local mode', () => {
+    afterEach(() => {
+      useLocalSettingsStore.setState({ operationMode: 'server' })
+    })
+
+    it('hydrates without asking a server that is not there', async () => {
+      useLocalSettingsStore.setState({ operationMode: 'local' })
+      let asked = 0
+      const offlineAuthClient = createMockAuthClient({
+        session: null,
+        getSession: async () => {
+          asked += 1
+          throw new TypeError('Failed to fetch')
+        },
+      })
+      const OfflineWrapper = ({ children }: { children: ReactNode }) => {
+        const queryWrapper = createQueryTestWrapper()
+        return createElement(
+          BrowserRouter,
+          null,
+          createElement(
+            queryWrapper,
+            null,
+            createElement(AuthProvider, {
+              authClient: offlineAuthClient,
+              children: createElement(MCPProvider, null, children),
+            }),
+          ),
+        )
+      }
+
+      const systemModelId = await createSystemModel()
+      const threadId = await createTestThread(systemModelId, 'Offline thread')
+      const { result } = renderHook(() => useHydrateChatStore({ id: threadId, isNew: false }), {
+        wrapper: OfflineWrapper,
+      })
+
+      await act(async () => {
+        await result.current.hydrateChatStore()
+      })
+
+      expect(asked).toBe(0)
       expect(result.current.isReady).toBe(true)
     })
   })

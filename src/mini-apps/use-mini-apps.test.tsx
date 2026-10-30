@@ -23,6 +23,7 @@ import type { ReactNode } from 'react'
 import { HttpClientProvider } from '@/contexts/http-client-context'
 import { createAuthenticatedClient, type HttpClient } from '@/lib/http'
 import { getClock } from '@/testing-library'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { registryTimeoutMs, resetMiniAppsForTesting, useMiniApps } from './use-mini-apps'
 
 const app = {
@@ -81,6 +82,25 @@ beforeEach(resetMiniAppsForTesting)
 afterEach(resetMiniAppsForTesting)
 
 describe('useMiniApps', () => {
+  // Fork: the registry is our backend's, so an install without one runs no
+  // apps. Asking anyway spends a request per boot on a host that is not there.
+  it('asks nothing in local mode and settles on the empty registry', async () => {
+    useLocalSettingsStore.setState({ operationMode: 'local' })
+    let asked = 0
+    const { result } = setup(
+      clientWith(() => {
+        asked += 1
+        return Response.json({ apps: [app] })
+      }),
+    )
+
+    await settle()
+
+    expect(asked).toBe(0)
+    expect(result.current).toMatchObject({ loading: false, failed: false, apps: [] })
+    useLocalSettingsStore.setState({ operationMode: 'server' })
+  })
+
   it('starts loading, with nothing to show yet', () => {
     const { result } = setup(clientWith(() => Response.json({ apps: [] })))
 
