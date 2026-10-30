@@ -23,6 +23,10 @@ import { enterLocalMode, enterServerMode, type SwitchModeDeps } from './switch-m
 import { markConfigAbsent } from './config-absent'
 import { readRepoFile } from '../testing/source-file'
 
+/** Counts the reload a mode switch must ask for; the real one would tear down
+ *  the test runner's window. */
+let reloads = 0
+
 /** The real effects, except that sync is written here rather than through a
  *  module another suite may already have replaced. */
 const testDeps = (): SwitchModeDeps => ({
@@ -32,9 +36,13 @@ const testDeps = (): SwitchModeDeps => ({
   clearAuthToken,
   clearCachedSession,
   markConfigAbsent,
+  reload: () => {
+    reloads += 1
+  },
 })
 
 beforeEach(() => {
+  reloads = 0
   useLocalSettingsStore.setState({ operationMode: 'server', syncEnabled: true })
   setAuthToken('a-real-token')
   setCachedSession({ user: { id: 'u1' }, session: { expiresAt: new Date(Date.now() + 86_400_000) } })
@@ -92,6 +100,15 @@ describe('enterLocalMode', () => {
 
     expect(order).toEqual(['sync', 'mode'])
   })
+
+  // Every reader of the mode reads it at boot, so without this the app keeps
+  // running as the deployment it just left. Shipped once without it: the
+  // cold-start escape painted an empty window instead of autonomous mode.
+  it('reloads so the new mode is read at boot', async () => {
+    await enterLocalMode(testDeps())
+
+    expect(reloads).toBe(1)
+  })
 })
 
 describe('enterServerMode', () => {
@@ -100,10 +117,11 @@ describe('enterServerMode', () => {
   // under whoever signs in first.
   it('does not enable sync', () => {
     useLocalSettingsStore.setState({ operationMode: 'local', syncEnabled: false })
-    enterServerMode()
+    enterServerMode(testDeps())
 
     expect(useLocalSettingsStore.getState().operationMode).toBe('server')
     expect(useLocalSettingsStore.getState().syncEnabled).toBe(false)
+    expect(reloads).toBe(1)
   })
 })
 
