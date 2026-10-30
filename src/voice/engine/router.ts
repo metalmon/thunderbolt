@@ -24,6 +24,8 @@ import { createOpenAiCompatibleEngine } from './openai-compatible-engine'
 import type { RealtimeEngine } from './realtime-types'
 import { createThunderboltEngine } from './thunderbolt-engine'
 import type { VoiceEngine } from './types'
+import { isLocalMode } from '@/fork/local-mode/mode'
+import { VoiceEngineUnavailableError } from '@/fork/voice/engine-unavailable'
 
 export type VoiceEngineResult = { kind: 'pipeline'; engine: VoiceEngine } | { kind: 'realtime'; engine: RealtimeEngine }
 
@@ -111,6 +113,12 @@ export const createVoiceEngine = (
     return { kind: 'pipeline', engine: createOpenAiCompatibleEngine(config) }
   }
 
+  // Fork: the hosted engine is `/v1/audio/*` on OUR backend, so on an
+  // autonomous install this fallback used to hand back an engine that could
+  // only fail. Say so instead — the user has simply not named an endpoint yet.
+  if (isLocalMode()) {
+    throw new VoiceEngineUnavailableError()
+  }
   return { kind: 'pipeline', engine: createThunderboltEngine() }
 }
 
