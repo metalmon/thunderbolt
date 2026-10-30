@@ -300,7 +300,15 @@ export const useVoiceSession = () => {
       // connection failed')`; give it the actionable key message. Mic
       // failures (DOMException) fall through to `toVoiceErrorMessage`.
       const { toVoiceErrorMessage } = await import('@/voice/voice-error')
+      const { isVoiceEngineUnavailable } = await import('@/fork/voice/engine-unavailable')
       const isConnectFailure = error instanceof Error && /websocket/i.test(error.message)
+      // Fork: an autonomous install has no hosted voice lane, so this is not a
+      // failure to report but a setting to fill in. Said in the user's language,
+      // unlike its untranslated siblings in `voice-error.ts`.
+      if (isVoiceEngineUnavailable(error)) {
+        patch({ error: t`Voice needs your own speech server. Add its address in Settings → Voice.` })
+        return
+      }
       patch({
         error: isConnectFailure
           ? t`Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice.`
