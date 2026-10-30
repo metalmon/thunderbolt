@@ -200,7 +200,12 @@ export const ServerSection = () => {
                   )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
+              {/* ⚠ `sm:flex-wrap`: the shared footer is a non-wrapping row, so
+                  three buttons whose labels are longer than their English
+                  sources push the row past the dialog — which widens the whole
+                  content box and clips the description with it. Reported on the
+                  Russian build, where every label is longer. */}
+              <AlertDialogFooter className="sm:flex-wrap">
                 <AlertDialogCancel>
                   <Trans>Cancel</Trans>
                 </AlertDialogCancel>
