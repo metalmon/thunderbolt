@@ -90,15 +90,26 @@ type ConfigStore = {
    *  upgrade blocker. Optional — the response may omit it. */
   forceUpgradeMinVersion?: string
   setForceUpgrade: (minVersion?: string) => void
+  /** Fork. Transient (never persisted): false once a `/config` fetch has FAILED
+   *  this session.
+   *
+   *  ⚠ A failed fetch is not the same as an empty config. The cached `config`
+   *  from a previous session survives and keeps answering `auth.mode`, so the
+   *  app would go on believing it is an SSO deployment and send the user to an
+   *  identity provider behind a server that is not there. This flag is what
+   *  lets the boot path say "the server did not answer" instead. */
+  configReachable: boolean
+  setConfigUnreachable: () => void
 }
 
-const initialState = { config: {} as AppConfig, configLoaded: false }
+const initialState = { config: {} as AppConfig, configLoaded: false, configReachable: true }
 
 export const useConfigStore = create<ConfigStore>()(
   persist(
     (set) => ({
       ...initialState,
-      updateConfig: (config) => set({ config, configLoaded: true }),
+      updateConfig: (config) => set({ config, configLoaded: true, configReachable: true }),
+      setConfigUnreachable: () => set({ configLoaded: true, configReachable: false }),
       setForceUpgrade: (minVersion) => set({ forceUpgrade: true, forceUpgradeMinVersion: minVersion }),
     }),
     // Persist only `config` — the transient upgrade flag must not survive a
