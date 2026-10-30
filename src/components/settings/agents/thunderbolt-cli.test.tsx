@@ -135,23 +135,28 @@ describe('ThunderboltCliDetail', () => {
     expect(screen.getByText(hint)).toBeInTheDocument()
   })
 
-  it('shows the error message and the manual build fallback for an unpublished release', async () => {
-    const error: CliInstallError = { kind: 'notPublished', message: 'This release has no prebuilt CLI yet.' }
+  // ⚠ Fork: the message shown is OURS, keyed on the kind. The Rust side's own
+  // string is English and names the upstream product — a user read "This
+  // release has no prebuilt Thunderbolt CLI yet" in a Russian app.
+  it('shows our own sentence and the manual build fallback for an unpublished release', async () => {
+    const error: CliInstallError = { kind: 'notPublished', message: 'RAW RUST DETAIL' }
     renderDetail({ install: () => Promise.reject(error) })
 
     await clickInstall()
 
-    expect(screen.getByText('This release has no prebuilt CLI yet.')).toBeInTheDocument()
+    expect(screen.queryByText('RAW RUST DETAIL')).not.toBeInTheDocument()
+    expect(screen.getByText(/no CLI to download yet/i)).toBeInTheDocument()
     expect(screen.getByText('cd cli && bun install && bun run build && ./install.sh')).toBeInTheDocument()
   })
 
   it('shows the error without the build fallback for an operational failure', async () => {
-    const error: CliInstallError = { kind: 'checksumMismatch', message: 'Checksum mismatch. Install aborted.' }
+    const error: CliInstallError = { kind: 'checksumMismatch', message: 'RAW RUST DETAIL' }
     renderDetail({ install: () => Promise.reject(error) })
 
     await clickInstall()
 
-    expect(screen.getByText('Checksum mismatch. Install aborted.')).toBeInTheDocument()
+    expect(screen.queryByText('RAW RUST DETAIL')).not.toBeInTheDocument()
+    expect(screen.getByText(/did not match its checksum/i)).toBeInTheDocument()
     expect(screen.queryByText(/build it from source/i)).not.toBeInTheDocument()
   })
 })
