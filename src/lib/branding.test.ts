@@ -262,8 +262,8 @@ describe('useBrandingLinks', () => {
 })
 
 describe('selectAppName', () => {
-  it('defaults to Thunderbolt', () => {
-    expect(selectAppName({})).toBe('Thunderbolt')
+  it('defaults to the fork name', () => {
+    expect(selectAppName({})).toBe('Вольт')
     expect(selectAppName({ branding: { appName: 'Acme AI' } })).toBe('Acme AI')
   })
 })
@@ -281,7 +281,7 @@ describe('applyBranding', () => {
 
     applyBranding(undefined)
     expect(document.getElementById('branding')?.textContent).toBe('')
-    expect(document.title).toBe('Thunderbolt')
+    expect(document.title).toBe('Вольт')
     expect(document.querySelectorAll('#branding')).toHaveLength(1)
   })
 })
