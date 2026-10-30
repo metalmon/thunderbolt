@@ -63,6 +63,7 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   // Fork: subscribed, not read once — the fetch resolves after the first render,
   // and the gate must re-decide when it does.
   const configReachable = useConfigStore((state) => state.configReachable)
+  const configLoaded = useConfigStore((state) => state.configLoaded)
   const isAnonymousAllowed = isAnonymousAuthEnabled() && !isSsoMode() && isWaitlistBypassed() && !localMode
 
   // The anonymous sign-in attempt, if any. A ref because a double click on retry lands before the
@@ -194,6 +195,23 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
 
   if (isAuthenticated) {
     return { status: 'allowed' }
+  }
+
+  // Fork: ⚠⚠ WAIT for `/config` to answer before choosing an auth path.
+  //
+  // WHICH path applies — SSO, anonymous, waitlist — is read from the config,
+  // and until the fetch lands that read comes from LAST SESSION'S CACHE. An
+  // install whose server is gone still has a cache saying "this is an SSO
+  // deployment", so the gate redirected to the identity provider on the first
+  // render, seconds before the fetch could fail and say otherwise. The
+  // reachability check below never got a chance to run.
+  //
+  // `configLoaded` flips on BOTH success and failure (`fetchConfig` sets it in
+  // its catch), and the request is bounded by a 5s timeout, so this waits for a
+  // bounded time and never stalls. Local mode returns `allowed` above and never
+  // reaches here, which is why skipping the fetch there is safe.
+  if (!configLoaded) {
+    return { status: 'loading' }
   }
 
   // Fork: BEFORE any sign-in path, not inside one.
