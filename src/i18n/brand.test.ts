@@ -39,8 +39,14 @@ const translationOf = (po: string, msgid: string): string | null => {
 describe('the product name', () => {
   it('comes from the deployment, not from a catalog', () => {
     expect(resolveAppName({ appName: 'Вольт' })).toBe('Вольт')
-    // No branding configured: upstream's own default, never a fork string.
-    expect(resolveAppName(undefined)).toBe('Thunderbolt')
+    // No branding configured — and for the autonomous product that is the
+    // NORMAL state, not an edge case: an install with no server never receives
+    // a `/config` at all. Upstream's default was kept here until a real install
+    // showed what it means — our client introducing itself as Thunderbolt on
+    // the first screen the user sees. The catalogs still carry no fork string
+    // (the next two cases pin that); this one value is the exception, and it
+    // lives in `shared/branding.ts` rather than in a message.
+    expect(resolveAppName(undefined)).toBe('Вольт')
   })
 
   // The standalone brand used to be `<Trans>Thunderbolt</Trans>` with the fork's
