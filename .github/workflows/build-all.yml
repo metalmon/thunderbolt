@@ -51,8 +51,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Fork: the ONE gate this workflow runs before spending four build legs.
+  #
+  # ⚠ `bun run i18n:check` lives in ci.yml, which this fork never runs: we push
+  # patch branches directly and open no pull requests, so nothing was checking
+  # the catalogs at all. 0.1.148 shipped a screen whose two newest strings had
+  # never been extracted, and the user read `ofEZTJ` and `fGqXpY` where the
+  # buttons should have been — Lingui renders the message id when the catalog
+  # has no entry. It takes under a minute; a release must not outrun it.
+  gates:
+    name: Fork gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.14
+
+      - run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Catalogs are extracted and compiled
+        run: bun run i18n:check
+
+      - name: Type check
+        run: bun run type-check
+
   desktop:
     name: Desktop — ${{ matrix.build_name }}
+    needs: gates
     strategy:
       fail-fast: false
       matrix:
@@ -177,6 +207,7 @@ jobs:
 
   android:
     name: Android APK
+    needs: gates
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
