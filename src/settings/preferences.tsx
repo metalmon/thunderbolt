@@ -1103,9 +1103,16 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
 
           {isFullUser && syncEnabled && <ChangeRecoveryKeySection />}
 
-          {isAuthenticated && (
+          {/* Fork: `|| localMode` because none of what follows needs a backend.
+              Upstream gates export/import on being signed in, and an autonomous
+              install never is — so the whole card rendered EMPTY, header and
+              all, on the one product where a local export is the only backup
+              there is. Reported from a real install. */}
+          {(isAuthenticated || localMode) && (
             <>
-              <div className="h-px bg-border -mx-6" />
+              {/* No rule above it in local mode — the sync row is the thing it
+                  would separate, and that row is gone. */}
+              {!localMode && <div className="h-px bg-border -mx-6" />}
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="export-data-button" className="text-sm font-medium">
@@ -1177,7 +1184,11 @@ const PreferencesSettingsPage = ({ isStandalone = isTauri }: { isStandalone?: ()
             </>
           )}
 
-          {isAnonymous && (
+          {/* Fork: same reason, and this one more sharply — wiping the local
+              database is a local act by definition, and in local mode it is the
+              ONLY way to start over. `isAnonymous` means an anonymous SESSION,
+              which an install with no server never has. */}
+          {(isAnonymous || localMode) && (
             <>
               <div className="h-px bg-border -mx-6" />
 
