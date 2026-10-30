@@ -7,6 +7,28 @@ import { pinnedOrgEscrowPublicKey } from './org-escrow'
 
 const env = import.meta.env as Record<string, unknown>
 
+/**
+ * ⚠ Fork: restoring by ASSIGNMENT is what broke the suite.
+ *
+ * Under bun `import.meta.env` is `process.env`, and assigning `undefined` to it
+ * stores the STRING "undefined". That value then outlives this file — it is
+ * process state, not module state — so every later test saw a pinned escrow key
+ * of `"undefined"`, `buildOrgEnvelope` believed this build escrows, and
+ * `atob("undefined")` threw `InvalidCharacterError`. It cost 37 failures in
+ * `src/services/encryption.test.ts` that have nothing to do with encryption,
+ * and the count moved between runs because `--randomize` decides whether this
+ * file runs first.
+ *
+ * `delete` is the only way to put the variable back to genuinely unset.
+ */
+const restore = (value: unknown) => {
+  if (value === undefined) {
+    delete env.VITE_ORG_ESCROW_PUBLIC_KEY
+    return
+  }
+  env.VITE_ORG_ESCROW_PUBLIC_KEY = value
+}
+
 describe('pinnedOrgEscrowPublicKey', () => {
   let saved: unknown
 
@@ -15,7 +37,7 @@ describe('pinnedOrgEscrowPublicKey', () => {
   })
 
   afterEach(() => {
-    env.VITE_ORG_ESCROW_PUBLIC_KEY = saved
+    restore(saved)
   })
 
   it('returns the pinned key when set', () => {
@@ -32,7 +54,7 @@ describe('pinnedOrgEscrowPublicKey', () => {
   // empty pin: `buildOrgEnvelope` branches on undefined and would otherwise hand
   // an empty string to importOrgPublicKey.
   it('returns undefined when unset', () => {
-    env.VITE_ORG_ESCROW_PUBLIC_KEY = undefined
+    restore(undefined)
     expect(pinnedOrgEscrowPublicKey()).toBeUndefined()
   })
 
