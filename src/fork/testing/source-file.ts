@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
 
 /**
  * Reads a source file by its path from the repository root, for the handful of
@@ -19,3 +19,26 @@ import { join } from 'node:path'
  */
 export const readRepoFile = (repoRelativePath: string): string =>
   readFileSync(join(import.meta.dir, '..', '..', '..', repoRelativePath), 'utf8')
+
+const repoRoot = join(import.meta.dir, '..', '..', '..')
+
+/**
+ * Every source file under `repoRelativeDir`, as repository-relative paths with
+ * forward slashes.
+ *
+ * For the one test that has to look at the WHOLE tree rather than a named file:
+ * the autonomous-mode inventory, which fails when a new module starts talking
+ * to our backend without saying what local mode does about it. Walking is the
+ * point — an inventory you have to remember to update is the thing that failed.
+ */
+export const listRepoFiles = (repoRelativeDir: string, extensions = ['.ts', '.tsx']): string[] => {
+  const walk = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) {
+        return walk(full)
+      }
+      return extensions.some((extension) => entry.name.endsWith(extension)) ? [full] : []
+    })
+  return walk(join(repoRoot, repoRelativeDir)).map((file) => relative(repoRoot, file).split(sep).join('/'))
+}
