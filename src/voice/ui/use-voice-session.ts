@@ -14,6 +14,7 @@ import { useDatabase } from '@/contexts'
 import { builtInAgent } from '@/defaults/agents'
 import { getSettings } from '@/dal'
 import { isDirectVoiceKeyMissing } from '@/fork/voice/direct-voice-gate'
+import { isVoiceEngineUnavailable } from '@/fork/voice/engine-unavailable'
 import { getActiveLocale } from '@/i18n/active-locale'
 import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { showSignInModalEvent } from '@/hooks/use-credential-events'
@@ -30,6 +31,9 @@ import type { Chat } from '@ai-sdk/react'
 import { i18n, type MessageDescriptor } from '@lingui/core'
 import { msg } from '@lingui/core/macro'
 import { useEffect, useMemo, useReducer, useRef } from 'react'
+
+/** Fork: what an install with no speech server is told, instead of a raw engine failure. */
+const voiceEngineMissingMessage = msg`Voice needs your own speech server. Add its address in Settings → Voice.`
 
 /** Thrown by a voice send the private auto-run hold refuses; `toVoiceOverlayError` translates it. */
 class PrivateChatHeldError extends Error {
@@ -186,10 +190,15 @@ export const useVoiceSession = () => {
         onState: (state) => dispatch({ type: 'STATE', state }),
         onError: (error, terminal) => {
           console.error('[voice]', error)
-          dispatch({
-            type: terminal ? 'START_FAILED' : 'ERROR',
-            error: error instanceof PrivateChatHeldError ? toVoiceOverlayError(error) : toVoiceErrorMessage(error),
-          })
+          // Fork: an autonomous install has no hosted voice lane, so this is not a
+          // failure to report but a setting to fill in — said in the user's language,
+          // unlike its untranslated siblings in `voice-error.ts`.
+          const message = isVoiceEngineUnavailable(error)
+            ? i18n._(voiceEngineMissingMessage)
+            : error instanceof PrivateChatHeldError
+              ? toVoiceOverlayError(error)
+              : toVoiceErrorMessage(error)
+          dispatch({ type: terminal ? 'START_FAILED' : 'ERROR', error: message })
         },
         onLevel: (level) => {
           levelRef.current = level
