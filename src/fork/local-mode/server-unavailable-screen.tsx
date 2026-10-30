@@ -7,6 +7,7 @@ import { AppWordmark } from '@/components/app-wordmark'
 import { Button } from '@/components/ui/button'
 import { useAppName } from '@/lib/branding-selectors'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
+import { enterLocalMode } from './switch-mode'
 
 type ServerUnavailableScreenProps = {
   /** Try the sign-in again. The gate owns the attempt; this only triggers it. */
@@ -50,9 +51,26 @@ export const ServerUnavailableScreen = ({ onRetry }: ServerUnavailableScreenProp
           <p className="mt-2 break-all font-mono text-[length:var(--font-size-sm)] text-muted-foreground">{cloudUrl}</p>
         </div>
 
-        <Button variant="secondary" onClick={onRetry}>
-          <Trans>Try again</Trans>
-        </Button>
+        <div className="flex flex-col items-center gap-3">
+          <Button variant="secondary" onClick={onRetry}>
+            <Trans>Try again</Trans>
+          </Button>
+
+          {/* ⚠ The ONLY way into autonomous operation from a cold start.
+              Everything else that switches modes lives in Settings, which is on
+              the other side of this gate — so without this button an install
+              pointed at a server that is gone cannot be used at all, and the
+              screen that says so is also the screen that traps the user. */}
+          <Button variant="ghost" onClick={() => void enterLocalMode()}>
+            <Trans>Continue without a server</Trans>
+          </Button>
+          <p className="max-w-sm text-[length:var(--font-size-xs)] text-muted-foreground">
+            <Trans>
+              {appName} will run on this device only: your own models and keys, no account, nothing synced. You can
+              connect a server later in Settings.
+            </Trans>
+          </p>
+        </div>
       </div>
     </div>
   )
