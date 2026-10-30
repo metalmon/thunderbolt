@@ -19,6 +19,7 @@ import { configs as microsoftToolConfigs } from '@/integrations/microsoft/tools'
 import { configs as proToolConfigs } from '@/integrations/thunderbolt-pro/tools'
 import { getProStatus } from '@/integrations/thunderbolt-pro/utils'
 import { forkToolDisplayDescription } from '@/fork/integrations/tool-display-descriptions'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import type { OAuthProvider } from '@/lib/auth'
 import type { ConnectionsPageAction } from './page-state'
 import type { Integration } from './types'
@@ -38,6 +39,7 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
   const integrationSettings = useSettings({ integrations_pro_is_enabled: false })
   const { data: status, isLoading: isStatusLoading } = useIntegrationStatus()
   const { data: proStatus } = useQuery({ queryKey: ['proStatus'], queryFn: getProStatus })
+  const localMode = useIsLocalMode()
   const areIntegrationsReady =
     !integrationSettings.integrationsProIsEnabled.isLoading && !isStatusLoading && proStatus !== undefined
 
@@ -77,10 +79,20 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
     // TEMP (fork/hide-integrations): hide Google & Microsoft until the backend OAuth
     // creds (GOOGLE_/MICROSOFT_CLIENT_ID/SECRET) are configured — otherwise connecting
     // them just surfaces "OAuth is not configured". Drop this filter to re-enable them.
+    //
+    // ⚠ The Pro clause below is NOT temporary and must survive that removal.
+    // Every Pro feature is a call to OUR backend, so an autonomous install has
+    // none of them — `hasProAccess` already refuses them to the model, but the
+    // row was still listed here, reading `isProUser` straight from the
+    // hardcoded `getProStatus`. The user saw "Volt Pro", connected and switched
+    // on, in an install with no server at all.
     return allIntegrations.filter(
-      (integration) => integration.provider !== 'google' && integration.provider !== 'microsoft',
+      (integration) =>
+        integration.provider !== 'google' &&
+        integration.provider !== 'microsoft' &&
+        !(localMode && integration.provider === 'thunderbolt-pro'),
     )
-  }, [integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status, t])
+  }, [integrationSettings.integrationsProIsEnabled.value, localMode, proStatus?.isProUser, status, t])
 
   const toolConfigsByProvider: Record<Integration['provider'], { name: string; description: string }[]> = {
     'thunderbolt-pro': proToolConfigs,
