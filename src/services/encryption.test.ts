@@ -900,7 +900,7 @@ describe('encryption service (v2)', () => {
     const makeAK = () => generateAK(true)
 
     it('buildOrgEnvelope escrows nothing when this build pins no key', async () => {
-      env.VITE_ORG_ESCROW_PUBLIC_KEY = undefined
+      delete env.VITE_ORG_ESCROW_PUBLIC_KEY
       expect(await buildOrgEnvelope(await makeAK())).toBeUndefined()
     })
 
@@ -914,7 +914,7 @@ describe('encryption service (v2)', () => {
     it('completeFirstDeviceSetup omits orgEnvelope when this build pins no key', async () => {
       const server = createFakeServer()
       await serveHostileOrgKey(server)
-      env.VITE_ORG_ESCROW_PUBLIC_KEY = undefined
+      delete env.VITE_ORG_ESCROW_PUBLIC_KEY
       storedKeyPair = await generateFullKeyPair()
 
       await completeFirstDeviceSetup(clientFor(server))

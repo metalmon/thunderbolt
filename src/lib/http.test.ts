@@ -311,7 +311,7 @@ describe('createAuthenticatedClient', () => {
     })
 
     it('omits X-App-Version when VITE_APP_VERSION is unset', async () => {
-      env.VITE_APP_VERSION = undefined
+      delete env.VITE_APP_VERSION
       const fetch = mockFetch()
       const client = createAuthenticatedClient('https://api.example.com', () => 'app-token', { fetch })
 
