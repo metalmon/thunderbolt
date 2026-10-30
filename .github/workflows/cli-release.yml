@@ -76,18 +76,18 @@ jobs:
             target: win32-x64
             bun_target: bun-windows-x64
     runs-on: ${{ matrix.os }}
-    # Fork: 30, not 15 — and the extra time is for WINDOWS, not slack.
+    # Fork: 20, not 15 — modest headroom for the Windows runner's slower
+    # checkout, install and `--compile` step. Nothing here is per-test slack.
     #
-    # Importing the Pi package costs ~30s per test file on Windows against ~3s
-    # for the whole suite on Linux, and the suite is 62 files. The three fast
-    # legs finish in two minutes; the Windows leg was cancelled at 15.2 minutes
-    # MID-TEST, which reads in the UI exactly like a failure and took the whole
-    # release down with it — the publish job gates on every leg.
-    #
-    # ⚠ Do not trim this back because "the other legs finish in two minutes".
-    # That is the symptom, not the argument: the difference is the platform, and
-    # a timeout that fits three of four platforms is a timeout that fails.
-    timeout-minutes: 30
+    # ⚠ Read this before raising it again. The Windows leg was cancelled twice,
+    # at 15.2 and then at 30.2 minutes, each time stopping dead mid-suite with
+    # no further output — and both times that looked like a platform needing
+    # more time. It was not: five test files HUNG, because on Windows a lone
+    # `AbortSignal.timeout` timer does not keep Bun's event loop alive (fixed in
+    # `cli/src/fork/test-event-loop.ts`). The tell is that the leg dies at
+    # whatever number you set. A job that always uses its whole budget is
+    # hanging, not working — raising the budget only buys a longer wait.
+    timeout-minutes: 20
     # Fork: one shell for every leg. The steps below are POSIX (`if [ -z ... ]`),
     # and the Windows runner would otherwise read them as PowerShell. Git Bash
     # ships on the Windows image, so this keeps all three legs byte-identical
