@@ -220,7 +220,17 @@ export const toPublicBranding = (
 const nameMaxLength = 60
 
 /** The name the app shows when the operator sets none. */
-const defaultAppName = 'Thunderbolt'
+// Fork: the name a build carries when NO operator branding has arrived.
+//
+// ⚠ That is not an edge case here — it is the autonomous product's normal
+// state. The name comes from `/config`, so an install with no server (or one
+// whose server is down, before any config has been cached) resolves this
+// fallback, and upstream's value made our own client introduce itself as
+// Thunderbolt on its very first screen. Reported from a real install, 0.1.148.
+//
+// Cyrillic on purpose: this is the DISPLAYED name. The machine-readable one
+// stays ASCII `Volt` (`productName` in tauri.conf.json, which must).
+const defaultAppName = 'Вольт'
 
 /**
  * The deployment's app name: the operator's, else Thunderbolt.
