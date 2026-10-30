@@ -2797,6 +2797,10 @@ msgstr "Пока нет чатов."
 msgid "No chats yet. Anything you ask beside this app shows up here."
 msgstr "Пока нет чатов. Всё, что вы спросите рядом с этим приложением, появится здесь."
 
+#: src/lib/cli-install.ts
+msgid "No CLI is published for this platform yet. You can build it from source."
+msgstr "Для этой платформы готового CLI пока нет. Его можно собрать из исходных текстов."
+
 #: src/settings/devices.tsx
 msgid "No devices yet. Sign in with sync to see devices here."
 msgstr "Устройств пока нет. Войдите с синхронизацией, чтобы увидеть их здесь."
@@ -4378,6 +4382,18 @@ msgstr "Устройство потеряло доступ, но ключ акк
 msgid "The device will be signed out and lose access to your synced data. Its local copy is cleared the next time it connects; a device that never comes back online keeps what is already on it. Your recovery phrase keeps working."
 msgstr "Устройство выйдет из учётной записи и потеряет доступ к синхронизированным данным. Его локальная копия будет очищена при следующем подключении; устройство, которое больше не выйдет в сеть, сохранит то, что на нём уже есть. Фраза восстановления продолжит работать."
 
+#: src/lib/cli-install.ts
+msgid "The download failed. Check the connection to the release server and try again."
+msgstr "Загрузка не удалась. Проверьте связь с сервером выпусков и повторите."
+
+#: src/lib/cli-install.ts
+msgid "The downloaded file did not match its checksum, so nothing was installed. Try again."
+msgstr "Контрольная сумма загруженного файла не совпала, поэтому ничего не установлено. Повторите попытку."
+
+#: src/lib/cli-install.ts
+msgid "The file downloaded but could not be installed. Check that the install directory is writable."
+msgstr "Файл загружен, но установить его не удалось. Проверьте, доступна ли папка установки для записи."
+
 #: src/components/chat/error-message.tsx
 msgid "The instructions from your skills or project are too long for this agent. Shorten a long skill or the project's instructions, then try again."
 msgstr "Инструкции из ваших навыков или проекта слишком длинные для этого агента. Сократите длинный навык или инструкции проекта и попробуйте снова."
@@ -4553,6 +4569,10 @@ msgstr "Этот приватный чат не выполнится на аге
 #: src/projects/project-form.tsx
 msgid "this project"
 msgstr "этот проект"
+
+#: src/lib/cli-install.ts
+msgid "This release has no CLI to download yet. You can build it from source."
+msgstr "В этом выпуске пока нечего скачивать. CLI можно собрать из исходных текстов."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "This removes the connection from {appName} only. Nothing on the remote server is changed."
