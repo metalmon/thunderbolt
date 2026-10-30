@@ -78,7 +78,7 @@ describe('RevokeDeviceDialog', () => {
 
     expect(screen.getByText('Revoke this CLI?')).toBeInTheDocument()
     expect(
-      screen.getByText('The CLI will be signed out and must sign in again before it can use your Thunderbolt account.'),
+      screen.getByText('The CLI will be signed out and must sign in again before it can use your Вольт account.'),
     ).toBeInTheDocument()
     expect(screen.queryByText(/local data|next sync/i)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Revoke' })).toBeInTheDocument()
