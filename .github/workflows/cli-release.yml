@@ -182,7 +182,13 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: volt-cli-${{ matrix.target }}
-          path: cli/dist/volt-cli-${{ matrix.target }}
+          # Fork: the trailing `*` is load-bearing. `bun build --compile` appends
+          # `.exe` on the Windows target, so the produced filename is NOT the
+          # asset slug — and `if-no-files-found: error` turns that into a failed
+          # leg that takes the whole release down. The slug stays suffix-free
+          # because it also names the artifact; `asset_name()` in cli_installer.rs
+          # adds `.exe` back when the app builds the download URL.
+          path: cli/dist/volt-cli-${{ matrix.target }}*
           if-no-files-found: error
           retention-days: 1
 
