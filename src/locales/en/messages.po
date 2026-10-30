@@ -5040,6 +5040,10 @@ msgid "Voice mode: {status}"
 msgstr "Voice mode: {status}"
 
 #: src/voice/ui/use-voice-session.ts
+msgid "Voice needs your own speech server. Add its address in Settings → Voice."
+msgstr "Voice needs your own speech server. Add its address in Settings → Voice."
+
+#: src/voice/ui/use-voice-session.ts
 msgid "Voice service error. Try again, or switch the provider in Settings → Voice."
 msgstr "Voice service error. Try again, or switch the provider in Settings → Voice."
 

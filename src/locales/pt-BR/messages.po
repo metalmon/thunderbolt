@@ -5056,6 +5056,10 @@ msgid "Voice mode: {status}"
 msgstr "Modo de voz: {status}"
 
 #: src/voice/ui/use-voice-session.ts
+msgid "Voice needs your own speech server. Add its address in Settings → Voice."
+msgstr ""
+
+#: src/voice/ui/use-voice-session.ts
 msgid "Voice service error. Try again, or switch the provider in Settings → Voice."
 msgstr ""
 
