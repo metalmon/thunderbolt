@@ -13,7 +13,7 @@ describe('builtInAgent', () => {
 
   it('carries the current app name, so a held reference follows a rename', () => {
     const held = builtInAgent
-    expect(held.name).toBe('Thunderbolt')
+    expect(held.name).toBe('Вольт')
 
     useConfigStore.setState({ config: { branding: { appName: 'Acme AI' } } })
     expect(held.name).toBe('Acme AI')
