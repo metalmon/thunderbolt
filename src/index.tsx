@@ -7,7 +7,8 @@ import ReactDOM from 'react-dom/client'
 import { App } from './app'
 
 import './index.css'
-import { activateLocale, getActiveLocale } from './i18n'
+import { activateLocale, getActiveLocale, readInitialLocale } from './i18n'
+import { loadSystemLocale } from './fork/i18n/system-locale'
 import './lib/embed' // keeps the ?embed=app marker read before render, even if Header is ever lazy-loaded
 import { installBranding } from './lib/branding'
 import { installFileDropNavigationPrevention } from './lib/file-drop-navigation'
@@ -53,6 +54,19 @@ markBundleEvaluated()
 const bootLocale = getActiveLocale()
 document.documentElement.lang = bootLocale
 void activateLocale(bootLocale)
+
+// Fork: the OS language can only be had over IPC, so it cannot take part in the
+// synchronous resolution above — re-resolve once it lands. Without it the
+// desktop app negotiates against `navigator.languages`, which on Windows is the
+// language the BINARY runs in (`en-US`), not the user's.
+void loadSystemLocale().then(() => {
+  const resolved = readInitialLocale()
+  if (resolved === getActiveLocale()) {
+    return
+  }
+  document.documentElement.lang = resolved
+  void activateLocale(resolved)
+})
 
 // After an update+relaunch, the WebView may restore a stale route (e.g. /waitlist
 // verify screen). Detect this and force a clean start at root.
