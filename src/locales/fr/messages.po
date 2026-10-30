@@ -68,6 +68,10 @@ msgstr "{agentName} n'accepte pas les pièces jointes. Retirez les fichiers join
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (hébergé, privé)"
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "{appName} CLI"
+msgstr ""
+
 #: src/fork/local-mode/server-unavailable-screen.tsx
 msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
 msgstr ""
@@ -91,6 +95,10 @@ msgstr "{appName} souhaite se connecter à {providerName} E-mail"
 #: src/widgets/connect-integration/widget.tsx
 msgid "{appName} wants to connect to {providerName} Email and Calendar"
 msgstr "{appName} souhaite se connecter à {providerName} E-mail et Agenda"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} will run on this device only: your own models and keys, no account, nothing synced. You can connect a server later in Settings."
+msgstr ""
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "{appName} will use it across the app. You can change it later in Preferences."
@@ -119,6 +127,14 @@ msgid_plural "# skills reference this. If you disable it, they may no longer res
 msgstr[0] "Une compétence y fait référence. Si vous le désactivez, cette compétence risque de ne plus être résolue."
 msgstr[1] "# compétences y font référence. Si vous le désactivez, elles risquent de ne plus être résolues."
 msgstr[2] "# compétences y font référence. Si vous le désactivez, elles risquent de ne plus être résolues."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to {target}. The change is permanent and affects every terminal you open from now on."
+msgstr ""
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to your PATH. The change is permanent and affects every terminal you open from now on."
+msgstr ""
 
 #. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
@@ -304,8 +320,8 @@ msgid "Add & Authorize"
 msgstr "Ajouter et autoriser"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
-msgstr "Ajoutez <0>~/.local/bin</0> à votre PATH, puis redémarrez votre shell :"
+#~ msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
+#~ msgstr "Ajoutez <0>~/.local/bin</0> à votre PATH, puis redémarrez votre shell :"
 
 #: src/tasks/index.tsx
 msgid "Add a new task…"
@@ -357,10 +373,18 @@ msgstr "Ajouter un modèle"
 msgid "Add Server"
 msgstr "Ajouter un serveur"
 
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add the CLI to your PATH?"
+msgstr ""
+
 #: src/components/chat/chat-add-menu.tsx
 #: src/skills/suggestion-chip.tsx
 msgid "Add to chat"
 msgstr "Ajouter à la conversation"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add to PATH"
+msgstr ""
 
 #: src/settings/passkeys.tsx
 #~ msgid "Add your first passkey"
@@ -382,6 +406,10 @@ msgstr ""
 #: src/settings/passkeys.tsx
 #~ msgid "Added {0}"
 #~ msgstr ""
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Added to your PATH. Open a new terminal to use it."
+msgstr ""
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -418,6 +446,10 @@ msgstr "Toutes les compétences sont épinglées"
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Allow once"
+msgstr ""
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Already on your PATH."
 msgstr ""
 
 #: src/components/chat/permission-dialog.tsx
@@ -1141,6 +1173,10 @@ msgstr "Fenêtre de contexte dépassée"
 #: src/waitlist/waitlist-page.tsx
 msgid "Continue"
 msgstr "Continuer"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Continue without a server"
+msgstr ""
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Copied"
@@ -3018,6 +3054,10 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Open {appName} CLI"
+msgstr ""
+
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
 msgstr "Ouvrez {appName} sur l'un de vos appareils de confiance et allez dans Paramètres → Appareils pour approuver cet appareil."
@@ -3084,8 +3124,8 @@ msgid "Open the store to check for updates."
 msgstr "Ouvrez la boutique pour rechercher des mises à jour."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Open Thunderbolt CLI"
-msgstr "Ouvrir la CLI Thunderbolt"
+#~ msgid "Open Thunderbolt CLI"
+#~ msgstr "Ouvrir la CLI Thunderbolt"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
@@ -3116,6 +3156,10 @@ msgstr ""
 #: src/waitlist/waitlist-page.tsx
 msgid "or"
 msgstr "ou"
+
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Or add it yourself:"
+msgstr ""
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"

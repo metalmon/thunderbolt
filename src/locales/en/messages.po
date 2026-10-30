@@ -66,6 +66,10 @@ msgstr "{agentName} can't take attachments. Remove the attached files to send."
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (hosted, private)"
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "{appName} CLI"
+msgstr "{appName} CLI"
+
 #: src/fork/local-mode/server-unavailable-screen.tsx
 msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
 msgstr "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
@@ -89,6 +93,10 @@ msgstr "{appName} wants to connect to {providerName} Email"
 #: src/widgets/connect-integration/widget.tsx
 msgid "{appName} wants to connect to {providerName} Email and Calendar"
 msgstr "{appName} wants to connect to {providerName} Email and Calendar"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} will run on this device only: your own models and keys, no account, nothing synced. You can connect a server later in Settings."
+msgstr "{appName} will run on this device only: your own models and keys, no account, nothing synced. You can connect a server later in Settings."
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "{appName} will use it across the app. You can change it later in Preferences."
@@ -114,6 +122,14 @@ msgid "One skill references this. If you disable it, that skill may no longer re
 msgid_plural "# skills reference this. If you disable it, they may no longer resolve."
 msgstr[0] "One skill references this. If you disable it, that skill may no longer resolve."
 msgstr[1] "# skills reference this. If you disable it, they may no longer resolve."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to {target}. The change is permanent and affects every terminal you open from now on."
+msgstr "{directory} will be added to {target}. The change is permanent and affects every terminal you open from now on."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to your PATH. The change is permanent and affects every terminal you open from now on."
+msgstr "{directory} will be added to your PATH. The change is permanent and affects every terminal you open from now on."
 
 #. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
@@ -292,8 +308,8 @@ msgid "Add & Authorize"
 msgstr "Add & Authorize"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
-msgstr "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
+#~ msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
+#~ msgstr "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
 
 #: src/tasks/index.tsx
 msgid "Add a new task…"
@@ -345,10 +361,18 @@ msgstr "Add Model"
 msgid "Add Server"
 msgstr "Add Server"
 
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add the CLI to your PATH?"
+msgstr "Add the CLI to your PATH?"
+
 #: src/components/chat/chat-add-menu.tsx
 #: src/skills/suggestion-chip.tsx
 msgid "Add to chat"
 msgstr "Add to chat"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add to PATH"
+msgstr "Add to PATH"
 
 #: src/settings/passkeys.tsx
 #~ msgid "Add your first passkey"
@@ -370,6 +394,10 @@ msgstr "Add your Gemini API key in Settings → Voice to use voice on this devic
 #: src/settings/passkeys.tsx
 #~ msgid "Added {0}"
 #~ msgstr "Added {0}"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Added to your PATH. Open a new terminal to use it."
+msgstr "Added to your PATH. Open a new terminal to use it."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -407,6 +435,10 @@ msgstr "All skills are pinned"
 #: src/components/chat/permission-dialog.tsx
 msgid "Allow once"
 msgstr "Allow once"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Already on your PATH."
+msgstr "Already on your PATH."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow"
@@ -1129,6 +1161,10 @@ msgstr "Context Window Exceeded"
 #: src/waitlist/waitlist-page.tsx
 msgid "Continue"
 msgstr "Continue"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Continue without a server"
+msgstr "Continue without a server"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Copied"
@@ -3006,6 +3042,10 @@ msgstr "Only https is allowed, or http for an address on this machine."
 msgid "Open"
 msgstr "Open"
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Open {appName} CLI"
+msgstr "Open {appName} CLI"
+
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
 msgstr "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
@@ -3072,8 +3112,8 @@ msgid "Open the store to check for updates."
 msgstr "Open the store to check for updates."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Open Thunderbolt CLI"
-msgstr "Open Volt CLI"
+#~ msgid "Open Thunderbolt CLI"
+#~ msgstr "Open Volt CLI"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
@@ -3104,6 +3144,10 @@ msgstr "Optional instructions appended to the assistant's system prompt to shape
 #: src/waitlist/waitlist-page.tsx
 msgid "or"
 msgstr "or"
+
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Or add it yourself:"
+msgstr "Or add it yourself:"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"
