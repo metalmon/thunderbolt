@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { HttpClient } from '@/lib/http'
+import { isLocalMode } from '@/fork/local-mode/mode'
+import { placeByIdDirect, searchPlacesDirect } from '@/fork/local-mode/direct-geocoding'
 import { baseLanguage } from '@shared/i18n/base-language'
 
 /** Shape the backend's `/locations` routes return. */
@@ -57,7 +59,12 @@ export const fetchLocations = async (
   query: string,
   language: string,
 ): Promise<LocationData[]> => {
-  const results = await httpClient.get('locations', { searchParams: { query, language } }).json<LocationResult[]>()
+  // Fork: an autonomous install has no `/v1/locations`, but the route is only a
+  // proxy over Open-Meteo — so the place picker keeps working by asking the
+  // provider itself rather than losing the capability.
+  const results = isLocalMode()
+    ? await searchPlacesDirect(httpClient, query, language)
+    : await httpClient.get('locations', { searchParams: { query, language } }).json<LocationResult[]>()
   return results.map(toLocationData)
 }
 
@@ -74,7 +81,10 @@ export const fetchLocationById = async (
   id: number,
   language: string,
 ): Promise<LocationData> => {
-  const result = await httpClient.get(`locations/${id}`, { searchParams: { language } }).json<LocationResult>()
+  // Fork: same reason as the search above.
+  const result = isLocalMode()
+    ? await placeByIdDirect(httpClient, id, language)
+    : await httpClient.get(`locations/${id}`, { searchParams: { language } }).json<LocationResult>()
   return toLocationData(result)
 }
 
