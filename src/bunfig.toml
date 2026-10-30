@@ -1,2 +1,10 @@
 [test]
-preload = ["../happydom.ts", "./fork/local-mode/test-env.ts", "./testing-library.ts"]
+# The third entry resets the fork's process-wide state before every test: bun
+# runs one process for the whole suite, so a module store written by one file is
+# still written when the next starts. See fork/testing/reset-process-state.ts.
+preload = [
+  "../happydom.ts",
+  "./fork/local-mode/test-env.ts",
+  "./fork/testing/reset-process-state.ts",
+  "./testing-library.ts",
+]
