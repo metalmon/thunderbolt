@@ -24,6 +24,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react'
 import { useHttpClient } from '@/contexts'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { isRegistryAbsent } from '@/fork/mini-apps/registry-absent'
 import type { HttpClient } from '@/lib/http'
 import { parseMiniAppRegistry, type MiniAppDefinition } from './registry'
@@ -89,6 +90,13 @@ const subscribe = (listener: () => void) => {
  * and no way to recover short of a reload.
  */
 const loadMiniApps = (httpClient: HttpClient): Promise<void> => {
+  // Fork: the registry is OUR backend's, so an install with none runs no apps.
+  // Asking anyway spends a request per boot on a host that is not there — and
+  // in a closed perimeter a refused connection is not always the fast answer.
+  if (isLocalMode()) {
+    setState({ apps: [], loading: false, failed: false })
+    return Promise.resolve()
+  }
   const era = generation
   inFlight ??= (async () => {
     try {
