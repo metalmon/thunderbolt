@@ -112,10 +112,22 @@ const initialState: ThemeProviderState = {
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  // A user who never picked a theme follows the operator's default, then the OS.
+  // A user who never picked a theme follows the operator's default, then ours.
+  //
+  // ⚠ Falling back to 'system' is upstream's answer and the wrong one here.
+  // `defaultThemeMode` arrives in the operator's branding, i.e. from `/config`
+  // — so an install with no server (or one whose server is unreachable) got the
+  // OPERATING SYSTEM's theme instead of the product's. A user whose Windows is
+  // dark opened an app he had only ever seen in Paper and reported the colours
+  // as broken, which is a fair reading: nothing he chose had changed.
+  //
+  // Paper is the fork's own fixed warm palette (see `.paper` in index.css), so
+  // it is what "no one has said otherwise" should mean. An operator who sets
+  // `defaultThemeMode` still wins, and the user's own choice still wins over
+  // both.
   const chosenTheme = useLocalSettingsStore((s) => s.theme)
   const defaultTheme = useConfigStore((s) => selectBranding(s.config)?.defaultThemeMode)
-  const theme = chosenTheme ?? defaultTheme ?? 'system'
+  const theme = chosenTheme ?? defaultTheme ?? 'paper'
   const setLocalSetting = useLocalSettingsStore((s) => s.setLocalSetting)
 
   const setTheme = useCallback((newTheme: Theme) => setLocalSetting('theme', newTheme), [setLocalSetting])
