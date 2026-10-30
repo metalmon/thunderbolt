@@ -10,7 +10,7 @@ import { getBrowserLanguages, setActiveLocale } from './active-locale'
 import { resolveLocale } from './resolve-locale'
 
 export { appLocales, sourceLocale, type AppLocale }
-export { getActiveLocale, getBrowserLanguages } from './active-locale'
+export { getActiveLocale, getBrowserLanguages, readInitialLocale } from './active-locale'
 
 // Each translated catalog loads through import() so it ships as its own async
 // chunk — statically bundling every catalog would grow the entry chunk with
