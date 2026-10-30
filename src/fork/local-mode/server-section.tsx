@@ -125,7 +125,10 @@ export const ServerSection = () => {
           {addressError() && <p className="text-sm text-destructive">{addressError()}</p>}
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        {/* Right-aligned: these are the card's actions on the field above it,
+            and a form's commit belongs at the end of its row, not under the
+            label as if it were another field. */}
+        <div className="flex flex-wrap justify-end gap-2">
           {localMode ? (
             <Button onClick={confirmToServer} disabled={!verdict.ok}>
               <Trans>Connect this server</Trans>
