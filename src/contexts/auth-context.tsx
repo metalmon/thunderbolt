@@ -15,6 +15,8 @@ import { clearCachedSession, getCachedSession, isCachedSessionValid, setCachedSe
 import { normalizeBackendUrl } from '@/lib/url-utils'
 import { anonymousClient, emailOTPClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
+import { isLocalMode } from '@/fork/local-mode/mode'
+import { createOfflineAuthFetch } from '@/fork/local-mode/offline-auth-fetch'
 import { consumePendingSsoAnonAlias } from '@/lib/analytics/anonymous-promotion-sso-bridge'
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react'
 
@@ -32,7 +34,12 @@ export const createAuthClientInstance = (cloudUrl: string) => {
     baseURL,
     basePath: '/v1/api/auth',
     plugins: [emailOTPClient(), anonymousClient()],
-    fetchOptions: buildFetchOptions(platform),
+    // Fork: with no backend there is nothing to ask, so the transport answers
+    // locally instead of spending three refused `get-session` requests per boot
+    // on a host that is not there. See `offline-auth-fetch.ts`.
+    fetchOptions: isLocalMode()
+      ? { ...buildFetchOptions(platform), customFetchImpl: createOfflineAuthFetch() }
+      : buildFetchOptions(platform),
     // Skip focus refetches to avoid spending rate-limit budget on every tab switch.
     // The refresh manager skips offline checks, but still refetches on reconnect
     // and cross-tab broadcasts so cached sessions recover when the network returns.
