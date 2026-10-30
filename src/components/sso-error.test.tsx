@@ -41,7 +41,7 @@ describe('SsoError', () => {
   it('tells the user to start from the app when a dashboard login is refused', () => {
     renderAt('?error=unsolicited_response&error_description=IdP-initiated+SSO+not+allowed')
 
-    expect(screen.getByText(/Open Thunderbolt and sign in from there/)).toBeInTheDocument()
+    expect(screen.getByText(/Open Вольт and sign in from there/)).toBeInTheDocument()
   })
 
   it('shows a generic message for an unknown code and never the code itself', () => {
