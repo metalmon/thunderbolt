@@ -69,11 +69,16 @@ describe('ThemeToggleGroup', () => {
       expect(document.documentElement.classList.contains('light')).toBe(true)
     })
 
-    it('falls back to system with no choice and no operator default', () => {
+    // ⚠ Fork: the last resort is OUR theme, not the OS. `defaultThemeMode`
+    // arrives in the operator's branding, i.e. from `/config`, so upstream's
+    // `system` fallback handed an install with no server whatever Windows was
+    // set to — a user who had only ever seen Paper reported the colours as
+    // broken, and nothing he chose had changed.
+    it('falls back to the fork theme with no choice and no operator default', () => {
       useLocalSettingsStore.getState().setLocalSetting('theme', null)
       renderGroup()
 
-      expect(screen.getByRole('radio', { name: 'System theme' })).toHaveAttribute('data-state', 'on')
+      expect(screen.getByRole('radio', { name: 'Paper theme' })).toHaveAttribute('data-state', 'on')
     })
   })
 
