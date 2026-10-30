@@ -15,8 +15,8 @@ describe('AppWordmark', () => {
   it('names the app once, leaving the logo out of the accessible name', () => {
     render(<AppWordmark />)
 
-    expect(screen.getByText('Thunderbolt')).toBeInTheDocument()
-    expect(screen.queryByRole('img', { name: 'Thunderbolt' })).not.toBeInTheDocument()
+    expect(screen.getByText('Вольт')).toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: 'Вольт' })).not.toBeInTheDocument()
   })
 
   it("shows the operator's app name", () => {
