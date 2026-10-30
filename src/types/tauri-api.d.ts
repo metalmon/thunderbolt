@@ -52,4 +52,8 @@ declare module '@tauri-apps/plugin-os' {
   // declaration shadows the package's own typings, so anything it omits simply does
   // not exist as far as the compiler is concerned.
   export function hostname(): Promise<string | null>
+  // Used by the OS-language negotiation (src/fork/i18n/system-locale.ts). Same
+  // reason as `hostname` above: the package exports it, but this ambient
+  // declaration shadows the package's typings.
+  export function locale(): Promise<string | null>
 }
