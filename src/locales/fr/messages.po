@@ -2834,6 +2834,10 @@ msgstr "Aucune conversation pour l'instant."
 msgid "No chats yet. Anything you ask beside this app shows up here."
 msgstr ""
 
+#: src/lib/cli-install.ts
+msgid "No CLI is published for this platform yet. You can build it from source."
+msgstr ""
+
 #: src/settings/devices.tsx
 msgid "No devices yet. Sign in with sync to see devices here."
 msgstr "Aucun appareil pour l'instant. Connectez-vous avec la synchronisation pour voir vos appareils ici."
@@ -4427,6 +4431,18 @@ msgstr ""
 msgid "The device will be signed out and lose access to your synced data. Its local copy is cleared the next time it connects; a device that never comes back online keeps what is already on it. Your recovery phrase keeps working."
 msgstr ""
 
+#: src/lib/cli-install.ts
+msgid "The download failed. Check the connection to the release server and try again."
+msgstr ""
+
+#: src/lib/cli-install.ts
+msgid "The downloaded file did not match its checksum, so nothing was installed. Try again."
+msgstr ""
+
+#: src/lib/cli-install.ts
+msgid "The file downloaded but could not be installed. Check that the install directory is writable."
+msgstr ""
+
 #: src/components/chat/error-message.tsx
 msgid "The instructions from your skills or project are too long for this agent. Shorten a long skill or the project's instructions, then try again."
 msgstr "Les instructions de vos compétences ou de votre projet sont trop longues pour cet agent. Raccourcissez une compétence longue ou les instructions du projet, puis réessayez."
@@ -4594,6 +4610,10 @@ msgstr "Cette conversation privée ne sera pas exécutée avec {agentName}. Pass
 #: src/projects/project-form.tsx
 msgid "this project"
 msgstr "ce projet"
+
+#: src/lib/cli-install.ts
+msgid "This release has no CLI to download yet. You can build it from source."
+msgstr ""
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "This removes the connection from {appName} only. Nothing on the remote server is changed."
