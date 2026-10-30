@@ -62,13 +62,13 @@ describe('resizeDirectionFromPointerEvent', () => {
   })
 
   afterEach(() => {
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalInnerHeight })
   })
 
   it('maps clientX/clientY to a direction via the viewport size', () => {
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: width })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: height })
     const edge = new PointerEvent('pointerdown', { clientX: width - 3, clientY: 300 })
     const interior = new PointerEvent('pointerdown', { clientX: 400, clientY: 300 })
     expect(resizeDirectionFromPointerEvent(edge)).toBe('East')
@@ -112,8 +112,8 @@ describe('startLinuxEdgeResize', () => {
   afterEach(() => {
     document.removeEventListener('pointerdown', startLinuxEdgeResize)
     mock.restore()
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalInnerHeight })
   })
 
   it('starts a native resize drag for an edge press with the exact direction', () => {
@@ -122,8 +122,8 @@ describe('startLinuxEdgeResize', () => {
     const startResizeDragging = mock()
     spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
 
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1400 })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 1400 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: 900 })
     const div = document.createElement('div')
     document.body.appendChild(div)
     const event = new PointerEvent('pointerdown', { clientX: 1397, clientY: 300, bubbles: true, cancelable: true })
@@ -154,8 +154,8 @@ describe('startLinuxEdgeResize', () => {
     const startResizeDragging = mock()
     spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
 
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1400 })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 1400 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: 900 })
     const button = document.createElement('button')
     document.body.appendChild(button)
     const event = new PointerEvent('pointerdown', { clientX: 1397, clientY: 300, bubbles: true, cancelable: true })
