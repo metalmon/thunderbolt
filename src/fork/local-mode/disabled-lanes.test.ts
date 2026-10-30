@@ -38,6 +38,16 @@ describe('local mode disables the lanes that go through our backend', () => {
     expect(proEnabledGate).toBe(true)
   })
 
+  // ⚠ The predicate above gates the CAPABILITY, not the LIST. The Connections
+  // page builds its rows from `getProStatus`, whose `isProUser` is a hardcoded
+  // upstream constant — so an install with no server at all still showed
+  // "Volt Pro", connected and switched on. Reported from 0.1.148.
+  it('drops the Pro row from the Connections list, not just its tools', () => {
+    const controller = readRepoFile('src/settings/connections/use-integrations-controller.tsx')
+    expect(controller.includes('useIsLocalMode')).toBe(true)
+    expect(/localMode && integration\.provider === 'thunderbolt-pro'/.test(controller)).toBe(true)
+  })
+
   // One point covers models (openai/anthropic/openrouter/custom), MCP, remote
   // ACP agents off the loopback, and Gemini Live's relay: they all ask this.
   it('never routes through the cloud proxy, even with the toggle on', () => {
