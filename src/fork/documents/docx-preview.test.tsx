@@ -30,7 +30,7 @@ afterEach(() => {
   globalThis.fetch = originalFetch
 })
 
-const { DocxPreview } = await import('./docx-preview')
+const { DocxPreview, declaredPageWidthPx } = await import('./docx-preview')
 
 /** What a hostile document gives docx-preview to build: a link that would run in
  *  whichever origin renders it. OOXML carries no script, so this is the vector. */
@@ -102,5 +102,28 @@ describe('DocxPreview', () => {
 
     await waitFor(() => expect(screen.getByText(/Could not render/)).toBeTruthy())
     expect(screen.getByText(/broken\.docx/)).toBeTruthy()
+  })
+})
+
+describe('declaredPageWidthPx', () => {
+  // ⚠ The defect: docx-preview writes the page width in POINTS, and a bare
+  // parseFloat read 595.3pt as 595.3px — so the fit scale came out 96/72 too
+  // large and A4 hung off the right edge of the panel. Shipped that way.
+  it('reads the unit docx-preview actually writes', () => {
+    expect(declaredPageWidthPx('595.3pt')).toBeCloseTo(793.7, 1)
+    expect(declaredPageWidthPx('612pt')).toBeCloseTo(816, 1)
+  })
+
+  it('reads the other absolute units a document may declare', () => {
+    expect(declaredPageWidthPx('21cm')).toBeCloseTo(793.7, 1)
+    expect(declaredPageWidthPx('8.5in')).toBeCloseTo(816, 1)
+    expect(declaredPageWidthPx('794px')).toBeCloseTo(794, 1)
+    expect(declaredPageWidthPx(' 794 ')).toBeCloseTo(794, 1)
+  })
+
+  it('falls back to Letter when there is nothing usable to read', () => {
+    for (const declared of [undefined, '', 'auto', '0pt', '-5pt']) {
+      expect(declaredPageWidthPx(declared)).toBe(816)
+    }
   })
 })
