@@ -19,6 +19,41 @@ type Frame = { srcDoc: string; pageWidth: number }
 /** Letter at 96dpi — the fallback when the document declares no page width. */
 const defaultPageWidthPx = 816
 
+/** CSS absolute units in px, at the 96dpi the browser defines them against. */
+const pxPerUnit: Record<string, number> = {
+  px: 1,
+  pt: 96 / 72,
+  pc: 16,
+  in: 96,
+  cm: 96 / 2.54,
+  mm: 96 / 25.4,
+  q: 96 / 101.6,
+}
+
+/**
+ * The declared page width in PIXELS.
+ *
+ * ⚠ docx-preview writes this width in POINTS (`595.3pt` for A4) because that is
+ * what the OOXML twips convert to. Reading it with a bare `parseFloat` takes
+ * 595.3 as pixels, so the fit scale comes out 96/72 — a third — too large and
+ * the page hangs off the right edge of the panel with a scrollbar under it.
+ * That is what shipped; the unit is not decoration.
+ *
+ * @param declared - the inline `width` docx-preview put on `section.docx`
+ * @returns the width in px, or the Letter fallback when it is unreadable
+ */
+export const declaredPageWidthPx = (declared: string | undefined): number => {
+  const match = /^\s*(-?[\d.]+)\s*([a-z]*)\s*$/i.exec(declared ?? '')
+  const value = Number.parseFloat(match?.[1] ?? '')
+  if (!Number.isFinite(value) || value <= 0) {
+    return defaultPageWidthPx
+  }
+  const unit = (match?.[2] ?? '').toLowerCase()
+  // An unknown unit is likelier to be a new spelling of a length than a signal
+  // to fall back to Letter, so treat it as the px CSS would without a unit.
+  return value * (pxPerUnit[unit] ?? 1)
+}
+
 /**
  * The frame's own stylesheet. It cannot read the app's theme tokens (different,
  * opaque origin), and it does not need to: a document reads as a white sheet in
@@ -108,7 +143,7 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
         // The declared page width, read off the inline style docx-preview writes
         // (no layout needed, which a detached document could not give anyway).
         const declared = detached.querySelector<HTMLElement>('section.docx')?.style.width
-        const pageWidth = Number.parseFloat(declared ?? '') || defaultPageWidthPx
+        const pageWidth = declaredPageWidthPx(declared)
 
         setFrame({ srcDoc: `<!doctype html><html>${detached.documentElement.innerHTML}</html>`, pageWidth })
         setStatus('ready')
