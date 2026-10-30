@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it, beforeEach, afterEach, afterAll, mock, spyOn } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { getAuthToken } from '@/lib/auth-token'
 import { setCachedSession, clearCachedSession } from '@/lib/session-cache'
 import { createAuthenticatedClient, type HttpClient } from '@/lib/http'
@@ -871,7 +872,7 @@ describe('encryption service (v2)', () => {
     })
 
     afterEach(() => {
-      env.VITE_ORG_ESCROW_PUBLIC_KEY = savedPin
+      restoreEnv(env, 'VITE_ORG_ESCROW_PUBLIC_KEY', savedPin)
     })
 
     /** Pin a freshly minted operator escrow key into this build's env (THU-866). */

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { setActiveLocale } from '@/i18n/active-locale'
 import { appVersionUnsupported, resetAppVersionBlockedForTesting } from './app-version-unsupported'
 import { createAuthenticatedClient, createClient, HttpError } from './http'
@@ -299,7 +300,7 @@ describe('createAuthenticatedClient', () => {
     })
 
     afterEach(() => {
-      env.VITE_APP_VERSION = savedVersion
+      restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
     })
 
     it('injects X-App-Version for app backend requests when set', async () => {

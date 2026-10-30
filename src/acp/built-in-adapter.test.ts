@@ -15,6 +15,7 @@ import '@/testing-library'
 import { defaultModelOpus55 } from '@shared/defaults/models'
 import { inferenceModelHeader } from '@shared/inference-usage'
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { clearImageSupportCache, setCachedImageSupport } from '@/ai/image-support'
 import { addSkillTool, prepareAiRequestConfig, type PreparedAiRequestConfig } from '@/ai/fetch'
 import { createEvalAdapterContext } from '@/ai/eval/runner'
@@ -469,8 +470,8 @@ describe('resolvePiModel — Tinfoil', () => {
         expect(new Headers(calls[1].headers).get('authorization')).toBe('Bearer session-token')
         expect(new Headers(calls[1].headers).get('x-app-version')).toBe('1.2.3')
       } finally {
-        env.VITE_AUTH_MODE = savedMode
-        env.VITE_APP_VERSION = savedVersion
+        restoreEnv(env, 'VITE_AUTH_MODE', savedMode)
+        restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
         if (savedToken) {
           setAuthToken(savedToken)
         } else {

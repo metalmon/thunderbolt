@@ -13,6 +13,7 @@ import { createTestProvider } from '@/test-utils/test-provider'
 import { getPlatform } from '@/lib/platform'
 import { cleanup, render } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import {
   authRequestHeaders,
   buildFetchOptions,
@@ -46,7 +47,7 @@ describe('authRequestHeaders', () => {
   })
 
   afterEach(() => {
-    env.VITE_APP_VERSION = savedVersion
+    restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
   })
 
   it('carries the app version alongside a per-call header', () => {
