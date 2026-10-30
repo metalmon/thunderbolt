@@ -23,6 +23,7 @@ export type SwitchModeDeps = {
   readonly clearAuthToken: () => void
   readonly clearCachedSession: () => void
   readonly markConfigAbsent: () => void
+  readonly reload: () => void
 }
 
 const defaultDeps: SwitchModeDeps = {
@@ -30,6 +31,7 @@ const defaultDeps: SwitchModeDeps = {
   clearAuthToken,
   clearCachedSession,
   markConfigAbsent,
+  reload: () => window.location.reload(),
 }
 
 /**
@@ -65,9 +67,21 @@ export const dropServerCredentials = async (deps: SwitchModeDeps = defaultDeps) 
   deps.markConfigAbsent()
 }
 
+/**
+ * ⚠ Reloads the window, and that is not politeness — it is the switch.
+ *
+ * Every reader of the mode reads it ONCE, at boot: `database.ts` decides there
+ * whether to `connectToSync()`, the auth context builds its client from the
+ * token that is about to be cleared, and the chat store hydrates against the
+ * backend. Flipping the flag in a running app leaves all of them in the mode
+ * they started in — and from the cold-start screen that mode is one whose
+ * server is unreachable, so the app limps on with a failed `hydrateChatStore`
+ * and paints an empty window. Reported from a real install, 0.1.148.
+ */
 export const enterLocalMode = async (deps: SwitchModeDeps = defaultDeps) => {
   await dropServerCredentials(deps)
   useLocalSettingsStore.getState().setLocalSetting('operationMode', 'local')
+  deps.reload()
 }
 
 /**
@@ -79,6 +93,7 @@ export const enterLocalMode = async (deps: SwitchModeDeps = defaultDeps) => {
  * this device's history into the first account that signs in. Sync is enabled
  * only after the user has signed in and chosen what happens to the local data.
  */
-export const enterServerMode = () => {
+export const enterServerMode = (deps: SwitchModeDeps = defaultDeps) => {
   useLocalSettingsStore.getState().setLocalSetting('operationMode', 'server')
+  deps.reload()
 }
