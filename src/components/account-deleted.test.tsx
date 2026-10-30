@@ -43,7 +43,7 @@ describe('AccountDeleted', () => {
     // mock, not the product, and only passed because this branch applies last.
     it('renders the brand heading', () => {
       renderComponent()
-      expect(screen.getByText('Thunderbolt')).toBeInTheDocument()
+      expect(screen.getByText('Вольт')).toBeInTheDocument()
     })
 
     it('renders Back to App button', () => {
