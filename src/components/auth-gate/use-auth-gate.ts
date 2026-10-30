@@ -10,6 +10,7 @@ import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { HttpError } from '@/lib/http'
 import { captchaTokenHeader, captchaVerificationFailedCode } from '@shared/captcha'
 import { AltchaTransientError, solveAltchaChallenge } from './altcha'
+import { useConfigStore } from '@/api/config-store'
 
 export type AuthRequirement = 'authenticated' | 'unauthenticated'
 
@@ -59,6 +60,9 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   // exit further down cannot stop it, and without this an autonomous install
   // would still be firing a sign-in at a backend it does not have.
   const localMode = useIsLocalMode()
+  // Fork: subscribed, not read once — the fetch resolves after the first render,
+  // and the gate must re-decide when it does.
+  const configReachable = useConfigStore((state) => state.configReachable)
   const isAnonymousAllowed = isAnonymousAuthEnabled() && !isSsoMode() && isWaitlistBypassed() && !localMode
 
   const triedAnonRef = useRef(false)
@@ -206,6 +210,18 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
 
   if (isAuthenticated) {
     return { status: 'allowed' }
+  }
+
+  // Fork: BEFORE any sign-in path, not inside one.
+  //
+  // ⚠ This used to live only in the anonymous branch, and SSO is its mutex — so
+  // an SSO deployment whose server was gone sent the user straight to the IdP
+  // behind it and offered nothing else. The only way out of that screen was to
+  // reach Settings, which is on the other side of the gate. A pilot machine
+  // with a cached `auth.mode` and no server was unusable, with no visible
+  // reason: the cached config still says "this is an SSO deployment".
+  if (!configReachable) {
+    return { status: 'offline', retry: () => void signInAnonymously() }
   }
 
   if (isAnonymousAllowed) {

@@ -29,7 +29,9 @@ export const fetchConfig = async (cloudUrl: string, httpClient?: HttpClient): Pr
     console.warn('Failed to fetch app config, using cached value')
     // Settled, so the gates stop waiting. Whatever is cached stands, and `{}`
     // already reads as default behaviour (standalone mode keeps its toggle).
-    useConfigStore.setState({ configLoaded: true })
+    // Fork: records that the server did not answer, which the cached `config`
+    // alone cannot express — see `configReachable`.
+    useConfigStore.getState().setConfigUnreachable()
     return null
   }
 }
