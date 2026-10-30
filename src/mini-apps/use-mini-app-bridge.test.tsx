@@ -728,7 +728,9 @@ describe('useMiniAppBridge message handling', () => {
     expect(bridge.current?.status).toBe('ready')
     // Still answered in full: the second `connect()` is waiting on a reply and
     // has no idea the first one happened.
-    expect(replyTo(2)).toMatchObject({ result: { hostName: 'Thunderbolt' } })
+    // The unbranded name is the fork's own — this install has no operator
+    // branding, which is the autonomous product's normal state.
+    expect(replyTo(2)).toMatchObject({ result: { hostName: 'Вольт' } })
   })
 
   /** A guest with no id to compare cannot be recognised, so it stays the old way. */
