@@ -14,6 +14,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock 
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { Component, createElement, StrictMode, type ReactNode } from 'react'
 import { useAuthGate, type AuthGateState } from './use-auth-gate'
+import { useConfigStore } from '@/api/config-store'
 
 type ErrorCaptureState = { error: Error | null }
 
@@ -112,6 +113,8 @@ afterEach(() => {
   // The mode is persisted global state: leaking 'local' into the next test would
   // silently turn its gate into an unconditional `allowed`.
   useLocalSettingsStore.setState({ operationMode: initialLocalSettings.operationMode })
+  // Same reason: a leaked `false` would turn every later gate into `offline`.
+  useConfigStore.setState({ configReachable: true })
   delete env.VITE_AUTH_MODE
   delete env.VITE_AUTH_ENABLE_ANONYMOUS
   delete env.VITE_BYPASS_WAITLIST
@@ -143,6 +146,30 @@ describe('useAuthGate — require="authenticated"', () => {
 
   it('returns redirect to sso when no session and SSO mode is active', () => {
     env.VITE_AUTH_MODE = 'sso'
+    const authClient = createMockAuthClient({ session: null, isPending: false })
+    const wrapper = createTestProvider({ authClient })
+    const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+    expect(result.current).toEqual({ status: 'redirect', to: '/sso-redirect' })
+  })
+
+  // ⚠ The escape hatch for an install whose server is gone. Without this the
+  // gate sent an SSO deployment straight to its identity provider — behind the
+  // server that is not answering — and the only way into local mode was through
+  // Settings, which is on the other side of this gate.
+  it('returns offline, not an SSO redirect, when /config could not be reached', () => {
+    env.VITE_AUTH_MODE = 'sso'
+    useConfigStore.setState({ configReachable: false })
+    const authClient = createMockAuthClient({ session: null, isPending: false })
+    const wrapper = createTestProvider({ authClient })
+    const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+    expect(result.current.status).toBe('offline')
+  })
+
+  // A reachable server with a cached SSO config is the normal case and must
+  // still redirect — the check above must not swallow it.
+  it('still redirects to SSO when the server answered', () => {
+    env.VITE_AUTH_MODE = 'sso'
+    useConfigStore.setState({ configReachable: true })
     const authClient = createMockAuthClient({ session: null, isPending: false })
     const wrapper = createTestProvider({ authClient })
     const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
