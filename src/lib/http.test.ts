@@ -116,6 +116,20 @@ describe('createAuthenticatedClient', () => {
     expect(req.headers.get('Authorization')).toBe('Bearer app-token')
   })
 
+  // ⚠ Fork: the bearer is OURS, so it goes to our backend only. This client is
+  // deliberately used for absolute third-party URLs too — the weather widget
+  // geocodes against open-meteo through it — and before this guard every one of
+  // those requests carried the user's session token to a stranger.
+  it('never sends our bearer to a third-party URL', async () => {
+    const fetch = mockFetch()
+    const client = createAuthenticatedClient('https://api.example.com', () => 'app-token', { fetch })
+
+    await client.get('https://geocoding-api.open-meteo.com/v1/search')
+
+    const req = fetch.mock.calls[0][0] as Request
+    expect(req.headers.get('Authorization')).toBeNull()
+  })
+
   it('does not set Authorization header when token is null', async () => {
     const fetch = mockFetch()
     const client = createAuthenticatedClient('https://api.example.com', () => null, { fetch })
