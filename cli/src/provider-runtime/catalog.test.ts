@@ -128,18 +128,11 @@ describe('fetchManagedCatalog', () => {
     const request = { signal: null as AbortSignal | null }
     const fetchFn: AccountFetch = async (_input, init) => {
       request.signal = init?.signal ?? null
+      // Pends on nothing on purpose: the abort is what is under test. The
+      // deadline only fires because the test preload holds Bun's event loop
+      // open — see `src/fork/test-event-loop.ts`.
       return await new Promise<Response>((_resolve, reject) => {
-        // ⚠ Windows: a lone `AbortSignal.timeout` timer does not keep Bun's event
-        // loop alive (measured on 1.3.13 — the abort fires in ~30 ms with any other
-        // pending timer and never at all without one). A transport that pends on
-        // nothing therefore never gets aborted and the test hangs past its own
-        // timeout. The real `fetch` has pending I/O of its own, so production is
-        // unaffected; this keeps the loop busy so the abort path is what is tested.
-        const keepLoopAlive = setInterval(() => {}, 20)
-        request.signal?.addEventListener('abort', () => {
-          clearInterval(keepLoopAlive)
-          reject(request.signal?.reason)
-        })
+        request.signal?.addEventListener('abort', () => reject(request.signal?.reason))
       })
     }
 
