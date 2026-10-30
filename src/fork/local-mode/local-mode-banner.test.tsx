@@ -30,8 +30,13 @@ describe('LocalModeBanner', () => {
 
   // A banner nobody mounts says nothing, and no other test would notice its
   // absence — the app renders fine without it, just silently.
-  it('is mounted in the app shell', () => {
-    const app = readRepoFile('src/app.tsx')
-    expect(app.includes('LocalModeBanner')).toBe(true)
+  //
+  // ⚠ WHERE it is mounted is half the contract. Beside the router it has no row
+  // of its own: the app below takes the viewport and the banner is squeezed
+  // into a vertical strip of clipped text over the sidebar. Shipped that way in
+  // 0.1.148. It belongs in the shell column that holds the other banners.
+  it('is mounted in the shell column, not beside the router', () => {
+    expect(readRepoFile('src/layout/main-layout.tsx').includes('<LocalModeBanner />')).toBe(true)
+    expect(readRepoFile('src/app.tsx').includes('LocalModeBanner')).toBe(false)
   })
 })
