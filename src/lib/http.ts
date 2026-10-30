@@ -199,7 +199,18 @@ export const createAuthenticatedClient = (
     hooks: {
       beforeRequest: [
         (request) => {
-          if (!request.headers.has('Authorization')) {
+          // ⚠ Fork: OUR session bearer goes to OUR backend only.
+          //
+          // It used to be attached to every request this client made, including
+          // the absolute third-party URLs it is deliberately used for — the
+          // weather widget geocodes against open-meteo through this very client,
+          // so each forecast handed the user's session token to a company that
+          // has no business holding it. The device headers below already had
+          // this guard; the credential did not.
+          //
+          // A caller-provided `Authorization` still passes through untouched,
+          // which is how external APIs with their own keys use this client.
+          if (!request.headers.has('Authorization') && isBackendRequest(request.url, backendUrl)) {
             const token = getToken()
             if (token) {
               request.headers.set('Authorization', `Bearer ${token}`)
