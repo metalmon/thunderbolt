@@ -288,7 +288,10 @@ export const VoiceSettingsPage = () => {
               />
 
               <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap gap-2">
+                {/* Fork: Fluent placement — the action row sits at the trailing
+                    edge and the primary action is the last button in it, so the
+                    eye lands on the commit where it ends the form. */}
+                <div className="flex flex-wrap justify-end gap-2">
                   <Button type="button" variant="outline" onClick={loadModels} disabled={!canTest || ui.loadingModels}>
                     {ui.loadingModels && <Loader2 className="size-4 animate-spin" />}
                     <Trans>Load models</Trans>
@@ -338,7 +341,15 @@ export const VoiceSettingsPage = () => {
                 />
 
                 {(trimmedGeminiKey !== '' || geminiKeySaved) && (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {/* Fluent placement, same as the row above: trailing edge,
+                        primary last. Removing the key is the destructive one and
+                        sits furthest from it. */}
+                    {geminiKeySaved && (
+                      <Button type="button" variant="ghost" onClick={removeGeminiKey}>
+                        <Trans>Remove key</Trans>
+                      </Button>
+                    )}
                     <Button
                       type="button"
                       variant="outline"
@@ -351,11 +362,6 @@ export const VoiceSettingsPage = () => {
                     {trimmedGeminiKey !== '' && (
                       <Button type="button" onClick={saveGeminiKey}>
                         <Trans>Save</Trans>
-                      </Button>
-                    )}
-                    {geminiKeySaved && (
-                      <Button type="button" variant="ghost" onClick={removeGeminiKey}>
-                        <Trans>Remove key</Trans>
                       </Button>
                     )}
                   </div>
