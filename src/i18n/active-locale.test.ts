@@ -11,6 +11,7 @@ import {
   setActiveLocale,
   subscribeActiveLocale,
 } from './active-locale'
+import { loadSystemLocale } from '@/fork/i18n/system-locale'
 
 const storageKey = 'thunderbolt_locale'
 
@@ -166,5 +167,26 @@ describe('getBrowserLanguages', () => {
   // is imported at boot by src/lib/http.ts, which the Bun-run eval entrypoint pulls in.
   test('is empty on a navigator with no language fields (plain Bun)', () => {
     expect(getBrowserLanguages({})).toEqual([])
+  })
+})
+
+describe('the OS language outranks the webview', () => {
+  // ⚠ The defect this guards: WebView2 reports the language the BINARY runs in,
+  // so a Russian user's desktop app negotiated `en-US` and opened in English.
+  // Shipped that way in 0.1.148.
+  afterEach(async () => {
+    await loadSystemLocale(async () => null)
+  })
+
+  test('comes first in the preference list and decides the boot locale', async () => {
+    await loadSystemLocale(async () => 'ru-RU')
+
+    expect(getBrowserLanguages({ languages: ['en-US', 'en'] })).toEqual(['ru-RU', 'en-US', 'en'])
+    expect(readInitialLocale()).toBe('ru')
+  })
+
+  test('leaves the browser in charge where there is no OS to ask', () => {
+    expect(getBrowserLanguages({ languages: ['en-US'] })).toEqual(['en-US'])
+    expect(readInitialLocale()).toBe('en')
   })
 })
