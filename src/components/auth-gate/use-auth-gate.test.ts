@@ -109,12 +109,18 @@ afterAll(async () => {
   await teardownTestDatabase()
 })
 
+beforeEach(() => {
+  // Settled by default: a test that wants the pre-fetch state says so.
+  useConfigStore.setState({ configReachable: true, configLoaded: true })
+})
+
 afterEach(() => {
   // The mode is persisted global state: leaking 'local' into the next test would
   // silently turn its gate into an unconditional `allowed`.
   useLocalSettingsStore.setState({ operationMode: initialLocalSettings.operationMode })
-  // Same reason: a leaked `false` would turn every later gate into `offline`.
-  useConfigStore.setState({ configReachable: true })
+  // Same reason: a leaked `false` would turn every later gate into `offline`,
+  // and a leaked `configLoaded: false` into an unconditional `loading`.
+  useConfigStore.setState({ configReachable: true, configLoaded: true })
   delete env.VITE_AUTH_MODE
   delete env.VITE_AUTH_ENABLE_ANONYMOUS
   delete env.VITE_BYPASS_WAITLIST
@@ -150,6 +156,19 @@ describe('useAuthGate — require="authenticated"', () => {
     const wrapper = createTestProvider({ authClient })
     const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
     expect(result.current).toEqual({ status: 'redirect', to: '/sso-redirect' })
+  })
+
+  // ⚠⚠ The path must not be chosen from LAST SESSION'S cache. An install whose
+  // server is gone still has a cached `auth.mode`, so deciding before the fetch
+  // lands sent the user to an identity provider behind a dead server — seconds
+  // before the failure could be noticed.
+  it('waits instead of redirecting while /config has not answered yet', () => {
+    env.VITE_AUTH_MODE = 'sso'
+    useConfigStore.setState({ configLoaded: false })
+    const authClient = createMockAuthClient({ session: null, isPending: false })
+    const wrapper = createTestProvider({ authClient })
+    const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
+    expect(result.current).toEqual({ status: 'loading' })
   })
 
   // ⚠ The escape hatch for an install whose server is gone. Without this the
