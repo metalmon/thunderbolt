@@ -52,6 +52,10 @@ msgstr "{agentName} не принимает вложения. Удалите п�
 msgid "{appName} (hosted, private)"
 msgstr "{appName} (хостинг, приватно)"
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "{appName} CLI"
+msgstr "{appName} CLI"
+
 #: src/fork/local-mode/server-unavailable-screen.tsx
 msgid "{appName} could not connect to its server, so it can't sign you in. Check that the server is running and that you are on the right network."
 msgstr "{appName} не смог соединиться со своим сервером и поэтому не может выполнить вход. Проверьте, что сервер работает и что вы в нужной сети."
@@ -75,6 +79,10 @@ msgstr "{appName} хочет подключиться к почте {providerNam
 #: src/widgets/connect-integration/widget.tsx
 msgid "{appName} wants to connect to {providerName} Email and Calendar"
 msgstr "{appName} хочет подключиться к почте и календарю {providerName}"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "{appName} will run on this device only: your own models and keys, no account, nothing synced. You can connect a server later in Settings."
+msgstr "{appName} будет работать только на этом устройстве: ваши собственные модели и ключи, без учётной записи, без синхронизации. Сервер можно подключить позже в настройках."
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "{appName} will use it across the app. You can change it later in Preferences."
@@ -103,6 +111,14 @@ msgid_plural "# skills reference this. If you disable it, they may no longer res
 msgstr[0] "# навык ссылается на это. Если отключить, он может перестать разрешаться."
 msgstr[1] "# навыка ссылаются на это. Если отключить, они могут перестать разрешаться."
 msgstr[2] "# навыков ссылаются на это. Если отключить, они могут перестать разрешаться."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to {target}. The change is permanent and affects every terminal you open from now on."
+msgstr "{directory} будет добавлен в {target}. Изменение постоянное и затрагивает каждый терминал, который вы откроете."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "{directory} will be added to your PATH. The change is permanent and affects every terminal you open from now on."
+msgstr "{directory} будет добавлен в переменную PATH. Изменение постоянное и затрагивает каждый терминал, который вы откроете."
 
 #. js-lingui:icu=%7BenabledSkills%2C+plural%2C+one+%7B%23+skill%7D+other+%7B%23+skills%7D%7D&pluralize_on=enabledSkills
 #: src/components/settings/agents/agent-detail.tsx
@@ -292,8 +308,8 @@ msgid "Add & Authorize"
 msgstr "Добавить и авторизовать"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
-msgstr "Добавьте <0>~/.local/bin</0> в PATH и перезапустите оболочку:"
+#~ msgid "Add <0>~/.local/bin</0> to your PATH, then restart your shell:"
+#~ msgstr "Добавьте <0>~/.local/bin</0> в PATH и перезапустите оболочку:"
 
 #: src/tasks/index.tsx
 msgid "Add a new task…"
@@ -337,10 +353,18 @@ msgstr "Добавить модель"
 msgid "Add Server"
 msgstr "Добавить сервер"
 
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add the CLI to your PATH?"
+msgstr "Добавить CLI в переменную PATH?"
+
 #: src/components/chat/chat-add-menu.tsx
 #: src/skills/suggestion-chip.tsx
 msgid "Add to chat"
 msgstr "Добавить в чат"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Add to PATH"
+msgstr "Добавить в PATH"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Add your first server"
@@ -353,6 +377,10 @@ msgstr "Добавить первую задачу"
 #: src/voice/ui/use-voice-session.ts
 msgid "Add your Gemini API key in Settings → Voice to use voice on this device."
 msgstr "Добавьте ключ Gemini API в Настройках → Голос, чтобы пользоваться голосом на этом устройстве."
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Added to your PATH. Open a new terminal to use it."
+msgstr "Добавлено в PATH. Откройте новый терминал, чтобы воспользоваться."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -390,6 +418,10 @@ msgstr "Все навыки закреплены"
 #: src/components/chat/permission-dialog.tsx
 msgid "Allow once"
 msgstr "Разрешить один раз"
+
+#: src/fork/cli/add-to-path-button.tsx
+msgid "Already on your PATH."
+msgstr "Уже в переменной PATH."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Always allow"
@@ -1108,6 +1140,10 @@ msgstr "Превышен контекст модели"
 #: src/waitlist/waitlist-page.tsx
 msgid "Continue"
 msgstr "Продолжить"
+
+#: src/fork/local-mode/server-unavailable-screen.tsx
+msgid "Continue without a server"
+msgstr "Продолжить без сервера"
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "Copied"
@@ -2968,6 +3004,10 @@ msgstr "Допустим только https, либо http для адреса �
 msgid "Open"
 msgstr "Открыть"
 
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Open {appName} CLI"
+msgstr "Открыть {appName} CLI"
+
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
 msgstr "Откройте {appName} на одном из доверенных устройств и перейдите в Настройки → Устройства, чтобы одобрить это устройство."
@@ -3030,8 +3070,8 @@ msgid "Open the store to check for updates."
 msgstr "Откройте магазин приложений, чтобы проверить обновления."
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
-msgid "Open Thunderbolt CLI"
-msgstr "Открыть Вольт CLI"
+#~ msgid "Open Thunderbolt CLI"
+#~ msgstr "Открыть Вольт CLI"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 #~ msgid "Open Thunderbolt on one of your trusted devices and go to Settings → Devices to approve this device."
@@ -3066,6 +3106,10 @@ msgstr "Необязательные инструкции, добавляемы�
 #: src/waitlist/waitlist-page.tsx
 msgid "or"
 msgstr "или"
+
+#: src/components/settings/agents/thunderbolt-cli.tsx
+msgid "Or add it yourself:"
+msgstr "Или добавьте вручную:"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "Or click the magic link in your email"
