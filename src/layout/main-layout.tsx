@@ -11,6 +11,7 @@ import { ResponsiveModalContentComposable } from '@/components/ui/responsive-mod
 import { SidebarInset } from '@/components/ui/sidebar'
 import { ActiveContentView } from '@/content-view/active-content-view'
 import { CanvasActionChannelProvider } from '@/fork/zeroclaw/canvas-action-channel'
+import { LocalModeBanner } from '@/fork/local-mode/local-mode-banner'
 import { defaultOpenWidth, minimumWidthThreshold } from '@/content-view/constants'
 import { useContentView } from '@/content-view/context'
 import { useIsMobile, useIsNativeMobile } from '@/hooks/use-mobile'
@@ -124,6 +125,12 @@ export default function Page() {
                   <DownloadAppBannerDesktop />
                 </>
               )}
+              {/* Fork: states once that this install keeps everything on the
+                  machine. It belongs in this column and not beside the router:
+                  as a sibling of the whole app it had no row of its own and was
+                  squeezed into a vertical sliver of clipped text over the
+                  sidebar. Renders nothing in server mode. */}
+              <LocalModeBanner />
               <div
                 className="flex-1 overflow-auto"
                 style={{
