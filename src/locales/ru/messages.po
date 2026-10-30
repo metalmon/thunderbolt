@@ -4308,7 +4308,7 @@ msgstr "Команда {recipient} — для отладки. Привязано
 
 #: src/fork/local-mode/server-section.tsx
 msgid "The address this installation signs in to and syncs with."
-msgstr "Адрес, к которому этот установ входит и с которым синхронизируется."
+msgstr "Адрес, по которому это приложение входит и синхронизируется."
 
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
@@ -4510,7 +4510,7 @@ msgstr "Это поможет персонализировать опыт с у�
 
 #: src/fork/local-mode/server-section.tsx
 msgid "This installation works on this device only. Connect a server to sign in and sync across devices."
-msgstr "Этот установ работает только на этом устройстве. Подключите сервер, чтобы входить и синхронизироваться между устройствами."
+msgstr "Это приложение работает только на этом устройстве. Подключите сервер, чтобы входить и синхронизироваться между устройствами."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
