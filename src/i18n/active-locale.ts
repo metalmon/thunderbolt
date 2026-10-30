@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { AppLocale } from '@shared/i18n/locales'
+import { getSystemLanguages } from '@/fork/i18n/system-locale'
 import { resolveLocale } from './resolve-locale'
 
 /**
@@ -38,13 +39,17 @@ type LanguageSource = { languages?: readonly string[]; language?: string }
 export const getBrowserLanguages = (
   source: LanguageSource | undefined = typeof navigator === 'undefined' ? undefined : navigator,
 ): readonly string[] => {
+  // Fork seam: on the desktop the OS outranks the webview, which reports the
+  // language the APPLICATION runs in rather than the user's. Empty on the web
+  // and before `loadSystemLocale` answers. See src/fork/i18n/system-locale.ts.
+  const system = getSystemLanguages()
   if (!source) {
-    return []
+    return system
   }
   if (source.languages?.length) {
-    return source.languages
+    return [...system, ...source.languages]
   }
-  return source.language ? [source.language] : []
+  return source.language ? [...system, source.language] : system
 }
 
 /**
