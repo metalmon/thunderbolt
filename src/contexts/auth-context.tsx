@@ -251,7 +251,11 @@ export const AuthProvider = ({ children, cloudUrl, authClient: overrideClient }:
   const httpClient = useHttpClient()
   const sessionCheckFiredRef = useRef(false)
   useEffect(() => {
-    if (!value?.authClient || sessionCheckFiredRef.current) {
+    // Fork: this probe deliberately bypasses the auth client, so the offline
+    // transport cannot answer it — it was the one request still leaving an
+    // autonomous install on every boot. There is no device to find revoked and
+    // no account to check, so there is nothing to ask.
+    if (!value?.authClient || sessionCheckFiredRef.current || isLocalMode()) {
       return
     }
     sessionCheckFiredRef.current = true
