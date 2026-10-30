@@ -20,8 +20,8 @@ describe('useLinuxEdgeResize', () => {
   afterEach(() => {
     cleanup()
     mock.restore()
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth })
-    Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: originalInnerWidth })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalInnerHeight })
   })
 
   const makeEdgeEvent = () =>
@@ -32,7 +32,7 @@ describe('useLinuxEdgeResize', () => {
     spyOn(platformModule, 'getPlatform').mockImplementation(() => 'linux' as never)
     const startResizeDragging = mock()
     spyOn(tauriWindow, 'getCurrentWindow').mockImplementation(() => ({ startResizeDragging }) as never)
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1400 })
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 1400 })
 
     const { unmount } = renderHook(() => useLinuxEdgeResize())
 
