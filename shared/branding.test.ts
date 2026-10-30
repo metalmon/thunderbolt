@@ -454,8 +454,11 @@ describe('parsePublicBranding', () => {
 })
 
 describe('resolving names', () => {
-  it('falls back to Thunderbolt for the app and the transcript recipient alike', () => {
-    expect(resolveAppName(undefined)).toBe('Thunderbolt')
+  it('falls back to the fork name for the app and to Thunderbolt for the transcript recipient', () => {
+    // Fork: an install with no operator branding — no server, or a server that
+    // has never answered — must still be OUR product by name. It introduced
+    // itself as Thunderbolt on the cold-start screen before this.
+    expect(resolveAppName(undefined)).toBe('Вольт')
     expect(resolveAppName({ appName: 'Acme' })).toBe('Acme')
     // The default intake is Thunderbolt's, so a branded app name doesn't rename the recipient.
     const branded: Branding = { appName: 'Acme' }
