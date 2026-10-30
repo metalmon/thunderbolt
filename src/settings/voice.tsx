@@ -10,6 +10,7 @@
  * turn.
  */
 import { useAppName } from '@/lib/branding-selectors'
+import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +26,9 @@ import { type GeminiLiveModel, type VoiceProviderConfig, useLocalSettingsStore }
 import { mintGeminiEphemeralToken } from '@/fork/voice/gemini-ephemeral-token'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useVoiceSettingsState } from './use-voice-settings-state'
+import { useEffect, useState } from 'react'
+
+type ConnState = { status: 'idle' | 'testing' | 'ok' | 'error'; detail?: string }
 
 const Field = ({
   id,
@@ -102,11 +106,23 @@ export const VoiceSettingsPage = () => {
   const { t } = useLingui()
   const appName = useAppName()
   const config = useLocalSettingsStore((s) => s.voiceProvider)
+  const localMode = useIsLocalMode()
   const setLocalSetting = useLocalSettingsStore((s) => s.setLocalSetting)
   const ui = useVoiceSettingsState(config)
   const { runTest, loadModels } = ui
 
   const update = (patch: Partial<VoiceProviderConfig>) => setLocalSetting('voiceProvider', { ...config, ...patch })
+
+  // ⚠ The shipped default is keyed on the BUILD-time cloud URL
+  // (`defaultVoiceProvider`), which cannot know that this install later went
+  // autonomous — so a build made for a server opens its voice settings showing
+  // an engine that does not exist here. Rewrite it once, to the one lane that
+  // works without a backend; it stays inert until the user names an endpoint.
+  useEffect(() => {
+    if (localMode && config.kind === 'thunderbolt') {
+      update({ kind: 'openai-compatible' })
+    }
+  }, [localMode, config.kind])
   const isCustom = config.kind === 'openai-compatible'
   const isGeminiLive = config.kind === 'gemini-live'
   const canTest = isCustom && config.baseUrl.trim().length > 0
@@ -189,9 +205,16 @@ export const VoiceSettingsPage = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="thunderbolt">
-                  <Trans>{appName} (hosted, private)</Trans>
-                </SelectItem>
+                {/* Fork: the hosted engine is `/v1/audio/*` on OUR backend, so an
+                    autonomous install cannot reach it — offering it there
+                    promises a voice that can only fail. The stored kind is
+                    normalized away from it below, because the default is keyed
+                    on the BUILD-time cloud URL and cannot know the runtime mode. */}
+                {!localMode && (
+                  <SelectItem value="thunderbolt">
+                    <Trans>{appName} (hosted, private)</Trans>
+                  </SelectItem>
+                )}
                 <SelectItem value="gemini-live">
                   <Trans>Gemini Live (realtime)</Trans>
                 </SelectItem>
