@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { useConfigStore } from '@/api/config-store'
 import { appVersionHeader, isAppVersionUnsupported, isVersionBelowMinimum } from './app-version'
 import { handleAppVersionUnsupported, resetAppVersionBlockedForTesting } from './app-version-unsupported'
@@ -15,7 +16,7 @@ const restoreAppVersion = (saved: unknown): void => {
     delete env.VITE_APP_VERSION
     return
   }
-  env.VITE_APP_VERSION = saved
+  restoreEnv(env, 'VITE_APP_VERSION', saved)
 }
 
 describe('appVersionHeader', () => {

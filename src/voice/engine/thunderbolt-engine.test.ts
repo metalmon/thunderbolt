@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import {
   appVersionUnsupported,
   isAppVersionBlocked,
@@ -44,7 +45,7 @@ describe('createTinfoilTransport', () => {
   })
 
   afterEach(() => {
-    env.VITE_APP_VERSION = savedVersion
+    restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
     resetAppVersionBlockedForTesting()
   })
 

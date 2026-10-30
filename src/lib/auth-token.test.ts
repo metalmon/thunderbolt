@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { setActiveLocale } from '@/i18n/active-locale'
 import {
   clearAuthToken,
@@ -166,7 +167,7 @@ describe('auth-token', () => {
       })
 
       afterEach(() => {
-        env.VITE_APP_VERSION = savedVersion
+        restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
       })
 
       it('includes X-App-Version when VITE_APP_VERSION is set', () => {

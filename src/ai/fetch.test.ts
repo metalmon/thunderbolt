@@ -10,6 +10,7 @@ import { getDb } from '@/db/database'
 import { createClient } from '@/lib/http'
 
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { restoreEnv } from '@/fork/testing/env'
 import { assembleBuiltInModelInput, createPrompt } from '@/ai/prompt'
 import { defaultSkillResearch, defaultSkillWeather } from '@/defaults/skills'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/lib/auth-token'
@@ -741,7 +742,7 @@ describe('withAppVersionHeader', () => {
   })
 
   afterEach(() => {
-    env.VITE_APP_VERSION = savedVersion
+    restoreEnv(env, 'VITE_APP_VERSION', savedVersion)
   })
 
   it('adds X-App-Version to the outgoing request without clobbering caller headers', async () => {
