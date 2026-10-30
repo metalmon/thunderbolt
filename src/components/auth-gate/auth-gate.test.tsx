@@ -9,9 +9,10 @@ import { render, screen } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { render, screen, waitFor } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, describe, expect, it, mock } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { MemoryRouter, Route, Router, Routes, useLocation } from 'react-router'
 import { AuthGate } from './auth-gate'
+import { useConfigStore } from '@/api/config-store'
 
 const env = import.meta.env as Record<string, string | undefined>
 const originalCloudUrl = useLocalSettingsStore.getState().cloudUrl
@@ -47,7 +48,15 @@ describe('AuthGate in SSO mode with no session', () => {
     await teardownTestDatabase()
   })
 
+  // The gate holds at `loading` until `/config` has answered, so these cases
+  // must start from a settled store — otherwise they assert the wait, not the
+  // path they are about.
+  beforeEach(() => {
+    useConfigStore.setState({ configLoaded: true, configReachable: true })
+  })
+
   afterEach(() => {
+    useConfigStore.setState({ configLoaded: true, configReachable: true })
     delete env.VITE_AUTH_MODE
   })
 
@@ -102,7 +111,12 @@ describe('AuthGate when the server cannot be reached', () => {
     await teardownTestDatabase()
   })
 
+  beforeEach(() => {
+    useConfigStore.setState({ configLoaded: true, configReachable: true })
+  })
+
   afterEach(() => {
+    useConfigStore.setState({ configLoaded: true, configReachable: true })
     delete env.VITE_AUTH_ENABLE_ANONYMOUS
     delete env.VITE_BYPASS_WAITLIST
   })
