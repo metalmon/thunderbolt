@@ -122,7 +122,11 @@ export const ThunderboltCliDetail = ({
         const result = await install()
         setState({ status: 'success', result })
       } catch (error) {
-        const { message, showManualBuild } = describeCliInstallError(error)
+        // The typed kind becomes the sentence; the raw detail (HTTP status, io
+        // error) is only useful to whoever is debugging, so it goes to the log
+        // rather than into the user's face in English.
+        console.error('[cli-install]', error)
+        const { message, showManualBuild } = describeCliInstallError(error, i18n)
         setState({ status: 'error', message, showManualBuild })
       }
     })

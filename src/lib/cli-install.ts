@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { msg } from '@lingui/core/macro'
+import type { I18n, MessageDescriptor } from '@lingui/core'
 import { invoke as tauriInvoke } from '@tauri-apps/api/core'
 import type { Arch, Platform } from '@tauri-apps/plugin-os'
 
@@ -108,10 +110,28 @@ export type CliInstallErrorView = {
  * download, so the honest next step is building from source; every other kind is
  * a transient/operational failure the user can retry.
  */
-export const describeCliInstallError = (error: unknown): CliInstallErrorView => {
+/**
+ * Fork: what the user reads for each failure.
+ *
+ * The Rust side's own strings cross the boundary in English and name the
+ * upstream product — a user reported reading "This release has no prebuilt
+ * Thunderbolt CLI yet" in an otherwise Russian app. Per the house rule, the
+ * thrown error stays English and the DISPLAY boundary translates, so the kind
+ * is the contract and the sentence is ours. Descriptors at module scope,
+ * resolved at the point of use: a `t` here would freeze the boot locale.
+ */
+const cliInstallErrorMessages: Record<CliInstallErrorKind, MessageDescriptor> = {
+  unsupported: msg`No CLI is published for this platform yet. You can build it from source.`,
+  notPublished: msg`This release has no CLI to download yet. You can build it from source.`,
+  download: msg`The download failed. Check the connection to the release server and try again.`,
+  checksumMismatch: msg`The downloaded file did not match its checksum, so nothing was installed. Try again.`,
+  install: msg`The file downloaded but could not be installed. Check that the install directory is writable.`,
+}
+
+export const describeCliInstallError = (error: unknown, i18n: I18n): CliInstallErrorView => {
   if (isCliInstallError(error)) {
     return {
-      message: error.message,
+      message: i18n._(cliInstallErrorMessages[error.kind]),
       showManualBuild: error.kind === 'unsupported' || error.kind === 'notPublished',
     }
   }
