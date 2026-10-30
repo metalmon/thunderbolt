@@ -456,7 +456,7 @@ describe('resolvePiModel — Tinfoil', () => {
           headers: { Authorization: 'Bearer thunderbolt-managed', [inferenceModelHeader]: 'wrong-model' },
         })
 
-        env.VITE_AUTH_MODE = undefined
+        delete env.VITE_AUTH_MODE
         setAuthToken('session-token')
         await descriptor.fetch('https://cloud.example.com/v1/tinfoil/chat/completions')
 
