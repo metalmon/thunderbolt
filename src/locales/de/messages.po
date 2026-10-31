@@ -3041,6 +3041,10 @@ msgstr "Nur in privaten Chats verfügbar."
 msgid "Only https is allowed, or http for an address on this machine."
 msgstr ""
 
+#: src/components/sidebar-footer.tsx
+msgid "Only on this device"
+msgstr ""
+
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
@@ -5200,8 +5204,8 @@ msgid "Work on this device only?"
 msgstr ""
 
 #: src/fork/local-mode/local-mode-banner.tsx
-msgid "Working on this device only — no account, no sync."
-msgstr ""
+#~ msgid "Working on this device only — no account, no sync."
+#~ msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Would you like to change the language to {suggestedLanguageLabel}?"
