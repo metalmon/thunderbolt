@@ -20,9 +20,13 @@ import { closeTestLocalData } from '@/test-utils/local-data'
 import * as reconcile from '@/lib/reconcile-defaults'
 import * as onboarding from '@/lib/returning-user-onboarding'
 
+// ⚠ `mock.module` is process-wide, so this stands in for Tauri in every file
+// that runs after this one. A bare `mock()` returns `undefined`, and the real
+// `invoke` returns a Promise — any component that awaits it then throws during
+// commit, in a test file that never mentioned Tauri. Honour the contract.
 mock.module('@tauri-apps/api/core', () => ({
   isTauri: () => false,
-  invoke: mock(),
+  invoke: mock(() => Promise.resolve()),
 }))
 
 mock.module('@tauri-apps/plugin-os', () => ({
