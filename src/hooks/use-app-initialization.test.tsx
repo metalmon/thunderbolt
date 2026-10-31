@@ -18,9 +18,13 @@ import { act, renderHook } from '@testing-library/react'
 import { afterAll, beforeAll, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { resolveInitialSyncStep, useAppInitialization, waitForDatabaseReady } from './use-app-initialization'
 
+// ⚠ `mock.module` is process-wide, so this stands in for Tauri in every file
+// that runs after this one. A bare `mock()` returns `undefined`, and the real
+// `invoke` returns a Promise — any component that awaits it then throws during
+// commit, in a test file that never mentioned Tauri. Honour the contract.
 mock.module('@tauri-apps/api/core', () => ({
   isTauri: () => false,
-  invoke: mock(),
+  invoke: mock(() => Promise.resolve()),
 }))
 
 mock.module('@tauri-apps/plugin-os', () => ({
