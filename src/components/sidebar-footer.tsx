@@ -10,6 +10,7 @@ import {
   CloudAlert,
   CloudOff,
   Download,
+  HardDrive,
   Loader2,
   LogOut,
   MessageCirclePlus,
@@ -260,13 +261,31 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
    * default is the labeled pill.
    */
   const renderAccountControl = (collapsed = false) => {
-    // Fork: local mode has no account. One exit covers both affordances this
-    // function can produce — the sign-in button and the account-menu trigger —
-    // so neither can be left behind.
-    if (localMode) {
-      return null
-    }
     const iconOnly = collapsed || isMobile
+    // Fork: local mode has no account, so this slot says what the install IS
+    // instead of offering a sign-in it cannot do. Quiet and inert on purpose —
+    // it replaces the account row rather than adding a band over the chat,
+    // which is where this statement used to live and was unwelcome.
+    if (localMode) {
+      return iconOnly ? (
+        <div
+          className={cn(
+            'flex items-center justify-center rounded-full',
+            isMobile ? 'size-[var(--touch-height-lg)]' : 'size-[var(--touch-height-default)]',
+          )}
+          title={t`Only on this device`}
+        >
+          <HardDrive className={cn(iconSize, 'text-muted-foreground')} aria-hidden />
+        </div>
+      ) : (
+        <div className={cn(pillClassName(true), 'cursor-default hover:bg-transparent')}>
+          <HardDrive className={cn(iconSize, 'shrink-0 text-muted-foreground')} aria-hidden />
+          <span className="truncate text-muted-foreground">
+            <Trans>Only on this device</Trans>
+          </span>
+        </div>
+      )
+    }
     if (isPending) {
       return iconOnly ? (
         <div
