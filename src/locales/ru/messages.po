@@ -3003,6 +3003,10 @@ msgstr "Доступны только в конфиденциальных чат
 msgid "Only https is allowed, or http for an address on this machine."
 msgstr "Допустим только https, либо http для адреса на этой машине."
 
+#: src/components/sidebar-footer.tsx
+msgid "Only on this device"
+msgstr "Только на этом устройстве"
+
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "Open"
@@ -5204,8 +5208,8 @@ msgid "Work on this device only?"
 msgstr "Работать только на этом устройстве?"
 
 #: src/fork/local-mode/local-mode-banner.tsx
-msgid "Working on this device only — no account, no sync."
-msgstr "Работа только на этом устройстве: без учётной записи и синхронизации."
+#~ msgid "Working on this device only — no account, no sync."
+#~ msgstr "Работа только на этом устройстве: без учётной записи и синхронизации."
 
 #: src/settings/preferences.tsx
 msgid "Would you like to change the language to {suggestedLanguageLabel}?"
