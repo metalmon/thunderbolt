@@ -13,6 +13,37 @@ import path from 'node:path'
  * shortcut: files a newer @powersync/web no longer ships stay behind, so a stale copy can hide a renamed
  * worker in local dev; delete public/@powersync after an upgrade that renames or drops files.
  */
+/**
+ * Rename `from` over `to`, waiting out a reader that has `to` open.
+ *
+ * ⚠ Windows only looks like POSIX here. `rename` over an existing file is
+ * atomic on both, but Windows refuses it outright — EPERM / EACCES / EBUSY —
+ * while any other process has the destination open, and the readers this
+ * routine exists to protect do exactly that. Upstream's own concurrency test
+ * fails on Windows for this reason: all four child processes exit 1.
+ *
+ * The violation is transient, so the fix is to wait rather than to copy
+ * non-atomically — a torn read is the thing we are avoiding.
+ *
+ * @param from - the staged file, already written in full
+ * @param to - the published path readers watch
+ */
+const replaceWhenReadersAllow = (from: string, to: string) => {
+  const retryCodes = new Set(['EPERM', 'EACCES', 'EBUSY'])
+  for (let attempt = 0; ; attempt++) {
+    try {
+      renameSync(from, to)
+      return
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code ?? ''
+      if (attempt === 100 || !retryCodes.has(code)) {
+        throw error
+      }
+      Bun.sleepSync(5)
+    }
+  }
+}
+
 export const copyPowerSyncAssets = (source: string, destination: string, stagingDir: string) => {
   const staged = path.join(stagingDir, `powersync-asset-${process.pid}.tmp`)
   mkdirSync(stagingDir, { recursive: true })
@@ -28,6 +59,6 @@ export const copyPowerSyncAssets = (source: string, destination: string, staging
     }
     mkdirSync(path.dirname(to), { recursive: true })
     writeFileSync(staged, content)
-    renameSync(staged, to)
+    replaceWhenReadersAllow(staged, to)
   }
 }
