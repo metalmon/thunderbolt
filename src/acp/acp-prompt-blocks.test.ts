@@ -53,7 +53,7 @@ describe('buildPromptBlocks — no embeddedContext', () => {
     expect(blocks).toHaveLength(3)
     expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
     expect(blocks[0]?.text).toContain('[1] doc.pdf')
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
+    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
   })
 
@@ -77,7 +77,7 @@ describe('buildPromptBlocks — no embeddedContext', () => {
     expect(blocks[0]?.text).toContain('[Attachment "pic.png" could not be delivered to this agent]')
     // The undeliverable note still names only the file that failed.
     expect(blocks[0]?.text).not.toContain('"doc.pdf" could not be delivered')
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
+    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
   })
 
@@ -102,7 +102,7 @@ describe('buildPromptBlocks — embeddedContext', () => {
     // is a block of its own in front of it — this is the path docx and PDF take.
     expect(blocks).toHaveLength(3)
     expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
+    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.type).toBe('resource')
     expect(blocks[2]?.resource?.uri).toBe('attachment://f1/doc.pdf')
     expect(blocks[2]?.resource?.mimeType).toBe('application/pdf')
@@ -120,7 +120,7 @@ describe('buildPromptBlocks — embeddedContext', () => {
 
     expect(blocks).toHaveLength(3)
     expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
+    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
   })
 
@@ -167,7 +167,7 @@ describe('buildPromptBlocks — quotes', () => {
     )) as Block[]
 
     expect(blocks[0]?.text).toContain(expectedPromptText('> context\n\nsummarize'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
+    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.type).toBe('resource')
   })
 })
