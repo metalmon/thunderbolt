@@ -141,14 +141,16 @@ export const validateAndPin = async (
     // out of a hostname that is not an IP and fail to connect.
     const headers = new Headers(extraHeaders)
     headers.delete('Host')
-    return [parsed.toString(), headers]
+    // No pinned TLS either: `tls` names the original hostname for SNI when the URL was
+    // rewritten to an IP, and this path was not rewritten.
+    return [parsed.toString(), headers, undefined]
   }
 
   // Fork: same allowlist as validateSafeUrl, applied before the address checks so a
   // named host is reached by name — pinning it to a resolved IP buys nothing here, and
   // the operator wrote down the address he means.
   if (isAllowedPrivateTarget(parsed, parseAllowedPrivateTargets(process.env.VOLT_PROXY_ALLOWED_HOSTS))) {
-    return [parsed.toString(), new Headers(extraHeaders)]
+    return [parsed.toString(), new Headers(extraHeaders), undefined]
   }
 
   if (literalAddress) {
