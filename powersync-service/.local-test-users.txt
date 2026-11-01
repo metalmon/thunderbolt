@@ -1,0 +1,7 @@
+# Local dev Keycloak users for the voltd live test. NOT committed, NOT for any
+# deployment. Regenerate with: bun dev-local/seed-keycloak-test-users.mjs
+# Keycloak runs start-dev with an embedded H2, so re-run this after every restart.
+
+admin / Tu3TXsoUi_IijfYm   group=volt-admins   email=admin@volt.local
+avk / V9ssYaTDE1zG0HNv   group=volt-avk   email=avk@volt.local
+kb-user / wTBBIxnR2CHKJ6vh   group=volt-kb   email=kb-user@volt.local
