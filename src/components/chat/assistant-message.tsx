@@ -17,7 +17,6 @@ import type { HaystackReferenceMeta, ThunderboltUIMessage, UIMessageMetadata } f
 import type { SourceMetadata } from '@/types/source'
 import type { TextUIPart } from 'ai'
 import { memo, useMemo, type ReactNode } from 'react'
-import { attachmentRefsFromSources } from '@/fork/citations/attachment-sources'
 import { DeliveredFilesGroup } from '@/fork/zeroclaw/delivered-file-card'
 import {
   type DeliveredFileRef,
@@ -96,16 +95,16 @@ export const mountMessageParts = (
   // Volt deliver_file outputs in this message, flattened in delivery order. This is the
   // persisted source of truth text parts resolve `[N]` / deliver-uri citations against — so
   // citations open after a reload / in later turns, with no live map.
-  const agentDeliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
-  // Fork: on the ACP path `[N]` is resolved POSITIONALLY against this list, so the
-  // turn's attachments go in FRONT of it — that is the numbering the agent was given
-  // in the prompt note. Only when the agent delivered files of its own: otherwise this
-  // list stays empty and the attachments resolve through `sources`, which carries its
-  // own index and is what the built-in agent uses.
-  const deliveredFiles: DeliveredFileRef[] =
-    agentDeliveredFiles.length > 0
-      ? [...attachmentRefsFromSources(sources ?? []), ...agentDeliveredFiles]
-      : agentDeliveredFiles
+  // ⚠ Fork: the turn's attachments are deliberately NOT merged in here, though both are
+  // documents and both are cited `[N]`. `[N]` is resolved POSITIONALLY against this
+  // list, so putting attachments in front would renumber the agent's own delivered
+  // files — and the agent, which numbers its deliveries from one, is never told. Two
+  // independent authorities cannot share one `[N]` namespace, and no instruction makes
+  // that safe. So in a turn carrying both, the attachments simply do not resolve; the
+  // agent's files keep working. With no delivered files this list is empty and the
+  // attachments resolve through `sources` instead. See
+  // docs/development/attachment-citations.md.
+  const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
 
   groupedParts.forEach((part, index) => {
     const [partType] = splitPartType(part.type)
