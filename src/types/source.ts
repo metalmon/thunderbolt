@@ -25,6 +25,12 @@ export type SourceMetadata = {
   author?: string | null
   /** Publication date of the source */
   publishedDate?: string | null
-  /** Which tool produced this source */
-  toolName: 'search' | 'fetch_content'
+  /** Which tool produced this source.
+   *  Fork: `'attachment'` is not a tool — it is a file the user attached to the turn,
+   *  registered in the same numbering so `[N]` means one thing in a reply that cites
+   *  both the web and an attachment. See docs/development/attachment-citations.md. */
+  toolName: 'search' | 'fetch_content' | 'attachment'
+  /** Fork: for `'attachment'` sources, the local file the citation opens in the
+   *  preview. Absent on web sources, which open their `url` instead. */
+  localFileId?: string
 }
