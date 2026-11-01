@@ -38,7 +38,10 @@ export const ChatFontToggle = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="lora">{t`Lora`}</SelectItem>
-            <SelectItem value="system">{t`System`}</SelectItem>
+            {/* ⚠ Not t`System`: that id is already the theme switch's, where Russian needs
+                the feminine «Системная» for «тема». A font is masculine. One gettext id
+                cannot carry both genders, so this one declares a context of its own. */}
+            <SelectItem value="system">{t({ message: 'System', context: 'font' })}</SelectItem>
           </SelectContent>
         </Select>
       </div>
