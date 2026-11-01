@@ -60,16 +60,48 @@ const promptSafeCharacter = (character: string): boolean => {
   const code = character.codePointAt(0) ?? 0
   const isControl = code < 0x20 || code === 0x7f || (code >= 0x80 && code <= 0x9f)
   const isLineSeparator = code === 0x2028 || code === 0x2029
-  return !isControl && !isLineSeparator
+  // Format characters, by block: zero-width marks and joiners, the bidi overrides,
+  // the invisible operators, the byte-order mark, and the Tag block — text a reader
+  // cannot see but a model still reads. Listed as ranges rather than a Unicode
+  // property escape so no backslash has to survive the edit.
+  const isFormat =
+    (code >= 0x200b && code <= 0x200f) ||
+    (code >= 0x202a && code <= 0x202e) ||
+    (code >= 0x2060 && code <= 0x2064) ||
+    (code >= 0x2066 && code <= 0x2069) ||
+    code === 0xfeff ||
+    (code >= 0xe0000 && code <= 0xe007f)
+  return !isControl && !isLineSeparator && !isFormat
 }
 
-const safeForPrompt = (filename: string): string =>
-  [...filename]
+/**
+ * A filename as it may appear inside a prompt: a quoted, escaped value.
+ *
+ * ⚠ Both places this module writes a name are delimited with brackets, and the numbers
+ * in those brackets ARE the mechanism — a bare `Отчёт [2024].pdf` (an ordinary name, no
+ * malice needed) would read as a second attachment. Two defences, because the reader is
+ * a model rather than a parser: the brackets inside are neutralized, AND the value is
+ * quoted and escaped so the field has an unambiguous end.
+ *
+ * Invisible characters collapse to a space, runs collapse, and the length is capped —
+ * length buys an attacker room and no honest name needs it.
+ */
+const safeForPrompt = (filename: string): string => {
+  const visible = [...filename]
     .map((character) => (promptSafeCharacter(character) ? character : ' '))
     .join('')
+    // ⚠ Brackets go too, not just the invisible characters. Quoting alone gives the
+    // field an unambiguous end for a PARSER, and the reader here is a model: it may
+    // well read `"x) (Attachment 2: y"` as a second entry despite the quotes. Nothing
+    // user-visible is lost — the citation label comes from the raw title, not from
+    // this.
+    .replaceAll('[', '(')
+    .replaceAll(']', ')')
     .replace(/ {2,}/g, ' ')
     .trim()
     .slice(0, 120)
+  return JSON.stringify(visible)
+}
 
 /**
  * The citation an attachment entry renders as: a document, so clicking it opens the
