@@ -17,6 +17,7 @@ import type { HaystackReferenceMeta, ThunderboltUIMessage, UIMessageMetadata } f
 import type { SourceMetadata } from '@/types/source'
 import type { TextUIPart } from 'ai'
 import { memo, useMemo, type ReactNode } from 'react'
+import { attachmentRefsFromSources } from '@/fork/citations/attachment-sources'
 import { DeliveredFilesGroup } from '@/fork/zeroclaw/delivered-file-card'
 import {
   type DeliveredFileRef,
@@ -95,7 +96,16 @@ export const mountMessageParts = (
   // Volt deliver_file outputs in this message, flattened in delivery order. This is the
   // persisted source of truth text parts resolve `[N]` / deliver-uri citations against — so
   // citations open after a reload / in later turns, with no live map.
-  const deliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
+  const agentDeliveredFiles: DeliveredFileRef[] = groupedParts.flatMap(deliveredFilesOfPart)
+  // Fork: on the ACP path `[N]` is resolved POSITIONALLY against this list, so the
+  // turn's attachments go in FRONT of it — that is the numbering the agent was given
+  // in the prompt note. Only when the agent delivered files of its own: otherwise this
+  // list stays empty and the attachments resolve through `sources`, which carries its
+  // own index and is what the built-in agent uses.
+  const deliveredFiles: DeliveredFileRef[] =
+    agentDeliveredFiles.length > 0
+      ? [...attachmentRefsFromSources(sources ?? []), ...agentDeliveredFiles]
+      : agentDeliveredFiles
 
   groupedParts.forEach((part, index) => {
     const [partType] = splitPartType(part.type)
