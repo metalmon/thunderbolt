@@ -102,3 +102,36 @@ describe('buildDeliveredCitationPlaceholders', () => {
     expect(fullText).toBe('attachment://deliver/nope.pdf')
   })
 })
+
+describe('what counts as a citation', () => {
+  // The resolver here and the one in text-part.tsx must agree, so this pins the rule
+  // for both: a bracketed number glued to a word is part of that word.
+  const oneFile = [
+    { localFileId: 'lf1', filename: 'a.pdf', mimeType: 'application/pdf', size: 1, uri: 'attachment://deliver/a.pdf' },
+  ]
+
+  test('a bracketed number inside a filename is not a citation', () => {
+    const { fullText, citations } = buildDeliveredCitationPlaceholders('see report[1].pdf for detail', oneFile)
+
+    expect(fullText).toBe('see report[1].pdf for detail')
+    expect(citations.size).toBe(0)
+  })
+
+  test('a version number does not either', () => {
+    const { citations } = buildDeliveredCitationPlaceholders('build v1.2[1] shipped', oneFile)
+
+    expect(citations.size).toBe(0)
+  })
+
+  test('but a citation right after the sentence period does — the commonest form', () => {
+    const { fullText, citations } = buildDeliveredCitationPlaceholders('It is ready.[1]', oneFile)
+
+    expect(citations.size).toBe(1)
+    expect(fullText).toContain('{{CITE:')
+  })
+
+  test('and so does one after a space, or inside brackets', () => {
+    expect(buildDeliveredCitationPlaceholders('ready [1]', oneFile).citations.size).toBe(1)
+    expect(buildDeliveredCitationPlaceholders('(see above [1])', oneFile).citations.size).toBe(1)
+  })
+})

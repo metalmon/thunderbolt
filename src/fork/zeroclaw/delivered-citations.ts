@@ -12,7 +12,12 @@ import {
 } from '@/types/citation'
 import { deliveredCaption, type DeliveredFileRef } from './outbound-resource-blob'
 
-const groupedCitationRegex = /\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
+/** ⚠ Must stay identical to the copy in `src/components/chat/text-part.tsx`: the two
+ *  resolve `[N]` for different source kinds but must agree on what a citation IS.
+ *  The leading lookbehind keeps a bracketed number that is part of a word out —
+ *  `report[3].pdf` is a filename. Only a letter or digit disqualifies, so the
+ *  commonest form of all, `end of sentence.[1]`, still matches. */
+const groupedCitationRegex = /(?<![\p{L}\p{N}])\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/gu
 const individualCitationRegex = /\[(\d+)\]/g
 
 /**
