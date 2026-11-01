@@ -37,13 +37,8 @@ type TextPartProps = {
 /**
  * Matches one or more adjacent [N] citations separated by optional whitespace.
  * Negative lookahead on each [N] prevents matching markdown links [text](url).
- *
- * ⚠ Fork: the leading lookbehind keeps a bracketed number that is part of a WORD from
- * becoming a citation — `report[3].pdf` and `v1.2[3]` are filenames, not references.
- * Only a letter or a digit disqualifies: a citation legitimately follows punctuation,
- * and `end of sentence.[1]` is the commonest form of all.
  */
-const groupedCitationRegex = /(?<![\p{L}\p{N}])\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/gu
+const groupedCitationRegex = /\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
 
 /** Extracts individual [N] numbers from a matched group */
 const individualCitationRegex = /\[(\d+)\]/g
@@ -168,155 +163,151 @@ export const buildDocumentCitationPlaceholders = (
   return { fullText, citations }
 }
 
-export const TextPart = memo(
-  ({ part, messageId, isStreaming = false, sources, haystackReferences, deliveredFiles }: TextPartProps) => {
-    const isPartStreaming = isStreaming && part.state === 'streaming'
-    const revealedText = useSmoothText(part.text, isPartStreaming)
-    // The parser strips complete native citations; withhold their unfinished suffix to avoid syntax flashes.
-    const text = isPartStreaming ? revealedText.replace(/【(?:\d+(?:†[^】]*)?)?$/, '') : revealedText
-    const hasNewSources = !!sources && sources.length > 0
-    const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
-    const hasDeliveredRefs = !!deliveredFiles && deliveredFiles.length > 0
+export const TextPart = memo(({ part, messageId, isStreaming = false, sources, haystackReferences, deliveredFiles }: TextPartProps) => {
+  const isPartStreaming = isStreaming && part.state === 'streaming'
+  const revealedText = useSmoothText(part.text, isPartStreaming)
+  // The parser strips complete native citations; withhold their unfinished suffix to avoid syntax flashes.
+  const text = isPartStreaming ? revealedText.replace(/【(?:\d+(?:†[^】]*)?)?$/, '') : revealedText
+  const hasNewSources = !!sources && sources.length > 0
+  const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
+  const hasDeliveredRefs = !!deliveredFiles && deliveredFiles.length > 0
 
-    // Thread incremental parse state across renders so a streamed part re-scans only
-    // its appended tail (marker-free prose) instead of the whole growing string.
-    const parseStateRef = useRef<ContentPartsState | null>(null)
+  // Thread incremental parse state across renders so a streamed part re-scans only
+  // its appended tail (marker-free prose) instead of the whole growing string.
+  const parseStateRef = useRef<ContentPartsState | null>(null)
 
-    // Build citation data upfront so the hook is always called in the same order
-    const { processedParts, citations, hasCitations, hasText } = useMemo(() => {
-      if (!text) {
-        parseStateRef.current = null
-        return {
-          processedParts: [] as ContentPart[],
-          citations: new Map() as CitationMap,
-          hasCitations: false,
-          hasText: false,
-        }
-      }
-
-      const { parts, state } = parseContentPartsIncremental(text, parseStateRef.current)
-      parseStateRef.current = state
-
-      // Pick the citation builder based on which source type is active.
-      // Document references take priority when both are present.
-      const buildPlaceholders = hasDocumentRefs
-        ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences!, offset)
-        : hasDeliveredRefs
-          ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, deliveredFiles!, offset)
-          : hasNewSources
-            ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources!, offset)
-            : null
-
-      if (buildPlaceholders) {
-        let keyOffset = 0
-        const mergedCitations: CitationMap = new Map()
-        const processedParts: ContentPart[] = parts.map((p) => {
-          if (p.type !== 'text') {
-            return p
-          }
-          const { fullText, citations } = buildPlaceholders(p.content, keyOffset)
-          for (const [key, value] of citations) {
-            mergedCitations.set(key, value)
-          }
-          keyOffset += citations.size
-          return { type: 'text' as const, content: fullText }
-        })
-
-        const hasCit = mergedCitations.size > 0
-        return {
-          processedParts,
-          citations: mergedCitations,
-          hasCitations: hasCit,
-          hasText: parts.some((p) => p.type === 'text' && p.content.length > 0),
-        }
-      }
-
+  // Build citation data upfront so the hook is always called in the same order
+  const { processedParts, citations, hasCitations, hasText } = useMemo(() => {
+    if (!text) {
+      parseStateRef.current = null
       return {
-        processedParts: parts,
+        processedParts: [] as ContentPart[],
         citations: new Map() as CitationMap,
         hasCitations: false,
-        hasText: parts.some((p) => p.type === 'text'),
+        hasText: false,
       }
-    }, [text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences, deliveredFiles])
-
-    const dedupedParts = useMemo(() => deduplicateLinkPreviews(processedParts), [processedParts])
-
-    if (!text) {
-      return null
     }
 
-    if (hasCitations && hasText) {
-      return (
-        <CitationPopoverProvider>
-          <CitationContext.Provider value={citations}>
-            {dedupedParts.map((part, index) => {
-              if (part.type === 'text') {
-                return (
-                  <div key={`text-${index}`} className="p-4 my-2">
-                    <MemoizedMarkdown
-                      key={`${messageId}-text-${index}`}
-                      id={`${messageId}-${index}`}
-                      content={part.content}
-                      components={citationMarkdownComponents}
-                    />
-                  </div>
-                )
-              }
-              if (part.type === 'widget-loading') {
-                return (
-                  <div
-                    key={`widget-${index}`}
-                    className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out"
-                  >
-                    <WidgetLoading name={part.name} />
-                  </div>
-                )
-              }
+    const { parts, state } = parseContentPartsIncremental(text, parseStateRef.current)
+    parseStateRef.current = state
+
+    // Pick the citation builder based on which source type is active.
+    // Document references take priority when both are present.
+    const buildPlaceholders = hasDocumentRefs
+      ? (text: string, offset: number) => buildDocumentCitationPlaceholders(text, haystackReferences!, offset)
+      : hasDeliveredRefs
+        ? (text: string, offset: number) => buildDeliveredCitationPlaceholders(text, deliveredFiles!, offset)
+        : hasNewSources
+          ? (text: string, offset: number) => buildSourceCitationPlaceholders(text, sources!, offset)
+          : null
+
+    if (buildPlaceholders) {
+      let keyOffset = 0
+      const mergedCitations: CitationMap = new Map()
+      const processedParts: ContentPart[] = parts.map((p) => {
+        if (p.type !== 'text') {
+          return p
+        }
+        const { fullText, citations } = buildPlaceholders(p.content, keyOffset)
+        for (const [key, value] of citations) {
+          mergedCitations.set(key, value)
+        }
+        keyOffset += citations.size
+        return { type: 'text' as const, content: fullText }
+      })
+
+      const hasCit = mergedCitations.size > 0
+      return {
+        processedParts,
+        citations: mergedCitations,
+        hasCitations: hasCit,
+        hasText: parts.some((p) => p.type === 'text' && p.content.length > 0),
+      }
+    }
+
+    return {
+      processedParts: parts,
+      citations: new Map() as CitationMap,
+      hasCitations: false,
+      hasText: parts.some((p) => p.type === 'text'),
+    }
+  }, [text, hasNewSources, hasDocumentRefs, hasDeliveredRefs, sources, haystackReferences, deliveredFiles])
+
+  const dedupedParts = useMemo(() => deduplicateLinkPreviews(processedParts), [processedParts])
+
+  if (!text) {
+    return null
+  }
+
+  if (hasCitations && hasText) {
+    return (
+      <CitationPopoverProvider>
+        <CitationContext.Provider value={citations}>
+          {dedupedParts.map((part, index) => {
+            if (part.type === 'text') {
               return (
-                <div
-                  key={
-                    part.widget.widget === 'link-preview'
-                      ? (part.widget.args as { url: string }).url
-                      : `widget-${index}`
-                  }
-                  className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out"
-                >
-                  <WidgetRenderer widget={part.widget} messageId={messageId} sources={sources} />
+                <div key={`text-${index}`} className="p-4 my-2">
+                  <MemoizedMarkdown
+                    key={`${messageId}-text-${index}`}
+                    id={`${messageId}-${index}`}
+                    content={part.content}
+                    components={citationMarkdownComponents}
+                  />
                 </div>
               )
-            })}
-          </CitationContext.Provider>
-        </CitationPopoverProvider>
-      )
-    }
+            }
+            if (part.type === 'widget-loading') {
+              return (
+                <div
+                  key={`widget-${index}`}
+                  className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out"
+                >
+                  <WidgetLoading name={part.name} />
+                </div>
+              )
+            }
+            return (
+              <div
+                key={
+                  part.widget.widget === 'link-preview' ? (part.widget.args as { url: string }).url : `widget-${index}`
+                }
+                className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out"
+              >
+                <WidgetRenderer widget={part.widget} messageId={messageId} sources={sources} />
+              </div>
+            )
+          })}
+        </CitationContext.Provider>
+      </CitationPopoverProvider>
+    )
+  }
 
-    // Default behavior for block-level widgets or no citations
-    return (
-      <>
-        {dedupedParts.map((contentPart, index) => {
-          if (contentPart.type === 'text') {
-            return (
-              <div key={`text-${index}`} className="p-4 my-2">
-                <MemoizedMarkdown key={`${messageId}-text`} id={messageId} content={contentPart.content} />
-              </div>
-            )
-          }
-          if (contentPart.type === 'widget-loading') {
-            return (
-              <div key={`widget-${index}`} className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out">
-                <WidgetLoading name={contentPart.name} />
-              </div>
-            )
-          }
+  // Default behavior for block-level widgets or no citations
+  return (
+    <>
+      {dedupedParts.map((contentPart, index) => {
+        if (contentPart.type === 'text') {
           return (
-            <div key={`widget-${index}`} className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out">
-              <WidgetRenderer widget={contentPart.widget} messageId={messageId} sources={sources} />
+            <div key={`text-${index}`} className="p-4 my-2">
+              <MemoizedMarkdown key={`${messageId}-text`} id={messageId} content={contentPart.content} />
             </div>
           )
-        })}
-      </>
-    )
-  },
-)
+        }
+        if (contentPart.type === 'widget-loading') {
+          return (
+            <div key={`widget-${index}`} className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out">
+              <WidgetLoading name={contentPart.name} />
+            </div>
+          )
+        }
+        return (
+          <div key={`widget-${index}`} className="animate-in slide-in-from-bottom-2 fade-in duration-300 ease-out">
+            <WidgetRenderer widget={contentPart.widget} messageId={messageId} sources={sources} />
+          </div>
+        )
+      })}
+    </>
+  )
+})
 
 TextPart.displayName = 'TextPart'
