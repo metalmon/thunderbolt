@@ -253,11 +253,6 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
 
   const emitHaystackMetadata = (): void => {
     const messageMetadata: Record<string, unknown> = {}
-    // Fork: recorded on the reply, like the built-in path records its own sources, so
-    // the citation survives a reload instead of needing a live map.
-    if (options.attachmentSources && options.attachmentSources.length > 0) {
-      messageMetadata.sources = options.attachmentSources
-    }
     if (haystackReferencesByPosition.size > 0) {
       messageMetadata.haystackReferences = Array.from(haystackReferencesByPosition.values()).sort(
         (a, b) => a.position - b.position,
@@ -272,17 +267,33 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
     emit({ type: 'message-metadata', messageMetadata })
   }
 
+  /**
+   * Fork: record the turn's attachments on the reply, once, when prose begins — the
+   * only moment a citation can appear, and the metadata merges into the message either
+   * way.
+   *
+   * ⚠ Deliberately NOT folded into `emitHaystackMetadata`: that fires on each chunk
+   * carrying the agent's own references, and reusing it would add a redundant metadata
+   * chunk to every reply from an agent that sends them. Our agents send none, so these
+   * two never need to travel together.
+   */
+  let attachmentSourcesEmitted = false
+  const emitAttachmentSources = (): void => {
+    const sources = options.attachmentSources
+    if (attachmentSourcesEmitted || !sources || sources.length === 0) {
+      return
+    }
+    attachmentSourcesEmitted = true
+    emit({ type: 'message-metadata', messageMetadata: { sources } })
+  }
+
   const ensureTextStarted = (): void => {
     if (textStarted) {
       return
     }
     textStarted = true
     emitReasoningDuration()
-    // Fork: the attachment sources ride this same emitter, which otherwise fires only
-    // when the agent sends Haystack metadata of its own — ours never does. Text start
-    // is the right moment: a citation can only appear in prose, and the metadata is
-    // merged into the message either way.
-    emitHaystackMetadata()
+    emitAttachmentSources()
     emit({ type: 'text-start', id: textId })
   }
 
