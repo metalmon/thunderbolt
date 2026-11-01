@@ -4416,7 +4416,11 @@ msgid "Synced {relative}"
 msgstr "Synced {relative}"
 
 #: src/components/theme-toggle-group.tsx
+msgid "System"
+msgstr "System"
+
 #: src/fork/typography/chat-font-toggle.tsx
+msgctxt "font"
 msgid "System"
 msgstr "System"
 

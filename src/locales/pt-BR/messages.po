@@ -4210,9 +4210,13 @@ msgid "Synced {relative}"
 msgstr "Sincronizado {relative}"
 
 #: src/components/theme-toggle-group.tsx
-#: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
 msgstr "Sistema"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgctxt "font"
+msgid "System"
+msgstr ""
 
 #: src/components/settings/agents/agent-provenance.ts
 msgid "System agent · always available"
