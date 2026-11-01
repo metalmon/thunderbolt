@@ -47,14 +47,10 @@ describe('buildPromptBlocks — no embeddedContext', () => {
   test('sends a text-extractable file as an extracted text block', async () => {
     const blocks = (await buildPromptBlocks(initWith([textPart('hi'), pdf()]), undefined, false, deps)) as Block[]
 
-    // Fork: the marker is its own block and carries the number the reply cites, and the
-    // first block gains the note naming that number. See
-    // docs/development/attachment-citations.md.
-    expect(blocks).toHaveLength(3)
-    expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[0]?.text).toContain('[1] doc.pdf')
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
-    expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0]).toEqual({ type: 'text', text: expectedPromptText('hi') })
+    expect(blocks[1]?.type).toBe('text')
+    expect(blocks[1]?.text).toBe('[Attachment: doc.pdf]\n\nEXTRACTED PDF TEXT')
   })
 
   test('flags a non-text file as undeliverable instead of dropping it silently', async () => {
@@ -73,12 +69,10 @@ describe('buildPromptBlocks — no embeddedContext', () => {
       deps,
     )) as Block[]
 
-    expect(blocks).toHaveLength(3)
+    expect(blocks).toHaveLength(2)
     expect(blocks[0]?.text).toContain('[Attachment "pic.png" could not be delivered to this agent]')
-    // The undeliverable note still names only the file that failed.
-    expect(blocks[0]?.text).not.toContain('"doc.pdf" could not be delivered')
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
-    expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
+    expect(blocks[0]?.text).not.toContain('doc.pdf')
+    expect(blocks[1]?.text).toBe('[Attachment: doc.pdf]\n\nEXTRACTED PDF TEXT')
   })
 
   test('with no attachments, returns a single text block (no note)', async () => {
@@ -98,15 +92,12 @@ describe('buildPromptBlocks — embeddedContext', () => {
       deps,
     )) as ResourceBlock[]
 
-    // Fork: a resource block carries no text, so the marker naming its citation number
-    // is a block of its own in front of it — this is the path docx and PDF take.
-    expect(blocks).toHaveLength(3)
-    expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
-    expect(blocks[2]?.type).toBe('resource')
-    expect(blocks[2]?.resource?.uri).toBe('attachment://f1/doc.pdf')
-    expect(blocks[2]?.resource?.mimeType).toBe('application/pdf')
-    expect(typeof blocks[2]?.resource?.blob).toBe('string')
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0]).toEqual({ type: 'text', text: expectedPromptText('hi') })
+    expect(blocks[1]?.type).toBe('resource')
+    expect(blocks[1]?.resource?.uri).toBe('attachment://f1/doc.pdf')
+    expect(blocks[1]?.resource?.mimeType).toBe('application/pdf')
+    expect(typeof blocks[1]?.resource?.blob).toBe('string')
   })
 
   test('honors deliverAs: text from remediation — sends extracted text, not native bytes', async () => {
@@ -118,10 +109,10 @@ describe('buildPromptBlocks — embeddedContext', () => {
     })
     const blocks = (await buildPromptBlocks(initWith([textPart('hi'), remediated]), undefined, true, deps)) as Block[]
 
-    expect(blocks).toHaveLength(3)
-    expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
-    expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0]).toEqual({ type: 'text', text: expectedPromptText('hi') })
+    expect(blocks[1]?.type).toBe('text')
+    expect(blocks[1]?.text).toBe('[Attachment: doc.pdf]\n\nEXTRACTED PDF TEXT')
   })
 
   test('flags a file missing from IndexedDB as undeliverable instead of dropping it silently', async () => {
@@ -146,9 +137,7 @@ describe('buildPromptBlocks — quotes', () => {
     )) as Block[]
 
     expect(blocks).toHaveLength(1)
-    expect(blocks[0]?.text).toBe(
-      expectedPromptText('> the mitochondria is the powerhouse of the cell\n\nis this right?'),
-    )
+    expect(blocks[0]?.text).toBe(expectedPromptText('> the mitochondria is the powerhouse of the cell\n\nis this right?'))
   })
 
   test('sends a quote-only reply (no typed text) as the blockquote alone', async () => {
@@ -166,8 +155,7 @@ describe('buildPromptBlocks — quotes', () => {
       deps,
     )) as Block[]
 
-    expect(blocks[0]?.text).toContain(expectedPromptText('> context\n\nsummarize'))
-    expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: doc.pdf]' })
-    expect(blocks[2]?.type).toBe('resource')
+    expect(blocks[0]?.text).toBe(expectedPromptText('> context\n\nsummarize'))
+    expect(blocks[1]?.type).toBe('resource')
   })
 })
