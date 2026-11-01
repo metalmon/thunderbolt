@@ -5,7 +5,6 @@
 /* Fork-owned (metalmon / Volt). Do not upstream. */
 
 import { getAttachments } from '@/lib/attachments'
-import type { DeliveredFileRef } from '@/fork/zeroclaw/outbound-resource-blob'
 import { buildDocumentSideviewId, type DocumentCitationSource } from '@/types/citation'
 import type { ThunderboltUIMessage } from '@/types'
 import type { SourceMetadata } from '@/types/source'
@@ -124,21 +123,3 @@ export const attachmentCitationNote = (sources: readonly SourceMetadata[]): stri
     lines,
   ].join('\n')
 }
-
-/**
- * The turn's attachments as delivered-file refs, for the ACP path.
- *
- * ⚠ There, `[N]` is resolved POSITIONALLY against the message's delivered files, not by
- * a carried index — so attachments have to sit at the FRONT of that list for the numbers
- * the agent was given (1…k) to land on them. The agent is told as much in the prompt
- * note; nothing on the wire conveys it.
- */
-export const attachmentRefsFromSources = (sources: readonly SourceMetadata[]): DeliveredFileRef[] =>
-  sources.filter(isAttachmentSource).map((source) => ({
-    localFileId: source.localFileId ?? '',
-    filename: source.title,
-    // Unknown and unused by the citation path, which reads the name and the id only.
-    mimeType: '',
-    size: 0,
-    uri: '',
-  }))
