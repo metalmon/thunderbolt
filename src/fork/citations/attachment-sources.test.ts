@@ -5,7 +5,13 @@
 import { describe, expect, it } from 'bun:test'
 import { attachmentPartType } from '@/lib/attachments'
 import type { ThunderboltUIMessage } from '@/types'
-import { attachmentCitation, attachmentMarker, attachmentSourcesOfTurn, isAttachmentSource } from './attachment-sources'
+import {
+  attachmentCitation,
+  attachmentCitationNote,
+  attachmentMarker,
+  attachmentSourcesOfTurn,
+  isAttachmentSource,
+} from './attachment-sources'
 
 const userMessageWith = (...filenames: string[]): ThunderboltUIMessage =>
   ({
@@ -84,5 +90,30 @@ describe('attachmentCitation', () => {
 describe('attachmentMarker', () => {
   it('names the number the model is to cite', () => {
     expect(attachmentMarker('report.docx', 2)).toBe('[Attachment 2: report.docx]')
+  })
+})
+
+describe('attachmentCitationNote', () => {
+  it('names each attachment by the number the reply must cite', () => {
+    const sources = attachmentSourcesOfTurn([userMessageWith('report.docx', 'data.xlsx')])
+    const note = attachmentCitationNote(sources)
+
+    expect(note).toContain('[1] report.docx')
+    expect(note).toContain('[2] data.xlsx')
+  })
+
+  it('leaves a turn without attachments untouched, so the prompt cache survives', () => {
+    expect(attachmentCitationNote([])).toBeNull()
+  })
+
+  it('ignores web sources sharing the registry', () => {
+    const webSource = {
+      index: 1,
+      url: 'https://example.com',
+      title: 'Example',
+      toolName: 'search' as const,
+    }
+
+    expect(attachmentCitationNote([webSource])).toBeNull()
   })
 })
