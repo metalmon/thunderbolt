@@ -19,6 +19,17 @@ type Frame = { srcDoc: string; pageWidth: number }
 /** Letter at 96dpi — the fallback when the document declares no page width. */
 const defaultPageWidthPx = 816
 
+/**
+ * The canvas margin around the sheets, in the frame's own pixels.
+ *
+ * It is what makes the document read as a page rather than as a wall of text, and
+ * it is the one gutter in play: the frame is sized to the sheet PLUS this on both
+ * sides, so the sheet always gets its full declared width and nothing overflows.
+ * Being inside the frame it scales with the page, which is what keeps the framing
+ * proportional at any panel width.
+ */
+const pageGutterPx = 24
+
 /** CSS absolute units in px, at the 96dpi the browser defines them against. */
 const pxPerUnit: Record<string, number> = {
   px: 1,
@@ -60,21 +71,23 @@ export const declaredPageWidthPx = (declared: string | undefined): number => {
  * any theme, like Word, Acrobat or Google Docs. The themed canvas around the
  * sheets lives on the host element, outside the frame.
  *
- * docx-preview hardcodes a gray `.docx-wrapper` background and its own padding;
- * both are neutralized here.
+ * docx-preview hardcodes a gray wrapper background and a 30px padding; both are
+ * replaced here — the background by the host's themed canvas showing through, the
+ * padding by {@link pageGutterPx}, which the frame's width accounts for.
  */
 const frameStylesheet = `
   /* The app hides every scrollbar of its own (the global scrollbar-width rule in
      index.css, "for consistent cross-platform appearance"), but this frame is a
-     separate document in an opaque origin and inherits none of that — so it was the
-     one surface still drawing platform scrollbars. A classic bar also TAKES WIDTH,
-     and the frame is exactly one page wide, so the sheet was pushed over by precisely
-     one scrollbar and a horizontal bar appeared under every long document. Scrolling
-     is unaffected: wheel, touch and keys all still work, as everywhere else here. */
+     separate document in an opaque origin and inherits none of that, which left it
+     the one surface still drawing them. A classic bar also takes width, which the
+     frame has none spare of. Scrolling is unaffected: wheel, touch and keys all
+     still work, as everywhere else here. */
   * { scrollbar-width: none; -ms-overflow-style: none; }
   *::-webkit-scrollbar { display: none; }
   html, body { margin: 0; padding: 0; background: transparent; }
-  .docx-wrapper { background: transparent; padding: 0; }
+  /* Transparent, so the canvas the sheets sit on is the host's themed one rather
+     than the library's gray — which belongs to no theme and glares in the dark. */
+  .docx-wrapper { background: transparent; padding: ${pageGutterPx}px; }
   .docx-wrapper > section.docx { margin: 0 auto 1rem; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18); }
 `
 
@@ -130,7 +143,13 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
         // Built in a document of its own, never attached: nothing from the file
         // touches the app DOM, and the result is handed over as markup.
         const detached = document.implementation.createHTMLDocument(fileName)
-        await renderAsync(blob, detached.body, undefined, {
+        // ⚠ The style container is given explicitly. Left undefined, docx-preview
+        // writes its stylesheet into the BODY container — later in document order
+        // than our own <style> in the head, so at equal specificity its rules won
+        // and the neutralizations below silently did nothing. Pointing it at the
+        // head puts its rules before ours, where they can be overridden. (It wipes
+        // whatever the container held, which here is only the generated <title>.)
+        await renderAsync(blob, detached.body, detached.head, {
           className: 'docx',
           inWrapper: true,
           // Honor Word's rendered page breaks so the document splits into
@@ -182,8 +201,12 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
     }
     const fit = () => {
       const available = host.clientWidth
-      const scale = available > 0 ? available / frame.pageWidth : 1
-      el.style.width = `${frame.pageWidth}px`
+      // The sheet plus its canvas margin on both sides — the frame's real content
+      // width. Scaling against the sheet alone is what pushed the gutter off the
+      // edge and put a horizontal bar under every document.
+      const frameWidth = frame.pageWidth + pageGutterPx * 2
+      const scale = available > 0 ? available / frameWidth : 1
+      el.style.width = `${frameWidth}px`
       el.style.height = `${100 / scale}%`
       el.style.transform = `scale(${scale})`
       el.style.transformOrigin = 'top left'
