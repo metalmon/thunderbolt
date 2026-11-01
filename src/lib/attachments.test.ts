@@ -120,14 +120,17 @@ describe('hydrateAttachmentsAsFileParts — history reduction', () => {
     const result = await hydrateAttachmentsAsFileParts(conversation(), oneBadFile)
 
     // f3 (csv, latest turn) still extracts even though f1 could not be read.
-    expect(texts(result[2])).toEqual(['and this', '[Attachment: data.csv]\n\nEXTRACTED'])
+    expect(texts(result[2])).toEqual(['and this', '[Attachment 1: data.csv]', 'EXTRACTED'])
   })
 
   test('the latest turn still delivers its attachment in full (here: csv as text)', async () => {
     const result = await hydrateAttachmentsAsFileParts(conversation(), deps)
     const u2 = result[2]
 
-    expect(texts(u2)).toEqual(['and this', '[Attachment: data.csv]\n\nEXTRACTED'])
+    // Fork: the marker is its own part now, and carries the number the reply cites —
+    // the raw-bytes and rasterized paths have no text to prefix. See
+    // docs/development/attachment-citations.md.
+    expect(texts(u2)).toEqual(['and this', '[Attachment 1: data.csv]', 'EXTRACTED'])
   })
 
   test('an image on the latest turn would NOT be reduced (kept for full native delivery)', async () => {
