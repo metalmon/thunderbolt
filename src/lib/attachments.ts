@@ -195,17 +195,32 @@ export const hydrateAttachmentsAsFileParts = async (
           // invalidated it) — and because every send re-reads the whole history,
           // letting that throw failed the turn, burned all three auto-retries, and
           // broke even a plain-text follow-up. The conversation stays usable.
+          // Fork: an attachment that cannot be read still OCCUPIES its number — the user
+          // sees its chip in the thread, and a numbering that shifted with the outcome of
+          // a disk read would be nondeterministic. So it keeps its place and says plainly
+          // that it did not arrive, rather than being announced as a citable source and
+          // then silently dropped. The ACP path has always done this; the built-in path
+          // said nothing at all.
+          const undeliverable = () =>
+            isCurrentTurn
+              ? [
+                  {
+                    type: 'text' as const,
+                    text: `${attachmentMarker(part.data.filename, citationIndexes.get(part) ?? 1)} ${undeliverableAttachmentsNote([part.data.filename])}`,
+                  },
+                ]
+              : [part]
           try {
             const file = await deps.getAttachment(part.data.localFileId)
             if (!file) {
-              return [part]
+              return undeliverable()
             }
             return isCurrentTurn
               ? await hydrateCurrentAttachment(part.data, file, deps, citationIndexes.get(part) ?? 1)
               : await hydrateHistoricalAttachment(part.data, file, deps)
           } catch (error) {
             console.warn('Skipping an unreadable attachment', { filename: part.data.filename, error })
-            return [part]
+            return undeliverable()
           }
         }),
       )
