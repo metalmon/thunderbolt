@@ -47,6 +47,7 @@ import { handleSessionRejected } from '@/lib/session-rejected'
 import { isSsoMode } from '@/lib/auth-mode'
 import { getAuthToken } from '@/lib/auth-token'
 import { createManagedLaneModel } from '@/fork/ai/managed-lane'
+import { attachmentCitationNote, attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { classifyErrorKind, createChatErrorResponse } from '@/lib/error-utils'
 import { fetch as baseFetch } from '@/lib/fetch'
 import { isLoopbackHost } from '@/lib/mcp-url-validation'
@@ -489,6 +490,10 @@ export type PrepareAiRequestConfigOptions = {
    *  stable system prompt; omit for non-thread callers. */
   readonly chatThreadId?: string
   readonly telemetry?: TurnTelemetry
+  /** Fork: this turn's attachments, as registry entries. They must be in the collector
+   *  BEFORE the toolset is built — the Pro tools capture their counter's start from the
+   *  collector's length at that moment, which is what keeps one numbering for both. */
+  readonly attachmentSources?: readonly SourceMetadata[]
 }
 
 /** Register progressive skill loading only for models that support tools. */
@@ -524,6 +529,7 @@ export const prepareAiRequestConfig = async ({
   webToolBudget,
   chatThreadId,
   telemetry,
+  attachmentSources = [],
 }: PrepareAiRequestConfigOptions): Promise<PreparedAiRequestConfig> => {
   telemetry?.startPhase('request_config')
   const db = getDb()
@@ -557,6 +563,10 @@ export const prepareAiRequestConfig = async ({
   // conditionally alongside the other app tools.
   const projectContext = await loadProjectContextForThread(db, chatThreadId)
   const sourceCollector = webToolBudget?.sourceCollector ?? []
+  // Fork: attachments claim 1…k here, before `getAvailableTools` below builds the Pro
+  // tools — their counter starts at this collector's length, so search continues at
+  // k+1 and the two kinds of source cannot be given the same [N].
+  sourceCollector.push(...attachmentSources)
   const toolCallCache: ToolCallCache = new Map()
   const availableTools = supportsTools
     ? await getAvailableTools(httpClient, sourceCollector, { settings, integrationStatus })
@@ -719,16 +729,22 @@ export const buildVolatileSystemNotes = ({
   voiceNotes,
   skillSystemMessages,
   askResponsesNote,
+  attachmentsNote = null,
 }: {
   volatileSystemPrompt: string
   voiceNotes: readonly string[]
   skillSystemMessages: readonly string[]
   askResponsesNote: string | null
+  /** Fork: names the numbers this turn's attachments are cited as. A note rather than
+   *  part of the stable prompt, so a turn without attachments stays byte-identical and
+   *  the prompt cache is never invalidated by one. */
+  attachmentsNote?: string | null
 }): string[] => [
   volatileSystemPrompt,
   ...voiceNotes,
   ...skillSystemMessages,
   ...(askResponsesNote ? [askResponsesNote] : []),
+  ...(attachmentsNote ? [attachmentsNote] : []),
 ]
 
 /** Record one legacy empty-response retry in telemetry and transcript vocabularies. */
@@ -776,6 +792,10 @@ export const aiFetchStreamingResponse = async ({
   const abortSignal: AbortSignal | undefined = options.signal ?? undefined
   const { messages } = body
   const requestBudget = turnBudget ?? createTurnBudget().consumer
+  // Fork: the files attached to this turn, registered as sources so `[N]` on a document
+  // resolves. Computed here because this is where the messages are — see
+  // docs/development/attachment-citations.md.
+  const attachmentSources = attachmentSourcesOfTurn(messages)
 
   // The chat instance saves the user message via `saveMessages` before
   // invoking the adapter — see `src/chats/chat-instance.ts`. By the time we
@@ -802,6 +822,7 @@ export const aiFetchStreamingResponse = async ({
     // The chat id rides the request body (see the destructure above), which is
     // how this path knows which thread — and so which project — it is serving.
     chatThreadId: body.id,
+    attachmentSources,
     telemetry,
   })
   if (!supportsTools) {
@@ -998,6 +1019,7 @@ export const aiFetchStreamingResponse = async ({
       voiceNotes,
       skillSystemMessages,
       askResponsesNote,
+      attachmentsNote: attachmentCitationNote(attachmentSources),
     })
 
     const stream = createUIMessageStream({
