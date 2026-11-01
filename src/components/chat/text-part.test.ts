@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
+import { buildAttachmentPart } from '@/lib/attachments'
 import { describe, expect, test } from 'bun:test'
 import type { ContentPart } from '@/ai/widget-parser'
 import { parseContentParts } from '@/ai/widget-parser'
@@ -432,5 +434,45 @@ describe('buildDocumentCitationPlaceholders', () => {
 
     expect(fullText).toBe('Click [1](https://x.com).')
     expect(citations.size).toBe(0)
+  })
+})
+
+describe('an attached document resolves the way the live app sends it', () => {
+  // Pins the whole client chain for the built-in agent with the shape the composer
+  // actually produces: an attachment part on the last user message, numbered into the
+  // source registry, then `[1]` in the reply. Reported broken on a live install.
+  const attachmentSource = attachmentSourcesOfTurn([
+    {
+      id: 'u1',
+      role: 'user',
+      parts: [
+        { type: 'text', text: 'Привет. О чем этот документ?' },
+        buildAttachmentPart({
+          localFileId: 'lf-1',
+          filename: 'Proekt-otvetnogo-pisma.docx',
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        }),
+      ],
+    },
+  ] as never)
+
+  test('the composer shape yields exactly one numbered source', () => {
+    expect(attachmentSource).toHaveLength(1)
+    expect(attachmentSource[0].index).toBe(1)
+  })
+
+  test('a [1] standing alone in its own paragraph still resolves', () => {
+    const reply = 'Документ — это проект письма.' + '\n\n' + '[1]'
+    const { fullText, citations } = buildSourceCitationPlaceholders(reply, attachmentSource)
+
+    expect(citations.size).toBe(1)
+    expect(fullText).toContain('{{CITE:0}}')
+  })
+
+  test('and the citation it produces opens the local preview, not a URL', () => {
+    const { citations } = buildSourceCitationPlaceholders('[1]', attachmentSource)
+    const [source] = citations.get(0) ?? []
+
+    expect(source).toMatchObject({ url: '', documentMeta: { fileId: 'lf-1' } })
   })
 })
