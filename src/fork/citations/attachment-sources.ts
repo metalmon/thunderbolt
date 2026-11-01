@@ -73,3 +73,26 @@ export const attachmentCitation = (source: SourceMetadata, isPrimary: boolean): 
  * lived in the text prefix would be missing for exactly the documents people cite.
  */
 export const attachmentMarker = (filename: string, index: number): string => `[Attachment ${index}: ${filename}]`
+
+/**
+ * The system note naming the numbers this turn's attachments are cited as.
+ *
+ * ⚠ Model-facing, so English, like every other instruction. And ⚠ a per-turn NOTE
+ * rather than part of the stable prompt: the stable half is what the provider caches,
+ * `src/ai/prompt.test.ts` pins it byte for byte, and changing it would move the eval
+ * baseline for every turn — including the overwhelming majority that attach nothing.
+ *
+ * Returns null when the turn attached nothing, which leaves the request unchanged.
+ */
+export const attachmentCitationNote = (sources: readonly SourceMetadata[]): string | null => {
+  const attachments = sources.filter(isAttachmentSource)
+  if (attachments.length === 0) {
+    return null
+  }
+  const lines = attachments.map((source) => `[${source.index}] ${source.title}`).join('\n')
+  return [
+    '# Attached documents',
+    'The user attached these files to this turn. They are sources like any other: cite a claim drawn from one with [N] at the end of the sentence, using the number below.',
+    lines,
+  ].join('\n')
+}
