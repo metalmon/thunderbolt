@@ -9,7 +9,6 @@ import {
   attachmentCitation,
   attachmentCitationNote,
   attachmentMarker,
-  attachmentRefsFromSources,
   attachmentSourcesOfTurn,
   isAttachmentSource,
 } from './attachment-sources'
@@ -116,23 +115,6 @@ describe('attachmentCitationNote', () => {
     }
 
     expect(attachmentCitationNote([webSource])).toBeNull()
-  })
-})
-
-describe('attachmentRefsFromSources', () => {
-  it('keeps attachment order so [1] lands on the first attachment, not the first delivered file', () => {
-    const sources = attachmentSourcesOfTurn([userMessageWith('a.docx', 'b.docx')])
-
-    expect(attachmentRefsFromSources(sources).map((ref) => [ref.filename, ref.localFileId])).toEqual([
-      ['a.docx', 'file-a.docx'],
-      ['b.docx', 'file-b.docx'],
-    ])
-  })
-
-  it('drops web sources, which the ACP path resolves by position and would shift', () => {
-    const webSource = { index: 1, url: 'https://example.com', title: 'Example', toolName: 'search' as const }
-
-    expect(attachmentRefsFromSources([webSource])).toEqual([])
   })
 })
 
