@@ -44,8 +44,13 @@ type TextPartProps = {
 /**
  * Matches one or more adjacent [N] citations separated by optional whitespace.
  * Negative lookahead on each [N] prevents matching markdown links [text](url).
+ *
+ * ⚠ Fork: the leading lookbehind keeps a bracketed number that is part of a WORD from
+ * becoming a citation — `report[3].pdf` and `v1.2[3]` are filenames, not references.
+ * Only a letter or a digit disqualifies: a citation legitimately follows punctuation,
+ * and `end of sentence.[1]` is the commonest form of all.
  */
-const groupedCitationRegex = /\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/g
+const groupedCitationRegex = /(?<![\p{L}\p{N}])\[\d+\](?!\()(?:\s*\[\d+\](?!\())*/gu
 
 /** Extracts individual [N] numbers from a matched group */
 const individualCitationRegex = /\[(\d+)\]/g
