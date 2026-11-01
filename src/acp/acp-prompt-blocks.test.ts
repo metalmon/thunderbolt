@@ -52,7 +52,7 @@ describe('buildPromptBlocks — no embeddedContext', () => {
     // docs/development/attachment-citations.md.
     expect(blocks).toHaveLength(3)
     expect(blocks[0]?.text).toContain(expectedPromptText('hi'))
-    expect(blocks[0]?.text).toContain('[1] doc.pdf')
+    expect(blocks[0]?.text).toContain('[1] "doc.pdf"')
     expect(blocks[1]).toEqual({ type: 'text', text: '[Attachment 1: "doc.pdf"]' })
     expect(blocks[2]?.text).toBe('EXTRACTED PDF TEXT')
   })
