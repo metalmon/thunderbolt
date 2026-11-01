@@ -57,7 +57,6 @@ import {
   type SkillDefinition,
 } from '@shared/agent-core/skills'
 import { blobToBase64, getAttachments, undeliverableAttachmentsNote, type HydratedAttachment } from '@/lib/attachments'
-import { attachmentCitationNote, attachmentMarker, attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { renderMessageQuotesAsText } from '@/lib/quotes'
 import { getTransformer } from '@/files/transformers'
 import { getAttachment } from '@/lib/file-blob-storage'
@@ -198,12 +197,6 @@ export const buildPromptBlocks = async (
     return [{ type: 'text', text }]
   }
 
-  // Fork: ACP has no system channel, so the note naming each attachment's citation
-  // number rides the text block, exactly as skill instructions do. The agent cannot
-  // learn these numbers any other way — nothing on the wire carries them.
-  const note = attachmentCitationNote(attachmentSourcesOfTurn([lastUser]))
-  const citationNote = note ? `\n\n${note}` : ''
-
   if (embeddedContext) {
     // Native-first: send raw bytes as embedded resources. But remediation may have
     // set deliverAs: 'text' on an attachment (the model couldn't read the native
@@ -211,16 +204,9 @@ export const buildPromptBlocks = async (
     // ACP (deliverAs: 'images'), so that case also falls back to text extraction.
     // Files missing from IndexedDB get a visible note rather than vanishing.
     const resolved = await Promise.all(attachments.map((attachment) => resolveEmbeddedDelivery(attachment, deps)))
-    const blocks = resolved.flatMap((r, position): ContentBlock[] => {
-      // Fork: the number this file is cited as, in its own block — the resource path
-      // below carries no text to prefix, and that is the path docx and PDF take.
-      const marker: ContentBlock = {
-        type: 'text',
-        text: attachmentMarker(attachments[position].filename, position + 1),
-      }
+    const blocks = resolved.flatMap((r): ContentBlock[] => {
       if (r.kind === 'resource') {
         return [
-          marker,
           {
             type: 'resource',
             resource: {
@@ -232,24 +218,17 @@ export const buildPromptBlocks = async (
           },
         ]
       }
-      return r.kind === 'text' ? [marker, { type: 'text', text: r.text }] : []
+      return r.kind === 'text' ? [{ type: 'text', text: r.text }] : []
     })
     const undeliverable = resolved.flatMap((r) => (r.kind === 'undeliverable' ? [r.filename] : []))
-    return [{ type: 'text', text: text + citationNote + undeliverableNote(undeliverable) }, ...blocks]
+    return [{ type: 'text', text: text + undeliverableNote(undeliverable) }, ...blocks]
   }
 
   // No embedded context: deliver text-extractable files as text blocks; flag the rest.
   const resolved = await Promise.all(attachments.map((attachment) => resolveTextDelivery(attachment, deps)))
-  const textBlocks = resolved.flatMap((r, position) =>
-    r.kind === 'text'
-      ? [
-          { type: 'text' as const, text: attachmentMarker(attachments[position].filename, position + 1) },
-          { type: 'text' as const, text: r.text },
-        ]
-      : [],
-  )
+  const textBlocks = resolved.flatMap((r) => (r.kind === 'text' ? [{ type: 'text' as const, text: r.text }] : []))
   const undeliverable = resolved.flatMap((r) => (r.kind === 'undeliverable' ? [r.filename] : []))
-  return [{ type: 'text', text: text + citationNote + undeliverableNote(undeliverable) }, ...textBlocks]
+  return [{ type: 'text', text: text + undeliverableNote(undeliverable) }, ...textBlocks]
 }
 
 /** A trailing prompt note listing files that couldn't be delivered, or '' when none. */
@@ -291,9 +270,7 @@ const resolveTextDelivery = async (
   if (transformer && file) {
     const output = await transformer(file)
     if ('text' in output) {
-      // Fork: the name now rides the numbered marker block the caller puts in front of
-      // this one, so repeating it here would name the file twice.
-      return { kind: 'text', text: output.text }
+      return { kind: 'text', text: `[Attachment: ${attachment.filename}]\n\n${output.text}` }
     }
   }
   return { kind: 'undeliverable', filename: attachment.filename }
@@ -700,9 +677,6 @@ export const connectAcpAdapter = async (
     const { body, translator, close } = createTranslatorStream({
       textDeltaThrottleMs: deps.textDeltaThrottleMs,
       onSideEffect: context.onSessionSideEffect,
-      // Fork: recorded on the reply so `[N]` against an attachment resolves to its
-      // preview, and keeps resolving after a reload.
-      attachmentSources: attachmentSourcesOfTurn(parseRequestMessages(init)),
     })
 
     sessionUpdateSinks.set(sessionId, (notification) => translator.handle(notification))
@@ -758,9 +732,7 @@ export const connectAcpAdapter = async (
         // Fork: if this turn is a canvas action, attach its MCP-Apps `_meta` so Volt
         // dispatches the tool/prompt (Wire B). The action rides the last user message's
         // metadata (picked the same way buildPromptBlocks selects the turn's user message).
-        const canvasAction = getCanvasAction(
-          [...parseRequestMessages(init)].reverse().find((m) => m.role === 'user') ?? {},
-        )
+        const canvasAction = getCanvasAction([...parseRequestMessages(init)].reverse().find((m) => m.role === 'user') ?? {})
         const response = await connection.prompt({
           sessionId,
           prompt,
