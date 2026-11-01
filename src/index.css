@@ -940,4 +940,22 @@ body {
   --color-accent: #373636; /* element.background */
   --color-accent-foreground: #dddddd;
   --color-border: #404040; /* border */
+  /* Neutral twin of upstream's #8a8a88. In dark mode "stronger" means lighter, which
+     the source theme has no token for, so only the warm cast is taken out. */
+  --color-border-strong: #8a8a8a;
+  --color-ring: #8a8a8a;
+
+  /* ⚠ The sidebar family mirrors the tokens above one for one and must move with
+     them: left behind, it keeps the old cold greys against a neutral canvas, which
+     is visible as a cold left panel beside a neutral chat. (The window's own title
+     bar is painted from neither — it takes the pre-paint background in index.html,
+     which carries the same value.) */
+  --color-sidebar: #1e1d1e;
+  --color-sidebar-foreground: #cacaca; /* text — a step dimmer than the canvas text */
+  --color-sidebar-primary: #dddddd;
+  --color-sidebar-primary-foreground: #131313;
+  --color-sidebar-accent: #373636;
+  --color-sidebar-accent-foreground: #dddddd;
+  --color-sidebar-border: #404040;
+  --color-sidebar-ring: #8a8a8a;
 }
