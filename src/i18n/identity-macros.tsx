@@ -71,9 +71,24 @@ export const Plural = ({ value, ...forms }: PluralProps) => {
   return <>{typeof form === 'string' ? interpolateHash(form, count) : form}</>
 }
 
-/** Identity `t` tagged template: plain template-string interpolation. */
-const identityT = (strings: TemplateStringsArray, ...values: unknown[]): string =>
-  strings.reduce((acc, part, index) => acc + part + (index < values.length ? String(values[index]) : ''), '')
+/** A message descriptor, the second shape the real macro takes: `t({ message, context })`.
+ *  Needed wherever one English word must carry two translations — see the chat font's
+ *  `System`, which cannot share the theme switch's id because Russian genders them apart. */
+type IdentityDescriptor = { message?: string; id?: string }
+
+/**
+ * Identity `t`: plain template-string interpolation, or the descriptor's own message.
+ *
+ * ⚠ The real macro accepts both shapes, so this must too — a mock that honours only the
+ * tagged template turns an ordinary `t({ … })` into `strings.reduce is not a function`
+ * in a test that never mentions i18n. Placeholders inside a descriptor are left as
+ * written: no caller passes `values` that way, and braces in the output are visible
+ * rather than silently wrong if one ever does.
+ */
+const identityT = (strings: TemplateStringsArray | IdentityDescriptor, ...values: unknown[]): string =>
+  Array.isArray(strings)
+    ? strings.reduce((acc, part, index) => acc + part + (index < values.length ? String(values[index]) : ''), '')
+    : ((strings as IdentityDescriptor).message ?? (strings as IdentityDescriptor).id ?? '')
 
 /** Identity `plural(...)` expression: English form with `#` substituted. */
 export const plural = (value: number, forms: PluralFormsBase<string> & Record<string, string | undefined>): string =>
