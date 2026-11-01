@@ -912,3 +912,32 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Fork: the dark palette, re-based on Zed's "macOS Classic Dark".
+   Upstream's `.dark` greys all carry a blue channel above the other two, so the
+   whole theme reads cold — under a warm #f2f1ee text, colder still than the
+   numbers alone suggest. Zed's are neutral. Declared here rather than edited
+   into upstream's block above: equal specificity, later wins, and upstream's
+   lines stay untouched across syncs.
+
+   ⚠ The title bar is deliberately NOT taken from that theme. Zed lightens it to
+   #323232 against its #131313 canvas; here the title bar and the chat must match
+   — their mismatch was the defect fixed on 2026-10-30, and lightening it brings
+   the seam straight back. Canvas, surfaces, borders and text only. */
+.dark {
+  --color-background: #131313; /* editor.background */
+  --color-foreground: #dddddd; /* editor.foreground — 13.7:1 on the canvas */
+  --color-card: #1e1d1e; /* surface.background */
+  --color-card-foreground: #dddddd;
+  --color-popover: #1e1d1e; /* elevated_surface.background */
+  --color-popover-foreground: #dddddd;
+  --color-primary: #dddddd;
+  --color-primary-foreground: #131313;
+  --color-secondary: #232323; /* tab_bar.background */
+  --color-secondary-foreground: #dddddd;
+  --color-muted: #232323;
+  --color-muted-foreground: #9e9e9e; /* text.muted — 7.0:1 on the canvas */
+  --color-accent: #373636; /* element.background */
+  --color-accent-foreground: #dddddd;
+  --color-border: #404040; /* border */
+}
