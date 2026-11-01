@@ -36,6 +36,7 @@ import type {
   ToolCallStatus,
 } from '@agentclientprotocol/sdk'
 import type { HaystackDocumentMeta, HaystackReferenceMeta } from '@/types'
+import type { SourceMetadata } from '@/types/source'
 // Fork-owned voltd ACP outbound blob materialization — see src/fork/zeroclaw/FORK.md
 import {
   enrichToolOutputWithDeliveredFiles,
