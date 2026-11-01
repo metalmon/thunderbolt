@@ -38,7 +38,6 @@ import type {
   ToolCallUpdate,
 } from '@agentclientprotocol/sdk'
 import type { HaystackDocumentMeta, HaystackReferenceMeta } from '@/types'
-import type { SourceMetadata } from '@/types/source'
 // Fork-owned voltd ACP outbound blob materialization — see src/fork/zeroclaw/FORK.md
 import {
   enrichToolOutputWithDeliveredFiles,
@@ -152,10 +151,6 @@ export type TranslateOptions = {
   /** Epoch-millis clock used to measure per-action durations. Defaults to
    *  `Date.now`. Inject a fake in tests so durations are deterministic. */
   now?: () => number
-  /** Fork: the files the user attached to this turn, recorded on the reply so a `[N]`
-   *  the agent wrote against one resolves to its preview. The wire carries nothing of
-   *  the sort — the adapter knows them because it is the side that sent them. */
-  attachmentSources?: readonly SourceMetadata[]
 }
 
 /** Translation state for a single ACP prompt turn. Reused across many calls
@@ -275,35 +270,13 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
     emit({ type: 'message-metadata', messageMetadata })
   }
 
-  /**
-   * Fork: record the turn's attachments on the reply, once, when prose begins — the
-   * only moment a citation can appear, and the metadata merges into the message either
-   * way.
-   *
-   * ⚠ Deliberately NOT folded into `emitHaystackMetadata`: that fires on each chunk
-   * carrying the agent's own references, and reusing it would add a redundant metadata
-   * chunk to every reply from an agent that sends them. Our agents send none, so these
-   * two never need to travel together.
-   */
-  let attachmentSourcesEmitted = false
-  const emitAttachmentSources = (): void => {
-    const sources = options.attachmentSources
-    if (attachmentSourcesEmitted || !sources || sources.length === 0) {
-      return
-    }
-    attachmentSourcesEmitted = true
-    emit({ type: 'message-metadata', messageMetadata: { sources } })
-  }
-
   const ensureTextStarted = (): void => {
     if (textStarted) {
       return
     }
     textStarted = true
     emitReasoningDuration()
-    emitAttachmentSources()
-    textThrottle.id = textPart === 0 ? textId : `${textId}-${textPart}`
-    emit({ type: 'text-start', id: textThrottle.id })
+    emit({ type: 'text-start', id: textId })
   }
 
   const ensureReasoningStarted = (): void => {
