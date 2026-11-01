@@ -19,17 +19,6 @@ type Frame = { srcDoc: string; pageWidth: number }
 /** Letter at 96dpi — the fallback when the document declares no page width. */
 const defaultPageWidthPx = 816
 
-/**
- * The canvas margin around the sheets, in the frame's own pixels.
- *
- * It is what makes the document read as a page rather than as a wall of text, and
- * it is the one gutter in play: the frame is sized to the sheet PLUS this on both
- * sides, so the sheet always gets its full declared width and nothing overflows.
- * Being inside the frame it scales with the page, which is what keeps the framing
- * proportional at any panel width.
- */
-const pageGutterPx = 24
-
 /** CSS absolute units in px, at the 96dpi the browser defines them against. */
 const pxPerUnit: Record<string, number> = {
   px: 1,
@@ -73,7 +62,10 @@ export const declaredPageWidthPx = (declared: string | undefined): number => {
  *
  * docx-preview hardcodes a gray wrapper background and a 30px padding; both are
  * replaced here — the background by the host's themed canvas showing through, the
- * padding by {@link pageGutterPx}, which the frame's width accounts for.
+ * padding by nothing at all: a margin around the sheet only reads as a canvas when
+ * it is a MID grey, as Word and Acrobat use — against this app's near-black it reads
+ * as a bezel, and costs reading width in an already narrow panel. The white sheet
+ * carries the page on its own.
  */
 const frameStylesheet = `
   /* The app hides every scrollbar of its own (the global scrollbar-width rule in
@@ -87,7 +79,7 @@ const frameStylesheet = `
   html, body { margin: 0; padding: 0; background: transparent; }
   /* Transparent, so the canvas the sheets sit on is the host's themed one rather
      than the library's gray — which belongs to no theme and glares in the dark. */
-  .docx-wrapper { background: transparent; padding: ${pageGutterPx}px; }
+  .docx-wrapper { background: transparent; padding: 0; }
   .docx-wrapper > section.docx { margin: 0 auto 1rem; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18); }
 `
 
@@ -201,12 +193,10 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
     }
     const fit = () => {
       const available = host.clientWidth
-      // The sheet plus its canvas margin on both sides — the frame's real content
-      // width. Scaling against the sheet alone is what pushed the gutter off the
-      // edge and put a horizontal bar under every document.
-      const frameWidth = frame.pageWidth + pageGutterPx * 2
-      const scale = available > 0 ? available / frameWidth : 1
-      el.style.width = `${frameWidth}px`
+      // The frame is the sheet, exactly: nothing is laid out beside it, so there is
+      // no second width to account for and nothing can overflow sideways.
+      const scale = available > 0 ? available / frame.pageWidth : 1
+      el.style.width = `${frame.pageWidth}px`
       el.style.height = `${100 / scale}%`
       el.style.transform = `scale(${scale})`
       el.style.transformOrigin = 'top left'
