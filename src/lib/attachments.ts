@@ -4,6 +4,7 @@
 
 import { defaultDeliveryMode, getTransformer } from '@/files/transformers'
 import type { AttachmentData, ThunderboltUIMessage } from '@/types'
+import { attachmentMarker } from '@/fork/citations/attachment-sources'
 import { getAttachment, type StoredFile } from './file-blob-storage'
 
 /**
@@ -81,14 +82,25 @@ const attachmentTextPart = (filename: string, text?: string) => ({
  *   - `'images'` → rasterize (e.g. a scanned PDF) into one image `file` part per
  *     page for a vision model. Falls back to native bytes if no transformer.
  */
-const hydrateCurrentAttachment = async (data: AttachmentData, file: StoredFile, deps: HydrationDeps) => {
+const hydrateCurrentAttachment = async (
+  data: AttachmentData,
+  file: StoredFile,
+  deps: HydrationDeps,
+  /** Fork: this attachment's 1-based number in the turn, which the reply cites as `[N]`. */
+  citationIndex: number,
+) => {
+  // Fork: its own part rather than a prefix on the text, because two of the three
+  // delivery paths below carry no text at all — docx and PDF travel as raw bytes, and
+  // those are exactly the documents people ask about. See
+  // docs/development/attachment-citations.md.
+  const marker = { type: 'text' as const, text: attachmentMarker(data.filename, citationIndex) }
   const mode = data.deliverAs ?? defaultDeliveryMode(data.mimeType)
   if (mode === 'text') {
     const transformer = await deps.getTransformer(data.mimeType, 'text')
     if (transformer) {
       const output = await transformer(file)
       if ('text' in output) {
-        return [attachmentTextPart(data.filename, output.text)]
+        return [marker, { type: 'text' as const, text: output.text }]
       }
     }
     // No text transformer — fall through to native bytes.
@@ -98,18 +110,21 @@ const hydrateCurrentAttachment = async (data: AttachmentData, file: StoredFile, 
     if (transformer) {
       const output = await transformer(file)
       if ('images' in output) {
-        return output.images.map((image) => ({
-          type: 'file' as const,
-          mediaType: image.mimeType,
-          filename: data.filename,
-          url: image.dataUrl,
-        }))
+        return [
+          marker,
+          ...output.images.map((image) => ({
+            type: 'file' as const,
+            mediaType: image.mimeType,
+            filename: data.filename,
+            url: image.dataUrl,
+          })),
+        ]
       }
     }
     // No images transformer — fall through to native bytes.
   }
   const url = await blobToDataUrl(file.blob)
-  return [{ type: 'file' as const, mediaType: data.mimeType, filename: data.filename, url }]
+  return [marker, { type: 'file' as const, mediaType: data.mimeType, filename: data.filename, url }]
 }
 
 /**
@@ -159,6 +174,13 @@ export const hydrateAttachmentsAsFileParts = async (
         return message
       }
       const isCurrentTurn = index === currentTurnIndex
+      // Fork: the number each attachment is cited as, keyed on the part itself so it
+      // cannot drift from `attachmentSourcesOfTurn`, which numbers the same list in
+      // the same order. Only the current turn is numbered — earlier turns were
+      // numbered when they ran, and their citations resolve from their own message.
+      const citationIndexes = new Map(
+        message.parts.filter(isAttachmentPart).map((part, position) => [part, position + 1] as const),
+      )
       // Each attachment maps to one or more parts (images yield one part per
       // page), so build arrays and flatten.
       const nested = await Promise.all(
@@ -179,7 +201,7 @@ export const hydrateAttachmentsAsFileParts = async (
               return [part]
             }
             return isCurrentTurn
-              ? await hydrateCurrentAttachment(part.data, file, deps)
+              ? await hydrateCurrentAttachment(part.data, file, deps, citationIndexes.get(part) ?? 1)
               : await hydrateHistoricalAttachment(part.data, file, deps)
           } catch (error) {
             console.warn('Skipping an unreadable attachment', { filename: part.data.filename, error })
