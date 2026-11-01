@@ -64,7 +64,11 @@
         var isColor =
           /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(candidate) ||
           /^(?:rgba?|hsla?|oklch|oklab)\((?:[\d.\s%,/+-]|deg|none)+\)$/i.test(candidate)
-        var background = isColor ? candidate : isPaper ? '#f0e9dd' : isDark ? '#1b1e1f' : '#f5f2ee'
+        // ⚠ The dark fallback must track `.dark`'s --color-background in index.css, which
+        // the fork re-based on Zed's "macOS Classic Dark". It paints before anything else
+        // and also seeds `theme-color`, so a stale value here is a visible flash of the
+        // old palette and a title bar that no longer matches the canvas.
+        var background = isColor ? candidate : isPaper ? '#f0e9dd' : isDark ? '#131313' : '#f5f2ee'
         document.documentElement.classList.add(isPaper ? 'paper' : isDark ? 'dark' : 'light')
         document.documentElement.style.backgroundColor = background
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', background)
