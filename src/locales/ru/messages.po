@@ -2092,7 +2092,7 @@ msgstr "Туман"
 
 #: src/fork/typography/chat-font-toggle.tsx
 msgid "Font for reading chat messages."
-msgstr "Шрифт для чтения сообщений чата."
+msgstr "Шрифт, которым набраны сообщения."
 
 #: src/projects/emoji-catalog.ts
 msgid "Food & drink"
@@ -4194,9 +4194,13 @@ msgid "Synced {relative}"
 msgstr "Синхронизировано {relative}"
 
 #: src/components/theme-toggle-group.tsx
-#: src/fork/typography/chat-font-toggle.tsx
 msgid "System"
 msgstr "Системная"
+
+#: src/fork/typography/chat-font-toggle.tsx
+msgctxt "font"
+msgid "System"
+msgstr "Системный"
 
 #: src/components/settings/agents/agent-provenance.ts
 msgid "System agent · always available"
@@ -4287,7 +4291,7 @@ msgstr "Проверка…"
 
 #: src/fork/typography/chat-font-toggle.tsx
 msgid "Text size for chat messages."
-msgstr "Размер текста сообщений чата."
+msgstr "Размер текста в сообщениях."
 
 #: src/fork/agent-pairing/pairing-messages.ts
 msgid "That code didn't work. A code is one-time and expires quickly — ask for a new one."
