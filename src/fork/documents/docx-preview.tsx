@@ -19,6 +19,32 @@ type Frame = { srcDoc: string; pageWidth: number }
 /** Letter at 96dpi — the fallback when the document declares no page width. */
 const defaultPageWidthPx = 816
 
+/**
+ * The width this platform's classic scrollbar takes from a scroll container, and 0
+ * where scrollbars overlay the content (macOS by default, touch).
+ *
+ * The frame holds a sheet of exactly the declared page width, so without this the
+ * frame's own vertical scrollbar eats into that width and the sheet overflows
+ * sideways by precisely one scrollbar — a horizontal bar under every long document,
+ * and `margin: 0 auto` stops centring once it overflows. The frame is sandboxed into
+ * an opaque origin and cannot be measured from out here, so the probe runs in this
+ * document: same engine, same platform, same number.
+ */
+const scrollbarWidth = (() => {
+  let measured: number | undefined
+  return () => {
+    if (measured !== undefined) {
+      return measured
+    }
+    const probe = document.createElement('div')
+    probe.style.cssText = 'position:absolute;visibility:hidden;overflow:scroll;width:100px;height:100px'
+    document.body.append(probe)
+    measured = probe.offsetWidth - probe.clientWidth
+    probe.remove()
+    return measured
+  }
+})()
+
 /** CSS absolute units in px, at the 96dpi the browser defines them against. */
 const pxPerUnit: Record<string, number> = {
   px: 1,
@@ -64,6 +90,10 @@ export const declaredPageWidthPx = (declared: string | undefined): number => {
  * both are neutralized here.
  */
 const frameStylesheet = `
+  /* The gutter is reserved whether or not the bar is showing, so the sheet is laid
+     out against the same width either way and never shifts between documents. The
+     frame element is widened to match (see scrollbarWidth). */
+  html { scrollbar-gutter: stable; }
   html, body { margin: 0; padding: 0; background: transparent; }
   .docx-wrapper { background: transparent; padding: 0; }
   .docx-wrapper > section.docx { margin: 0 auto 1rem; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18); }
@@ -173,8 +203,11 @@ export const DocxPreview = ({ blobUrl, fileName }: DocxPreviewProps) => {
     }
     const fit = () => {
       const available = host.clientWidth
-      const scale = available > 0 ? available / frame.pageWidth : 1
-      el.style.width = `${frame.pageWidth}px`
+      // The sheet plus the gutter its scrollbar reserves, so the sheet itself still
+      // gets its full declared width and nothing overflows sideways.
+      const frameWidth = frame.pageWidth + scrollbarWidth()
+      const scale = available > 0 ? available / frameWidth : 1
+      el.style.width = `${frameWidth}px`
       el.style.height = `${100 / scale}%`
       el.style.transform = `scale(${scale})`
       el.style.transformOrigin = 'top left'
