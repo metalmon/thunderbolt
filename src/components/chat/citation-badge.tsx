@@ -9,6 +9,9 @@ import { memo, useState } from 'react'
 import { CitationSourcesDrawer } from './citation-sources-drawer'
 import { useCitationPopover } from './citation-popover'
 import { SourceList } from './source-list'
+import { isLocalDocumentCitation, type LocalDocumentCitationSource } from '@/fork/zeroclaw/delivered-citations'
+import { useShowSideview } from '@/content-view/context'
+import { buildDocumentSideviewId } from '@/types/citation'
 
 type CitationBadgeProps = {
   sources: CitationSource[]
@@ -25,6 +28,15 @@ export const CitationBadge = memo(({ sources, citationId }: CitationBadgeProps) 
 
   if (!sources || sources.length === 0) {
     return null
+  }
+
+  // Fork: one local document behind a `[N]` has nothing to choose between. The popover
+  // exists because a citation can stand for SEVERAL sources; with one it adds a click
+  // and a 420px panel that, next to an open sideview, Radix has to throw somewhere else
+  // on screen. For a web source the card still earns its place — it shows where the
+  // click is about to take you — so this covers local documents only.
+  if (sources.length === 1 && isLocalDocumentCitation(sources[0])) {
+    return <LocalDocumentBadge source={sources[0]} />
   }
 
   if (ctx && citationId !== undefined) {
@@ -79,6 +91,20 @@ const BadgeButton = ({ sources, isOpen, onToggle }: BadgeButtonProps) => {
     </button>
   )
 }
+
+/** Fork: a single local document — the badge IS the action, no list in between. */
+const LocalDocumentBadge = memo(({ source }: { source: LocalDocumentCitationSource }) => {
+  const showSideview = useShowSideview()
+  return (
+    <BadgeButton
+      sources={[source]}
+      isOpen={false}
+      onToggle={() => showSideview?.('local-file', buildDocumentSideviewId(source.documentMeta))}
+    />
+  )
+})
+
+LocalDocumentBadge.displayName = 'LocalDocumentBadge'
 
 // --- Context-managed variant (inline in streaming markdown) ---
 
