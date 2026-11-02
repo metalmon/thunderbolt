@@ -6,6 +6,7 @@ import { csvToTsv, toTsv } from '@/files/tabular'
 import { defaultDeliveryMode, getTransformer, isPlainTextMime, xlsxMime } from '@/files/transformers'
 import { readXlsxSheets } from '@/files/transformers/xlsx-to-text'
 import { blobToBase64, isAttachmentPart } from '@/lib/attachments'
+import { attachmentCitationNote, attachmentMarker, attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { getAttachment, type StoredFile } from '@/lib/file-blob-storage'
 import { hydrateQuotesAsText } from '@/lib/quotes'
 import type { ThunderboltUIMessage } from '@/types'
@@ -94,6 +95,12 @@ const previewMaxChars = 16_000
 /** Label attachment content in plain-text conversation history. */
 const attachmentText = (filename: string, text?: string): string =>
   text ? `[Attachment: ${filename}]\n\n${text}` : `[Attachment: ${filename}]`
+
+/** Fork: the same line, carrying the number the reply cites this file as. Only the
+ *  current turn is numbered — earlier turns were numbered when they ran, and their
+ *  citations resolve from their own message's persisted sources. */
+const numberedAttachmentText = (filename: string, index: number, text?: string): string =>
+  text ? `${attachmentMarker(filename, index)}\n\n${text}` : attachmentMarker(filename, index)
 
 /** Convert transformer data URL to Pi's raw-base64 image shape. */
 const imageFromDataUrl = (mimeType: string, dataUrl: string): ImageContent => ({
@@ -186,6 +193,9 @@ const textAttachment = async (
   file: StoredFile,
   options: BuiltInConversationOptions,
   deps: BuiltInConversationDeps,
+  /** Fork: how to render the attachment's own line. The current turn passes a numbered
+   *  label so `[N]` in the reply resolves; earlier turns keep the plain one. */
+  label: (name: string, text?: string) => string = attachmentText,
 ): Promise<PreparedPart | null> => {
   const { filename, localFileId, mimeType } = data
   const dir = `attachments/${safeSegment(localFileId)}`
@@ -197,7 +207,7 @@ const textAttachment = async (
     return null
   }
   if (!options.workspace || text === '') {
-    return { text: attachmentText(filename, text), images: [], files: [] }
+    return { text: label(filename, text), images: [], files: [] }
   }
   const name = safeSegment(filename)
   const tsv = mimeType === 'text/csv' || /\.csv$/i.test(filename) ? csvToTsv(text) : null
@@ -214,11 +224,16 @@ const prepareAttachment = async (
   isCurrentTurn: boolean,
   options: BuiltInConversationOptions,
   deps: BuiltInConversationDeps,
+  /** Fork: 1-based number within the current turn; 0 for earlier turns, which are not numbered. */
+  citationIndex: number,
 ): Promise<PreparedPart> => {
+  // Fork: the current turn's files are the ones the reply can cite, so they carry a number.
+  const label = (name: string, text?: string) =>
+    isCurrentTurn ? numberedAttachmentText(name, citationIndex, text) : attachmentText(name, text)
   const { filename, localFileId, mimeType, deliverAs } = part.data
   const file = await deps.getAttachment(localFileId)
   if (!file) {
-    return { text: `${attachmentText(filename)} (file unavailable on this device)`, images: [], files: [] }
+    return { text: `${label(filename)} (file unavailable on this device)`, images: [], files: [] }
   }
 
   if (!isCurrentTurn) {
@@ -237,7 +252,7 @@ const prepareAttachment = async (
     const output = transformer ? await transformer(file) : null
     if (output && 'images' in output) {
       return {
-        text: attachmentText(filename),
+        text: label(filename),
         images: output.images.map((image) => imageFromDataUrl(image.mimeType, image.dataUrl)),
         files: [],
       }
@@ -245,7 +260,7 @@ const prepareAttachment = async (
   }
 
   if (mode === 'text') {
-    const prepared = await textAttachment(part.data, file, options, deps)
+    const prepared = await textAttachment(part.data, file, options, deps, label)
     if (prepared) {
       return prepared
     }
@@ -253,7 +268,7 @@ const prepareAttachment = async (
 
   if (mimeType.startsWith('image/')) {
     return {
-      text: attachmentText(filename),
+      text: label(filename),
       images: [{ type: 'image', mimeType, data: await deps.blobToBase64(file.blob) }],
       files: [],
     }
@@ -261,11 +276,11 @@ const prepareAttachment = async (
 
   // Pi has no native document/file content block. Prefer local text extraction
   // for PDF/docx even when legacy delivery would send raw bytes.
-  const prepared = mode === 'text' ? null : await textAttachment(part.data, file, options, deps)
+  const prepared = mode === 'text' ? null : await textAttachment(part.data, file, options, deps, label)
   if (prepared) {
     return prepared
   }
-  return { text: `${attachmentText(filename)} (file type unsupported by built-in agent)`, images: [], files: [] }
+  return { text: `${label(filename)} (file type unsupported by built-in agent)`, images: [], files: [] }
 }
 
 /** Convert one UI message to Pi-compatible text/images while preserving part order. */
@@ -276,6 +291,11 @@ const prepareMessage = async (
   deps: BuiltInConversationDeps,
 ): Promise<PreparedPart> => {
   const hydrated = hydrateQuotesAsText([message])[0]
+  // Fork: keyed on the part itself so the numbering cannot drift from
+  // `attachmentSourcesOfTurn`, which walks the same list in the same order.
+  const citationIndexes = new Map(
+    hydrated.parts.filter(isAttachmentPart).map((part, position) => [part, position + 1] as const),
+  )
   const parts = await Promise.all(
     hydrated.parts.map(async (part): Promise<PreparedPart> => {
       if (part.type === 'text') {
