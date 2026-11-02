@@ -740,6 +740,11 @@ const fetchViaHarness = async (
   init.signal?.throwIfAborted()
   context.telemetry?.endPhase('agent_core_load')
 
+  // Fork: parsed here rather than below, because the turn's attachments have to be in
+  // the source registry BEFORE the toolset is built — the Pro tools capture their
+  // counter's start from the registry's length at that moment.
+  const requestMessages = parseMessages(init)
+
   // Resolve the model to a Pi descriptor; an unknown anthropic id or an
   // unconfigured OpenAI-wire provider falls back to the legacy pipeline so the
   // chat never crashes on a model Pi can't run.
@@ -757,7 +762,7 @@ const fetchViaHarness = async (
     // Fork: the turn's attached documents, registered in the same numbering as web
     // results so `[N]` on one resolves to its preview. Must be here, not only in the
     // legacy pipeline — this adapter is the one that runs.
-    attachmentSources: attachmentSourcesOfTurn(messages),
+    attachmentSources: attachmentSourcesOfTurn(requestMessages),
   })
   init.signal?.throwIfAborted()
   const resolved = await resolvePiModel(agentCore, context, config.profile, tinfoilOptions)
@@ -767,7 +772,7 @@ const fetchViaHarness = async (
     return fallback()
   }
 
-  const messages = parseMessages(init)
+  const messages = requestMessages
   const supersededCallIds =
     config.embeddedSurface === 'mini-app' ? supersededAppContextCallIds(messages) : new Set<string>()
   const transformMessage = (message: AgentMessage) => supersedeHarnessAppContext(message, supersededCallIds)
