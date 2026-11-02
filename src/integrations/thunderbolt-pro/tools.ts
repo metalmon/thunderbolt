@@ -11,6 +11,7 @@ import { fetchContent, fetchLinkPreview, search } from './api'
 import {
   fetchContentSchema,
   searchSchema,
+  type FetchContentData,
   type FetchContentParams,
   type SearchParams,
   type SearchResultData,
@@ -27,7 +28,16 @@ const sourceRegistryCap = 200
  * @param httpClient - HTTP client for making requests (injected for dependency injection)
  * @param sourceCollector - Optional shared array to accumulate source metadata during tool execution
  */
-export const createConfigs = (httpClient: HttpClient, sourceCollector?: SourceMetadata[]): ToolConfig[] => {
+export const createConfigs = (
+  httpClient: HttpClient,
+  sourceCollector?: SourceMetadata[],
+  // Fork: the autonomous lane supplies its own fetcher (`src/fork/local-mode/direct-page-fetch.ts`)
+  // so this wrapper's source numbering — the cap, the de-duplication and the title
+  // update below — stays the single implementation. A fork-side copy of it would
+  // drift silently from upstream's rules. Link previews are a backend route too, so
+  // they are skipped on that path rather than failing per call.
+  fetchContentImpl?: (params: FetchContentParams) => Promise<FetchContentData>,
+): ToolConfig[] => {
   let nextIndex = (sourceCollector?.length ?? 0) + 1
 
   return [
@@ -81,8 +91,8 @@ export const createConfigs = (httpClient: HttpClient, sourceCollector?: SourceMe
       execute: async (params: FetchContentParams) => {
         // Fetch content and link preview in parallel — link preview gives us og:site_name
         const [result, preview] = await Promise.all([
-          fetchContent(params, httpClient),
-          fetchLinkPreview({ url: params.url }, httpClient).catch(() => null),
+          fetchContentImpl ? fetchContentImpl(params) : fetchContent(params, httpClient),
+          fetchContentImpl ? null : fetchLinkPreview({ url: params.url }, httpClient).catch(() => null),
         ])
 
         if (!result) {

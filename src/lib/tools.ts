@@ -11,6 +11,8 @@ import { createConfigs as createGoogleConfigs } from '@/integrations/google/tool
 import { createConfigs as createMicrosoftConfigs } from '@/integrations/microsoft/tools'
 import { createConfigs as createProConfigs } from '@/integrations/thunderbolt-pro/tools'
 import { hasProAccess } from '@/integrations/thunderbolt-pro/utils'
+import { directPageFetchDeps, fetchPageDirect } from '@/fork/local-mode/direct-page-fetch'
+import { isTauri } from '@/lib/platform'
 import { toolCallKey } from '@/lib/stable-stringify'
 import type { WebToolBudget } from '@/ai/web-tool-budget'
 import type { ToolConfig } from '@/types'
@@ -54,6 +56,15 @@ export const getAvailableTools = async (
 
   if (shouldIncludeProTools) {
     baseTools.push(...createProConfigs(httpClient, sourceCollector))
+  } else if (isTauri()) {
+    // Fork: without the Pro lane the model loses the web entirely. Reading a URL
+    // does not need our backend — a GET and a parse do it — so the lane comes back
+    // without the search, which does. See docs/development/autonomous-web-fetch.md.
+    baseTools.push(
+      ...createProConfigs(httpClient, sourceCollector, ({ url, max_length }) =>
+        fetchPageDirect(url, directPageFetchDeps, max_length),
+      ).filter(({ name }) => name === 'fetch_content'),
+    )
   }
 
   if (integrationStatus.googleEnabled) {
