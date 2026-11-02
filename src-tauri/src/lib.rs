@@ -7,6 +7,7 @@
 pub mod cli_installer;
 #[allow(dead_code)]
 pub mod commands;
+pub mod fork_page_fetch;
 pub mod oauth_server;
 pub mod platform_utils;
 #[cfg(any(target_os = "linux", test))]
@@ -63,6 +64,8 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::install_thunderbolt_cli,
             #[cfg(any(target_os = "macos", target_os = "ios"))]
             webview_recovery::native::retry_webview_after_crash,
+            fork_page_fetch::fork_resolve_host,
+            fork_page_fetch::fork_fetch_pinned,
         ]);
 
     #[cfg(debug_assertions)]

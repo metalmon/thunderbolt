@@ -11,6 +11,7 @@ import { fetchContent, fetchLinkPreview, search } from './api'
 import {
   fetchContentSchema,
   searchSchema,
+  type FetchContentData,
   type FetchContentParams,
   type SearchParams,
   type SearchResultData,
