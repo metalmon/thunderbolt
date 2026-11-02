@@ -64,7 +64,12 @@ export default function Page() {
               --create-panel-min-width + this 360px = 840px) — if this changes,
               re-derive that literal. */}
             <ResizablePanel minSize={isMobile ? '0%' : '360px'}>
-              <div className="relative flex flex-col h-full">
+              <div
+                className="relative flex flex-col h-full"
+                // Fork: the boundary a citation popover must stay inside, so it cannot
+                // spill onto the sideview sitting beside this column.
+                data-chat-column=""
+              >
                 {/* Wherever it has something to show — see `sharedHeaderHasControls`.
                   `/apps/` was chromeless for a while, on the reasoning that a
                   customer's app is the content and a bar above it duplicates the
