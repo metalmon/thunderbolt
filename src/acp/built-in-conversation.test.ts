@@ -61,9 +61,12 @@ describe('prepareBuiltInConversation', () => {
       { role: 'user', text: 'Review this\n[Attachment: notes.txt]\n\nnote contents' },
       { role: 'assistant', text: 'Reviewed.' },
     ])
-    expect(prepared.prompt.text).toBe(
-      'Follow project style.\n\n> first line\n> second line\nWhat changed?\n[Attachment: diagram.png]',
-    )
+    // Fork: the current turn's attachment carries the number the reply cites it as, and
+    // the turn ends with the document list. Earlier turns stay unnumbered (see history
+    // above). See docs/development/attachment-citations.md.
+    expect(prepared.prompt.text).toContain('Follow project style.\n\n> first line\n> second line\nWhat changed?')
+    expect(prepared.prompt.text).toContain('[Attachment 1: "diagram.png"]')
+    expect(prepared.prompt.text).toContain('[1] "diagram.png"')
     expect(prepared.prompt.images).toEqual([{ type: 'image', data: 'aW1hZ2U=', mimeType: 'image/png' }])
   })
 
@@ -85,7 +88,8 @@ describe('prepareBuiltInConversation', () => {
 
     const prepared = await prepareBuiltInConversation(messages, undefined, deps)
 
-    expect(prepared.prompt.text).toBe('[Attachment: report.pdf]\n\nPDF contents\nSummarize it.')
+    expect(prepared.prompt.text).toContain('[Attachment 1: "report.pdf"]\n\nPDF contents\nSummarize it.')
+    expect(prepared.prompt.text).toContain('[1] "report.pdf"')
     expect(prepared.prompt.images).toEqual([])
   })
 
@@ -106,6 +110,10 @@ describe('prepareBuiltInConversation', () => {
 
     const prepared = await prepareBuiltInConversation(messages, undefined, deps)
 
-    expect(prepared.prompt.text).toBe('[Attachment: missing.bin] (file unavailable on this device)')
+    // Fork: an unreadable file keeps its number and says plainly that it did not arrive —
+    // the user sees its chip, and a numbering that shifted with a disk read would be
+    // nondeterministic.
+    expect(prepared.prompt.text).toContain('[Attachment 1: "missing.bin"] (file unavailable on this device)')
+    expect(prepared.prompt.text).toContain('[1] "missing.bin"')
   })
 })
