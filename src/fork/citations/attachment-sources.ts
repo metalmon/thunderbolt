@@ -6,7 +6,8 @@
 
 import { getAttachments } from '@/lib/attachments'
 import type { DeliveredFileRef } from '@/fork/zeroclaw/outbound-resource-blob'
-import { buildDocumentSideviewId, type DocumentCitationSource } from '@/types/citation'
+import { buildDocumentSideviewId } from '@/types/citation'
+import type { LocalDocumentCitationSource } from '@/fork/zeroclaw/delivered-citations'
 import type { ThunderboltUIMessage } from '@/types'
 import type { SourceMetadata } from '@/types/source'
 
@@ -110,7 +111,7 @@ const safeForPrompt = (filename: string): string => {
  * ⚠ No `pageNumber`. The file is delivered whole — nothing anywhere splits it into
  * pages — so a page number would have to be invented, and it would be shown.
  */
-export const attachmentCitation = (source: SourceMetadata, isPrimary: boolean): DocumentCitationSource => {
+export const attachmentCitation = (source: SourceMetadata, isPrimary: boolean): LocalDocumentCitationSource => {
   const fileId = source.localFileId ?? ''
   return {
     id: buildDocumentSideviewId({ fileId, fileName: source.title }),
@@ -119,6 +120,11 @@ export const attachmentCitation = (source: SourceMetadata, isPrimary: boolean): 
     siteName: source.siteName,
     isPrimary,
     documentMeta: { fileId, fileName: source.title },
+    // ⚠ Without this the card takes the OTHER branch and asks the backend's Haystack
+    // endpoint for the file (`source-card.tsx` keys the choice on
+    // `isLocalDocumentCitation`). The bytes are in local storage and there may be no
+    // backend at all — reported from a live install as a refused connection.
+    localFileSideview: true,
   }
 }
 
