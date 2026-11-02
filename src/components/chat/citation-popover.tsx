@@ -107,7 +107,18 @@ const CitationOverlay = memo(({ popover, close }: { popover: PopoverData | null;
           }}
         />
       </PopoverAnchor>
-      <PopoverContent align="start" side="bottom" className="w-[420px] overflow-hidden rounded-xl p-0">
+      {/* Fork: the card belongs to the sentence it was clicked in, so it must stay
+          inside the chat column. Radix defaults its collision boundary to the VIEWPORT,
+          and a 420px card anchored near the right of a narrow column then fits the
+          viewport perfectly well — by covering the sideview next to it. Bounding it to
+          the column makes it flip or shift beside the badge instead. */}
+      <PopoverContent
+        align="start"
+        side="bottom"
+        collisionBoundary={popover.anchorElement.closest<HTMLElement>('[data-chat-column]')}
+        collisionPadding={8}
+        className="w-[min(420px,calc(100%-1rem))] overflow-hidden rounded-xl p-0"
+      >
         <SourceList sources={sources} onSelect={close} />
       </PopoverContent>
     </Popover>

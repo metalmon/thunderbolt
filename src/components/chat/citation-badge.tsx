@@ -137,7 +137,15 @@ const StandaloneBadge = memo(({ sources }: { sources: CitationSource[] }) => {
     return (
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>{badge}</PopoverTrigger>
-        <PopoverContent align="start" side="bottom" className="w-[420px] overflow-hidden rounded-xl p-0">
+        {/* Fork: narrower and padded so it cannot hug the window edge. Unlike the
+            in-chat overlay it keeps the viewport boundary: this variant renders inside
+            block widgets and has no column element to bound to. */}
+        <PopoverContent
+          align="start"
+          side="bottom"
+          collisionPadding={8}
+          className="w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-xl p-0"
+        >
           <SourceList sources={sources} onSelect={close} />
         </PopoverContent>
       </Popover>

@@ -125,6 +125,9 @@ export default function Page() {
                 </>
               )}
               <div
+                // Fork: the boundary a citation popover must stay inside, so it cannot
+                // spill onto the sideview sitting beside this column.
+                data-chat-column=""
                 className="flex-1 overflow-auto"
                 style={{
                   // Reserve the home-indicator safe area, but don't double-count it
