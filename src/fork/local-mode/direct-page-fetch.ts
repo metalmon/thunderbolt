@@ -100,7 +100,10 @@ const resolvePublicTarget = async (url: URL, deps: DirectPageFetchDeps): Promise
   }
 
   // Квадратные скобки — требование записи IPv6 в адресе; точка на конце — корень DNS.
-  const host = url.hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '').toLowerCase()
+  const host = url.hostname
+    .replace(/^\[|\]$/g, '')
+    .replace(/\.$/, '')
+    .toLowerCase()
 
   const literal = parseIpAddress(host)
   if (literal) {
@@ -193,7 +196,10 @@ const parsePage = (html: string, finalUrl: URL): ParsedPage => {
   const body = doc.body?.textContent ?? ''
   return {
     title: doc.querySelector('title')?.textContent?.trim() || null,
-    text: body.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim(),
+    text: body
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim(),
     links,
     author: metaContent(doc, ['meta[name="author"]', 'meta[property="article:author"]']),
     favicon: metaContent(doc, ['meta[name="msapplication-TileImage"]']),
