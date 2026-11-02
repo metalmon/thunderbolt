@@ -816,7 +816,9 @@ const fetchViaHarness = async (
     // Fork: the turn's attached documents, registered in the same numbering as web
     // results so `[N]` on one resolves to its preview. Must be here, not only in the
     // legacy pipeline — this adapter is the one that runs.
-    attachmentSources: attachmentSourcesOfTurn(requestMessages),
+    // `?? []`: this now runs before the body is validated, and a malformed one must still
+    // reach the error path it reached before, not die here.
+    attachmentSources: attachmentSourcesOfTurn(requestMessages ?? []),
   })
   const resolved = await resolvePiModel(agentCore, context, config.profile, tinfoilOptions)
   if (!resolved) {
