@@ -180,6 +180,28 @@ mod tests {
         assert!(result.is_err());
     }
 
+    /// Живой прогон привязки: разрешаем имя, затем подключаемся ТОЛЬКО к
+    /// полученному адресу и проверяем, что ответ пришёл и имя для TLS уцелело
+    /// (иначе рукопожатие бы упало, а не вернуло 200).
+    ///
+    /// `ignore`, потому что требует сети: в CI и в закрытом контуре такой тест
+    /// был бы ложным красным. Запускать осознанно:
+    /// `cargo test --lib fork_page_fetch -- --ignored`
+    #[test]
+    #[ignore = "требует сети"]
+    fn pinned_fetch_reaches_a_public_page_over_tls() {
+        let addresses = tauri::async_runtime::block_on(fork_resolve_host("example.com".to_string()))
+            .expect("имя должно разрешиться");
+        let response = tauri::async_runtime::block_on(fork_fetch_pinned(
+            "https://example.com/".to_string(),
+            addresses[0].clone(),
+        ))
+        .expect("привязанный запрос должен дойти");
+        assert_eq!(response.status, 200);
+        assert!(!response.body.is_empty(), "тело пустое");
+        assert!(!response.truncated, "страница мала, обрезать нечего");
+    }
+
     /// Адрес приходит проверенным, но мусором быть не должен: разбор обязан
     /// отказать, а не подставить что-нибудь по умолчанию.
     #[test]
