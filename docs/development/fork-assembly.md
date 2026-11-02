@@ -80,7 +80,11 @@ changes. Order matters (later branches build on earlier ones):
     mammoth-in-iframe.
 14. `fork/perm-title-interim` — localizes the "Approve {tool}?" title; self-
     disables once ZeroClaw localizes.
-15. `fork/dev` — local dev/build fixes + fork tooling and docs; applied last so
+15. `fork/local-web-fetch` — reading a page without the Pro lane: the model keeps
+    `fetch_content` (no search) wherever `shouldIncludeProTools` is false. Desktop
+    only; the request is pinned in Rust to an address validated in TypeScript.
+    See `docs/development/autonomous-web-fetch.md`.
+16. `fork/dev` — local dev/build fixes + fork tooling and docs; applied last so
     its overrides win.
 
 Per-branch apply-order rationale lives as comments in
