@@ -72,6 +72,11 @@ $ForkBranches = @(
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/perm-title-interim",
+    # Reading a page without the Pro lane. Applied late on purpose: its seams sit
+    # in src/ai/fetch.ts, src/lib/tools.ts and src/integrations/thunderbolt-pro,
+    # all of which earlier branches also edit, so it lands on a tree that already
+    # carries theirs rather than making them land on its.
+    "fork/local-web-fetch",
     # Own branch because `cli/` is upstream's fastest-moving tree (40 commits in
     # its last 90 days) and touches nothing the other branches do, so its
     # conflicts stay out of theirs. Applied late, but before fork/dev, whose
@@ -99,6 +104,7 @@ $ForkMainRangeBranches = @(
     "fork/hide-integrations",
     "fork/docx-viewer",
     "fork/perm-title-interim",
+    "fork/local-web-fetch",
     # Own branch because `cli/` is upstream's fastest-moving tree (40 commits in
     # its last 90 days) and touches nothing the other branches do, so its
     # conflicts stay out of theirs. Applied late, but before fork/dev, whose
