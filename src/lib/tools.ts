@@ -10,6 +10,7 @@ import type { AnyDrizzleDatabase } from '@/db/database-interface'
 import * as tasksTools from '@/extensions/tasks/tools'
 import { createConfigs as createGoogleConfigs } from '@/integrations/google/tools'
 import { createConfigs as createMicrosoftConfigs } from '@/integrations/microsoft/tools'
+import { search } from '@/integrations/thunderbolt-pro/api'
 import { createConfigs as createWebSearchTools } from '@/integrations/thunderbolt-pro/tools'
 import { hasProAccess } from '@/integrations/thunderbolt-pro/utils'
 import type { WebToolApi } from '@/integrations/thunderbolt-pro/tools'
@@ -17,6 +18,8 @@ import { getSearchConnectionApi } from '@/integrations/standalone-search/connect
 import { resolveSearchSelection } from '@/integrations/standalone-search/selection'
 import { hasServerAuthentication } from '@/lib/provider-mode'
 import { useSearchProviderStore } from '@/stores/search-provider-store'
+import { directPageFetchDeps, fetchPageDirect } from '@/fork/local-mode/direct-page-fetch'
+import { isTauri } from '@/lib/platform'
 import { toolCallKey } from '@/lib/stable-stringify'
 import type { WebToolBudget } from '@/ai/web-tool-budget'
 import type { ToolConfig } from '@/types'
@@ -102,6 +105,21 @@ export const getAvailableTools = async (
           return config.execute(params)
         },
       })),
+    )
+  } else if (isTauri()) {
+    // Fork: with no search provider selected the model loses the web entirely. Reading a
+    // URL needs no provider — a GET and a parse do it — so the lane comes back without
+    // the search, which does. `search` is passed only to satisfy `WebToolApi`; the entry
+    // is filtered out below and never runs. Link previews are a backend route, so the
+    // api omits `fetchLinkPreview` and the wrapper skips them on this path.
+    // See docs/development/autonomous-web-fetch.md.
+    baseTools.push(
+      ...createWebSearchTools(
+        httpClient,
+        sourceCollector,
+        { search, fetchContent: ({ url, max_length }) => fetchPageDirect(url, directPageFetchDeps, max_length) },
+        priorSources,
+      ).filter(({ name }) => name === 'fetch_content'),
     )
   }
   if (integrationStatus.googleEnabled) {
