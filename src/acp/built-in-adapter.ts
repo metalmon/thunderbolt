@@ -754,6 +754,10 @@ const fetchViaHarness = async (
     // mid-thread rebuilds the harness on the next send by itself.
     chatThreadId: context.threadId,
     telemetry: context.telemetry,
+    // Fork: the turn's attached documents, registered in the same numbering as web
+    // results so `[N]` on one resolves to its preview. Must be here, not only in the
+    // legacy pipeline — this adapter is the one that runs.
+    attachmentSources: attachmentSourcesOfTurn(messages),
   })
   init.signal?.throwIfAborted()
   const resolved = await resolvePiModel(agentCore, context, config.profile, tinfoilOptions)
