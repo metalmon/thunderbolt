@@ -8,6 +8,7 @@ pub mod cli_installer;
 #[allow(dead_code)]
 pub mod commands;
 pub mod fork_boot_log;
+pub mod fork_page_fetch;
 pub mod oauth_server;
 pub mod platform_utils;
 #[cfg(any(target_os = "linux", test))]
@@ -73,6 +74,8 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             fork_boot_log::fork_boot_log,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
+            fork_page_fetch::fork_resolve_host,
+            fork_page_fetch::fork_fetch_pinned,
         ]);
 
     #[cfg(debug_assertions)]
