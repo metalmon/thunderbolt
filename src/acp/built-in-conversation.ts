@@ -4,6 +4,7 @@
 
 import { defaultDeliveryMode, getTransformer } from '@/files/transformers'
 import { blobToBase64, isAttachmentPart } from '@/lib/attachments'
+import { attachmentCitationNote, attachmentMarker, attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { getAttachment, type StoredFile } from '@/lib/file-blob-storage'
 import { hydrateQuotesAsText } from '@/lib/quotes'
 import type { ThunderboltUIMessage } from '@/types'
@@ -37,6 +38,12 @@ type PreparedPart = {
 const attachmentText = (filename: string, text?: string): string =>
   text ? `[Attachment: ${filename}]\n\n${text}` : `[Attachment: ${filename}]`
 
+/** Fork: the same line, carrying the number the reply cites this file as. Only the
+ *  current turn is numbered — earlier turns were numbered when they ran, and their
+ *  citations resolve from their own message's persisted sources. */
+const numberedAttachmentText = (filename: string, index: number, text?: string): string =>
+  text ? `${attachmentMarker(filename, index)}\n\n${text}` : attachmentMarker(filename, index)
+
 /** Convert transformer data URL to Pi's raw-base64 image shape. */
 const imageFromDataUrl = (mimeType: string, dataUrl: string): ImageContent => ({
   type: 'image',
@@ -60,17 +67,22 @@ const prepareAttachment = async (
   part: Extract<ThunderboltUIMessage['parts'][number], { type: 'data-attachment' }>,
   isCurrentTurn: boolean,
   deps: BuiltInConversationDeps,
+  /** Fork: 1-based number within the current turn; 0 for earlier turns, which are not numbered. */
+  citationIndex: number,
 ): Promise<PreparedPart> => {
+  // Fork: the current turn's files are the ones the reply can cite, so they carry a number.
+  const label = (name: string, text?: string) =>
+    isCurrentTurn ? numberedAttachmentText(name, citationIndex, text) : attachmentText(name, text)
   const { filename, localFileId, mimeType, deliverAs } = part.data
   const file = await deps.getAttachment(localFileId)
   if (!file) {
-    return { text: `${attachmentText(filename)} (file unavailable on this device)`, images: [] }
+    return { text: `${label(filename)} (file unavailable on this device)`, images: [] }
   }
 
   if (!isCurrentTurn) {
     const text = await extractAttachmentText(file, mimeType, deps)
     return {
-      text: attachmentText(filename, text ?? undefined),
+      text: label(filename, text ?? undefined),
       images: [],
     }
   }
@@ -81,7 +93,7 @@ const prepareAttachment = async (
     const output = transformer ? await transformer(file) : null
     if (output && 'images' in output) {
       return {
-        text: attachmentText(filename),
+        text: label(filename),
         images: output.images.map((image) => imageFromDataUrl(image.mimeType, image.dataUrl)),
       }
     }
@@ -90,13 +102,13 @@ const prepareAttachment = async (
   if (mode === 'text') {
     const text = await extractAttachmentText(file, mimeType, deps)
     if (text !== null) {
-      return { text: attachmentText(filename, text), images: [] }
+      return { text: label(filename, text), images: [] }
     }
   }
 
   if (mimeType.startsWith('image/')) {
     return {
-      text: attachmentText(filename),
+      text: label(filename),
       images: [{ type: 'image', mimeType, data: await deps.blobToBase64(file.blob) }],
     }
   }
@@ -105,9 +117,9 @@ const prepareAttachment = async (
   // for PDF/docx even when legacy delivery would send raw bytes.
   const text = mode === 'text' ? null : await extractAttachmentText(file, mimeType, deps)
   if (text !== null) {
-    return { text: attachmentText(filename, text), images: [] }
+    return { text: label(filename, text), images: [] }
   }
-  return { text: `${attachmentText(filename)} (file type unsupported by built-in agent)`, images: [] }
+  return { text: `${label(filename)} (file type unsupported by built-in agent)`, images: [] }
 }
 
 /** Convert one UI message to Pi-compatible text/images while preserving part order. */
@@ -117,13 +129,18 @@ const prepareMessage = async (
   deps: BuiltInConversationDeps,
 ): Promise<PreparedPart> => {
   const hydrated = hydrateQuotesAsText([message])[0]
+  // Fork: keyed on the part itself so the numbering cannot drift from
+  // `attachmentSourcesOfTurn`, which walks the same list in the same order.
+  const citationIndexes = new Map(
+    hydrated.parts.filter(isAttachmentPart).map((part, position) => [part, position + 1] as const),
+  )
   const parts = await Promise.all(
     hydrated.parts.map(async (part): Promise<PreparedPart> => {
       if (part.type === 'text') {
         return { text: part.text, images: [] }
       }
       if (isAttachmentPart(part)) {
-        return prepareAttachment(part, isCurrentTurn, deps)
+        return prepareAttachment(part, isCurrentTurn, deps, citationIndexes.get(part) ?? 0)
       }
       return { text: '', images: [] }
     }),
@@ -179,8 +196,13 @@ export const prepareBuiltInConversation = async (
     throw new Error('Built-in adapter: current user message has no supported content')
   }
   const skillPrefix = skillInstructions?.length ? `${skillInstructions.join('\n\n')}\n\n` : ''
+  // Fork: the turn's documents, listed by the number the reply cites them as. It rides
+  // the TURN, never the system prompt: that one is fingerprinted by `harnessSignature`,
+  // so a per-turn list there would rebuild the whole harness on every send.
+  const documents = attachmentCitationNote(attachmentSourcesOfTurn(messages))
+  const documentsNote = documents ? `\n\n${documents}` : ''
   return {
     history: turns.slice(0, -1),
-    prompt: { text: `${skillPrefix}${promptTurn.text}`, images: current.images },
+    prompt: { text: `${skillPrefix}${promptTurn.text}${documentsNote}`, images: current.images },
   }
 }
