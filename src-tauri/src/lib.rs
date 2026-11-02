@@ -8,6 +8,7 @@ pub mod cli_installer;
 #[allow(dead_code)]
 pub mod commands;
 pub mod fork_boot_log;
+pub mod fork_page_fetch;
 pub mod oauth_server;
 pub mod platform_utils;
 pub mod sandbox;
@@ -53,6 +54,8 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::start_oauth_server,
             commands::install_thunderbolt_cli,
             fork_boot_log::fork_boot_log,
+            fork_page_fetch::fork_resolve_host,
+            fork_page_fetch::fork_fetch_pinned,
             sandbox::store_sandbox_content,
             sandbox::revoke_sandbox_content,
         ]);

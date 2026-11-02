@@ -91,6 +91,7 @@ import { isMcpDiscoveryError } from '@/lib/mcp-errors'
 import { smoothStreamWordDelayMs } from '@/chats/chat-throttle'
 import type { SkillDefinition } from '@shared/agent-core/skills'
 import { sanitizeToolPrefix } from '@shared/mcp-tool-names'
+import { directPageFetchNote } from '@/fork/local-mode/direct-page-note'
 import { detectStreamChunk } from './smooth-chunking'
 import { createMessageMetadata } from './message-metadata'
 
@@ -718,9 +719,15 @@ export const prepareAiRequestConfig = async ({
     // The note rides the volatile prompt rather than a separate field so every
     // engine that composes stable + volatile (this file and the ACP harness)
     // carries it without knowing it exists.
-    volatileSystemPrompt: miniAppContextNote
-      ? `${prompt.volatilePrompt}\n\n${miniAppContextNote}`
-      : prompt.volatilePrompt,
+    volatileSystemPrompt: [
+      prompt.volatilePrompt,
+      miniAppContextNote,
+      // Fork: `hasWebTools` above needs BOTH web tools, so a fetch-only lane would
+      // reach the model undocumented. See src/fork/local-mode/direct-page-note.ts.
+      directPageFetchNote(Object.keys(merged.toolset)),
+    ]
+      .filter((part) => part)
+      .join('\n\n'),
     embeddedSurface: surface,
   }
 }
