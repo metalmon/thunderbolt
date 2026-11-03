@@ -67,11 +67,21 @@ const AlertDialogHeader = ({ className, ...props }: ComponentProps<'div'>) => {
   )
 }
 
+/**
+ * Fork: `sm:flex-wrap`, because the row had no give. Three buttons whose labels are
+ * longer than the English ones — «Отмена» / «Открыть в боковой панели» / «Открыть в
+ * браузере» — overflowed the dialog and the last one was clipped at its edge.
+ *
+ * Fixed here rather than at the one dialog that showed it: the cause is the footer,
+ * and every dialog with three buttons meets it. Wrapping is locale-independent —
+ * German and Japanese reach the same width — and a two-button English footer never
+ * wraps at all, so nothing moves where it already fitted.
+ */
 const AlertDialogFooter = ({ className, ...props }: ComponentProps<'div'>) => {
   return (
     <div
       data-slot="alert-dialog-footer"
-      className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+      className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end', className)}
       {...props}
     />
   )

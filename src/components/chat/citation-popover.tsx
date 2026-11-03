@@ -5,17 +5,8 @@
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { CitationSource } from '@/types/citation'
-import {
-  createContext,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { createContext, memo, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { CitationSourcesDrawer } from './citation-sources-drawer'
 import { SourceList } from './source-list'
 
@@ -23,6 +14,8 @@ type PopoverData = {
   citationId: number
   sources: CitationSource[]
   anchorElement: HTMLElement
+  /** Fork: where the badge was when it was clicked — see {@link CitationOverlay}. */
+  anchorRect: { left: number; top: number; width: number }
 }
 
 type CitationPopoverState = {
@@ -44,7 +37,14 @@ export const CitationPopoverProvider = ({ children }: { children: ReactNode }) =
   const [popover, setPopover] = useState<PopoverData | null>(null)
 
   const open = useCallback((id: number, sources: CitationSource[], element: HTMLElement) => {
-    setPopover({ citationId: id, sources, anchorElement: element })
+    // Fork: measured HERE, not in an effect — see {@link CitationOverlay} for why.
+    const rect = element.getBoundingClientRect()
+    setPopover({
+      citationId: id,
+      sources,
+      anchorElement: element,
+      anchorRect: { left: rect.left, top: rect.bottom, width: rect.width },
+    })
   }, [])
 
   const close = useCallback(() => setPopover(null), [])
@@ -61,25 +61,38 @@ export const CitationPopoverProvider = ({ children }: { children: ReactNode }) =
 
 // --- Overlay (rendered automatically by the provider, outside the markdown tree) ---
 
+/**
+ * Fork: the anchor is portalled to `document.body` and placed during RENDER, from a
+ * rect measured when the badge was clicked. Two separate faults, both measured.
+ *
+ * **Why the portal.** `src/fork/perf/message-perf.css` puts `content-visibility:
+ * auto` on every message to skip the layout of off-screen ones. That implies
+ * `contain: layout style paint size`, and paint containment makes the element a
+ * containing block for `position: fixed` DESCENDANTS. The anchor sat inside a
+ * message, so `left: 496px` resolved against the message box at (480, 146) and the
+ * span landed at (976, 505) — measured, not inferred. Radix then placed the card
+ * perfectly, under an anchor that was in the wrong place. The earlier
+ * `collisionBoundary` fix was treating that symptom. In `document.body` nothing can
+ * contain the anchor, and a future containment anywhere in the chat tree cannot
+ * bring this back.
+ *
+ * **Why measure at click.** The position used to be written onto the span from an
+ * effect.
+ *
+ * React paints
+ * the span at its default position, Radix measures it THERE, and only then does the
+ * effect move it. Floating-ui's `autoUpdate` watches resizes and ancestor scrolling,
+ * not an element moved by a later style write, so nothing re-measured. Rendering the
+ * position inline removes that window: Radix's first measurement sees the right
+ * place. A scroll closes the popover, so the rect cannot go stale while it is open.
+ */
 const CitationOverlay = memo(({ popover, close }: { popover: PopoverData | null; close: () => void }) => {
   const { isMobile } = useIsMobile()
-  const anchorRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     if (!popover) {
       return
     }
-    const { anchorElement } = popover
-    const anchorSpan = anchorRef.current
-    if (!anchorSpan) {
-      return
-    }
-
-    const rect = anchorElement.getBoundingClientRect()
-    anchorSpan.style.left = `${rect.left}px`
-    anchorSpan.style.top = `${rect.bottom}px`
-    anchorSpan.style.width = `${rect.width}px`
-
     const handler = () => close()
     window.addEventListener('scroll', handler, { capture: true })
     return () => window.removeEventListener('scroll', handler, { capture: true })
@@ -97,16 +110,21 @@ const CitationOverlay = memo(({ popover, close }: { popover: PopoverData | null;
 
   return (
     <Popover open onOpenChange={(open) => !open && close()}>
-      <PopoverAnchor asChild>
-        <span
-          ref={anchorRef}
-          style={{
-            position: 'fixed',
-            height: 1,
-            pointerEvents: 'none',
-          }}
-        />
-      </PopoverAnchor>
+      {createPortal(
+        <PopoverAnchor asChild>
+          <span
+            style={{
+              position: 'fixed',
+              left: popover.anchorRect.left,
+              top: popover.anchorRect.top,
+              width: popover.anchorRect.width,
+              height: 1,
+              pointerEvents: 'none',
+            }}
+          />
+        </PopoverAnchor>,
+        document.body,
+      )}
       {/* Fork: the card belongs to the sentence it was clicked in, so it must stay
           inside the chat column. Radix defaults its collision boundary to the VIEWPORT,
           and a 420px card anchored near the right of a narrow column then fits the

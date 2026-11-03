@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { NotificationCard } from '@/components/ui/notification-card'
 import { isDesktop } from '@/lib/platform'
 import { isUpdaterEnabled } from '@/fork/updater/updater-enabled'
+import { forkUpdateErrorMessage } from '@/fork/updater/update-error-message'
 
 const statusConfig = {
   initial: { icon: CheckCircle, message: null, showActions: false },
@@ -66,7 +67,9 @@ export const UpdateNotificationContent = ({ desktop, updateState }: UpdateNotifi
             </p>
           )}
           {status === 'error' && error && (
-            <p className="mt-1 text-[length:var(--font-size-xs)] text-destructive">{error}</p>
+            <p className="mt-1 text-[length:var(--font-size-xs)] text-destructive">
+              {forkUpdateErrorMessage(error, i18n)}
+            </p>
           )}
         </>
       }
