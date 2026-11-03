@@ -24,6 +24,7 @@
 
 import { useChatStore } from '@/chats/chat-store'
 import { useContentView } from '@/content-view/context'
+import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
 import { useAllAgents } from '@/dal'
 import type { ThunderboltUIMessage } from '@/types'
 import { useChat, type UseChatOptions } from '@ai-sdk/react'
@@ -247,20 +248,37 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
     msg: JsonRpcRequest | JsonRpcNotification,
     frame: { nonce: string; post: (m: unknown) => void },
   ) => {
-    if (!chatInstance) {
-      return
-    }
-
+    // ⚠ No blanket `if (!chatInstance) return` here, and that is the whole point of this
+    // comment. It used to stand at the top of this function, which meant a host with no
+    // active session answered NOTHING — including the handshake. A JSON-RPC request that
+    // never gets a reply leaves the app's promise forever pending, so a canvas panel
+    // rendered its chrome and then sat empty with nothing in any log to say why. Reported
+    // from the pilot against 0.1.152.
+    //
+    // The session gates what the host can DO, not what it may ANSWER. `ui/initialize`
+    // needs nothing from a session (version and host info are constants, the theme comes
+    // off `document.documentElement`), so it is answered unconditionally; the proxying
+    // methods below answer with `NO_SESSION` instead of falling silent.
     if (msg.method === canvasBridgeMethods.UI_INITIALIZE) {
       if (!isJsonRpcRequest(msg)) {
         return
+      }
+      if (!chatInstance) {
+        // One line, not per message: this is the field diagnostic for "the panel came up
+        // empty". It names what the store actually held, because the reason a session is
+        // missing mid-conversation is not knowable from here.
+        forkBootLogOnce(
+          `canvas: ui/initialize with no chat session (currentSessionId=${threadId || 'null'}, sessions=${useChatStore.getState().sessions.size})`,
+        )
       }
       frame.post(
         buildJsonRpcResult(msg.id, {
           protocolVersion: canvasProtocolVersion,
           hostCapabilities: {},
           hostInfo: { name: 'Volt', version: '1' },
-          hostContext: { theme: readResolvedThemeClass(), readOnly: isReadOnly },
+          // No session means nothing can be proxied, so the app is told it cannot act —
+          // otherwise it would offer buttons whose every call comes back `NO_SESSION`.
+          hostContext: { theme: readResolvedThemeClass(), readOnly: isReadOnly || !chatInstance },
         }),
       )
       return
@@ -275,12 +293,15 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
       // budget. `limiterRef.current.allow(...)` has a side effect (it consumes a token), so it's
       // only called once both earlier gates have passed — `rateAllowed` is never read by
       // `classifyCanvasRequest` unless that's the case (see its priority-order doc comment).
+      const hasSession = !!chatInstance
       const hasCanvas = activeCanvasRef !== null
       const isReadOnlyNow =
         hasCanvas && activeCanvasRef.emittingAgentId !== null && activeCanvasRef.emittingAgentId !== selectedAgentId
-      const rateAllowed = hasCanvas && !isReadOnlyNow ? limiterRef.current.allow(frame.nonce, performance.now()) : false
+      const rateAllowed =
+        hasSession && hasCanvas && !isReadOnlyNow ? limiterRef.current.allow(frame.nonce, performance.now()) : false
       const params = readToolsCallParams(msg.params)
       const decision = classifyCanvasRequest({
+        hasSession,
         hasCanvas,
         isReadOnly: isReadOnlyNow,
         rateAllowed,
@@ -331,29 +352,41 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
 
     if (msg.method === canvasBridgeMethods.UI_PROMPT) {
       const prompt = readPromptParam(msg.params)
-      if (activeCanvasRef === null || !prompt) {
+      if (!prompt) {
+        // A request with no prompt still gets an answer — see the handshake note above:
+        // whatever else happens, a request carrying an id must never go unanswered.
+        if (isJsonRpcRequest(msg)) {
+          frame.post(
+            buildJsonRpcError(msg.id, canvasJsonRpcErrors.INVALID_PARAMS.code, 'invalid params: prompt is required'),
+          )
+        }
         return
       }
       // `ui/prompt` is fire-and-forget: it has no rate limit to gate lazily, so unlike `tools/call`
-      // above there's no budget-consumption ordering concern here. `hasCanvas`/`hasToolName` are
-      // passed `true` (both already established above), so this can only reject via `isReadOnly`.
+      // above there's no budget-consumption ordering concern here. `hasToolName` is passed `true`
+      // (no tool-name param here), so this rejects via session, canvas or read-only.
       const isReadOnlyNow =
-        activeCanvasRef.emittingAgentId !== null && activeCanvasRef.emittingAgentId !== selectedAgentId
+        activeCanvasRef !== null &&
+        activeCanvasRef.emittingAgentId !== null &&
+        activeCanvasRef.emittingAgentId !== selectedAgentId
       const decision = classifyCanvasRequest({
-        hasCanvas: true,
+        hasSession: !!chatInstance,
+        hasCanvas: activeCanvasRef !== null,
         isReadOnly: isReadOnlyNow,
         rateAllowed: true,
         hasToolName: true,
       })
       if (decision.kind === 'reject') {
-        // Notifications (no `id`) have no JSON-RPC id to reply to — drop silently, same as the
-        // no-active-canvas/no-prompt cases above.
+        // A notification carries no id, so there is nothing to reply to — the only case
+        // where staying silent is correct rather than a hang.
         if (isJsonRpcRequest(msg)) {
           frame.post(buildJsonRpcError(msg.id, decision.error.code, decision.error.message))
         }
         return
       }
-      const uri = activeCanvasRef.uri
+      // `proceed` implies the canvas gate passed, so `activeCanvasRef` is non-null here —
+      // an invariant the type checker cannot see through the boolean (same as `tools/call`).
+      const uri = activeCanvasRef!.uri
       const idPart = isJsonRpcRequest(msg) ? String(msg.id) : String(Date.now())
       const message = buildCanvasActionMessage({
         prompt,
