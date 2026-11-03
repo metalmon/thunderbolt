@@ -117,10 +117,16 @@ describe('desktop window', () => {
  * What this directive can and cannot be is measured in
  * `docs/development/loopback-connect-src.md`: bare `https:`/`wss:` already allow every
  * TLS host, and the `http:default` capability (any host, any port, any path) reaches
- * anything over IPC
- * where a content policy never sees it. So it buys no protection from exfiltration and
- * none from reaching loopback — which is why it holds a port wildcard rather than a list
- * of ports that went stale on every ZeroClaw install.
+ * anything over IPC where a content policy never sees it. So it buys no protection from
+ * exfiltration, and none from reaching loopback with a plain request.
+ *
+ * ⚠ For a WEBSOCKET it is the only gate there is — that capability is fetch-only — so
+ * the port wildcard genuinely widens what the page may open on this machine. That is an
+ * accepted cost, not an oversight: the port is a runtime fact of each install, so a
+ * static list is wrong on the next machine and costs a release to correct. The narrower
+ * alternative — a native bridge scoped to the configured agent URLs — is recorded in the
+ * spec and not built. A local agent is expected to require its bearer token regardless
+ * (`zeroclaw.acp.v1`), which is what actually protects it.
  *
  * What is left worth pinning is the one line that still means something (plaintext only
  * to loopback) and the shape of the list, because a long list of dead entries is what
