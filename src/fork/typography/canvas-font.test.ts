@@ -37,10 +37,18 @@ describe('buildCanvasScrollbarCss', () => {
   const css = buildCanvasScrollbarCss()
 
   it('themes the scrollbar off the injected color tokens (tracks light/dark)', () => {
-    expect(css).toContain('scrollbar-color:var(--color-border) transparent')
     expect(css).toContain('::-webkit-scrollbar-thumb')
     expect(css).toContain('var(--color-border)')
     expect(css).toContain('var(--color-muted-foreground)')
+  })
+
+  // The regression that cost a pilot round: naming either standard property makes
+  // Chromium ignore every `::-webkit-scrollbar` rule here, so the frame fell back to
+  // the platform scrollbar sized by `thin` — themed page, system scrollbar, and
+  // nothing in the CSS looking wrong. One mechanism, and this is what holds it.
+  it('names neither standard scrollbar property, which would silence the rules above', () => {
+    expect(css).not.toContain('scrollbar-width')
+    expect(css).not.toContain('scrollbar-color')
   })
 
   it('does not use !important, so an artifact can override its own scrollbar', () => {
