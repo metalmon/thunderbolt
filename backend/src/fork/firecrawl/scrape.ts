@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { FetchContentResponse } from '@/pro/types'
+import { validateSafeUrl } from '@/utils/url-validation'
 
 const DEFAULT_MAX = 16_000
 const HARD_CAP = 64_000
@@ -32,6 +33,25 @@ export const forkFirecrawlScrape = async (
   maxLength: number | undefined,
   fetchFn: typeof fetch = globalThis.fetch,
 ): Promise<FetchContentResponse> => {
+  // The target comes from a `fetch_content` tool call, so it is whatever the model was
+  // talked into asking for — and unlike Exa, a self-hosted Firecrawl stands INSIDE the
+  // perimeter and will render any address we hand it, returning the page as text.
+  //
+  // `validateSafeUrl` is not a new policy: it is the deployment's existing one, obeyed
+  // already by link previews (`api/preview.ts`) and the universal proxy
+  // (`proxy/routes.ts`) — private targets refused unless the operator opted in through
+  // `VOLT_PROXY_ALLOWED_HOSTS` / `VOLT_PROXY_ALLOW_PRIVATE`. This lane was the one place
+  // that asked past it, so the switch did not apply to it at all.
+  //
+  // ⚠ This stops our own request, not the browser's onward journey: Firecrawl follows
+  // redirects itself and a name can be rebound after the check. The perimeter half —
+  // running it with egress rules that refuse private ranges and the metadata address —
+  // is a deployment matter and is not replaced by this guard.
+  const verdict = validateSafeUrl(url)
+  if (!verdict.valid) {
+    return { data: null, success: false, error: verdict.error ?? 'Invalid URL' }
+  }
+
   const base = getFirecrawlUrl()
   const token = process.env.FIRECRAWL_TOKEN || DEFAULT_TOKEN
   const maxChars = Math.min(Math.max(maxLength ?? DEFAULT_MAX, MIN), HARD_CAP)
