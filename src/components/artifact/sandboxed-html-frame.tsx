@@ -265,9 +265,7 @@ export const SandboxedHtmlFrame = ({
     // (`allowScripts=false`) gets a bare `sandbox` (no scripts). The directive is
     // honoured in the response header (set by the SW) and ignored in the `<meta>`
     // copy, so artifactCsp's meta tag is unaffected.
-    const csp = isTauri()
-      ? artifactCsp
-      : `${allowScripts ? 'sandbox allow-scripts' : 'sandbox'}; ${artifactCsp}`
+    const csp = isTauri() ? artifactCsp : `${allowScripts ? 'sandbox allow-scripts' : 'sandbox'}; ${artifactCsp}`
     registerSandboxContent({ html: wrappedHtml, csp })
       .then((registered) => {
         if (cancelled) {
@@ -286,6 +284,37 @@ export const SandboxedHtmlFrame = ({
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // Fork hook (Canvas Action Channel, Wire A): the canvas bridge speaks a DIFFERENT
+      // protocol over the same channel — JSON-RPC, not the harness's `artifact-*` shapes —
+      // so it is parsed FIRST, before the harness verdict can discard the event.
+      //
+      // ⚠ This ordering is the whole fix, and it is not cosmetic. `parseHarnessMessage`
+      // used to check only the source window and the nonce and hand the payload back
+      // as-is, so a bridge message fell through its `type` branches and reached this hook.
+      // Upstream's mini-apps change (#1229) made it validate against a strict schema of
+      // the `artifact-*` messages, after which every bridge message failed it and was
+      // dropped by the `if (!data) return` below — silently, because a message that never
+      // arrives is indistinguishable from a host that never answers. The canvas panel
+      // went blank in the pilot and no log anywhere said why.
+      //
+      // `frame.post` writes into the SAME iframe document via postMessage — it never
+      // touches `wrappedHtml`/`src`, so the frame is never re-registered or reloaded for
+      // a data update (Model B: mounted-frame updates only).
+      if (onBridgeMessageRef.current) {
+        const bridge = parseCanvasBridgeMessage(event, iframeRef.current?.contentWindow ?? null, nonce)
+        if (bridge) {
+          onBridgeMessageRef.current(bridge, {
+            nonce,
+            // Stamp the frame nonce on every host→iframe message: the in-iframe
+            // bridge listener drops anything whose `artifactNonce` doesn't match
+            // (symmetric with `parseCanvasBridgeMessage`'s inbound gate), so an
+            // unstamped response would hang the handshake.
+            post: (m) => iframeRef.current?.contentWindow?.postMessage(stampCanvasNonce(m, nonce), '*'),
+          })
+          return
+        }
+      }
+
       const data = parseHarnessMessage(event, iframeRef.current?.contentWindow ?? null, nonce)
       if (!data) {
         return
@@ -309,24 +338,6 @@ export const SandboxedHtmlFrame = ({
         const next = Math.min(maxAutoHeightPx, Math.max(minAutoHeightPx, Math.round(data.height)))
         // Ignore sub-pixel jitter so a self-measuring page can't oscillate.
         setContentHeight((prev) => (prev !== null && Math.abs(prev - next) <= 1 ? prev : next))
-      }
-      // Fork hook (Canvas Action Channel, Wire A): a sibling parse for the canvas bridge
-      // script's JSON-RPC messages, gated the same way as the harness branch above (same
-      // iframe, same nonce). `frame.post` below writes into the SAME iframe document via
-      // postMessage — it never touches `wrappedHtml`/`src`, so the frame is never
-      // re-registered or reloaded for a data update (Model B: mounted-frame updates only).
-      if (onBridgeMessageRef.current) {
-        const bridge = parseCanvasBridgeMessage(event, iframeRef.current?.contentWindow ?? null, nonce)
-        if (bridge) {
-          onBridgeMessageRef.current(bridge, {
-            nonce,
-            // Stamp the frame nonce on every host→iframe message: the in-iframe
-            // bridge listener drops anything whose `artifactNonce` doesn't match
-            // (symmetric with `parseCanvasBridgeMessage`'s inbound gate), so an
-            // unstamped response would hang the handshake.
-            post: (m) => iframeRef.current?.contentWindow?.postMessage(stampCanvasNonce(m, nonce), '*'),
-          })
-        }
       }
     }
     window.addEventListener('message', handleMessage)
