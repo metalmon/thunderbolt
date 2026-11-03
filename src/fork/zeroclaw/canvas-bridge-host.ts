@@ -5,6 +5,7 @@
 /* Fork-owned (metalmon / Volt live-test). See ./FORK.md — do not upstream. */
 
 import { canvasBridgeMethods, isJsonRpcMessage } from './canvas-bridge-protocol'
+import { traceCanvas } from './canvas-trace'
 import type { JsonRpcNotification, JsonRpcRequest, JsonRpcResponse } from './canvas-bridge-protocol'
 
 /**
@@ -24,11 +25,25 @@ export const parseCanvasBridgeMessage = (
   if (event.source !== contentWindow) {
     return null
   }
-  const data = event.data as { artifactNonce?: string } | undefined
-  if (!data || data.artifactNonce !== nonce) {
+  // Past this point the message came from our own frame, so a rejection is worth a line:
+  // all three are silent by construction, and from the page's side they are
+  // indistinguishable from a host that simply never answers (see `./canvas-trace`).
+  const data = event.data as { artifactNonce?: string; method?: unknown } | undefined
+  if (!data) {
+    traceCanvas('inbound dropped: empty payload')
     return null
   }
-  return isJsonRpcMessage(data) ? data : null
+  if (data.artifactNonce !== nonce) {
+    traceCanvas(
+      `inbound dropped: nonce mismatch (method=${String(data.method ?? '—')}, got=${String(data.artifactNonce ?? '—')}, want=${nonce})`,
+    )
+    return null
+  }
+  if (!isJsonRpcMessage(data)) {
+    traceCanvas(`inbound dropped: not a JSON-RPC message (method=${String(data.method ?? '—')})`)
+    return null
+  }
+  return data
 }
 
 /**
