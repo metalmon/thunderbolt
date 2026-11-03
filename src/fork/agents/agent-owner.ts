@@ -21,6 +21,38 @@
  */
 import { useSyncExternalStore } from 'react'
 
+/**
+ * The owner stamped on custom-agent rows created in autonomous mode.
+ *
+ * `agents.user_id` is the schema's only `notNull()` owner column — the other twelve
+ * synced tables leave it empty and let the server stamp it on upload — and autonomous
+ * mode has no session to name. Without a stand-in a custom agent cannot be created
+ * there at all, which is the defect this fixes. A constant mark keeps upstream's "an
+ * agent always has an owner" invariant and lets `ownedBy` stay a plain comparison
+ * instead of growing a special case.
+ *
+ * The colon is load-bearing: Better Auth's user ids contain none, so this value can
+ * never collide with a real owner, by accident or by guessing. A collision would mean
+ * another account's agent reading as this device's.
+ *
+ * See `docs/development/local-mode-agent-ownership.md`.
+ */
+export const localAgentOwnerId = 'volt:local-device'
+
+/**
+ * Who owns this device's custom-agent rows: the session user when there is one, the
+ * device mark when running autonomously, nobody otherwise.
+ *
+ * A session id always wins, so a deployment with a backend is unchanged — before
+ * sign-in there is still no owner and still no custom agents.
+ *
+ * `localMode` is a parameter rather than an `isLocalMode()` call inside, so the one
+ * publisher states which mode it is publishing for and the test needs no module mock
+ * (which in bun is process-wide and never undone).
+ */
+export const resolveAgentOwner = (sessionUserId: string | null | undefined, localMode: boolean): string | null =>
+  sessionUserId ?? (localMode ? localAgentOwnerId : null)
+
 let currentOwner: string | null = null
 const listeners = new Set<() => void>()
 
