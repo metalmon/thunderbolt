@@ -25,6 +25,8 @@ import {
   updateAgent,
 } from './agents'
 import { getChatThread } from './chat-threads'
+import { adoptLocalAgents } from '@/fork/agents/adopt-local-agents'
+import { localAgentOwnerId } from '@/fork/agents/agent-owner'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from './test-utils'
 import type { Agent } from '@/types/acp'
 
@@ -946,5 +948,21 @@ describe('agents DAL — owner scope (fork)', () => {
     })
     const rows = await getAgentSecretsQuery(getDb(), 'a-theirs', 'u-me')
     expect(rows).toEqual([])
+  })
+
+  // What the owner scope MEANS for an agent made while autonomous: kept on disk by
+  // "keep local data", and unreachable until adoption moves it. The move itself is
+  // covered where it lives (`src/fork/agents/adopt-local-agents.test.ts`); this is the
+  // consequence, asserted against the scope that produces it.
+  it('an autonomous agent is invisible to the signing-in account until it is adopted', async () => {
+    await createAgent(getDb(), { ...mine, id: 'a-local', name: 'Local', userId: localAgentOwnerId })
+
+    expect((await getAllAgents(getDb(), 'u-me')).map((a) => a.id)).toEqual(['a-mine'])
+
+    expect(await adoptLocalAgents(getDb(), 'u-me')).toBe(1)
+
+    expect((await getAllAgents(getDb(), 'u-me')).map((a) => a.id).sort()).toEqual(['a-local', 'a-mine'])
+    // Adoption is scoped to the mark, so the other account's row never moves.
+    expect((await getAllAgents(getDb(), 'u-other')).map((a) => a.id)).toEqual(['a-theirs'])
   })
 })

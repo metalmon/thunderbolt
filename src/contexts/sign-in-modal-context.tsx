@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { SignInModal } from '@/components/sign-in-modal'
 import { SyncSetupModal } from '@/components/sync-setup/sync-setup-modal'
 import { useAuth } from '@/contexts/auth-context'
+import { adoptLocalAgentsOnSignIn } from '@/fork/agents/adopt-local-agents'
 import { isSyncEnabled, setSyncEnabled } from '@/db/powersync/sync-state'
 import { needsSyncSetupWizard } from '@/db/encryption'
 import { showSignInModalEvent, signInSuccessEvent } from '@/hooks/use-credential-events'
@@ -69,7 +70,8 @@ export const SignInModalProvider = ({ children }: SignInModalProviderProps) => {
 
   const openSignInModal = () => setSignInOpen(true)
 
-  const { data: session, isPending: sessionPending } = useAuth().useSession()
+  const authClient = useAuth()
+  const { data: session, isPending: sessionPending } = authClient.useSession()
   const isSignedIn = !sessionPending && !!session
 
   useEffect(() => {
@@ -139,6 +141,12 @@ export const SignInModalProvider = ({ children }: SignInModalProviderProps) => {
     setSignInOpen(false)
     window.dispatchEvent(new CustomEvent(signInSuccessEvent))
     const enableSync = async () => {
+      // Fork: hand this device's autonomously created agents to the account signing in,
+      // BEFORE sync opens — "keep local data" promised they survive the switch, and a
+      // row still carrying the device mark sits outside every owner-scoped read. Order
+      // is the point: once upload is open the row would go up under the right owner
+      // server-side but stay invisible here until adoption, then be written twice.
+      await adoptLocalAgentsOnSignIn(authClient)
       if (await needsSyncSetupWizard()) {
         setSyncSetupOpen(true)
         return
@@ -158,6 +166,10 @@ export const SignInModalProvider = ({ children }: SignInModalProviderProps) => {
   }
 
   const handleSyncSetupComplete = async () => {
+    // Fork: the second way sync gets enabled — the wizard, reachable both from sign-in
+    // and from the startup re-enrollment gate. Adoption has to stand in front of this
+    // one too, or that path keeps the hole the other one closed.
+    await adoptLocalAgentsOnSignIn(authClient)
     await setSyncEnabled(true)
     trackEvent('settings_sync_enabled')
     setSyncSetupOpen(false)

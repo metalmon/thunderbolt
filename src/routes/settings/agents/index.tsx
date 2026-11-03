@@ -16,8 +16,9 @@ import { ThunderboltCliDetail, ThunderboltCliRow } from '@/components/settings/a
 import { SettingsListBody, settingsListBodyRowsClass, SettingsListPane } from '@/components/settings/settings-list'
 import { PageCreateAction } from '@/components/ui/page-create-action'
 import { PageHeader } from '@/components/ui/page-header'
-import { useAuth, useDatabase } from '@/contexts'
+import { useDatabase } from '@/contexts'
 import { deleteAgent, updateAgent, useAllAgents } from '@/dal'
+import { useCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { useEntityActionIntent } from '@/search/actions/use-entity-action-intent'
 
 type AgentsSettingsPageProps = {
@@ -42,9 +43,11 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
   const { t } = useLingui()
   const db = useDatabase()
   const agents = useAllAgents()
-  const authClient = useAuth()
-  const { data: session } = authClient.useSession()
-  const currentUserId = session?.user?.id ?? null
+  // Fork: the owner comes from the owner seam, not from the session directly. Two
+  // answers to "who am I" is what left autonomous mode unable to add an agent: the
+  // seam named the device, this gate asked a session that mode never has. One source
+  // makes "who we show" and "who we allow" impossible to diverge.
+  const currentUserId = useCurrentAgentOwner()
   const allowCustomAgents = useConfigStore((state) => selectAllowCustomAgents(state.config))
 
   // The add form, the CLI install card, and the agent rows all share the one

@@ -9,8 +9,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { testAcpConnection } from '@/acp'
 import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { DetailPanel } from '@/components/detail-panel'
-import { useAuth, useDatabase, useHttpClient } from '@/contexts'
+import { useDatabase, useHttpClient } from '@/contexts'
 import { createAgent, setAgentSecrets } from '@/dal'
+import { useCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { fireAndForgetSelfEnrollment, selfEnrollIrohNodeId } from '@/lib/iroh-enrollment'
 import { createItemTitles } from '@/components/create-item/context'
 import { AddCustomAgentForm, type AddCustomAgentPayload } from './add-custom-agent-form'
@@ -28,18 +29,20 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
   const { i18n } = useLingui()
   const db = useDatabase()
   const queryClient = useQueryClient()
-  const authClient = useAuth()
   const httpClient = useHttpClient()
-  const { data: session } = authClient.useSession()
-  const currentUserId = session?.user?.id ?? null
+  // Fork: same owner seam the list and the token field read, so a row created here is
+  // reachable by the read that follows it. In autonomous mode this is the device mark;
+  // asking the session instead made creation impossible there. See
+  // `docs/development/local-mode-agent-ownership.md`.
+  const currentUserId = useCurrentAgentOwner()
   const runEnroll = enrollIroh ?? (() => selfEnrollIrohNodeId(httpClient, loadAppNodeId ?? irohClientNodeId))
 
   const handleAdd = async (payload: AddCustomAgentPayload) => {
     if (!currentUserId) {
-      // Quick-create entry points are gated on capability, not session, so
+      // Quick-create entry points are gated on capability, not on the owner, so
       // this can be reached while auth is still resolving. Throwing routes it
       // into the form's catch, which shows the submit-failed error.
-      throw new Error('Cannot create an agent without an authenticated session.')
+      throw new Error('Cannot create an agent without a resolved owner.')
     }
     const id = uuidv7()
     await createAgent(db, {
