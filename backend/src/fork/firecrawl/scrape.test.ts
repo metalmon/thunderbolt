@@ -64,3 +64,37 @@ describe('forkFirecrawlScrape', () => {
     expect(res.data).toBeNull()
   })
 })
+
+// A self-hosted Firecrawl renders whatever address it is handed and hands the page back
+// as text, and the address arrives from a tool call. Refusing an internal target is
+// therefore the lane's own business, not the caller's.
+// The opposite case — a deployment that opted private targets IN — is deliberately not
+// asserted here. The decision lives in `validateSafeUrl`, and the deployment switch it
+// reads is covered where it belongs (`src/fork/proxy/allowed-private-targets.test.ts`:
+// the closed-perimeter switch, the named-host list, and link-local refused even then).
+// This lane's job is to ask, so what it must prove is that it asks at all.
+describe('forkFirecrawlScrape refuses an internal target', () => {
+  const refused = ['http://127.0.0.1/admin', 'http://localhost:8000/x', 'http://10.1.2.3/', 'http://169.254.169.254/']
+
+  for (const target of refused) {
+    it(`never asks upstream for ${target}`, async () => {
+      process.env.FIRECRAWL_URL = 'http://fc:3002'
+      const fetchFn = mock(() => Promise.resolve(scrapeResponse('# leaked')))
+
+      const res = await forkFirecrawlScrape(target, 16000, fetchFn as unknown as typeof fetch)
+
+      // Not merely an error: upstream must never have been called at all.
+      expect(fetchFn).not.toHaveBeenCalled()
+      expect(res.success).toBe(false)
+      expect(res.data).toBeNull()
+    })
+  }
+
+  it('refuses a scheme that is not http(s)', async () => {
+    process.env.FIRECRAWL_URL = 'http://fc:3002'
+    const fetchFn = mock(() => Promise.resolve(scrapeResponse('# leaked')))
+    const res = await forkFirecrawlScrape('file:///etc/passwd', 16000, fetchFn as unknown as typeof fetch)
+    expect(fetchFn).not.toHaveBeenCalled()
+    expect(res.success).toBe(false)
+  })
+})
