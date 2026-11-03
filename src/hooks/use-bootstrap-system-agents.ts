@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useChatStore } from '@/chats/chat-store'
-import { resolveAgentOwner, setCurrentAgentOwner } from '@/fork/agents/agent-owner'
+import { resolveAgentOwner, setCurrentAgentOwner, setCurrentOwnerIsAnonymous } from '@/fork/agents/agent-owner'
 import { isLocalMode } from '@/fork/local-mode/mode'
 import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { getSettings } from '@/dal'
@@ -78,9 +78,15 @@ export const useBootstrapSystemAgents = ({ refresh = refreshSystemAgents }: UseB
   // `isLocalMode()` is read here rather than subscribed to: the mode is decided once
   // per boot and changing it reloads the window (see `enterLocalMode`), so there is no
   // in-session transition for a dependency to catch.
+  // Anonymity rides along because the management gate needs it and this is the only
+  // place the session is observed — reading it at the point of use is what put the two
+  // facts on different patch branches.
+  const isAnonymous = session?.user?.isAnonymous === true
+
   useEffect(() => {
     setCurrentAgentOwner(resolveAgentOwner(userId, isLocalMode()))
-  }, [userId])
+    setCurrentOwnerIsAnonymous(isAnonymous)
+  }, [userId, isAnonymous])
 
   useEffect(() => {
     if (!userId || !cloudUrl) {
