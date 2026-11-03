@@ -34,10 +34,16 @@ describe('resolveAgentOwner', () => {
   })
 })
 
+// ⚠ Asserts transitions, never an initial value. The store is a module singleton and
+// seven suites on the assembled tree write to it, so "defaults to false" is unprovable
+// in a shared process — it passed alone here and failed in the full run. The default
+// itself is the initializer in the module; what is worth proving is that each fact
+// survives the other being written.
 describe('the published owner store', () => {
-  it('carries both facts, and anonymity defaults to false', () => {
+  it('carries both facts independently', () => {
     // Both come from one store so the management gate and the row scope can never read
     // different answers to "who am I".
+    setCurrentOwnerIsAnonymous(false)
     setCurrentAgentOwner('user-1')
     expect(getCurrentAgentOwner()).toBe('user-1')
     expect(getCurrentOwnerIsAnonymous()).toBe(false)
@@ -45,6 +51,9 @@ describe('the published owner store', () => {
     setCurrentOwnerIsAnonymous(true)
     expect(getCurrentOwnerIsAnonymous()).toBe(true)
     expect(getCurrentAgentOwner()).toBe('user-1')
+
+    setCurrentAgentOwner('user-2')
+    expect(getCurrentOwnerIsAnonymous()).toBe(true)
 
     setCurrentAgentOwner(null)
     setCurrentOwnerIsAnonymous(false)
