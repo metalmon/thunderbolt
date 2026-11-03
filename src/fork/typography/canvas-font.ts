@@ -80,5 +80,14 @@ export const buildCanvasScrollbarCss = (tokens: Record<string, string> = {}): st
   )
 }
 
+/**
+ * All fork CSS appended inside the injected artifact theme `<style>`, after the
+ * `:root { … }` token block: the embedded reading-font `@font-face` rules plus the
+ * theme-matched scrollbar. Pure — string-only, no DOM — so it stays inside the
+ * verification-neutral, CSS-only theme-style contract.
+ *
+ * Takes the same theme snapshot the token block is built from, because the scrollbar
+ * rules resolve their colours here rather than through `var()` — see above.
+ */
 export const buildCanvasThemeExtrasCss = (tokens: Record<string, string> = {}): string =>
   buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens)
