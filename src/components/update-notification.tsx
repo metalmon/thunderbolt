@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useDesktopUpdate, type DesktopUpdateState, type UpdateStatus } from '@/hooks/use-desktop-update'
 import { Button } from '@/components/ui/button'
 import { NotificationCard } from '@/components/ui/notification-card'
+import { forkUpdateErrorMessage } from '@/fork/updater/update-error-message'
 
 const statusConfig = {
   initial: { icon: CheckCircle, message: null, showActions: false },
@@ -64,7 +65,9 @@ export const UpdateNotificationContent = ({ updateState }: UpdateNotificationCon
             </p>
           )}
           {status === 'error' && error && (
-            <p className="mt-1 text-[length:var(--font-size-xs)] text-destructive">{error}</p>
+            <p className="mt-1 text-[length:var(--font-size-xs)] text-destructive">
+              {forkUpdateErrorMessage(error, i18n)}
+            </p>
           )}
         </>
       }
