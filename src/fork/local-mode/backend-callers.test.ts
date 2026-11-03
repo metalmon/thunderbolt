@@ -28,6 +28,12 @@ import { listRepoFiles, readRepoFile } from '../testing/source-file'
  *   allowed — does not go through our backend at all (the user's own endpoint).
  *
  * Deleting a line is the same decision in reverse and just as deliberate.
+ *
+ * Two were deleted when the agent surfaces moved onto the owner seam: the agents
+ * settings page and the create panel used to ask `useSession` for the owner and so
+ * reached the backend to answer a question that is now answered from a local store.
+ * They do not touch it at all any more — which is what autonomous mode wants, and this
+ * inventory is how we noticed.
  */
 const backendCallers = [
   'src/acp/managed-http-adapter.ts',
@@ -40,7 +46,6 @@ const backendCallers = [
   'src/components/device-approval.tsx',
   'src/components/logout-modal.tsx',
   'src/components/magic-link-verify.tsx',
-  'src/components/settings/agents/create-agent-detail-panel.tsx',
   'src/components/share-debug-transcript/use-share-debug-transcript-state.ts',
   'src/components/sidebar-footer.tsx',
   'src/components/sso-redirect.tsx',
@@ -64,7 +69,6 @@ const backendCallers = [
   'src/lib/sign-in-with-otp.ts',
   'src/mini-apps/mini-app-auth.ts',
   'src/mini-apps/use-mini-apps.ts',
-  'src/routes/settings/agents/index.tsx',
   'src/search/commands/use-commands.ts',
   'src/settings/preferences.tsx',
   'src/skills/telemetry.ts',
