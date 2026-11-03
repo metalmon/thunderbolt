@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Trans } from '@lingui/react/macro'
+import { useLingui } from '@lingui/react/macro'
 import type { ArtifactContext, ArtifactTextSelection } from '@/artifacts/harness'
 import { SandboxedHtmlFrame } from '@/components/artifact/sandboxed-html-frame'
 import { cn } from '@/lib/utils'
@@ -47,6 +47,7 @@ export const SelectableArtifact = ({
   onAsk,
   onContextChange,
 }: SelectableArtifactProps) => {
+  const { t } = useLingui()
   const [selection, setSelection] = useState<ArtifactTextSelection | null>(null)
 
   // The resolver is held in a ref, not state: it changes only when the document
@@ -98,14 +99,20 @@ export const SelectableArtifact = ({
       )}
 
       {mode.kind === 'idle' && !selection && (
+        /* Fork: the icon alone, no label — the same reason the mini-app's floating
+           controls lost theirs. This button floats OVER agent-authored content and a
+           worded pill covers whatever the artifact put in that corner. The label
+           survives as the accessible name and the tooltip, so nothing is lost but the
+           footprint. */
         <Button
           onClick={startPicking}
           variant="secondary"
-          size="sm"
+          size="icon-lg"
           className="absolute bottom-3 right-3 z-10 rounded-full shadow-lg"
+          aria-label={t`Select`}
+          title={t`Select`}
         >
-          <MousePointerClick className="size-[var(--icon-size-sm)]" />
-          <Trans>Select</Trans>
+          <MousePointerClick className="size-[var(--icon-size-default)]" />
         </Button>
       )}
     </div>
