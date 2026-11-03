@@ -142,3 +142,68 @@ describe('SandboxedHtmlFrame', () => {
     })
   })
 })
+
+/**
+ * Fork: the canvas bridge speaks JSON-RPC over the same `message` channel the harness
+ * uses for its `artifact-*` payloads. These pin the ORDER of the two parses, which is
+ * load-bearing and was broken once: `parseHarnessMessage` used to hand any
+ * nonce-matching payload back untouched, so a bridge message fell through to the fork
+ * hook; upstream's mini-apps change made it validate against the harness schema, after
+ * which every bridge message was discarded by the handler's `if (!data) return` before
+ * the hook could see it. Nothing failed — a message that never arrives looks exactly
+ * like a host that never answers — and a pilot canvas panel went blank instead.
+ */
+describe('SandboxedHtmlFrame — canvas bridge ordering (fork)', () => {
+  /** Dispatch a frame→host `message` as the iframe's own window, carrying its nonce. */
+  const postFromFrame = async (iframe: HTMLIFrameElement, data: unknown) => {
+    await act(async () => {
+      window.dispatchEvent(new MessageEvent('message', { data, source: iframe.contentWindow }))
+      await Promise.resolve()
+    })
+  }
+
+  it('routes a JSON-RPC request to the bridge hook, though it is not a harness message', async () => {
+    let nonce = ''
+    const onBridgeMessage = mock(() => {})
+    const { container } = render(
+      <SandboxedHtmlFrame
+        html="<h1>Canvas</h1>"
+        title="Canvas"
+        nonceRef={(n: string) => {
+          nonce = n
+        }}
+        onBridgeMessage={onBridgeMessage}
+      />,
+    )
+    await settle()
+    const iframe = container.querySelector('iframe')!
+
+    await postFromFrame(iframe, { artifactNonce: nonce, jsonrpc: '2.0', id: 1, method: 'ui/initialize', params: {} })
+
+    // The assertion that matters: the harness schema rejects this payload, so a hook
+    // placed after the harness verdict never runs at all.
+    expect(onBridgeMessage).toHaveBeenCalledTimes(1)
+  })
+
+  it('still delivers harness messages, so the bridge parse does not swallow them', async () => {
+    const onReady = mock(() => {})
+    let nonce = ''
+    const { container } = render(
+      <SandboxedHtmlFrame
+        html="<h1>Canvas</h1>"
+        title="Canvas"
+        onReady={onReady}
+        nonceRef={(n: string) => {
+          nonce = n
+        }}
+        onBridgeMessage={mock(() => {})}
+      />,
+    )
+    await settle()
+    const iframe = container.querySelector('iframe')!
+
+    await postFromFrame(iframe, { artifactNonce: nonce, type: 'artifact-ready' })
+
+    expect(onReady).toHaveBeenCalledTimes(1)
+  })
+})
