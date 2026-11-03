@@ -36,6 +36,7 @@ import { canvasBridgeMethods, type JsonRpcNotification, type JsonRpcRequest } fr
 import { canvasJsonRpcErrors, classifyCanvasRequest } from './canvas-errors'
 import { createNonceRateLimiter, findResolvedPending, type PendingCall } from './canvas-pending'
 import { computeLatestByUri } from './canvas-registry'
+import { traceCanvas } from './canvas-trace'
 
 /** Wire A protocol version this host implements (MCP Apps / SEP-1865). Bump if the wire shape changes. */
 const canvasProtocolVersion = '2025-06-18'
@@ -259,8 +260,13 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
     // needs nothing from a session (version and host info are constants, the theme comes
     // off `document.documentElement`), so it is answered unconditionally; the proxying
     // methods below answer with `NO_SESSION` instead of falling silent.
+    traceCanvas(
+      `in ${msg.method} (request=${isJsonRpcRequest(msg)}, session=${!!chatInstance}, canvas=${!!activeCanvasRef})`,
+    )
+
     if (msg.method === canvasBridgeMethods.UI_INITIALIZE) {
       if (!isJsonRpcRequest(msg)) {
+        traceCanvas('ui/initialize arrived as a notification — nothing to answer')
         return
       }
       if (!chatInstance) {
@@ -271,6 +277,7 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
           `canvas: ui/initialize with no chat session (currentSessionId=${threadId || 'null'}, sessions=${useChatStore.getState().sessions.size})`,
         )
       }
+      traceCanvas(`ui/initialize answered (readOnly=${isReadOnly || !chatInstance})`)
       frame.post(
         buildJsonRpcResult(msg.id, {
           protocolVersion: canvasProtocolVersion,
@@ -308,9 +315,11 @@ export const CanvasActionChannelProvider = ({ children }: { children: ReactNode 
         hasToolName: !!params.name,
       })
       if (decision.kind === 'reject') {
+        traceCanvas(`tools/call ${params.name || '—'} rejected: ${decision.error.message}`)
         frame.post(buildJsonRpcError(msg.id, decision.error.code, decision.error.message))
         return
       }
+      traceCanvas(`tools/call ${params.name || '—'} proxied as a chat turn`)
       // `decision.kind === 'proceed'` implies `hasCanvas` was true, so `activeCanvasRef` is non-null
       // here — but that invariant isn't visible to the type checker through the boolean.
       const uri = activeCanvasRef!.uri
