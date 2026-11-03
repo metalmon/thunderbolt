@@ -24,6 +24,12 @@ export const useTurnOffModelTools = ({ regenerate }: UseTurnOffModelToolsOptions
       if (!session) {
         throw new Error('No session found')
       }
+      // Fork: `selectedModel` is nullable here — an anonymous session can sit
+      // without one until a model is picked, and upstream's shape assumes it is
+      // always set. Nothing to turn tools off on, so leave the session alone.
+      if (!session.selectedModel) {
+        return
+      }
       await updateModel(db, session.selectedModel.id, { toolUsage: 0 })
       // Refresh canonical model rows while preserving any newer user selection.
       store.setModels(await getAvailableModels(db))
