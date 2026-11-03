@@ -22,25 +22,38 @@ export const parseCanvasBridgeMessage = (
   contentWindow: Window | null,
   nonce: string,
 ): JsonRpcRequest | JsonRpcNotification | null => {
+  const data = event.data as { artifactNonce?: string; method?: unknown; type?: unknown } | undefined
+  // Only bridge traffic is traced. The harness shares this channel and stamps the same
+  // nonce for its own `artifact-*` messages (height, selection, context), so tracing
+  // every rejection buried the one line that matters under its chatter.
+  const isBridgeShaped = typeof data?.method === 'string'
+
   if (event.source !== contentWindow) {
+    // The one rejection that used to leave no trace at all, which is why a handshake
+    // could vanish with the log showing nothing but harness noise. A method-bearing
+    // message from another window is worth a line precisely because it means the page
+    // IS talking and we are listening to the wrong frame.
+    if (isBridgeShaped) {
+      traceCanvas(`inbound dropped: wrong source window (method=${String(data?.method)})`)
+    }
     return null
   }
-  // Past this point the message came from our own frame, so a rejection is worth a line:
-  // all three are silent by construction, and from the page's side they are
-  // indistinguishable from a host that simply never answers (see `./canvas-trace`).
-  const data = event.data as { artifactNonce?: string; method?: unknown } | undefined
   if (!data) {
     traceCanvas('inbound dropped: empty payload')
     return null
   }
   if (data.artifactNonce !== nonce) {
-    traceCanvas(
-      `inbound dropped: nonce mismatch (method=${String(data.method ?? '—')}, got=${String(data.artifactNonce ?? '—')}, want=${nonce})`,
-    )
+    if (isBridgeShaped) {
+      traceCanvas(
+        `inbound dropped: nonce mismatch (method=${String(data.method)}, got=${String(data.artifactNonce ?? '—')}, want=${nonce})`,
+      )
+    }
     return null
   }
   if (!isJsonRpcMessage(data)) {
-    traceCanvas(`inbound dropped: not a JSON-RPC message (method=${String(data.method ?? '—')})`)
+    if (isBridgeShaped) {
+      traceCanvas(`inbound dropped: not a JSON-RPC message (method=${String(data.method)})`)
+    }
     return null
   }
   return data
