@@ -24,11 +24,17 @@ export const useTurnOffModelTools = ({ regenerate }: UseTurnOffModelToolsOptions
       if (!session) {
         throw new Error('No session found')
       }
+      // Fork: `selectedModel` is nullable here — an anonymous session can sit
+      // without one until a model is picked, and upstream's shape assumes it is
+      // always set. Nothing to turn tools off on, so leave the session alone.
+      if (!session.selectedModel) {
+        return
+      }
       const model = { ...session.selectedModel, toolUsage: 0 }
       await updateModel(db, model.id, { toolUsage: 0 })
       // setModels keeps each session's current model object, so swap the updated one in,
       // unless the user picked another model while this saved.
-      if (useChatStore.getState().sessions.get(sessionId)?.selectedModel.id === model.id) {
+      if (useChatStore.getState().sessions.get(sessionId)?.selectedModel?.id === model.id) {
         store.updateSession(sessionId, { selectedModel: model })
       }
       store.setModels(await getAvailableModels(db))
