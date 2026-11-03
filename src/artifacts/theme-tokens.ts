@@ -95,7 +95,11 @@ export const buildThemeStyleTag = (tokenValues: Record<string, string>, colorSch
   // Fork: after the :root token block, embed the reading-font @font-face (the
   // sandboxed iframe can't load the app's fonts) + a theme-matched scrollbar. Both
   // are CSS-only, keeping this tag verification-neutral (see harness.ts).
-  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; } ${buildCanvasThemeExtrasCss()}</style>`
+  //
+  // The snapshot is handed over rather than left to `var()`: Chromium does not inherit
+  // custom properties into the scrollbar pseudo-elements, so those rules have to carry
+  // resolved colours or the browser paints its own thumb.
+  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; } ${buildCanvasThemeExtrasCss(tokenValues)}</style>`
 }
 
 /**
