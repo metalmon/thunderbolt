@@ -22,7 +22,7 @@ export const parseCanvasBridgeMessage = (
   contentWindow: Window | null,
   nonce: string,
 ): JsonRpcRequest | JsonRpcNotification | null => {
-  const data = event.data as { artifactNonce?: string; method?: unknown; type?: unknown } | undefined
+  const data = event.data as { artifactNonce?: string; method?: unknown } | undefined
   // Only bridge traffic is traced. The harness shares this channel and stamps the same
   // nonce for its own `artifact-*` messages (height, selection, context), so tracing
   // every rejection buried the one line that matters under its chatter.
