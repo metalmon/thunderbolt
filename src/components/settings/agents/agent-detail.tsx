@@ -39,6 +39,7 @@ import type { UpdateAgentPatch } from '@/dal/agents'
 import { cn } from '@/lib/utils'
 import { useLibrarySkills } from '@/skills/use-skills'
 import type { Agent } from '@/types/acp'
+import { canManageForkCustomAgent } from '@/fork/agents/manage-anonymous-agent'
 import { acpEndpointLabel, agentProvenanceLine } from './agent-provenance'
 import type { TestAcpConnectionFn } from './add-custom-agent-form'
 import { getCurrentAgentOwner } from '@/fork/agents/agent-owner'
@@ -53,6 +54,10 @@ type AgentDetailProps = {
   agent: Agent
   /** Custom agents can be managed locally or by their signed-in owner. */
   currentUserId: string | null
+  /** Fork: under an anonymous account (local-only, churning user.id) ownership by
+   *  id is meaningless, so custom agents are manageable regardless of owner id.
+   *  See `@/fork/agents/manage-anonymous-agent`. */
+  isAnonymous: boolean
   onClose: () => void
   /** Called after a custom agent is removed so the parent closes the panel. */
   onRemoved: () => void
@@ -88,6 +93,7 @@ export const AgentDetail = ({
   agent,
   initialAction,
   currentUserId,
+  isAnonymous,
   onClose,
   onRemoved,
   onUpdate,
@@ -98,7 +104,11 @@ export const AgentDetail = ({
   const agentName = agent.name
   const Icon = iconForAgent(agent)
   const flavor = agentFlavor(agent)
-  const isEditable = canManageAgent(agent, currentUserId)
+  // Fork: an anonymous account is local-only and churns `user.id`, so ownership by id
+  // is meaningless there — relax upstream's gate for that case only, never widen it
+  // for a stable account. See `@/fork/agents/manage-anonymous-agent`.
+  const isEditable =
+    canManageAgent(agent, currentUserId) || canManageForkCustomAgent(agent.userId, currentUserId, isAnonymous)
   const [confirmOpen, setConfirmOpen] = useState(initialAction === 'remove' && isEditable)
   const [removeError, setRemoveError] = useState<string | null>(null)
 
