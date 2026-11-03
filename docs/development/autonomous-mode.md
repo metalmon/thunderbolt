@@ -5,7 +5,7 @@
 новый — набор становится красным, и тот, кто его добавил, записывает сюда ответ
 на один вопрос: **что это делает на установке, у которой сервера нет?**
 
-Редакция от 30.10.2026. База форка 9f3db1379.
+Редакция от 03.11.2026. База форка ed874cbd6 (0.1.152).
 
 ## 1. Зачем документ
 
@@ -56,10 +56,10 @@ open-meteo напрямую и нашего бэкенда не касается
 Отдельный сорт, и в разделе 3 его нет: полоса бэкенда закрыта, а возможность
 возвращена **другим путём**, без обращения к нашему серверу.
 
-| Полоса                                | Чем заменена                                                                                |
-| ------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `/v1/locations` (поиск места)         | `src/fork/local-mode/direct-geocoding.ts` — прямо в Open-Meteo, как уже делает погода        |
-| `/v1/pro/fetch-content` (чтение страниц) | `src/fork/local-mode/direct-page-fetch.ts` — GET и разбор в клиенте; только под Tauri        |
+| Полоса                                   | Чем заменена                                                                          |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| `/v1/locations` (поиск места)            | `src/fork/local-mode/direct-geocoding.ts` — прямо в Open-Meteo, как уже делает погода |
+| `/v1/pro/fetch-content` (чтение страниц) | `src/fork/local-mode/direct-page-fetch.ts` — GET и разбор в клиенте; только под Tauri |
 
 ⚠ Поиск (`/v1/search`) и предпросмотр ссылок (`/v1/preview`) заменить нечем: это
 службы, а не прокладки. Они остаются закрытыми.
@@ -89,12 +89,19 @@ open-meteo напрямую и нашего бэкенда не касается
 
 Агенты и их обслуживание — то же самое, плюс отсутствие адреса сервера:
 `src/hooks/use-bootstrap-system-agents.ts` (выходит на `!userId || !cloudUrl`),
-`src/db/seeding/seed-agents.ts`,
-`src/components/settings/agents/create-agent-detail-panel.tsx`,
-`src/routes/settings/agents/index.tsx`, `src/acp/managed-http-adapter.ts`,
+`src/db/seeding/seed-agents.ts`, `src/acp/managed-http-adapter.ts`,
 `src/lib/iroh-enrollment.ts`, `src/ai/inference-usage-receipt.ts`,
 `src/mini-apps/mini-app-auth.ts`,
 `src/widgets/document-result/use-document-blob.ts`.
+
+⟲ **Свой агент в автономном режиме — создаётся, виден и управляется.** Раньше
+`src/routes/settings/agents/index.tsx` и
+`src/components/settings/agents/create-agent-detail-panel.tsx` стояли в списке выше как
+мёртвые без сеанса: они спрашивали у `useSession`, кто владелец строки, а сеанса в этом
+режиме нет, поэтому кнопка «Новый агент» была выключена. Теперь владелец приходит из
+местного хранилища (`src/fork/agents/agent-owner.ts`), и бэкенда эти два файла не
+касаются вовсе — из перечня они сняты. Разбор и развязка: [владение агентами в
+автономном режиме](local-mode-agent-ownership.md).
 
 Подключения Google и Microsoft (`src/integrations/google/auth.ts`,
 `src/integrations/microsoft/auth.ts`) вдобавок скрыты фильтром в
