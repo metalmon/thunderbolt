@@ -88,5 +88,10 @@ export const buildCanvasBridgeScript = (nonce: string): string => `<script>
       handlers[method] = cb;
     }
   };
+  // Announce the bridge the moment it exists. The host only traces it, but that one
+  // line separates "the channel was never live" from "the page's own call never came":
+  // a handshake lost before the host attaches its listener leaves no trace anywhere,
+  // because postMessage is not buffered.
+  notify('ui/bridge-installed', {});
 })();
 </script>`
