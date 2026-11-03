@@ -9,6 +9,8 @@ import type { ToolConfig } from '@/types'
 import { http } from './http'
 import { memoize } from './memoize'
 import { Calendar, CloudSun, Globe, Inbox, Mail, MailSearch, Search } from 'lucide-react'
+import { i18n } from '@lingui/core'
+import { forkToolDisplayName } from '@/fork/integrations/tool-display-descriptions'
 
 export type ToolCategory = 'search' | 'data' | 'action' | 'analysis' | 'communication' | 'weather' | 'unknown'
 
@@ -103,6 +105,10 @@ const detectCategory = (toolName: string): ToolCategory => {
  * Formats tool name for display (snake_case/camelCase → Title Case)
  */
 export const formatDisplayName = (toolName: string): string =>
+  // Fork: a built-in tool has a localized display name; everything else — MCP,
+  // Mini Apps — keeps the English capitalisation below. See
+  // src/fork/integrations/tool-display-descriptions.ts.
+  forkToolDisplayName(toolName, i18n) ??
   toolName
     .replace(/[._-]/g, ' ')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
