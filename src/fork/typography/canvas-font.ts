@@ -36,17 +36,17 @@ export const buildCanvasFontFaceCss = (): string =>
   face(plantinItalic, 400, 'italic') +
   face(plantinBoldItalic, 700, 'italic')
 
-/** Used when the theme snapshot carries no such token: readable on either theme, and
- *  deliberately translucent so it never reads as a solid bar on an unknown background. */
+/** Used when the theme snapshot carries no token at all (tests, a renamed token):
+ *  readable on either theme, and deliberately translucent so it never reads as a
+ *  solid bar on a background we could not resolve. */
 const neutralThumb = 'rgba(128,128,128,0.45)'
-const neutralThumbHover = 'rgba(128,128,128,0.7)'
 
 /**
  * A thin theme-matched scrollbar for the artifact iframe. The app hides scrollbars
  * globally (`src/index.css`), but an isolated artifact does not inherit that and a
- * bare default scrollbar clashes with the theme. Colours reference the host theme
- * tokens already forced onto `:root`, so it tracks light/dark; no `!important`, so
- * an artifact that styles its own scrollbar still wins.
+ * bare default scrollbar clashes with the theme. Colours come from the host theme
+ * snapshot, so it tracks light/dark; no `!important`, so an artifact that styles its
+ * own scrollbar still wins.
  *
  * ⚠ ONE mechanism only, and that is the whole point of this note. This used to set
  * `scrollbar-width`/`scrollbar-color` on `*` as well — and in Chromium, which is what
@@ -58,25 +58,37 @@ const neutralThumbHover = 'rgba(128,128,128,0.7)'
  *
  * So: do not add `scrollbar-width` or `scrollbar-color` back here without deleting
  * these. Picking the pseudo-elements is deliberate — they are what draws the rounded
- * thumb and the hover colour; the standard properties can express neither.
+ * thumb and the track colour; the standard properties can express neither separately.
+ *
+ * `colorScheme` is the one the theme tag already resolved, and it picks the thumb: a
+ * dark panel wants the full-contrast `--color-foreground`, while on `light` — which is
+ * also where the warm `paper` theme lands — that same token is a near-black (#2b2622 on
+ * paper) and draws a hard black stripe down a warm page. Light themes get the muted
+ * foreground instead, which is each palette's own soft grey.
  */
-export const buildCanvasScrollbarCss = (tokens: Record<string, string> = {}): string => {
+export const buildCanvasScrollbarCss = (
+  tokens: Record<string, string> = {},
+  colorScheme: 'light' | 'dark' = 'light',
+): string => {
   // ⚠ Literal colours, never `var()`. Chromium does not inherit custom properties into
   // the scrollbar pseudo-elements, so `background:var(--color-border)` is invalid at
-  // computed-value time there and the browser falls back to its own thumb — a bright
-  // white bar inside a dark panel, reported from the pilot. Proved in the live frame:
-  // the same rule with a literal colour painted immediately.
+  // computed-value time there and the browser falls back to its own thumb. Proved in
+  // the live frame: the same rule with a literal colour painted immediately.
   //
-  // The values come from the theme snapshot this tag is already built from, so the
-  // scrollbar still tracks light/dark — it is resolved here instead of in the frame.
-  const thumb = tokens['--color-border'] || neutralThumb
-  const thumbHover = tokens['--color-muted-foreground'] || neutralThumbHover
+  // ⚠⚠ The track must be PAINTED, not `transparent`. That was the bright white strip
+  // reported from the pilot: a transparent track does not show the page behind it, it
+  // shows the iframe canvas, which is white unless the artifact paints its own root.
+  // Colouring only the thumb leaves the groove white in a dark panel — and a thumb-only
+  // experiment (`::-webkit-scrollbar-thumb{background:red}`) reddens the thumb while the
+  // white strip stays, which is exactly how this hid for a whole round.
+  const thumb =
+    (colorScheme === 'dark' ? tokens['--color-foreground'] : tokens['--color-muted-foreground']) || neutralThumb
+  const track = tokens['--color-background'] || 'transparent'
   return (
-    `*::-webkit-scrollbar{width:10px;height:10px;}` +
-    `*::-webkit-scrollbar-track{background:transparent;}` +
+    `*::-webkit-scrollbar{width:10px;height:10px;background:${track};}` +
+    `*::-webkit-scrollbar-track{background:${track};}` +
     `*::-webkit-scrollbar-thumb{background:${thumb};background-clip:padding-box;border:2px solid transparent;border-radius:9999px;}` +
-    `*::-webkit-scrollbar-thumb:hover{background:${thumbHover};background-clip:padding-box;}` +
-    `*::-webkit-scrollbar-corner{background:transparent;}`
+    `*::-webkit-scrollbar-corner{background:${track};}`
   )
 }
 
@@ -86,8 +98,11 @@ export const buildCanvasScrollbarCss = (tokens: Record<string, string> = {}): st
  * theme-matched scrollbar. Pure — string-only, no DOM — so it stays inside the
  * verification-neutral, CSS-only theme-style contract.
  *
- * Takes the same theme snapshot the token block is built from, because the scrollbar
- * rules resolve their colours here rather than through `var()` — see above.
+ * Takes the same theme snapshot and resolved colour scheme the token block is built
+ * from, because the scrollbar rules resolve their colours here rather than through
+ * `var()` — see above.
  */
-export const buildCanvasThemeExtrasCss = (tokens: Record<string, string> = {}): string =>
-  buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens)
+export const buildCanvasThemeExtrasCss = (
+  tokens: Record<string, string> = {},
+  colorScheme: 'light' | 'dark' = 'light',
+): string => buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens, colorScheme)
