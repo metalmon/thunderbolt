@@ -14,13 +14,41 @@ describe('canvasJsonRpcErrors', () => {
     expect(canvasJsonRpcErrors.RATE_LIMITED.code).toBe(-32005)
     expect(canvasJsonRpcErrors.INVALID_PARAMS.code).toBe(-32602)
   })
+
+  it('gives the session gate its own code, not one already in use', () => {
+    expect(canvasJsonRpcErrors.NO_SESSION.code).toBe(-32002)
+    const codes = Object.values(canvasJsonRpcErrors).map((e) => e.code)
+    expect(new Set(codes).size).toBe(codes.length)
+  })
 })
 
 describe('classifyCanvasRequest', () => {
-  const base = { hasCanvas: true, isReadOnly: false, rateAllowed: true, hasToolName: true }
+  const base = { hasSession: true, hasCanvas: true, isReadOnly: false, rateAllowed: true, hasToolName: true }
 
   it('proceeds only when every gate passes', () => {
     expect(classifyCanvasRequest(base)).toEqual({ kind: 'proceed' })
+  })
+
+  // The session is the broadest gate: without it nothing can be proxied, so it must be
+  // reported in preference to any narrower reason — and it must be reported at all. The
+  // controller used to drop these requests unanswered, which hung the app's promise.
+  it('rejects with NO_SESSION first, even when every narrower gate would also reject', () => {
+    expect(
+      classifyCanvasRequest({
+        hasSession: false,
+        hasCanvas: false,
+        isReadOnly: true,
+        rateAllowed: false,
+        hasToolName: false,
+      }),
+    ).toEqual({ kind: 'reject', error: canvasJsonRpcErrors.NO_SESSION })
+  })
+
+  it('rejects with NO_SESSION even when everything else is in order', () => {
+    expect(classifyCanvasRequest({ ...base, hasSession: false })).toEqual({
+      kind: 'reject',
+      error: canvasJsonRpcErrors.NO_SESSION,
+    })
   })
 
   it('rejects with NO_CANVAS when there is no active canvas, regardless of the other gates', () => {
@@ -30,7 +58,13 @@ describe('classifyCanvasRequest', () => {
     })
     // NO_CANVAS wins even when every other gate would also fail.
     expect(
-      classifyCanvasRequest({ hasCanvas: false, isReadOnly: true, rateAllowed: false, hasToolName: false }),
+      classifyCanvasRequest({
+        hasSession: true,
+        hasCanvas: false,
+        isReadOnly: true,
+        rateAllowed: false,
+        hasToolName: false,
+      }),
     ).toEqual({ kind: 'reject', error: canvasJsonRpcErrors.NO_CANVAS })
   })
 
@@ -64,10 +98,24 @@ describe('classifyCanvasRequest', () => {
   })
 
   it('proceeds for a ui/prompt-shaped input (hasToolName always true, no rate limit applied)', () => {
-    expect(classifyCanvasRequest({ hasCanvas: true, isReadOnly: false, rateAllowed: true, hasToolName: true })).toEqual(
-      { kind: 'proceed' },
-    )
-    expect(classifyCanvasRequest({ hasCanvas: true, isReadOnly: true, rateAllowed: true, hasToolName: true })).toEqual({
+    expect(
+      classifyCanvasRequest({
+        hasSession: true,
+        hasCanvas: true,
+        isReadOnly: false,
+        rateAllowed: true,
+        hasToolName: true,
+      }),
+    ).toEqual({ kind: 'proceed' })
+    expect(
+      classifyCanvasRequest({
+        hasSession: true,
+        hasCanvas: true,
+        isReadOnly: true,
+        rateAllowed: true,
+        hasToolName: true,
+      }),
+    ).toEqual({
       kind: 'reject',
       error: canvasJsonRpcErrors.READ_ONLY,
     })
