@@ -33,31 +33,53 @@ describe('buildCanvasFontFaceCss', () => {
   })
 })
 
-/** A theme snapshot the way `buildThemeStyleTag` hands one over. */
-const tokens = { '--color-border': '#404040', '--color-muted-foreground': '#a19a91' }
+/** A theme snapshot the way `buildThemeStyleTag` hands one over (dark theme values). */
+const tokens = {
+  '--color-background': '#1b1e1f',
+  '--color-foreground': '#fafafa',
+  '--color-muted-foreground': '#9e9e9e',
+}
 
 describe('buildCanvasScrollbarCss', () => {
-  const css = buildCanvasScrollbarCss(tokens)
+  const css = buildCanvasScrollbarCss(tokens, 'dark')
 
-  it('paints the thumb from the snapshot, so it tracks light/dark', () => {
-    expect(css).toContain('::-webkit-scrollbar-thumb')
-    expect(css).toContain('#404040')
-    expect(css).toContain('#a19a91')
+  it('inverts the pair from the snapshot: a light thumb in a dark groove', () => {
+    expect(css).toContain('-thumb{background:#fafafa')
+    expect(css).toContain('-track{background:#1b1e1f')
   })
 
-  // The pilot's bright white bar in a dark panel: Chromium does not inherit custom
-  // properties into the scrollbar pseudo-elements, so `background:var(--color-border)`
-  // was invalid there and the browser painted its own thumb. Proved in the live frame —
-  // the same rule with a literal colour took effect at once.
+  // `paper` resolves to `light`, and its `--color-foreground` is a near-black #2b2622 —
+  // the full-contrast thumb that reads right on a dark panel draws a hard black stripe
+  // down a warm page. Light palettes use their own muted grey instead.
+  it('softens the thumb on light schemes, where foreground is a near-black', () => {
+    const paper = buildCanvasScrollbarCss(
+      { '--color-background': '#f0e9dd', '--color-foreground': '#2b2622', '--color-muted-foreground': '#857a68' },
+      'light',
+    )
+    expect(paper).toContain('-thumb{background:#857a68')
+    expect(paper).toContain('-track{background:#f0e9dd')
+    expect(paper).not.toContain('#2b2622')
+  })
+
+  // The bright white strip reported from the pilot. A transparent track does not show
+  // the page behind it — it shows the iframe canvas, white unless the artifact paints
+  // its own root — so colouring only the thumb left the groove white in a dark panel.
+  it('paints the track rather than leaving it transparent', () => {
+    expect(css).not.toContain('transparent;}')
+    expect(css).toContain('*::-webkit-scrollbar{width:10px;height:10px;background:#1b1e1f;}')
+  })
+
+  // Chromium does not inherit custom properties into the scrollbar pseudo-elements, so
+  // `background:var(--color-border)` was invalid there and the browser painted its own
+  // thumb. Proved in the live frame — the same rule with a literal colour took effect.
   it('never reaches for a custom property, which does not resolve in these pseudo-elements', () => {
     expect(css).not.toContain('var(')
   })
 
-  it('still paints something when the snapshot carries no such token', () => {
+  it('still paints a thumb when the snapshot carries no such token', () => {
     const bare = buildCanvasScrollbarCss({})
-    expect(bare).toContain('::-webkit-scrollbar-thumb')
+    expect(bare).toContain('-thumb{background:rgba(')
     expect(bare).not.toContain('var(')
-    expect(bare).toContain('rgba(')
   })
 
   // The regression that cost a pilot round: naming either standard property makes
@@ -75,7 +97,9 @@ describe('buildCanvasScrollbarCss', () => {
 })
 
 describe('buildCanvasThemeExtrasCss', () => {
-  it('is the font-face rules followed by the scrollbar rules', () => {
-    expect(buildCanvasThemeExtrasCss(tokens)).toBe(buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens))
+  it('is the font-face rules followed by the scrollbar rules, on the same scheme', () => {
+    expect(buildCanvasThemeExtrasCss(tokens, 'dark')).toBe(
+      buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens, 'dark'),
+    )
   })
 })
