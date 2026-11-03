@@ -64,7 +64,7 @@ describe('useTurnOffModelTools', () => {
     await setUpChatOnToolsModel()
     const toolUsageSeenByRetry: Array<number | null | undefined> = []
     const regenerate = mock(() => {
-      toolUsageSeenByRetry.push(useChatStore.getState().sessions.get(sessionId)?.selectedModel.toolUsage)
+      toolUsageSeenByRetry.push(useChatStore.getState().sessions.get(sessionId)?.selectedModel?.toolUsage)
     })
     const { result } = renderHook(() => useTurnOffModelTools({ regenerate }), { wrapper: createTestProvider() })
 
@@ -100,7 +100,7 @@ describe('useTurnOffModelTools', () => {
       })
 
       expect((await getModel(db, modelId))?.toolUsage).toBe(0)
-      expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel.id).toBe('llama-model')
+      expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel?.id).toBe('llama-model')
     } finally {
       transactionSpy.mockRestore()
     }

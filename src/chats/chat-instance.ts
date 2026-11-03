@@ -994,6 +994,12 @@ export const createChatInstance = (
           return
         }
 
+        // A model that rejects tools rejects the identical retry too.
+        if (isToolSupportRejectionError(lastError)) {
+          markRetriesExhausted(finishedTurn)
+          return
+        }
+
         // The hosted agent refuses a turn while the previous reply still runs. That
         // clears on its own, so it takes the retry loop below on a longer delay.
         const isRunInProgress = isAgentRunInProgressError(lastError)
