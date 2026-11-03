@@ -35,3 +35,30 @@ export const forkToolDisplayDescription = (name: string, i18n: I18n): string | u
   const descriptor = displayDescriptions[name]
   return descriptor ? i18n._(descriptor) : undefined
 }
+
+/**
+ * Fork: display-only, localizable NAMES for the built-in tools.
+ *
+ * Same split as the descriptions above, one level up: the tool is called
+ * `fetch_content` on the wire and must stay so — the model's contract names it —
+ * but the step list showed the raw name title-cased ("Fetch Content") in the
+ * middle of a Russian conversation, because `formatDisplayName`
+ * (`src/lib/tool-metadata.ts`) only knows how to capitalise.
+ *
+ * Only the built-in names live here. Tools discovered at runtime — MCP servers,
+ * Mini Apps — keep falling through to the English formatter: their names come
+ * from someone else's catalogue and we have nothing to translate them from.
+ */
+const displayNames: Record<string, ReturnType<typeof msg>> = {
+  search: msg`Web search`,
+  fetch_content: msg`Read page`,
+  render_html: msg`Render page`,
+  skill: msg`Skill`,
+  get_app_context: msg`Read app`,
+}
+
+/** Resolve a localized display name for a built-in tool, or `undefined`. */
+export const forkToolDisplayName = (name: string, i18n: I18n): string | undefined => {
+  const descriptor = displayNames[name]
+  return descriptor ? i18n._(descriptor) : undefined
+}
