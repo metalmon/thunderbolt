@@ -1266,6 +1266,10 @@ msgstr ""
 msgid "Could not open link. Please try again or copy the URL."
 msgstr "Link konnte nicht geöffnet werden. Bitte versuchen Sie es erneut oder kopieren Sie die URL."
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr ""
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr "Der QR-Code konnte nicht gelesen werden"
@@ -3487,6 +3491,14 @@ msgstr "Erneut autorisieren"
 msgid "Reachable {relative}"
 msgstr "Erreichbar {relative}"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr "Ihre E-Mails lesen und Entwürfe schreiben."
@@ -3626,6 +3638,10 @@ msgstr "Umbenennen"
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
 msgstr "Chat umbenennen"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
+msgstr ""
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
@@ -4246,6 +4262,10 @@ msgstr "Sie werden angemeldet…"
 msgid "Simple"
 msgstr "Einfach"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4643,6 +4663,10 @@ msgstr "Der Anmeldedienst ist gerade nicht verfügbar. Prüfen Sie Ihre Verbindu
 msgid "The transcript was rejected by the server."
 msgstr ""
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr ""
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr "Design"
@@ -4659,6 +4683,10 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Dieser Chat und all
 
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
+msgstr ""
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
 msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
@@ -5312,6 +5340,10 @@ msgstr "Wir haben eine E-Mail mit den nächsten Schritten an <0>{email}</0> gese
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
 msgstr "Wetterdaten bereitgestellt von Open-Meteo.com"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
+msgstr ""
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"

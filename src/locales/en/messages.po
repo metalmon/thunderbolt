@@ -1266,6 +1266,10 @@ msgstr "Could not delete the projects. Please try again."
 msgid "Could not open link. Please try again or copy the URL."
 msgstr "Could not open link. Please try again or copy the URL."
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr "Could not reach the update server."
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr "Could not read QR code"
@@ -3488,6 +3492,14 @@ msgstr "Re-authorize"
 msgid "Reachable {relative}"
 msgstr "Reachable {relative}"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr "Read app"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr "Read page"
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr "Read your emails and compose drafts."
@@ -3627,6 +3639,10 @@ msgstr "Rename"
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
 msgstr "Rename chat"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
+msgstr "Render page"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
@@ -4247,6 +4263,10 @@ msgstr "Signing you in…"
 msgid "Simple"
 msgstr "Simple"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr "Skill"
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4644,6 +4664,10 @@ msgstr "The sign-in service is unavailable right now. Check your connection and 
 msgid "The transcript was rejected by the server."
 msgstr "The transcript was rejected by the server."
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr "The update failed its signature check and was not installed."
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr "Theme"
@@ -4661,6 +4685,10 @@ msgstr "This action cannot be undone. This will permanently delete this chat and
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
 msgstr "This agent is not available for your account."
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
+msgstr "This build does not receive updates."
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
@@ -5313,6 +5341,10 @@ msgstr "We've sent an email to <0>{email}</0> with your next steps."
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
 msgstr "Weather data provided by Open-Meteo.com"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
+msgstr "Web search"
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"

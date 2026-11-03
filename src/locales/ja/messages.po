@@ -1254,6 +1254,10 @@ msgstr ""
 msgid "Could not open link. Please try again or copy the URL."
 msgstr "リンクを開けませんでした。もう一度お試しいただくか、URL をコピーしてください。"
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr ""
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr "QR コードを読み取れませんでした"
@@ -3475,6 +3479,14 @@ msgstr "再認可"
 msgid "Reachable {relative}"
 msgstr "{relative}に到達"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr "メールを読み、下書きを作成します。"
@@ -3614,6 +3626,10 @@ msgstr "名前を変更"
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
 msgstr "チャットの名前を変更"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
+msgstr ""
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
@@ -4234,6 +4250,10 @@ msgstr "サインインしています…"
 msgid "Simple"
 msgstr "シンプル"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4631,6 +4651,10 @@ msgstr "サインインサービスを現在利用できません。接続を確
 msgid "The transcript was rejected by the server."
 msgstr ""
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr ""
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr "テーマ"
@@ -4647,6 +4671,10 @@ msgstr "この操作は取り消せません。このチャットとすべての
 
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
+msgstr ""
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
 msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
@@ -5300,6 +5328,10 @@ msgstr "次の手順を記載したメールを <0>{email}</0> に送信しま�
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
 msgstr "気象データの提供元: Open-Meteo.com"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
+msgstr ""
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"
