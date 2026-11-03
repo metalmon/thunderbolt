@@ -107,3 +107,64 @@ describe('desktop window', () => {
     expect(tauriConf.app.windows[0]?.dragDropEnabled).toBe(false)
   })
 })
+
+/**
+ * `connect-src` of the MAIN window — not the artifact frame, which has its own, far
+ * stricter policy (`src/artifacts/sandbox-host.ts`, per item, usually
+ * `default-src 'none'; connect-src 'none'`). Two policies, two frames; only the frame's
+ * one is a real boundary, and nothing here touches it.
+ *
+ * What this directive can and cannot be is measured in
+ * `docs/development/loopback-connect-src.md`: bare `https:`/`wss:` already allow every
+ * TLS host, and the `http:default` capability (any host, any port, any path) reaches
+ * anything over IPC
+ * where a content policy never sees it. So it buys no protection from exfiltration and
+ * none from reaching loopback — which is why it holds a port wildcard rather than a list
+ * of ports that went stale on every ZeroClaw install.
+ *
+ * What is left worth pinning is the one line that still means something (plaintext only
+ * to loopback) and the shape of the list, because a long list of dead entries is what
+ * invites an eighteenth.
+ */
+describe('main-window connect-src', () => {
+  const csp = (
+    JSON.parse(readFileSync(resolve(import.meta.dirname, '../../../src-tauri/tauri.conf.json'), 'utf-8')) as {
+      app: { security: { csp: Record<string, string> } }
+    }
+  ).app.security.csp['connect-src']
+
+  const sources = csp.split(/\s+/).filter(Boolean)
+
+  it('allows loopback on any port, by address and by name', () => {
+    // The agent form takes any URL and ZeroClaw's port comes from its own config, so a
+    // fixed port can only ever be wrong on the next install.
+    for (const source of ['ws://127.0.0.1:*', 'http://127.0.0.1:*', 'ws://localhost:*', 'http://localhost:*']) {
+      expect(sources).toContain(source)
+    }
+  })
+
+  it('names no loopback port, so the list cannot grow back', () => {
+    const withPort = sources.filter((s) => /^(ws|http)s?:\/\/(127\.0\.0\.1|localhost):\d+$/.test(s))
+    expect(withPort).toEqual([])
+  })
+
+  it('names no https host, because bare `https:` already covers every one', () => {
+    // This is how `https://opencode.ai` got in: redundant the day it was written.
+    const redundant = sources.filter((s) => /^(https|wss):\/\/[^*]/.test(s))
+    expect(redundant).toEqual([])
+  })
+
+  it('allows plaintext ONLY to loopback', () => {
+    // The load-bearing one. Reaching a plaintext LAN address from the page stays
+    // refused, and `http:` must never be opened wholesale.
+    const plaintext = sources.filter((s) => /^(ws|http):/.test(s))
+    const allowed = new Set([
+      'http://ipc.localhost',
+      'ws://127.0.0.1:*',
+      'http://127.0.0.1:*',
+      'ws://localhost:*',
+      'http://localhost:*',
+    ])
+    expect(plaintext.filter((s) => !allowed.has(s))).toEqual([])
+  })
+})
