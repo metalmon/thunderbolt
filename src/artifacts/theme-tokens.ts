@@ -99,7 +99,7 @@ export const buildThemeStyleTag = (tokenValues: Record<string, string>, colorSch
   // The snapshot is handed over rather than left to `var()`: Chromium does not inherit
   // custom properties into the scrollbar pseudo-elements, so those rules have to carry
   // resolved colours or the browser paints its own thumb.
-  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; } ${buildCanvasThemeExtrasCss(tokenValues)}</style>`
+  return `<style>:root { ${declarations.join(' ')} color-scheme: ${colorScheme}; } ${buildCanvasThemeExtrasCss(tokenValues, colorScheme)}</style>`
 }
 
 /**
