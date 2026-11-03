@@ -36,6 +36,11 @@ export const buildCanvasFontFaceCss = (): string =>
   face(plantinItalic, 400, 'italic') +
   face(plantinBoldItalic, 700, 'italic')
 
+/** Used when the theme snapshot carries no such token: readable on either theme, and
+ *  deliberately translucent so it never reads as a solid bar on an unknown background. */
+const neutralThumb = 'rgba(128,128,128,0.45)'
+const neutralThumbHover = 'rgba(128,128,128,0.7)'
+
 /**
  * A thin theme-matched scrollbar for the artifact iframe. The app hides scrollbars
  * globally (`src/index.css`), but an isolated artifact does not inherit that and a
@@ -55,17 +60,25 @@ export const buildCanvasFontFaceCss = (): string =>
  * these. Picking the pseudo-elements is deliberate — they are what draws the rounded
  * thumb and the hover colour; the standard properties can express neither.
  */
-export const buildCanvasScrollbarCss = (): string =>
-  `*::-webkit-scrollbar{width:10px;height:10px;}` +
-  `*::-webkit-scrollbar-track{background:transparent;}` +
-  `*::-webkit-scrollbar-thumb{background:var(--color-border);background-clip:padding-box;border:2px solid transparent;border-radius:9999px;}` +
-  `*::-webkit-scrollbar-thumb:hover{background:var(--color-muted-foreground);background-clip:padding-box;}` +
-  `*::-webkit-scrollbar-corner{background:transparent;}`
+export const buildCanvasScrollbarCss = (tokens: Record<string, string> = {}): string => {
+  // ⚠ Literal colours, never `var()`. Chromium does not inherit custom properties into
+  // the scrollbar pseudo-elements, so `background:var(--color-border)` is invalid at
+  // computed-value time there and the browser falls back to its own thumb — a bright
+  // white bar inside a dark panel, reported from the pilot. Proved in the live frame:
+  // the same rule with a literal colour painted immediately.
+  //
+  // The values come from the theme snapshot this tag is already built from, so the
+  // scrollbar still tracks light/dark — it is resolved here instead of in the frame.
+  const thumb = tokens['--color-border'] || neutralThumb
+  const thumbHover = tokens['--color-muted-foreground'] || neutralThumbHover
+  return (
+    `*::-webkit-scrollbar{width:10px;height:10px;}` +
+    `*::-webkit-scrollbar-track{background:transparent;}` +
+    `*::-webkit-scrollbar-thumb{background:${thumb};background-clip:padding-box;border:2px solid transparent;border-radius:9999px;}` +
+    `*::-webkit-scrollbar-thumb:hover{background:${thumbHover};background-clip:padding-box;}` +
+    `*::-webkit-scrollbar-corner{background:transparent;}`
+  )
+}
 
-/**
- * All fork CSS appended inside the injected artifact theme `<style>`, after the
- * `:root { … }` token block: the embedded reading-font `@font-face` rules plus the
- * theme-matched scrollbar. Pure — string-only, no DOM — so it stays inside the
- * verification-neutral, CSS-only theme-style contract.
- */
-export const buildCanvasThemeExtrasCss = (): string => buildCanvasFontFaceCss() + buildCanvasScrollbarCss()
+export const buildCanvasThemeExtrasCss = (tokens: Record<string, string> = {}): string =>
+  buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens)
