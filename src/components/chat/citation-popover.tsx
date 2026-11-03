@@ -77,14 +77,12 @@ export const CitationPopoverProvider = ({ children }: { children: ReactNode }) =
  * bring this back.
  *
  * **Why measure at click.** The position used to be written onto the span from an
- * effect.
- *
- * React paints
- * the span at its default position, Radix measures it THERE, and only then does the
- * effect move it. Floating-ui's `autoUpdate` watches resizes and ancestor scrolling,
- * not an element moved by a later style write, so nothing re-measured. Rendering the
- * position inline removes that window: Radix's first measurement sees the right
- * place. A scroll closes the popover, so the rect cannot go stale while it is open.
+ * effect, which is one render too late. React paints the span at its default
+ * position, Radix measures it THERE, and only then does the effect move it.
+ * Floating-ui's `autoUpdate` watches resizes and ancestor scrolling, not an element
+ * moved by a later style write, so nothing re-measured. Rendering the position
+ * inline removes that window: Radix's first measurement sees the right place. A
+ * scroll closes the popover, so the rect cannot go stale while it is open.
  */
 const CitationOverlay = memo(({ popover, close }: { popover: PopoverData | null; close: () => void }) => {
   const { isMobile } = useIsMobile()
