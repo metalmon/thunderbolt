@@ -33,13 +33,31 @@ describe('buildCanvasFontFaceCss', () => {
   })
 })
 
-describe('buildCanvasScrollbarCss', () => {
-  const css = buildCanvasScrollbarCss()
+/** A theme snapshot the way `buildThemeStyleTag` hands one over. */
+const tokens = { '--color-border': '#404040', '--color-muted-foreground': '#a19a91' }
 
-  it('themes the scrollbar off the injected color tokens (tracks light/dark)', () => {
+describe('buildCanvasScrollbarCss', () => {
+  const css = buildCanvasScrollbarCss(tokens)
+
+  it('paints the thumb from the snapshot, so it tracks light/dark', () => {
     expect(css).toContain('::-webkit-scrollbar-thumb')
-    expect(css).toContain('var(--color-border)')
-    expect(css).toContain('var(--color-muted-foreground)')
+    expect(css).toContain('#404040')
+    expect(css).toContain('#a19a91')
+  })
+
+  // The pilot's bright white bar in a dark panel: Chromium does not inherit custom
+  // properties into the scrollbar pseudo-elements, so `background:var(--color-border)`
+  // was invalid there and the browser painted its own thumb. Proved in the live frame —
+  // the same rule with a literal colour took effect at once.
+  it('never reaches for a custom property, which does not resolve in these pseudo-elements', () => {
+    expect(css).not.toContain('var(')
+  })
+
+  it('still paints something when the snapshot carries no such token', () => {
+    const bare = buildCanvasScrollbarCss({})
+    expect(bare).toContain('::-webkit-scrollbar-thumb')
+    expect(bare).not.toContain('var(')
+    expect(bare).toContain('rgba(')
   })
 
   // The regression that cost a pilot round: naming either standard property makes
@@ -58,6 +76,6 @@ describe('buildCanvasScrollbarCss', () => {
 
 describe('buildCanvasThemeExtrasCss', () => {
   it('is the font-face rules followed by the scrollbar rules', () => {
-    expect(buildCanvasThemeExtrasCss()).toBe(buildCanvasFontFaceCss() + buildCanvasScrollbarCss())
+    expect(buildCanvasThemeExtrasCss(tokens)).toBe(buildCanvasFontFaceCss() + buildCanvasScrollbarCss(tokens))
   })
 })
