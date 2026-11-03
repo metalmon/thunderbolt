@@ -1278,6 +1278,10 @@ msgstr ""
 msgid "Could not open link. Please try again or copy the URL."
 msgstr "No se pudo abrir el enlace. Inténtalo de nuevo o copia la URL."
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr ""
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr "No se pudo leer el código QR"
@@ -3499,6 +3503,14 @@ msgstr "Volver a autorizar"
 msgid "Reachable {relative}"
 msgstr "Accesible {relative}"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr "Leer tus correos y redactar borradores."
@@ -3638,6 +3650,10 @@ msgstr "Cambiar nombre"
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
 msgstr "Cambiar el nombre del chat"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
+msgstr ""
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
@@ -4258,6 +4274,10 @@ msgstr "Iniciando tu sesión…"
 msgid "Simple"
 msgstr "Sencillo"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4655,6 +4675,10 @@ msgstr "El servicio de inicio de sesión no está disponible ahora mismo. Revisa
 msgid "The transcript was rejected by the server."
 msgstr ""
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr ""
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr "Tema"
@@ -4671,6 +4695,10 @@ msgstr "Esta acción no se puede deshacer. Se eliminarán de forma permanente es
 
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
+msgstr ""
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
 msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
@@ -5324,6 +5352,10 @@ msgstr "Hemos enviado un correo a <0>{email}</0> con los siguientes pasos."
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
 msgstr "Datos meteorológicos proporcionados por Open-Meteo.com"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
+msgstr ""
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"

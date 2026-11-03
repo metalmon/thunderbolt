@@ -1214,6 +1214,10 @@ msgstr "Не удалось создать проект."
 msgid "Could not open link. Please try again or copy the URL."
 msgstr "Не удалось открыть ссылку. Попробуйте ещё раз или скопируйте URL."
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr "Не удалось связаться с сервером обновлений."
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr "Не удалось прочитать QR-код"
@@ -3313,6 +3317,14 @@ msgstr "Повторить авторизацию"
 msgid "Reachable {relative}"
 msgstr "Доступно {relative}"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr "Чтение приложения"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr "Чтение страницы"
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr "Читайте письма и составляйте черновики."
@@ -3442,6 +3454,10 @@ msgstr "Переименовать"
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
 msgstr "Переименовать чат"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
+msgstr "Отрисовка страницы"
 
 #: src/skills/suggestion-chip.tsx
 msgid "Reorder"
@@ -4025,6 +4041,10 @@ msgstr "Выполняется вход…"
 msgid "Simple"
 msgstr "Простой"
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr "Навык"
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4434,6 +4454,10 @@ msgstr "Служба входа сейчас недоступна. Провер�
 msgid "The transcript was rejected by the server."
 msgstr "Расшифровка отклонена сервером."
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr "Обновление не прошло проверку подписи и не установлено."
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr "Тема"
@@ -4451,6 +4475,10 @@ msgstr "Это действие нельзя отменить. Чат и все 
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
 msgstr "Этот агент недоступен для вашей учётной записи."
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
+msgstr "Эта сборка обновления не получает."
 
 #: src/components/storage-unavailable-screen.tsx
 msgid "This can happen in private windows or when site data is blocked. Enable storage for this site and reload."
@@ -5108,6 +5136,10 @@ msgstr "Мы отправили письмо на <0>{email}</0> с дальне
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
 msgstr "Данные о погоде предоставлены Open-Meteo.com"
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
+msgstr "Поиск в сети"
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"

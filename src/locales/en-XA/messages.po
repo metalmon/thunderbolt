@@ -1266,6 +1266,10 @@ msgstr ""
 msgid "Could not open link. Please try again or copy the URL."
 msgstr ""
 
+#: src/fork/updater/update-error-message.ts
+msgid "Could not reach the update server."
+msgstr ""
+
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not read QR code"
 msgstr ""
@@ -3487,6 +3491,14 @@ msgstr ""
 msgid "Reachable {relative}"
 msgstr ""
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read app"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Read page"
+msgstr ""
+
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Read your emails and compose drafts."
 msgstr ""
@@ -3625,6 +3637,10 @@ msgstr ""
 
 #: src/layout/sidebar/rename-chat-dialog.tsx
 msgid "Rename chat"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Render page"
 msgstr ""
 
 #: src/skills/suggestion-chip.tsx
@@ -4246,6 +4262,10 @@ msgstr ""
 msgid "Simple"
 msgstr ""
 
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Skill"
+msgstr ""
+
 #: src/components/settings/agents/agent-detail.tsx
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -4643,6 +4663,10 @@ msgstr ""
 msgid "The transcript was rejected by the server."
 msgstr ""
 
+#: src/fork/updater/update-error-message.ts
+msgid "The update failed its signature check and was not installed."
+msgstr ""
+
 #: src/settings/preferences.tsx
 msgid "Theme"
 msgstr ""
@@ -4659,6 +4683,10 @@ msgstr ""
 
 #: src/fork/acp/agent-access.ts
 msgid "This agent is not available for your account."
+msgstr ""
+
+#: src/fork/updater/update-error-message.ts
+msgid "This build does not receive updates."
 msgstr ""
 
 #: src/components/storage-unavailable-screen.tsx
@@ -5311,6 +5339,10 @@ msgstr ""
 
 #: src/widgets/weather-forecast/display.tsx
 msgid "Weather data provided by Open-Meteo.com"
+msgstr ""
+
+#: src/fork/integrations/tool-display-descriptions.ts
+msgid "Web search"
 msgstr ""
 
 #: src/components/welcome-dialog.tsx
