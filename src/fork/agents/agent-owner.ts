@@ -54,19 +54,43 @@ export const resolveAgentOwner = (sessionUserId: string | null | undefined, loca
   sessionUserId ?? (localMode ? localAgentOwnerId : null)
 
 let currentOwner: string | null = null
+let ownerIsAnonymous = false
 const listeners = new Set<() => void>()
+
+const announce = () => {
+  for (const listener of listeners) {
+    listener()
+  }
+}
 
 export const setCurrentAgentOwner = (ownerId: string | null): void => {
   if (ownerId === currentOwner) {
     return
   }
   currentOwner = ownerId
-  for (const listener of listeners) {
-    listener()
+  announce()
+}
+
+/**
+ * Whether the published owner is an anonymous account, published here rather than read
+ * from the session at each use.
+ *
+ * This is the same "one answer to who am I" rule as the owner itself, and it is not
+ * theoretical: the management gate used to read `session.user.isAnonymous` through a
+ * local the owner-seam change removes, so the two lived on different patch branches and
+ * collided on every rebuild. Reading both facts from one store ends that.
+ */
+export const setCurrentOwnerIsAnonymous = (isAnonymous: boolean): void => {
+  if (isAnonymous === ownerIsAnonymous) {
+    return
   }
+  ownerIsAnonymous = isAnonymous
+  announce()
 }
 
 export const getCurrentAgentOwner = (): string | null => currentOwner
+
+export const getCurrentOwnerIsAnonymous = (): boolean => ownerIsAnonymous
 
 const subscribe = (listener: () => void) => {
   listeners.add(listener)
@@ -77,3 +101,6 @@ const subscribe = (listener: () => void) => {
 
 export const useCurrentAgentOwner = (): string | null =>
   useSyncExternalStore(subscribe, getCurrentAgentOwner, getCurrentAgentOwner)
+
+export const useCurrentOwnerIsAnonymous = (): boolean =>
+  useSyncExternalStore(subscribe, getCurrentOwnerIsAnonymous, getCurrentOwnerIsAnonymous)
