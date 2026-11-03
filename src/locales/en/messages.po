@@ -2783,7 +2783,6 @@ msgstr "More actions for {filename}"
 
 #: src/fork/zeroclaw/ui-resource-chip.tsx
 msgid "More actions for {title}"
-msgstr "More actions for {title}"
 msgstr ""
 
 #: src/layout/sidebar/chat-list-item.tsx
