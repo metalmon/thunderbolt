@@ -228,7 +228,8 @@ export const ChatMessages = memo(({ useChat = useChat_default }: ChatMessagesPro
             const isCanvasSpinnerHead = message.id === canvasSpinnerHeadId
 
             // Only apply viewport positioning from second message onwards
-            const shouldApplyViewport = isLast && !isCanvasSpinnerHead && shouldUseViewportPositioning(visibleMessages.length)
+            const shouldApplyViewport =
+              isLast && !isCanvasSpinnerHead && shouldUseViewportPositioning(visibleMessages.length)
 
             return (
               <AssistantMessage
