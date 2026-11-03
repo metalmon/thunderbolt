@@ -103,27 +103,15 @@ export const AddModelForm = ({
                   <SelectTrigger ref={providerTriggerRef} className="w-full rounded-lg">
                     <SelectValue placeholder={t`Select provider`} />
                   </SelectTrigger>
-<<<<<<< HEAD
                 </FormControl>
                 <SelectContent>
-                  {providerOptions.map((provider) => (
+                  {providerPickerOrder.map((provider) => (
                     <SelectItem key={provider} value={provider}>
                       {getProviderLabel(i18n, provider, appName)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-=======
-                  <SelectContent>
-                    {providerPickerOrder.map((provider) => (
-                      <SelectItem key={provider} value={provider}>
-                        {getProviderLabel(i18n, provider, appName)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
->>>>>>> be0f4aa01 (feat(fork/rebrand): полоса managed подписывается именем развёртывания)
               <FormMessage />
             </FormItem>
           )}
