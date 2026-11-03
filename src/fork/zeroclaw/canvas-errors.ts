@@ -19,6 +19,16 @@ export const canvasJsonRpcErrors = {
   TOOL_FAILED: { code: -32000, message: 'tool failed' },
   /** No `ui://` canvas is currently open in the side panel. */
   NO_CANVAS: { code: -32001, message: 'no active canvas' },
+  /**
+   * There is no active chat session to proxy the call through, so the host cannot act on
+   * the app's behalf — off-chat routes, or before the session has hydrated.
+   *
+   * Exists because the controller used to drop these requests without answering, and a
+   * JSON-RPC request that never gets a reply hangs the app's promise for good: a panel
+   * showed as empty with nothing in any log. An answer the app can read beats silence
+   * even when the answer is "no".
+   */
+  NO_SESSION: { code: -32002, message: 'no active chat session' },
   /** The open canvas was emitted by an agent that is no longer selected (agent-switch read-only snapshot). */
   READ_ONLY: { code: -32003, message: 'canvas is a read-only snapshot (agent changed)' },
   /** The per-nonce `tools/call` rate limit (`./canvas-pending`'s `createNonceRateLimiter`) rejected this call. */
@@ -36,11 +46,15 @@ export type CanvasRequestDecision = { kind: 'proceed' } | { kind: 'reject'; erro
  * caller maps its own checks onto these booleans). Checked in priority
  * order so a request rejected by an earlier gate never reaches a later one:
  *
- * 1. no active canvas (`NO_CANVAS`)
- * 2. read-only snapshot, agent switched (`READ_ONLY`)
- * 3. rate limit exhausted (`RATE_LIMITED`)
- * 4. missing tool name, `tools/call` only (`INVALID_PARAMS`)
- * 5. otherwise proceed
+ * 1. no active chat session (`NO_SESSION`)
+ * 2. no active canvas (`NO_CANVAS`)
+ * 3. read-only snapshot, agent switched (`READ_ONLY`)
+ * 4. rate limit exhausted (`RATE_LIMITED`)
+ * 5. missing tool name, `tools/call` only (`INVALID_PARAMS`)
+ * 6. otherwise proceed
+ *
+ * The session gate is first because it is the broadest: without it nothing can be
+ * proxied at all, so reporting a narrower reason would misdirect whoever reads it.
  *
  * `rateAllowed` reflects a limiter call that has a side effect (it consumes
  * a token) — callers MUST NOT call the limiter until after they've confirmed
@@ -49,12 +63,17 @@ export type CanvasRequestDecision = { kind: 'proceed' } | { kind: 'reject'; erro
  * function itself is pure; it only decides, never calls the limiter.
  */
 export const classifyCanvasRequest = (input: {
+  /** An active chat session exists to proxy the call through. */
+  hasSession: boolean
   hasCanvas: boolean
   isReadOnly: boolean
   rateAllowed: boolean
   /** For `tools/call` param validation; pass `true` for callers with no tool-name param (e.g. `ui/prompt`). */
   hasToolName: boolean
 }): CanvasRequestDecision => {
+  if (!input.hasSession) {
+    return { kind: 'reject', error: canvasJsonRpcErrors.NO_SESSION }
+  }
   if (!input.hasCanvas) {
     return { kind: 'reject', error: canvasJsonRpcErrors.NO_CANVAS }
   }
