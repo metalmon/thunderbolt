@@ -3,7 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it } from 'bun:test'
-import { localAgentOwnerId, resolveAgentOwner } from './agent-owner'
+import {
+  getCurrentAgentOwner,
+  getCurrentOwnerIsAnonymous,
+  localAgentOwnerId,
+  resolveAgentOwner,
+  setCurrentAgentOwner,
+  setCurrentOwnerIsAnonymous,
+} from './agent-owner'
 
 describe('resolveAgentOwner', () => {
   it('names the device mark when autonomous and there is no session', () => {
@@ -24,5 +31,22 @@ describe('resolveAgentOwner', () => {
   it('keeps the mark unable to collide with a Better Auth id', () => {
     // The colon is the guarantee — a generated user id has none.
     expect(localAgentOwnerId).toContain(':')
+  })
+})
+
+describe('the published owner store', () => {
+  it('carries both facts, and anonymity defaults to false', () => {
+    // Both come from one store so the management gate and the row scope can never read
+    // different answers to "who am I".
+    setCurrentAgentOwner('user-1')
+    expect(getCurrentAgentOwner()).toBe('user-1')
+    expect(getCurrentOwnerIsAnonymous()).toBe(false)
+
+    setCurrentOwnerIsAnonymous(true)
+    expect(getCurrentOwnerIsAnonymous()).toBe(true)
+    expect(getCurrentAgentOwner()).toBe('user-1')
+
+    setCurrentAgentOwner(null)
+    setCurrentOwnerIsAnonymous(false)
   })
 })
