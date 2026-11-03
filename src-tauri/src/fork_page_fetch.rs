@@ -56,6 +56,18 @@ const MAX_BODY_BYTES: usize = 2_000_000;
 
 const REQUEST_TIMEOUT_SECS: u64 = 15;
 
+/// Кем представляемся чужой странице.
+///
+/// ⚠ Та же строка, что у полосы бэкенда (`backend/src/api/preview.ts`), и это
+/// намеренно: одна и та же страница должна вести себя одинаково, какой бы полосой
+/// её ни читали. Без заголовка вовсе Википедия отвечает отказом — так и выяснилось,
+/// на живом прогоне.
+///
+/// Расходится с машиной, на которой мы работаем (macOS в строке, Windows на деле).
+/// Так уже сделано в бэкенде; менять надо обе стороны разом, иначе полосы разойдутся.
+const USER_AGENT: &str =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
 /// Ответ, пригодный для цикла переходов на стороне TypeScript.
 #[derive(Serialize)]
 pub struct PinnedResponse {
@@ -82,7 +94,11 @@ pub struct PinnedResponse {
 /// заново разрешая, проверяя и привязывая каждый шаг. Решение о том, куда можно
 /// идти, остаётся в одном месте.
 #[tauri::command]
-pub async fn fork_fetch_pinned(url: String, address: String) -> Result<PinnedResponse, String> {
+pub async fn fork_fetch_pinned(
+    url: String,
+    address: String,
+    accept_language: String,
+) -> Result<PinnedResponse, String> {
     let parsed = reqwest::Url::parse(&url).map_err(|error| error.to_string())?;
     if parsed.scheme() != "https" && parsed.scheme() != "http" {
         return Err(format!("Схема {} не читается", parsed.scheme()));
@@ -97,11 +113,13 @@ pub async fn fork_fetch_pinned(url: String, address: String) -> Result<PinnedRes
         .resolve(&host, SocketAddr::new(ip, port))
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(REQUEST_TIMEOUT_SECS))
+        .user_agent(USER_AGENT)
         .build()
         .map_err(|error| error.to_string())?;
 
     let response = client
         .get(parsed)
+        .header(reqwest::header::ACCEPT_LANGUAGE, accept_language)
         .send()
         .await
         .map_err(|error| error.to_string())?;
@@ -176,6 +194,7 @@ mod tests {
         let result = tauri::async_runtime::block_on(fork_fetch_pinned(
             "file:///C:/Windows/win.ini".to_string(),
             "93.184.216.34".to_string(),
+            "en-US,en;q=0.9".to_string(),
         ));
         assert!(result.is_err());
     }
@@ -195,6 +214,7 @@ mod tests {
         let response = tauri::async_runtime::block_on(fork_fetch_pinned(
             "https://example.com/".to_string(),
             addresses[0].clone(),
+            "ru,en;q=0.9".to_string(),
         ))
         .expect("привязанный запрос должен дойти");
         assert_eq!(response.status, 200);
@@ -209,6 +229,7 @@ mod tests {
         let result = tauri::async_runtime::block_on(fork_fetch_pinned(
             "https://example.com/".to_string(),
             "not-an-address".to_string(),
+            "en-US,en;q=0.9".to_string(),
         ));
         assert!(result.is_err());
     }

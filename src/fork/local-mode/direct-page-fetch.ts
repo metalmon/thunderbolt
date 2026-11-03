@@ -19,6 +19,8 @@ import { invoke } from '@tauri-apps/api/core'
 import { isPrivateOrInternalAddress, parseIpAddress } from '@shared/ip-classification'
 import { redirectStatuses } from '@shared/proxy-protocol'
 import type { FetchContentData } from '@/integrations/thunderbolt-pro/schemas'
+import { getActiveLocale } from '@/i18n/active-locale'
+import { sourceLocale } from '@shared/i18n/locales'
 
 /** Столько переходов проходим, дальше считаем петлёй. Как у предохранителя бэкенда. */
 const maxHops = 5
@@ -47,7 +49,7 @@ export type PinnedResponse = {
 export type DirectPageFetchDeps = {
   resolveHost: ResolveHost
   /** Запрос, подключённый ТОЛЬКО к названному адресу. Имя больше не разрешается. */
-  fetchPinned: (url: string, address: string) => Promise<PinnedResponse>
+  fetchPinned: (url: string, address: string, acceptLanguage: string) => Promise<PinnedResponse>
 }
 
 /**
@@ -61,7 +63,8 @@ export type DirectPageFetchDeps = {
  */
 export const directPageFetchDeps: DirectPageFetchDeps = {
   resolveHost: (host) => invoke<string[]>('fork_resolve_host', { host }),
-  fetchPinned: (url, address) => invoke<PinnedResponse>('fork_fetch_pinned', { url, address }),
+  fetchPinned: (url, address, acceptLanguage) =>
+    invoke<PinnedResponse>('fork_fetch_pinned', { url, address, acceptLanguage }),
 }
 
 /** Адрес, который предохранитель не пропустил. Отдельный сорт: модели про него говорим иначе, чем про сбой сети. */
@@ -72,6 +75,22 @@ export class TooManyHopsError extends Error {}
 
 /** Содержимое, из которого текста не добыть: PDF, двоичное, каркас без слов. */
 export class UnreadableContentError extends Error {}
+
+/**
+ * Чем представляемся чужой странице по части языка.
+ *
+ * Повторяет поведение бэкенда (`backend/src/utils/accept-language.ts`), чтобы одна
+ * и та же страница отвечала одинаково, какой бы полосой её ни читали: английский и
+ * всё неизвестное — английской цепочкой, остальное — своим языком с английским
+ * запасным.
+ *
+ * Сам заголовок о клиенте ставит Rust: он один на все запросы и строкой из
+ * вебвью управляться не должен.
+ */
+const acceptLanguageChain = (): string => {
+  const locale = getActiveLocale()
+  return !locale || locale === sourceLocale ? 'en-US,en;q=0.9' : `${locale},en;q=0.9`
+}
 
 /** Имена, означающие саму машину: адреса за ними не разрешить, а идти туда нельзя. */
 const deviceLocalHosts = ['localhost', 'host.docker.internal']
@@ -256,7 +275,7 @@ export const fetchPageDirect = async (
     // никто кроме нас, значит и разрешать, проверять и привязывать каждый шаг —
     // наша работа.
     const address = await resolvePublicTarget(current, deps)
-    const response = await deps.fetchPinned(current.toString(), address)
+    const response = await deps.fetchPinned(current.toString(), address, acceptLanguageChain())
 
     const location = response.location
     if (!redirectStatuses.has(response.status) || !location) {
