@@ -42,9 +42,20 @@ export const buildCanvasFontFaceCss = (): string =>
  * bare default scrollbar clashes with the theme. Colours reference the host theme
  * tokens already forced onto `:root`, so it tracks light/dark; no `!important`, so
  * an artifact that styles its own scrollbar still wins.
+ *
+ * ⚠ ONE mechanism only, and that is the whole point of this note. This used to set
+ * `scrollbar-width`/`scrollbar-color` on `*` as well — and in Chromium, which is what
+ * WebView2 runs, naming either of those makes the `::-webkit-scrollbar` pseudo-elements
+ * below be ignored ENTIRELY. Every rule here was dead: the frame drew the platform
+ * default sized by `thin`, which is why a pilot panel showed a system scrollbar inside
+ * an otherwise themed page. Measured in the live frame — `scrollbarWidth` computed to
+ * `thin` there while the app's own document computes `none`.
+ *
+ * So: do not add `scrollbar-width` or `scrollbar-color` back here without deleting
+ * these. Picking the pseudo-elements is deliberate — they are what draws the rounded
+ * thumb and the hover colour; the standard properties can express neither.
  */
 export const buildCanvasScrollbarCss = (): string =>
-  `*{scrollbar-color:var(--color-border) transparent;scrollbar-width:thin;}` +
   `*::-webkit-scrollbar{width:10px;height:10px;}` +
   `*::-webkit-scrollbar-track{background:transparent;}` +
   `*::-webkit-scrollbar-thumb{background:var(--color-border);background-clip:padding-box;border:2px solid transparent;border-radius:9999px;}` +
