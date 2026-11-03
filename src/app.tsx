@@ -242,13 +242,10 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
               {/* Preserve existing project links after moving projects into the sidebar. */}
               <Route path="projects" element={<ProjectRedirect />} />
               <Route path="projects/:projectId" element={<ProjectRedirect />} />
-              <Route path="apps/:appId" element={<MiniAppPage />} />
-              {/* One component for both: `:projectId` is the list with that
-                  project's slide-out open, so a deep link, a sidebar row, a search
-                  hit, and the chat badge all land on the same surface — and there
-                  is one place a project is edited. */}
-              <Route path="projects" element={<ProjectsPage />} />
-              <Route path="projects/:projectId" element={<ProjectsPage />} />
+              {/* Fork: upstream's own `apps/:appId` route is dropped in favour of this
+                  guarded one. The Mini App registry is a backend lane, so an autonomous
+                  install must not route to a page that can only fail — and an unguarded
+                  duplicate declared first would win the match and defeat the guard. */}
               {!localMode && <Route path="apps/:appId" element={<MiniAppPage />} />}
               {import.meta.env.DEV && <Route path="message-simulator" element={<MessageSimulatorPage />} />}
             </Route>
