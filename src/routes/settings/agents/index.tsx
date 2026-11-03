@@ -19,6 +19,7 @@ import { PageCreateAction } from '@/components/ui/page-create-action'
 import { PageHeader } from '@/components/ui/page-header'
 import { useAuth, useDatabase } from '@/contexts'
 import { deleteAgent, updateAgent, useAllAgents } from '@/dal'
+import { useCurrentOwnerIsAnonymous } from '@/fork/agents/agent-owner'
 import { useEntityActionIntent } from '@/search/actions/use-entity-action-intent'
 
 type AgentsSettingsPageProps = {
@@ -47,6 +48,15 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
   const { data: session } = authClient.useSession()
   const currentUserId = session?.user?.id ?? null
   const allowCustomAgents = useConfigCapability(selectAllowCustomAgents)
+  // Fork: anonymous accounts are local-only (the backend rejects their sync) and churn
+  // user.id, so custom-agent ownership by id is meaningless — the detail panel relaxes
+  // its management gate for them. See `@/fork/agents/manage-anonymous-agent`.
+  //
+  // Read from the owner store, not from the session: the owner seam is published from
+  // one place, and deriving this from a local instead is what made the line depend on a
+  // binding another patch branch owns — a conflict on every rebuild. Anchored below
+  // `allowCustomAgents` for the same reason: that line nobody else edits.
+  const isAnonymous = useCurrentOwnerIsAnonymous()
 
   // The add form, the CLI install card, and the agent rows all share the one
   // slide-in panel slot, so the selection is a single union — the panels are
@@ -94,6 +104,7 @@ const AgentsSettingsPage = ({ loadAppNodeId, enrollIroh }: AgentsSettingsPagePro
           initialAction={activePanel?.kind === 'agent' ? activePanel.action : undefined}
           agent={activeAgent}
           currentUserId={currentUserId}
+          isAnonymous={isAnonymous}
           onClose={closePanel}
           onRemoved={closePanel}
           onUpdate={async (patch) => {
