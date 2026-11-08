@@ -21,6 +21,12 @@ COPY src ./src
 COPY public ./public
 COPY index.html ./
 COPY vite.config.ts lingui.config.ts tsconfig.json tsconfig.node.json ./
+# `vite.config.ts` imports this one script (the PowerSync wasm/worker copier), so the
+# config cannot even be parsed without it — the build dies with UNRESOLVED_IMPORT at
+# `bunx vite build`, naming the config rather than the missing file. Upstream's own
+# frontend.Dockerfile carries the identical line; this one was modelled on a version
+# that predates it. Copy the single file, not `scripts/`, exactly as upstream does.
+COPY scripts/copy-powersync-assets.ts ./scripts/
 COPY components.json ./
 COPY .storybook ./.storybook
 
