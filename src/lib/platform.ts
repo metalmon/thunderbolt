@@ -326,7 +326,18 @@ const formatPlatformName = (p: string): string => platformDisplayNames[p] ?? p.c
 
 export const getDeviceDisplayName = (): string => {
   if (isTauri()) {
-    return `Thunderbolt on ${formatPlatformName(getPlatform())}`
+    // Fork: the desktop app introduces itself by name in every device list, on
+    // every device — the one place upstream's brand outlived the rename, because
+    // it is built here rather than read from a string catalogue. Reported from the
+    // pilot as «старый бренд остался».
+    //
+    // ASCII `Volt`, not «Вольт»: this sits beside `Edge on Windows` in the same
+    // list, the sentence frame around it is English either way, and the value is
+    // stored on the device row rather than rendered from a message id — the same
+    // reason `productName` stays ASCII. A deployment that rebrands through
+    // `branding.appName` is NOT followed here: resolving it needs the fetched
+    // config, and this runs synchronously from `getAuthenticatedHeaders`.
+    return `Volt on ${formatPlatformName(getPlatform())}`
   }
   const browser = getWebBrowser()
   const browserDisplay = browser === 'unknown' ? 'Browser' : browser.charAt(0).toUpperCase() + browser.slice(1)
