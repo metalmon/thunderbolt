@@ -117,6 +117,18 @@ if ($Skip -notcontains 'images') {
         @{ src = "$ComposeProject-web:latest"; tag = 'volt-web:pilot'; file = 'volt-web.tar.gz' }
     )
     foreach ($p in $pairs) {
+        # Keep whatever `:pilot` points at right now under a dated name BEFORE moving the
+        # tag. `docker tag` leaves the previous build nameless, so the rollback the kit
+        # documents did not actually exist — and tagging afterwards silently labels the
+        # NEW image with the old date, which is worse than having no tag at all. Stamped
+        # with the image's own creation date, not today's.
+        $prevId = (docker image inspect $p.tag --format '{{.Id}}' 2>$null)
+        $newId = (docker image inspect $p.src --format '{{.Id}}' 2>$null)
+        if ($prevId -and $prevId -ne $newId) {
+            $stamp = (docker image inspect $p.tag --format '{{.Created}}').Substring(0, 10) -replace '-', ''
+            docker tag $prevId "$($p.tag)-$stamp"
+            Write-Host "  previous $($p.tag) kept as $($p.tag)-$stamp" -ForegroundColor DarkGray
+        }
         docker tag $p.src $p.tag
         $out = Join-Path $KitPath "images/$($p.file)"
         Write-Host "  saving $($p.tag) -> images/$($p.file) ..."
