@@ -1,1 +1,1 @@
-ALTER TABLE "user" ADD COLUMN "groups" text[] DEFAULT '{}' NOT NULL;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "groups" text[] DEFAULT '{}' NOT NULL;
