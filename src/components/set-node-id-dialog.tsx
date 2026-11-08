@@ -80,7 +80,7 @@ const SetNodeIdDialog = ({ open, onOpenChange, deviceName, onConfirm, isPending 
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="thunderbolt-pair:…"
+            placeholder="volt-pair:…"
             rows={3}
             spellCheck={false}
             className="font-mono text-[length:var(--font-size-xs)]"
