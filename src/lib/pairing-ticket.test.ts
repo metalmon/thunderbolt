@@ -23,8 +23,17 @@ describe('pairing-ticket', () => {
     expect(decodePairingTicket(encodePairingTicket(ticket))).toEqual(ticket)
   })
 
-  it('uses the thunderbolt-pair scheme prefix', () => {
-    expect(encodePairingTicket({ nodeId: 'id' }).startsWith('thunderbolt-pair:')).toBe(true)
+  it('uses the volt-pair scheme prefix', () => {
+    expect(encodePairingTicket({ nodeId: 'id' }).startsWith('volt-pair:')).toBe(true)
+  })
+
+  // The pre-rename prefix must still decode, and not through the bare-id fallback:
+  // that path would hand back the whole `thunderbolt-pair:<base64>` string as an
+  // endpoint id, which fails much later and nowhere near the cause.
+  it('still decodes a ticket written with the pre-rename prefix', () => {
+    const ticket = { nodeId: 'legacy-id', name: 'Old build' }
+    const legacy = `thunderbolt-pair:${encodePairingTicket(ticket).slice('volt-pair:'.length)}`
+    expect(decodePairingTicket(legacy)).toEqual(ticket)
   })
 
   it('tolerates a bare node id / raw iroh ticket pasted directly', () => {
@@ -36,7 +45,7 @@ describe('pairing-ticket', () => {
   })
 
   it('throws when the encoded payload has no node id', () => {
-    const bad = `thunderbolt-pair:${btoa('{"name":"x"}').replace(/=+$/, '')}`
+    const bad = `volt-pair:${btoa('{"name":"x"}').replace(/=+$/, '')}`
     expect(() => decodePairingTicket(bad)).toThrow('missing a node ID')
   })
 })
