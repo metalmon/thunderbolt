@@ -138,8 +138,18 @@ server {
     # Cache hashed static assets aggressively.
     location /assets/ {
         include /etc/nginx/snippets/security-headers.conf;
+        # An update swaps the whole bundle: a browser still holding the previous
+        # index.html asks for chunk hashes that no longer exist. Do not let that
+        # 404 be cached, or the stale page keeps failing after the new one is live.
+        error_page 404 = @missing_asset;
         expires 1y;
         add_header Cache-Control "public, immutable";
+    }
+
+    location @missing_asset {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-store" always;
+        return 404;
     }
 
     # Source maps are uploaded to error tracking, not served publicly.
@@ -175,6 +185,12 @@ server {
     # SPA fallback.
     location / {
         include /etc/nginx/snippets/security-headers.conf;
+        # index.html names this build's chunk hashes, so it must be revalidated on
+        # every load. Without this the browser serves the previous one from its own
+        # cache, requests chunks the update deleted, and the app fails to start until
+        # someone reloads by hand. `no-cache` still allows a 304 — this is not
+        # `no-store`, nothing is re-downloaded when the build has not moved.
+        add_header Cache-Control "no-cache" always;
         try_files $uri $uri/ /index.html;
     }
 }
