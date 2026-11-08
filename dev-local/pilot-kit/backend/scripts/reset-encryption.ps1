@@ -28,6 +28,10 @@ pwsh scripts/reset-encryption.ps1 -Yes
 [CmdletBinding()]
 param([switch]$Yes)
 $ErrorActionPreference = 'Stop'
+# Консоль комплекта обычно живёт на кодовой странице 866, и без этого весь вывод
+# ниже приходит мусором — а читать его приходится ровно в тот момент, когда
+# человек решает, стирать ли данные.
+try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch {}
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
@@ -53,8 +57,11 @@ Write-Host ""
 if (-not $Yes) {
     Write-Host "⚠ Будут стёрты переписки, задачи, подсказки, навыки, проекты и настройки" -ForegroundColor Yellow
     Write-Host "  ВСЕХ пользователей, вместе с ключами шифрования и списком устройств." -ForegroundColor Yellow
-    $answer = Read-Host "Введите СБРОС заглавными, чтобы продолжить"
-    if ($answer -ne 'СБРОС') { Write-Host "Отменено."; exit 1 }
+    # RESET латиницей принимается наравне: в консоли с чужой кодовой страницей
+    # кириллическое слово-подтверждение просто не набрать, и единственной дверью
+    # остаётся -Yes, то есть сброс вообще без подтверждения.
+    $answer = Read-Host "Введите RESET (или СБРОС) заглавными, чтобы продолжить"
+    if ($answer -ne 'RESET' -and $answer -ne 'СБРОС') { Write-Host "Отменено."; exit 1 }
 }
 
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
