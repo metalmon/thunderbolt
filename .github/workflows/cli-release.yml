@@ -135,11 +135,20 @@ jobs:
 
       - name: Build CLI binary
         env:
-          THUNDERBOLT_BUILD_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          # Fork: the CLI has its OWN variable. It used to read the client's
+          # `VITE_THUNDERBOLT_CLOUD_URL`, which made one repository-wide value the
+          # address of every build — so a client built for anyone else silently
+          # shipped pointing at whichever deployment happened to own that variable.
+          # The client now takes its address per build (`backend_url` input of
+          # build-all.yml, empty = local mode) and this is the only consumer left.
+          #
+          # The old name is still read as a fallback so the rename can land before
+          # the variable is created; drop it once VOLT_CLI_CLOUD_URL exists.
+          THUNDERBOLT_BUILD_CLOUD_URL: ${{ vars.VOLT_CLI_CLOUD_URL || vars.VITE_THUNDERBOLT_CLOUD_URL }}
           THUNDERBOLT_BUILD_APP_URL: ${{ vars.THUNDERBOLT_APP_URL }}
         run: |
           if [ -z "$THUNDERBOLT_BUILD_CLOUD_URL" ]; then
-            echo "::error::Repository variable VITE_THUNDERBOLT_CLOUD_URL is required"
+            echo "::error::Repository variable VOLT_CLI_CLOUD_URL is required (the CLI has no local mode)"
             exit 1
           fi
           # Fork: THUNDERBOLT_APP_URL is OPTIONAL, unlike the cloud URL.
