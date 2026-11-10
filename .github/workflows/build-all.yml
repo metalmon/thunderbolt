@@ -36,6 +36,20 @@ on:
         description: 'Git ref (branch or tag) to build'
         required: false
         default: 'master'
+      # Fork: the address is a property of ONE customer's build, not of the
+      # repository. It used to come from the repo variable, which meant every
+      # build everywhere carried one deployment's host — and a build for anyone
+      # else silently shipped pointing at a stranger's server.
+      #
+      # Empty is the deliberate default, including every tag build: with no
+      # address the client boots in local mode and asks for nothing (the auth
+      # gate returns `allowed` before it ever reaches the SSO branch), and the
+      # operator types the address in Settings afterwards, at which point the
+      # deployment's own /config decides the sign-in mode.
+      backend_url:
+        description: 'Backend URL to bake in — leave EMPTY to ship in local mode (the admin enters the address)'
+        required: false
+        default: ''
   push:
     tags:
       - 'v*.*.*'
@@ -160,7 +174,7 @@ jobs:
           CARGO_INCREMENTAL: 0
           RUSTC_WRAPPER: '' # src-tauri/.cargo/config.toml points at sccache, absent here
           NO_STRIP: true
-          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ inputs.backend_url }}
           VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -284,7 +298,7 @@ jobs:
         env:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
-          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ inputs.backend_url }}
           VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
         run: bun tauri android build --apk --target aarch64
 
@@ -293,7 +307,7 @@ jobs:
         env:
           RUSTC_WRAPPER: ''
           SCCACHE_DISABLE: '1'
-          VITE_THUNDERBOLT_CLOUD_URL: ${{ vars.VITE_THUNDERBOLT_CLOUD_URL }}
+          VITE_THUNDERBOLT_CLOUD_URL: ${{ inputs.backend_url }}
           VITE_UPDATER_ENABLED: ${{ vars.VITE_UPDATER_ENABLED }}
         run: bun tauri android build --apk --debug --target aarch64
 
