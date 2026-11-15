@@ -19,14 +19,16 @@ COPY src ./src
 # Fork i18n catalogs — src/i18n/i18n.ts imports ../../locales/**; present on the
 # assembled master (fork/i18n + fork/i18n-locales), absent from upstream.
 COPY public ./public
-COPY index.html ./
+# `webview-recovery.html` is the SECOND rollup input (see `build.rollupOptions.input`).
+COPY index.html webview-recovery.html ./
 COPY vite.config.ts lingui.config.ts tsconfig.json tsconfig.node.json ./
-# `vite.config.ts` imports this one script (the PowerSync wasm/worker copier), so the
-# config cannot even be parsed without it — the build dies with UNRESOLVED_IMPORT at
-# `bunx vite build`, naming the config rather than the missing file. Upstream's own
-# frontend.Dockerfile carries the identical line; this one was modelled on a version
-# that predates it. Copy the single file, not `scripts/`, exactly as upstream does.
-COPY scripts/copy-powersync-assets.ts ./scripts/
+# `vite.config.ts` imports these scripts, so the config cannot even be parsed without
+# them — the build dies with UNRESOLVED_IMPORT at `bunx vite build`, naming the config
+# rather than the missing file. ⚠ This is a WHITELIST: every import upstream adds to
+# `vite.config.ts` has to arrive here too, and nothing in CI builds this image, so the
+# break is silent until someone runs it. 0.1.167 added the Exa and Tinfoil search
+# relays. Keep the line identical to upstream's `deploy/docker/frontend.Dockerfile`.
+COPY scripts/copy-powersync-assets.ts scripts/webkit-compat.ts scripts/tinfoil-search-relay.ts scripts/exa-relay.ts ./scripts/
 COPY components.json ./
 COPY .storybook ./.storybook
 
