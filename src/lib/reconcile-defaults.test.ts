@@ -930,7 +930,7 @@ for (const [target, model, name] of [
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -967,7 +967,7 @@ describe('Opus data migration', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1000,7 +1000,7 @@ describe('Opus data migration', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1026,7 +1026,10 @@ describe('Opus data migration', () => {
     const otaVersion = defaultModelsVersion + 1
     const otaModels = fixtureModels.map((model) => (model.id === defaultModelOpus55.id ? legacyModel : model))
 
-    await reconcileDefaults(db, { models: { version: otaVersion, data: otaModels }, profiles: fixtureProfiles })
+    await reconcileDefaults(db, {
+      models: { version: otaVersion, data: otaModels, imageSupport: defaultModelImageSupport },
+      profiles: fixtureProfiles,
+    })
 
     expect(await db.select().from(modelsTable).where(eq(modelsTable.id, defaultModelOpus55.id)).get()).toEqual({
       ...defaultModelOpus55,
@@ -1053,7 +1056,7 @@ describe('Opus data migration', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
