@@ -753,10 +753,13 @@ describe('ProviderRuntime one-producer managed dispatch', () => {
     expect(futureHarness.directArguments[0]?.model).toEqual(futureCatalog.data[0])
   })
 
+  // Fork: extends the FIXTURE catalog, not `bundledManagedCatalog` - this fork ships
+  // `defaultModels` empty, so the bundled one has no rows to extend and the runtime
+  // would have no model to dispatch against.
   const catalogWith = (model: SharedModel, support: ImageSupport): ManagedCatalog => ({
-    ...bundledManagedCatalog,
-    data: [...bundledManagedCatalog.data, model],
-    imageSupport: { ...bundledManagedCatalog.imageSupport, [model.id]: support },
+    ...testManagedCatalog,
+    data: [...testManagedCatalog.data, model],
+    imageSupport: { ...testManagedCatalog.imageSupport, [model.id]: support },
   })
 
   test('sends images to a catalog-only confidential model the catalog declares supported', async () => {
