@@ -147,8 +147,8 @@ msgstr[0] "# skill"
 msgstr[1] "# skills"
 
 #: src/fork/documents/docx-preview.tsx
-msgid "{fileName} could not be displayed."
-msgstr "{fileName} could not be displayed."
+#~ msgid "{fileName} could not be displayed."
+#~ msgstr "{fileName} could not be displayed."
 
 #: src/mini-apps/mini-app-download-prompt.tsx
 msgid "{fileName} will be saved to your Downloads folder."
@@ -1922,6 +1922,10 @@ msgstr "Could not read QR code"
 #: src/settings/preferences.tsx
 msgid "Could not read the import file."
 msgstr "Could not read the import file."
+
+#: src/fork/documents/docx-preview.tsx
+msgid "Could not render {fileName}. Use the download button to open it."
+msgstr "Could not render {fileName}. Use the download button to open it."
 
 #: src/components/device-qr-code.tsx
 msgid "Could not render pairing code."

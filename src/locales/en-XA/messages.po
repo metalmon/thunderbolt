@@ -147,8 +147,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/fork/documents/docx-preview.tsx
-msgid "{fileName} could not be displayed."
-msgstr ""
+#~ msgid "{fileName} could not be displayed."
+#~ msgstr ""
 
 #: src/mini-apps/mini-app-download-prompt.tsx
 msgid "{fileName} will be saved to your Downloads folder."
@@ -1921,6 +1921,10 @@ msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Could not read the import file."
+msgstr ""
+
+#: src/fork/documents/docx-preview.tsx
+msgid "Could not render {fileName}. Use the download button to open it."
 msgstr ""
 
 #: src/components/device-qr-code.tsx
