@@ -39,7 +39,11 @@ export const Spinner = ({ size = 24, className, ...props }: SpinnerProps) => {
   // This is the drop-in for lucide's `Loader2` (aliased at build time, see
   // lucide-shim.ts), so call sites still pass `animate-spin`. Strip it: the charge
   // animates internally and the bolt is a recognizable mark that must never rotate.
-  const cleanedClassName = className?.replace(/\banimate-spin\b/g, '').replace(/\s+/g, ' ').trim() || undefined
+  const cleanedClassName =
+    className
+      ?.replace(/\banimate-spin\b/g, '')
+      .replace(/\s+/g, ' ')
+      .trim() || undefined
   return (
     <svg
       viewBox="0 0 32 32"
