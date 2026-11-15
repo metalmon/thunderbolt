@@ -203,8 +203,10 @@ describe('ConnectionsPage list', () => {
     'Tinfoil Models and search',
     'OpenRouter Models',
     'OpenAI Models',
-    'Google Productivity',
-    'Microsoft Productivity',
+    // Google/Microsoft are not offered here on this fork (fork/hide-integrations):
+    // without backend OAuth creds, connecting one only surfaces "OAuth is not
+    // configured". Upstream's picker now builds from the same filtered list the page
+    // renders, so they are absent from both.
     'MCP server',
   ])('returns from %s to the connection picker', async (name) => {
     renderWithReactivity(<ConnectionsPage />, { wrapper: McpProviderWrapper })
@@ -353,7 +355,12 @@ describe('ConnectionsPage list', () => {
     expect(screen.queryByText('Connected to OpenRouter')).toBeNull()
   })
 
-  it('consumes callback parameters without closing the restored aside or replaying an error', async () => {
+  // Skipped while fork/hide-integrations is in force: the case restores a GOOGLE
+  // OAuth return, and that integration is filtered out of the page entirely, so the
+  // aside it asserts on never renders. Unskip together with that temporary filter
+  // (`use-integrations-controller.tsx`), which is where the deployment re-enables
+  // Google/Microsoft once the backend has their OAuth credentials.
+  it.skip('consumes callback parameters without closing the restored aside or replaying an error', async () => {
     setOAuthState({ provider: 'google', state: 'return-nonce', returnContext: '/chats/new' })
     const RouteProbe = () => {
       const location = useLocation()
@@ -580,9 +587,10 @@ describe('ConnectionsPage list', () => {
       renderWithReactivity(<ConnectionsPage />, { wrapper: McpProviderWrapper })
       expect(await waitForElement(() => screen.queryByRole('heading', { name: 'No connections yet' }))).toBeVisible()
       fireEvent.click(screen.getByRole('button', { name: 'New Connection' }))
-      expect(screen.queryByRole('button', { name: 'Thunderbolt Search' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Volt Pro Search' })).toBeNull()
+      // Hidden on this fork whatever the session — see the note on the picker list.
       for (const name of ['Google Productivity', 'Microsoft Productivity']) {
-        expect(screen.getByRole('button', { name })).toBeVisible()
+        expect(screen.queryByRole('button', { name })).toBeNull()
       }
       expect(
         await waitForElement(() => screen.queryByRole('button', { name: 'Otari Models and search' })),
@@ -592,16 +600,15 @@ describe('ConnectionsPage list', () => {
         setAuthToken('cloud-session')
         await getClock().runAllAsync()
       })
-      for (const name of ['Thunderbolt Search', 'Google Productivity', 'Microsoft Productivity']) {
-        expect(screen.getByRole('button', { name })).toBeVisible()
-      }
-      expect(screen.getByRole('button', { name: 'Open Thunderbolt' })).toBeVisible()
+      expect(screen.getByRole('button', { name: 'Volt Pro Search' })).toBeVisible()
+      expect(screen.getByRole('button', { name: 'Open Volt Pro' })).toBeVisible()
       act(() => clearAuthToken())
-      expect(screen.queryByRole('button', { name: 'Thunderbolt Search' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Volt Pro Search' })).toBeNull()
+      // Hidden on this fork whatever the session — see the note on the picker list.
       for (const name of ['Google Productivity', 'Microsoft Productivity']) {
-        expect(screen.getByRole('button', { name })).toBeVisible()
+        expect(screen.queryByRole('button', { name })).toBeNull()
       }
-      expect(screen.queryByRole('button', { name: 'Open Thunderbolt' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Open Volt Pro' })).toBeNull()
     },
   )
 
@@ -622,18 +629,17 @@ describe('ConnectionsPage list', () => {
       wrapper: McpProviderWrapper,
     })
 
-    // Pre-baked integrations render at the top (Thunderbolt renamed from
-    // "Thunderbolt Pro").
-    await waitForElement(() => screen.queryByText('Thunderbolt'))
+    // Pre-baked integrations render at the top; the Pro row is "Volt Pro" here.
+    await waitForElement(() => screen.queryByText('Volt Pro'))
     // Google & Microsoft are temporarily hidden until backend OAuth is configured
-    // (fork/hide-integrations); only Thunderbolt (Pro) remains pre-baked.
+    // (fork/hide-integrations); only the Pro row remains pre-baked.
     expect(screen.queryByText('Google')).not.toBeInTheDocument()
     expect(screen.queryByText('Microsoft')).not.toBeInTheDocument()
     expect(screen.queryByText('Thunderbolt Pro')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'New Connection' }))
-    expect(screen.getByRole('button', { name: 'Google Productivity' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Microsoft Productivity' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Thunderbolt Search' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Google Productivity' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Microsoft Productivity' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Volt Pro Search' })).toBeInTheDocument()
 
     await waitForElement(() => screen.queryByText('First Server'))
     expect(screen.getByText('First Server')).toBeInTheDocument()
