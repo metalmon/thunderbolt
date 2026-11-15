@@ -168,6 +168,11 @@ msgstr "xhigh"
 
 #. js-lingui-explicit-id
 #: src/ui/tui.ts
+msgid "max"
+msgstr "max"
+
+#. js-lingui-explicit-id
+#: src/ui/tui.ts
 msgid "ctrl+c again to quit"
 msgstr "ctrl+c again to quit"
 
