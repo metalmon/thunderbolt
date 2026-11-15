@@ -20,14 +20,22 @@ describe('заметка о полосе чтения без Pro', () => {
   })
 
   /**
-   * Сторож условия, из-за которого заметка и существует. Если `hasWebTools`
-   * когда-нибудь перестанет требовать ОБА инструмента, `webToolsPrompt` начнёт
-   * подмешиваться сам, и тогда заметка станет вторым голосом про одно и то же.
-   * Пусть об этом скажет красный тест, а не поведение модели.
+   * Сторож условия, из-за которого заметка и существует.
+   *
+   * 0.1.167: апстрим снял `hasWebTools` (требовал ОБА инструмента) и завёл
+   * `buildWebToolsPrompt(availableToolNames)`, который теперь сам говорит про
+   * полосу «есть fetch_content, нет search». Наша заметка осталась не ради самого
+   * факта инструмента, а ради того, чего апстрим про НАШУ реализацию не знает:
+   * страницы читаются без выполнения скриптов, ссылки перечислены в конце текста,
+   * а приватные и петлевые адреса отвергаются. Сторож переставлен на ту же ветку
+   * апстрима: если она исчезнет или перестанет быть условной, заметка снова
+   * станет единственным голосом и это надо заметить.
    */
-  it('условие hasWebTools по-прежнему требует оба инструмента', () => {
-    const source = readRepoFile('src/ai/fetch.ts')
-    expect(source).toContain("'search' in appToolset && 'fetch_content' in appToolset")
+  it('апстрим по-прежнему различает полосу без search', () => {
+    const source = readRepoFile('src/ai/prompts/web-tools.ts')
+    expect(source).toContain("const hasSearch = availableToolNames.includes('search')")
+    expect(source).toContain("const hasFetch = availableToolNames.includes('fetch_content')")
+    expect(source).toContain('if (!hasSearch)')
   })
 
   /**
