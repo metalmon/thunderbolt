@@ -17,13 +17,18 @@ export const tinfoilAttestationKey = (client: 'system' | 'user', cloudUrl: strin
 /** Resolve the actual inference owner before considering a model's catalog flags. */
 export const resolveAttestationTarget = (
   agent: Pick<Agent, 'id' | 'type' | 'name'>,
-  model: Pick<Model, 'provider' | 'isSystem' | 'isConfidential'>,
+  model: Pick<Model, 'provider' | 'isSystem' | 'isConfidential'> | null,
   cloudUrl: string,
 ): AttestationTarget | null => {
   // ACP/hosted agents choose their own models. Their metadata is not local proof,
   // and a secure WebSocket/iroh connection does not attest the remote process.
   if (agent.type !== 'built-in') {
     return { kind: 'agent', key: `agent:${agent.id}`, name: agent.name }
+  }
+  // Fork: the session model is nullable — with none there is no inference owner
+  // to attest, and no attestation surface to show for it.
+  if (!model) {
+    return null
   }
   if (model.provider === 'tinfoil') {
     const client = model.isSystem === 1 ? 'system' : 'user'

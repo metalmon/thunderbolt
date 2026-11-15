@@ -128,7 +128,9 @@ afterEach(async () => {
 
 describe('useAppLanguage', () => {
   it('registers a coarse event locale without creating a person profile', async () => {
-    await updateSettings(getDb(), { language: 'de' })
+    // Fork: the offered set is `en`/`ru` only, so upstream's `de` would resolve
+    // back to `en` and say nothing about the coarse locale being registered.
+    await updateSettings(getDb(), { language: 'ru' })
     const register = mock()
     const setPersonProperties = mock()
     const client = { register, setPersonProperties } as unknown as PostHog
@@ -141,7 +143,7 @@ describe('useAppLanguage', () => {
       ),
     })
     await flush()
-    expect(register).toHaveBeenCalledWith({ locale: 'de' })
+    expect(register).toHaveBeenCalledWith({ locale: 'ru' })
     expect(setPersonProperties).not.toHaveBeenCalled()
   })
 

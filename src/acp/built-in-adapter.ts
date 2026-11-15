@@ -51,6 +51,7 @@ import {
   resolveOpenAiCompatConnection,
   type PreparedAiRequestConfig,
 } from '@/ai/fetch'
+import { attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { getKnownImageSupport } from '@/ai/image-support'
 import type { WebToolBudget } from '@/ai/web-tool-budget'
 import { recordDebugTranscriptSystemPrompts } from '@/debug-transcript/recorder'
@@ -892,7 +893,7 @@ const fetchViaHarness = async (
           return owner ? { modelId: selectedModel.id, mcpTools: { [toolName]: owner } } : { modelId: selectedModel.id }
         },
         settled: (): UIMessageMetadata => {
-          const messageMetadata: UIMessageMetadata = { modelId: context.selectedModel.id }
+          const messageMetadata: UIMessageMetadata = { modelId: selectedModel.id }
           if (checkpoint.current) {
             messageMetadata.contextCompaction = checkpoint.current
             messageMetadata.contextTokens = checkpoint.current.contextTokens
@@ -1011,13 +1012,17 @@ export const createBuiltInAdapter = (agent: Agent, options: BuiltInAdapterOption
   }
 
   const compactContext: NonNullable<AgentAdapter['compact']> = async (init, context, instructions) => {
-    if (!isPiModelCandidate(context.selectedModel)) {
+    // Fork: the session model is nullable (an ACP agent brings its own), and
+    // compaction is a built-in-lane operation — no model is the same answer as a
+    // model that cannot compact.
+    const selectedModel = context.selectedModel
+    if (!selectedModel || !isPiModelCandidate(selectedModel)) {
       throw new Error('This model does not support context compaction')
     }
     const agentCore = await loadAgentCore()
     init.signal?.throwIfAborted()
     const config = await prepareConfig({
-      modelId: context.selectedModel.id,
+      modelId: selectedModel.id,
       mcpClients: context.mcpClients,
       reconnectClient: context.reconnectClient,
       httpClient: context.httpClient,

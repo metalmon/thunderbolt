@@ -4,7 +4,12 @@
 
 import { describe, expect, test } from 'bun:test'
 import type { defaultModels } from '@shared/defaults/models'
-import { defaultModelOpenRouterFree, defaultModelOpus55, defaultModelsVersion } from '@shared/defaults/models'
+import {
+  defaultModelImageSupport,
+  defaultModelOpenRouterFree,
+  defaultModelOpus55,
+  defaultModelsVersion,
+} from '@shared/defaults/models'
 import { pickModelsDefaults } from './pick-defaults'
 
 const serverPayload = (version: number) => ({

@@ -180,7 +180,7 @@ describe('ChatModelPicker', () => {
     act(() => useChatStore.getState().setModels([gpt4]))
     expect(screen.queryByText('Otari model')).toBeNull()
     expect(screen.getByText('GPT-4')).toBeInTheDocument()
-    expect(useChatStore.getState().sessions.get('thread-1')?.selectedModel.id).toBe(gpt4.id)
+    expect(useChatStore.getState().sessions.get('thread-1')?.selectedModel?.id).toBe(gpt4.id)
 
     act(() => useChatStore.getState().setModels([]))
     expect(screen.queryByText('GPT-4')).toBeNull()

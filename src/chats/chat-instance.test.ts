@@ -328,7 +328,7 @@ describe('createAgentRoutingFetch — connection status', () => {
     connected.resolve({
       ...makeAdapter(builtInAgent),
       fetch: async (_init, context) => {
-        seenKeys.push(context.selectedModel.apiKey)
+        seenKeys.push(context.selectedModel?.apiKey ?? null)
         return new Response('ok')
       },
     })
@@ -367,7 +367,7 @@ describe('createAgentRoutingFetch — connection status', () => {
         await route.compact([], undefined, new AbortController().signal)
       }
       expect(seen).toHaveLength(1)
-      expect(seen[0].selectedModel.id).toBe(operation === 'prompt' ? 'm1' : 'm2')
+      expect(seen[0].selectedModel?.id).toBe(operation === 'prompt' ? 'm1' : 'm2')
     },
   )
 
@@ -2027,7 +2027,7 @@ const createWebRetryChat = (webCalls: number, errorText = '503: temporarily unav
     fetch: async (_init, context) => {
       const budget = context.webToolBudget!
       attempts.push(budget)
-      modelIds.push(context.selectedModel.id)
+      modelIds.push(context.selectedModel?.id ?? '')
       if (attempts.length === 1) {
         if (promote) {
           budget.promote('research')
@@ -2082,7 +2082,7 @@ describe('logical-turn web retry state through the SDK', () => {
       await instance.sendMessage({ text: 'Research a topic' })
       useChatStore.getState().setModels(change === 'removed' ? [] : [{ ...testModels[0], enabled: 0 }])
       // The placeholder deliberately retains its old key, but no request may use it.
-      expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel.apiKey).toBe('secret')
+      expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel?.apiKey).toBe('secret')
       if (retry === 'manual') {
         await instance.regenerate()
       } else {
@@ -2153,7 +2153,7 @@ describe('logical-turn web retry state through the SDK', () => {
         const alternative = { ...testModels[1], apiKey: 'other-key' }
         useChatStore.getState().setModels([{ ...testModels[0], enabled: 0 }, ...(hasAlternative ? [alternative] : [])])
         if (hasAlternative) {
-          expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel.id).toBe('m2')
+          expect(useChatStore.getState().sessions.get(sessionId)?.selectedModel?.id).toBe('m2')
         }
         await getClock().tickAsync(60_000)
         expect(attempts).toHaveLength(1)

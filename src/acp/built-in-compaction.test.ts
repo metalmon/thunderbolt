@@ -74,7 +74,7 @@ const fixture = (
     },
   }
   const adapter = () =>
-    createBuiltInAdapter(builtInAgent, { prepareConfig: async () => ({ ...config, model: context.selectedModel }) })
+    createBuiltInAdapter(builtInAgent, { prepareConfig: async () => ({ ...config, model: context.selectedModel! }) })
   const context: AgentAdapterContext = {
     threadId: crypto.randomUUID(),
     chatThread: null,
@@ -395,7 +395,7 @@ describe('built-in compaction integration', () => {
         f.context.httpClient,
         f.context.getProxyFetch,
         {
-          getAvailableModels: async () => [f.context.selectedModel],
+          getAvailableModels: async () => [f.context.selectedModel!],
           getChatReasoningEffort: async () => undefined,
           getOrConnectAdapter: async () => adapter,
           createChat: () => createMockChatInstance(messages),
@@ -406,7 +406,7 @@ describe('built-in compaction integration', () => {
         id: f.context.threadId,
         chatInstance: instance,
         chatThread: createMockChatThread(),
-        models: [f.context.selectedModel],
+        models: [f.context.selectedModel!],
         selectedModel: f.context.selectedModel,
         triggerData: null,
       })
@@ -442,7 +442,7 @@ describe('built-in compaction integration', () => {
       f.context.httpClient,
       f.context.getProxyFetch,
       {
-        getAvailableModels: async () => [f.context.selectedModel],
+        getAvailableModels: async () => [f.context.selectedModel!],
         getChatReasoningEffort: async () => undefined,
         getOrConnectAdapter: async () => adapter,
         createChat: () => createMockChatInstance(messages),
@@ -453,7 +453,7 @@ describe('built-in compaction integration', () => {
       id: f.context.threadId,
       chatInstance: instance,
       chatThread: createMockChatThread(),
-      models: [f.context.selectedModel],
+      models: [f.context.selectedModel!],
       selectedModel: f.context.selectedModel,
       triggerData: null,
     })
@@ -614,7 +614,7 @@ describe('built-in compaction integration', () => {
     expect(JSON.stringify(f.requests)).toContain('Preserve the decisions')
     expect(checkpoint.contextTokens).toBeLessThan(checkpoint.tokensBefore)
     transcript[3] = { ...transcript[3], metadata: { contextCompaction: JSON.parse(JSON.stringify(checkpoint)) } }
-    f.context.selectedModel = { ...f.context.selectedModel, model: 'another-model' }
+    f.context.selectedModel = { ...f.context.selectedModel!, model: 'another-model' }
     const second = f.adapter()
     const result = await metadata(await second.fetch(body([...transcript, user('Continue')]), f.context))
     expect(JSON.stringify(f.requests.at(-1))).toContain('Condensed previous task')

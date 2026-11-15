@@ -302,7 +302,7 @@ const prepareMessage = async (
         return { text: part.text, images: [], files: [] }
       }
       if (isAttachmentPart(part)) {
-        return prepareAttachment(part, isCurrentTurn, options, deps)
+        return prepareAttachment(part, isCurrentTurn, options, deps, citationIndexes.get(part) ?? 0)
       }
       return { text: '', images: [], files: [] }
     }),
@@ -349,11 +349,20 @@ export const prepareBuiltInConversation = async (
     throw new Error('Built-in adapter: current user message has no supported content')
   }
   const skillPrefix = skillInstructions?.length ? `${skillInstructions.join('\n\n')}\n\n` : ''
+  // Fork: the turn's documents, listed by the number the reply cites them as. It rides
+  // the TURN, never the system prompt: that one is fingerprinted by `harnessSignature`,
+  // so a per-turn list there would rebuild the whole harness on every send.
+  const documents = attachmentCitationNote(attachmentSourcesOfTurn(messages))
+  const documentsNote = documents
+    ? `
+
+${documents}`
+    : ''
   const files = [...previous.files, ...current.files]
   return {
     compaction: previous.compaction,
     history: turns.slice(0, -1),
-    prompt: { text: `${skillPrefix}${promptTurn.text}`, images: current.images },
+    prompt: { text: `${skillPrefix}${promptTurn.text}${documentsNote}`, images: current.images },
     files: [...new Map(files.map((file) => [file.path, file])).values()],
   }
 }

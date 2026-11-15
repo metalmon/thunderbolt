@@ -5,7 +5,7 @@
 import { deleteModel, getAllModels, resetModelToDefault, updateModel, updateSettings } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, spyOn, test } from 'bun:test'
 import { eq, isNull } from 'drizzle-orm'
 import type { AnyColumn } from 'drizzle-orm'
 import type { AnySQLiteTable } from 'drizzle-orm/sqlite-core'
@@ -21,6 +21,7 @@ import {
 import {
   defaultModelGlm53,
   defaultModelDeepSeekV41Flash,
+  defaultModelImageSupport,
   defaultModelOpus55,
   defaultModelsVersion,
   hashModel,
@@ -129,7 +130,12 @@ afterAll(async () => {
 describe('returning boot before initial sync', () => {
   test('skips read-only default passes while preserving rows, markers, and missing profile repair', async () => {
     const db = getDb()
-    await reconcileDefaults(db)
+    // Fork: the bundle is empty, so seed the fixture catalog — otherwise there is
+    // no profile row for the repair pass below to miss and restore.
+    await reconcileDefaults(db, {
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
+      profiles: fixtureProfiles,
+    })
 
     /** Read persisted defaults in stable order, including their version markers. */
     const snapshot = async () =>
@@ -141,12 +147,19 @@ describe('returning boot before initial sync', () => {
         db.select().from(settingsTable).orderBy(settingsTable.key),
       ])
     const before = await snapshot()
-    await db.delete(modelProfilesTable).where(eq(modelProfilesTable.modelId, defaultModelProfiles[0].modelId))
+    await db.delete(modelProfilesTable).where(eq(modelProfilesTable.modelId, fixtureProfiles[0].modelId))
 
     // Observe the real transaction's SQL without replacing its behavior.
     const prepareQuery = spyOn(SQLiteRemoteSession.prototype, 'prepareQuery')
     try {
-      await reconcileDefaults(db, { initialSyncCompleted: false })
+      // Fork: the repair pass resolves rows from the defaults it is given, and this
+      // fork bundles none — hand it the same fixture the seed used, or there is
+      // nothing to restore the deleted profile from.
+      await reconcileDefaults(db, {
+        initialSyncCompleted: false,
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
+        profiles: fixtureProfiles,
+      })
 
       const queries = prepareQuery.mock.calls.map(([query]) => query.sql)
       expect({
@@ -184,7 +197,7 @@ const fixtureProfiles = [
 describe('seedModels', () => {
   test('catalog updates and resets preserve effort without treating the model as customized', async () => {
     const db = getDb()
-    const original = defaultModels[0]
+    const original = fixtureModels[0]
     await reconcileDefaultsForTable(db, modelsTable, [original], hashModel)
     await updateModel(db, original.id, { reasoningEffort: 'high' })
 
@@ -1088,7 +1101,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: publishedVersion, data: published },
+      models: { version: publishedVersion, data: published, imageSupport: defaultModelImageSupport },
       profiles: [],
     })
 
@@ -1101,7 +1114,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
   test('fresh install applies bundle defaults and stamps the applied version', async () => {
     const db = getDb()
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1130,7 +1143,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1157,7 +1170,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1170,7 +1183,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Prime with the current bundle, then rewind to look like a prior version.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
     const targetId = fixtureModels[0].id
@@ -1185,7 +1198,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1201,7 +1214,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // its own confidential default, which this fork's bundle no longer ships.
     const seeded = fixtureModels[2]
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
     await db
@@ -1214,7 +1227,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1228,7 +1241,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
   test('user edits survive under both older and newer bundle passes', async () => {
     const db = getDb()
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1242,7 +1255,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .set({ value: String(defaultModelsVersion + 1) })
       .where(eq(settingsTable.key, modelsVersionKey))
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1259,7 +1272,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // readAppliedVersion treats non-numeric as null-version-but-exists → gate opens,
     // upsert must UPDATE the row. If it wrongly INSERTs, this throws on PK conflict.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1283,7 +1296,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1308,7 +1321,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1329,7 +1342,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1343,7 +1356,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Seed at the current bundle so all rows have their bundle's defaultHash.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1363,7 +1376,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1381,7 +1394,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // settings) don't exist yet, but the rows themselves were already
     // seeded by earlier reconcile runs and their hashes match the bundle.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1394,7 +1407,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await db.delete(settingsTable).where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1411,7 +1424,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     const db = getDb()
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1438,7 +1451,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1469,7 +1482,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Seed at the current bundle so every skills row hashes to target.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1480,7 +1493,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     await db.delete(settingsTable).where(eq(settingsTable.key, 'defaults_version.skills'))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1490,7 +1503,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
   test('runGatedPass does not advance marker when every editable skill row is user-edited', async () => {
     const db = getDb()
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1509,7 +1522,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, 'defaults_version.skills'))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1535,7 +1548,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1560,7 +1573,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1574,7 +1587,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Seed at the current bundle so profiles get their defaultHash.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1601,7 +1614,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
       .where(eq(settingsTable.key, modelsVersionKey))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1634,7 +1647,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1660,7 +1673,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1689,7 +1702,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // default source would reconcile nothing and the legacy row would stand.
     await reconcileDefaults(db, {
       initialSyncCompleted: false,
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1733,7 +1746,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
     // Prime with the current bundle so both model and profile carry their
     // authoring hashes.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1766,7 +1779,7 @@ describe('reconcileDefaults version gate (THU-637)', () => {
 
     // Seed at the current bundle so all rows have their authoring hash.
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1928,7 +1941,7 @@ describe('widget skill reconciliation', () => {
     })
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1942,7 +1955,7 @@ describe('widget skill reconciliation', () => {
   test('newer defaults update contract content while preserving enabled and pinned state', async () => {
     const db = getDb()
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -1962,7 +1975,7 @@ describe('widget skill reconciliation', () => {
       .where(eq(settingsTable.key, versionMarkerKeys.skills))
 
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 
@@ -2008,7 +2021,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       test('fresh install seeds defaults and stamps the applied version', async () => {
         const db = getDb()
         await reconcileDefaults(db, {
-          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
           profiles: fixtureProfiles,
         })
 
@@ -2036,7 +2049,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         // default source would reconcile nothing and the legacy row would stand.
         await reconcileDefaults(db, {
           initialSyncCompleted: false,
-          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
           profiles: fixtureProfiles,
         })
 
@@ -2048,7 +2061,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       test('newer bundle upgrades in place and advances the stored version', async () => {
         const db = getDb()
         await reconcileDefaults(db, {
-          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
           profiles: fixtureProfiles,
         })
 
@@ -2067,7 +2080,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
           .where(eq(settingsTable.key, c.versionKey))
 
         await reconcileDefaults(db, {
-          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
           profiles: fixtureProfiles,
         })
 
@@ -2091,7 +2104,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         })
 
         await reconcileDefaults(db, {
-          models: { version: defaultModelsVersion, data: [...fixtureModels] },
+          models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
           profiles: fixtureProfiles,
         })
 
@@ -2131,7 +2144,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
     test('fresh install seeds defaults and stamps the applied version', async () => {
       const db = getDb()
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2172,7 +2185,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       // default source would reconcile nothing and the legacy row would stand.
       await reconcileDefaults(db, {
         initialSyncCompleted: false,
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2184,7 +2197,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
     test('newer bundle upgrades in place and advances the stored version', async () => {
       const db = getDb()
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2208,7 +2221,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         .where(eq(settingsTable.key, 'defaults_version.settings'))
 
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2232,7 +2245,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       })
 
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2259,7 +2272,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
       // Reconcile no longer lays down null-valued rows, so create the one this
       // test edits the way an older build would have.
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
       await db.insert(settingsTable).values({ key: 'preferred_name', value: null })
@@ -2282,7 +2295,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
         .where(eq(settingsTable.key, target.key))
 
       await reconcileDefaults(db, {
-        models: { version: defaultModelsVersion, data: [...fixtureModels] },
+        models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
         profiles: fixtureProfiles,
       })
 
@@ -2308,7 +2321,7 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
     // row and the settings marker must land on this pass.
     const db = getDb()
     await reconcileDefaults(db, {
-      models: { version: defaultModelsVersion, data: [...fixtureModels] },
+      models: { version: defaultModelsVersion, data: [...fixtureModels], imageSupport: defaultModelImageSupport },
       profiles: fixtureProfiles,
     })
 

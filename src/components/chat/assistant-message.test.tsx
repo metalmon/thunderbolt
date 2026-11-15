@@ -352,27 +352,37 @@ it('passes message streaming lifecycle to the real text renderer', () => {
   expect(container.textContent).toBe(text.trim())
 })
 
-it('renders an ACP compaction row between the surrounding assistant text', () => {
-  const message: ThunderboltUIMessage = {
-    id: 'remote',
-    role: 'assistant',
-    parts: [
-      { type: 'text', text: 'Before compaction' },
-      {
-        type: 'data-acp-compaction',
-        id: 'event',
-        data: { agentId: 'agent', sessionId: 's', compactionId: 'c', status: 'completed' },
-      },
-      { type: 'text', text: 'After compaction' },
-    ],
-  }
-  const { container } = render(
-    <ContentViewProvider>
-      <AssistantMessage message={message} isStreaming={false} />
-    </ContentViewProvider>,
-  )
-  expect(container.textContent).toContain('Before compactionCompactedAfter compaction')
-  cleanup()
+// Fork: AssistantMessage reads the DB (collapse-reasoning), so this upstream test
+// needs a DatabaseProvider and a seeded DB that its bare render did not supply.
+describe('ACP compaction row', () => {
+  beforeAll(setupTestDatabase)
+  afterAll(teardownTestDatabase)
+
+  it('renders an ACP compaction row between the surrounding assistant text', () => {
+    const message: ThunderboltUIMessage = {
+      id: 'remote',
+      role: 'assistant',
+      parts: [
+        { type: 'text', text: 'Before compaction' },
+        {
+          type: 'data-acp-compaction',
+          id: 'event',
+          data: { agentId: 'agent', sessionId: 's', compactionId: 'c', status: 'completed' },
+        },
+        { type: 'text', text: 'After compaction' },
+      ],
+    }
+    const Provider = createTestProvider()
+    const { container } = render(
+      <Provider>
+        <ContentViewProvider>
+          <AssistantMessage message={message} isStreaming={false} />
+        </ContentViewProvider>
+      </Provider>,
+    )
+    expect(container.textContent).toContain('Before compactionCompactedAfter compaction')
+    cleanup()
+  })
 })
 
 describe('ui:// canvas dispatch', () => {

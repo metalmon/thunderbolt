@@ -21,6 +21,7 @@ import { clearNullableColumns, nowIso } from '../lib/utils'
 import type { DrizzleQueryWithPromise, Model } from '@/types'
 import { getLastMessage } from './chat-messages'
 import { createDefaultModelProfile, deleteModelProfileForModel } from './model-profiles'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { usesLocalProviders } from '@/lib/provider-mode'
 import { isModelReady } from '@/settings/models/model-policy'
 
@@ -108,8 +109,13 @@ const selectModelsWithSecrets = (db: AnyDrizzleDatabase) =>
  * Returns an empty array in server mode, so the spread adds nothing and the
  * query is byte-for-byte upstream's there. The condition itself is upstream's
  * `standaloneModelCondition`, extended with our `managed` lane.
+ *
+ * Gated on the fork's own `isLocalMode()`, NOT upstream's `usesLocalProviders()`:
+ * the question here is whether this INSTALL has a backend, not whether the device
+ * happens to be signed out of one it has. Upstream's predicate is the right one at
+ * the display boundary, and the models page still applies it there.
  */
-const excludeBackendLanes = (): SQL[] => (usesLocalProviders() ? [standaloneModelCondition] : [])
+const excludeBackendLanes = (): SQL[] => (isLocalMode() ? [standaloneModelCondition] : [])
 
 /**
  * Gets all models from the database (excluding soft-deleted)
@@ -136,6 +142,10 @@ export const getAvailableModels = (db: AnyDrizzleDatabase) => {
         providerVisibilityCondition,
         isNull(modelsTable.deletedAt),
         usesLocalProviders() ? standaloneModelCondition : undefined,
+        // Fork: an autonomous INSTALL hides the same lanes whatever the session
+        // says — upstream's predicate above only covers a device signed out of a
+        // server it has.
+        ...excludeBackendLanes(),
       ),
     )
     .orderBy(desc(modelsTable.isSystem), modelsTable.name)

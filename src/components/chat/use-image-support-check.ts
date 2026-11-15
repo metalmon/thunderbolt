@@ -89,7 +89,7 @@ export const useImageSupportCheck = ({
   // Subscribed so a declaration arriving with `/config` mid-session replaces the
   // query's answer, which is seeded once and never refetched.
   const serverModels = useConfigStore((state) => state.config.defaults?.models)
-  const staticSupport = getStaticImageSupport(model, pickImageSupportLineup(serverModels))
+  const staticSupport = model ? getStaticImageSupport(model, pickImageSupportLineup(serverModels)) : undefined
 
   const query = useQuery({
     queryKey,
