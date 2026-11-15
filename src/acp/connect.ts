@@ -24,7 +24,7 @@
 import type { HttpClient } from '@/lib/http'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import type { Agent, AgentAdapter } from '@/types/acp'
-import { getAllSkills } from '@/dal'
+import { getAgentSecrets, getAllSkills } from '@/dal'
 import { isAgentActive } from '@/dal/agents'
 import { getDb } from '@/db/database'
 import { createAgentUnavailableError } from '@/lib/error-utils'
