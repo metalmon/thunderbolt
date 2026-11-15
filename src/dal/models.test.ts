@@ -15,7 +15,7 @@ import {
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { eq } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
-import { defaultModelOpus55, hashModel } from '@shared/defaults/models'
+import { defaultModelDeepSeekV41Flash, defaultModelGlm53, defaultModelOpus55, hashModel } from '@shared/defaults/models'
 import { isModelModified } from '@/defaults/utils'
 import type { Model } from '@/types'
 import {
@@ -47,6 +47,11 @@ beforeAll(async () => {
 afterAll(async () => {
   await teardownTestDatabase()
 })
+
+/** Fork: upstream's three bundled rows, which this fork ships as an EMPTY
+ *  `defaultModels` (system models arrive from the backend). The cases below are
+ *  about how a bundled catalog behaves, so they bring it themselves. */
+const bundledModels = [defaultModelOpus55, defaultModelDeepSeekV41Flash, defaultModelGlm53]
 
 describe('Models DAL', () => {
   beforeEach(async () => {
@@ -314,7 +319,7 @@ describe('Models DAL', () => {
     it('gates OAuth models on connection access without changing model preferences or BYOK access', async () => {
       const db = getDb()
       useLocalSettingsStore.setState({ cloudUrl: '' })
-      await db.insert(modelsTable).values([...defaultModels])
+      await db.insert(modelsTable).values(bundledModels)
       await createModel(db, {
         id: 'oauth',
         name: 'OAuth',
@@ -357,7 +362,7 @@ describe('Models DAL', () => {
     it('offers only user-run models and prefers one over the managed default without a server', async () => {
       useLocalSettingsStore.setState({ cloudUrl: '' })
       const db = getDb()
-      await db.insert(modelsTable).values([...defaultModels])
+      await db.insert(modelsTable).values(bundledModels)
       await createModel(db, {
         id: 'local-model',
         provider: 'custom',
@@ -375,7 +380,7 @@ describe('Models DAL', () => {
     it('keeps a non-runnable default placeholder when no user model has been added yet', async () => {
       useLocalSettingsStore.setState({ cloudUrl: '' })
       const db = getDb()
-      await db.insert(modelsTable).values([...defaultModels])
+      await db.insert(modelsTable).values(bundledModels)
       expect(await getAvailableModels(db)).toEqual([])
       expect((await getSelectedModel(db)).id).toBe(defaultModelDeepSeekV41Flash.id)
     })
@@ -383,7 +388,7 @@ describe('Models DAL', () => {
     it('does not offer server models just because a local user selected a server URL', async () => {
       useLocalSettingsStore.setState({ cloudUrl: 'https://server.example/v1', localMode: true })
       const db = getDb()
-      await db.insert(modelsTable).values([...defaultModels])
+      await db.insert(modelsTable).values(bundledModels)
       expect(await getAvailableModels(db)).toEqual([])
     })
 

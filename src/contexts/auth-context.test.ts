@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
 import { powersyncCredentialsInvalid } from '@/db/powersync/connector'
@@ -326,7 +327,7 @@ describe('auth client server isolation', () => {
   it('rejects stale-tab credentials and callbacks before the settings event is delivered', () => {
     const options = buildFetchOptions('web')
     const settings = useLocalSettingsStore.getState()
-    localStorage.setItem('thunderbolt-local-settings', JSON.stringify({ state: { ...settings, cloudUrl: nextServer } }))
+    localStorage.setItem(localSettingsStorageName, JSON.stringify({ state: { ...settings, cloudUrl: nextServer } }))
     localStorage.setItem(authTokenKey, JSON.stringify({ token: 'next-token', cloudUrl: nextServer }))
 
     expect(options.auth.token()).toBe('')

@@ -50,6 +50,7 @@ open-meteo напрямую и нашего бэкенда не касается
 | `src/search/commands/use-commands.ts`       | команды, требующие сервера, убраны                      |
 | `src/settings/preferences.tsx`              | синхронизация и удаление учётной записи скрыты          |
 | `src/chats/use-hydrate-chat-store.ts`       | владелец агентов не ищется через клиент авторизации     |
+| `src/lib/server-connection.ts`              | срабатывает только когда пользователь сам назвал адрес  |
 
 ### 4.1.1. Заменены своей полосой
 
@@ -74,7 +75,7 @@ open-meteo напрямую и нашего бэкенда не касается
 
 `src/api/account.ts`, `src/api/encryption.ts`,
 `src/components/auth-gate/altcha.ts`, `src/components/device-approval.tsx`,
-`src/components/logout-modal.tsx`, `src/components/magic-link-verify.tsx`,
+`src/components/magic-link-verify.tsx`,
 `src/components/sso-redirect.tsx`,
 `src/components/sync-setup/use-confirm-identity-state.ts`,
 `src/contexts/sign-in-modal-context.tsx`,
@@ -84,13 +85,21 @@ open-meteo напрямую и нашего бэкенда не касается
 `src/lib/analytics/use-anonymous-promotion-analytics.ts`,
 `src/lib/device-removal.ts`, `src/lib/passkey.ts`,
 `src/lib/returning-user-onboarding.ts`, `src/lib/session-cache.ts`,
-`src/lib/sign-in-with-otp.ts`, `src/skills/telemetry.ts`,
+`src/lib/sign-in-with-otp.ts`, `src/lib/sign-out.ts`,
+`src/components/recovery-continuity/recovery-continuity-provider.tsx`,
 `src/components/share-debug-transcript/use-share-debug-transcript-state.ts`.
+
+0.1.167: `src/components/logout-modal.tsx` и `src/skills/telemetry.ts` больше не
+обращаются к серверу сами (выход переехал в `src/lib/sign-out.ts`), а
+`src/ai/inference-usage-receipt.ts` удалён апстримом — три строки сняты, одна
+добавлена. `src/components/recovery-continuity/recovery-continuity-provider.tsx`
+спрашивает сервер о непрерывности фразы восстановления: без учётной записи
+спрашивать не о чем.
 
 Агенты и их обслуживание — то же самое, плюс отсутствие адреса сервера:
 `src/hooks/use-bootstrap-system-agents.ts` (выходит на `!userId || !cloudUrl`),
 `src/db/seeding/seed-agents.ts`, `src/acp/managed-http-adapter.ts`,
-`src/lib/iroh-enrollment.ts`, `src/ai/inference-usage-receipt.ts`,
+`src/lib/iroh-enrollment.ts`,
 `src/mini-apps/mini-app-auth.ts`,
 `src/widgets/document-result/use-document-blob.ts`.
 
