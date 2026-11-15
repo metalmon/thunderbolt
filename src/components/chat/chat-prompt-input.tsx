@@ -358,7 +358,9 @@ const ChatPromptInputComponent = forwardRef<ChatPromptInputRef, ChatPromptInputP
     )
     const compactCommand = acpSession?.commands.find((command) => command.name === 'compact')
     const canCompact =
-      !!chatInstance.compactContext && (builtIn ? supportsPiCompaction(selectedModel) : !!compactCommand)
+      !!chatInstance.compactContext &&
+      // Fork: nullable model — nothing to compact when the built-in lane has none.
+      (builtIn ? !!selectedModel && supportsPiCompaction(selectedModel) : !!compactCommand)
     const isConnecting = connectionStatus === 'connecting'
     const isConnectionError = connectionStatus === 'error' && connectionError != null
 
@@ -1156,10 +1158,11 @@ const ChatPromptInputComponent = forwardRef<ChatPromptInputRef, ChatPromptInputP
             // Allow sending an attachment even with no typed text (matches the Enter behavior).
             canSubmit={!sendBlocked && (input.trim().length > 0 || attachments.length > 0 || quotes.length > 0)}
             isLoading={isBusy || isConnecting}
-            // Send↔Stop toggle follows the upstream active signal only — a queue-held
-            // turn (turnInFlight without an active stream) shows a DISABLED Send, not
-            // Stop; the turnInFlight union lives in `isBusy` (isLoading/submit gate).
-            isStreaming={baseIsActive}
+            // Send↔Stop toggle follows the upstream active signal plus compaction — a
+            // queue-held turn (turnInFlight without an active stream) shows a DISABLED
+            // Send, not Stop, so the turnInFlight union stays in `isBusy`
+            // (isLoading/submit gate). Compaction is Stoppable and must keep showing it.
+            isStreaming={baseIsActive || compacting}
             isStopping={isStopping}
             onStop={stop}
             // Desktop always autofocuses. The native mobile app autofocuses on a

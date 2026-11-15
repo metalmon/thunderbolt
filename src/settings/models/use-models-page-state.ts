@@ -32,7 +32,11 @@ export const useModelsPageState = () => {
   const isAddPanelOpen = panel?.kind === 'add'
   const activeModelId = panel?.kind === 'detail' || panel?.kind === 'edit' ? panel.modelId : null
   const { data: allModels = [] } = useQuery({
-    queryKey: ['models'],
+    // Fork: `getAllModels` bakes the backend-lane exclusion into the SQL (see
+    // `excludeBackendLanes`), read once when the query is BUILT. Keying on the
+    // reactive flag rebuilds it when the device signs in or out, so the hosted rows
+    // come back without a reload; the filter below stays as upstream wrote it.
+    queryKey: ['models', localProviders],
     query: toCompilableQuery(getAllModels(db)),
   })
   const models = allModels.filter(

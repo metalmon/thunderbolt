@@ -5,6 +5,7 @@
 import '@/testing-library'
 
 import { describe, expect, it } from 'bun:test'
+import { attachmentCitationNote, attachmentSourcesOfTurn } from '@/fork/citations/attachment-sources'
 import { xlsxMime } from '@/files/transformers'
 import type { StoredFile } from '@/lib/file-blob-storage'
 import type { ThunderboltUIMessage } from '@/types'
@@ -32,6 +33,27 @@ const message = (role: 'user' | 'assistant', parts: ThunderboltUIMessage['parts'
   role,
   parts,
 })
+
+/**
+ * Fork: a turn carrying attachments ends with a citation note naming each one, so
+ * the reply can cite it as `[N]` (`attachmentCitationNote`, covered by its own
+ * tests). Upstream's expectations describe the prompt without it — compose the
+ * two here rather than restating the note in every case.
+ */
+const withAttachmentNote = (text: string, ...filenames: string[]) =>
+  `${text}
+
+${attachmentCitationNote(
+  attachmentSourcesOfTurn([
+    message(
+      'user',
+      filenames.map((filename) => ({
+        type: 'data-attachment',
+        data: { localFileId: filename, filename, mimeType: 'text/plain' },
+      })),
+    ),
+  ]),
+)}`
 
 describe('prepareBuiltInConversation', () => {
   it('replays only turns after the latest checkpoint and drops a deleted checkpoint on regeneration', async () => {
@@ -236,7 +258,10 @@ describe('prepareBuiltInConversation', () => {
       )
 
       expect(prepared.prompt.text).toBe(
-        '[Attachment: notes.md — saved as attachments/n1/notes.md]\n\n# Notes\nship it\nSummarize',
+        withAttachmentNote(
+          '[Attachment: notes.md — saved as attachments/n1/notes.md]\n\n# Notes\nship it\nSummarize',
+          'notes.md',
+        ),
       )
       expect(prepared.files).toEqual([{ path: 'attachments/n1/notes.md', content: '# Notes\nship it' }])
     })
@@ -255,7 +280,10 @@ describe('prepareBuiltInConversation', () => {
         { path: 'attachments/c1/spend.tsv', content: 'payee\tamount\nHertz, LLC\t-99.5\n' },
       ])
       expect(prepared.prompt.text).toBe(
-        '[Attachment: spend.csv — saved as attachments/c1/spend.tsv]\n\npayee\tamount\nHertz, LLC\t-99.5',
+        withAttachmentNote(
+          '[Attachment: spend.csv — saved as attachments/c1/spend.tsv]\n\npayee\tamount\nHertz, LLC\t-99.5',
+          'spend.csv',
+        ),
       )
     })
 
@@ -286,7 +314,9 @@ describe('prepareBuiltInConversation', () => {
       )
 
       expect(prepared.files).toEqual([{ path: `attachments/k1/${filename}`, content: text }])
-      expect(prepared.prompt.text).toBe(`[Attachment: ${filename} — saved as attachments/k1/${filename}]\n\n${text}`)
+      expect(prepared.prompt.text).toBe(
+        withAttachmentNote(`[Attachment: ${filename} — saved as attachments/k1/${filename}]\n\n${text}`, filename),
+      )
     })
 
     it('truncates a long file to a preview with a marker pointing at the full file', async () => {
@@ -304,7 +334,9 @@ describe('prepareBuiltInConversation', () => {
       expect(lines[0]).toBe('[Attachment: big.csv — saved as attachments/big/big.tsv]')
       expect(lines).toContain('198\t396')
       expect(lines).not.toContain('199\t398')
-      expect(lines.at(-1)).toBe(
+      // Fork: the attachment-citation note sits after the preview marker, so the
+      // marker is no longer the last line — assert its presence instead.
+      expect(lines).toContain(
         '[Showing lines 1-200 of 1001. Compute over the full file with bash instead of answering from this preview. If the full file cannot be read, say so rather than answering from the preview.]',
       )
       expect(prepared.files[0].content.endsWith('\n')).toBe(true)
@@ -327,7 +359,9 @@ describe('prepareBuiltInConversation', () => {
       ['lines that land exactly on the character budget', `${'x'.repeat(7_999)}\n${'y'.repeat(8_000)}`],
       ['exactly 200 lines', Array.from({ length: 200 }, (_, index) => `line ${index}`).join('\n')],
     ])('keeps %s whole', async (_what, text) => {
-      expect(await promptFor(text)).toBe(`[Attachment: notes.txt — saved as attachments/t1/notes.txt]\n\n${text}`)
+      expect(await promptFor(text)).toBe(
+        withAttachmentNote(`[Attachment: notes.txt — saved as attachments/t1/notes.txt]\n\n${text}`, 'notes.txt'),
+      )
     })
 
     it('cuts by characters after the last line that fits', async () => {
@@ -350,7 +384,8 @@ describe('prepareBuiltInConversation', () => {
         depsFor([file]),
       )
 
-      expect(prepared.prompt.text).toBe('[Attachment: empty.csv]')
+      // Fork: a current-turn attachment is numbered so the reply can cite it.
+      expect(prepared.prompt.text).toBe(withAttachmentNote(`[Attachment 1: "empty.csv"]`, 'empty.csv'))
       expect(prepared.files).toEqual([])
     })
 
@@ -393,16 +428,19 @@ describe('prepareBuiltInConversation', () => {
         { path: 'attachments/x1/Q2_Q3.tsv', content: 'Name\nTab here\n' },
       ])
       expect(prepared.prompt.text).toBe(
-        [
-          '[Attachment: budget.xlsx — saved as attachments/x1/Q1.tsv, attachments/x1/Q2_Q3.tsv]',
-          '',
-          '## Sheet: Q1',
-          'Name\tCost',
-          'Rent\t10',
-          '## Sheet: Q2/Q3',
-          'Name',
-          'Tab here',
-        ].join('\n'),
+        withAttachmentNote(
+          [
+            '[Attachment: budget.xlsx — saved as attachments/x1/Q1.tsv, attachments/x1/Q2_Q3.tsv]',
+            '',
+            '## Sheet: Q1',
+            'Name\tCost',
+            'Rent\t10',
+            '## Sheet: Q2/Q3',
+            'Name',
+            'Tab here',
+          ].join('\n'),
+          'budget.xlsx',
+        ),
       )
     })
 
@@ -559,7 +597,11 @@ describe('prepareBuiltInConversation', () => {
       )
 
       expect(prepared.prompt.text).toBe(
-        '[Attachment: chart.png]\n[Attachment: gone.csv] (file unavailable on this device)',
+        withAttachmentNote(
+          `[Attachment 1: "chart.png"]\n[Attachment 2: "gone.csv"] (file unavailable on this device)`,
+          'chart.png',
+          'gone.csv',
+        ),
       )
       expect(prepared.prompt.images).toEqual([{ type: 'image', mimeType: 'image/png', data: 'cG5n' }])
       expect(prepared.files).toEqual([])

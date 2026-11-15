@@ -210,9 +210,9 @@ describe('AgentsSettingsPage — transparent same-account enrollment', () => {
     fireEvent.contextMenu(await waitForElement(() => screen.queryByRole('button', { name: 'Open Menu agent' })))
     fireEvent.click(await waitForElement(() => screen.queryByRole('menuitem', { name: 'Remove' })))
     expect(await waitForElement(() => screen.queryByRole('alertdialog'))).toHaveTextContent('Delete Menu agent?')
-    expect((await getAllAgents(getDb())).some((agent) => agent.id === 'menu-agent')).toBe(true)
+    expect((await getAllAgents(getDb(), authedSession.user.id)).some((agent) => agent.id === 'menu-agent')).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
-    expect((await getAllAgents(getDb())).some((agent) => agent.id === 'menu-agent')).toBe(true)
+    expect((await getAllAgents(getDb(), authedSession.user.id)).some((agent) => agent.id === 'menu-agent')).toBe(true)
   })
 
   it('does not enroll when editing an iroh agent', async () => {

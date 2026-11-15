@@ -45,8 +45,8 @@ const writeSyncedRow = (patch: Partial<typeof agentsTable.$inferInsert>) =>
   getDb().update(agentsTable).set(patch).where(eq(agentsTable.id, remoteAgent.id))
 
 const deactivations = [
-  ['disabled in Settings', () => updateAgent(getDb(), remoteAgent.id, { enabled: 0 })],
-  ['deleted in Settings', () => deleteAgent(getDb(), remoteAgent.id)],
+  ['disabled in Settings', () => updateAgent(getDb(), remoteAgent.id, { enabled: 0 }, 'u1')],
+  ['deleted in Settings', () => deleteAgent(getDb(), remoteAgent.id, 'u1')],
   ['disabled by a sync', () => writeSyncedRow({ enabled: 0 })],
   ['deleted by a sync', () => writeSyncedRow({ deletedAt: nowIso() })],
 ] as const
@@ -144,7 +144,7 @@ describe('sending from a chat whose agent was disabled or deleted', () => {
 
   it('sends again once the user moves the chat to another agent', async () => {
     const chat = openChat(remoteAgent)
-    await deleteAgent(getDb(), remoteAgent.id)
+    await deleteAgent(getDb(), remoteAgent.id, 'u1')
     await expect(chat.send()).rejects.toThrow('"kind":"agent-unavailable"')
 
     useChatStore.getState().updateSession(threadId, { selectedAgent: builtInAgent })

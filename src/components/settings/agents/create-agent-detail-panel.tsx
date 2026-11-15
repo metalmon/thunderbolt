@@ -11,7 +11,7 @@ import { irohClientNodeId } from '@/acp/iroh/iroh-transport'
 import { DetailPanel } from '@/components/detail-panel'
 import { useDatabase, useHttpClient } from '@/contexts'
 import { createAgent, setAgentSecrets } from '@/dal'
-import { useCurrentAgentOwner } from '@/fork/agents/agent-owner'
+import { localAgentOwnerId, useCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { fireAndForgetSelfEnrollment, selfEnrollIrohNodeId } from '@/lib/iroh-enrollment'
 import { createItemTitles } from '@/components/create-item/context'
 import { AddCustomAgentForm, type AddCustomAgentPayload } from './add-custom-agent-form'
@@ -59,7 +59,10 @@ export const CreateAgentDetailPanel = ({ onClose, loadAppNodeId, enrollIroh }: C
       await setAgentSecrets(db, id, { apiKey: payload.authToken, authMethod: 'bearer' }, currentUserId)
     }
     await queryClient.invalidateQueries({ queryKey: ['agents'] })
-    if (payload.transport === 'iroh' && currentUserId) {
+    // Fork: the device marker owns rows but is not an account, and self-enrollment
+    // posts the app's NodeId to the backend — which an autonomous install does not
+    // have. Enroll only for a real signed-in owner.
+    if (payload.transport === 'iroh' && currentUserId && currentUserId !== localAgentOwnerId) {
       fireAndForgetSelfEnrollment(runEnroll)
     }
   }

@@ -16,6 +16,8 @@ export const useModelNeedsSetup = (): boolean => {
   const needsOwnModel = useLocalProviders()
   return (
     isBuiltInAgent(selectedAgent) &&
-    !models.some((model) => model.id === selectedModel.id && isModelReady(model, needsOwnModel ? '' : cloudUrl))
+    // Fork: a nullable model matches nothing, which is the right answer — a
+    // built-in agent with no model is exactly what "needs setup" means.
+    !models.some((model) => model.id === selectedModel?.id && isModelReady(model, needsOwnModel ? '' : cloudUrl))
   )
 }

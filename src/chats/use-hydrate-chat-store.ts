@@ -299,10 +299,7 @@ export const useHydrateChatStore = ({
     // Taken before the reads below, so a sync that lands while they run is still caught.
     const syncCatchUp = isNew ? null : waitForSyncCatchUp()
 
-    // New IDs are minted locally and have no history, so their reads are skipped
-    // below. Fork: settings is read first rather than inside the group, because
-    // `resolveThreadModel` takes `selected_model` as its fallback.
-    const settings = await getSettings(db, { selected_model: String, selected_agent: String })
+    // New IDs are minted locally and have no history, so their reads are skipped below.
     // Fork: custom agents are read through their owner. The module store is the
     // common case; while it is still empty (this route's effect can run before the
     // app shell's) fall back to asking the auth client, so a thread never silently
