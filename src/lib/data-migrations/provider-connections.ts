@@ -153,6 +153,9 @@ export const migrateProviderConnections = async (db: AnyDrizzleDatabase): Promis
       if (
         !model.provider ||
         model.provider === 'thunderbolt' ||
+        // Fork: `managed` is the backend-keyed lane — the key lives on the server
+        // and never on the device, so there is no legacy credential to migrate.
+        model.provider === 'managed' ||
         (model.provider === 'tinfoil' && model.isSystem === 1)
       ) {
         continue

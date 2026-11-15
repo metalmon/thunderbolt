@@ -24,7 +24,7 @@ import { http } from '@/lib/http'
 import * as platform from '@/lib/platform'
 import type { OpenRouterConnectionOptions, OpenRouterManualConnection } from '@/lib/openrouter-auth'
 import type { OnboardingProvider } from './provider-default-model'
-import { defaultModelId, defaultModels } from '@shared/defaults/models'
+import { defaultModelOpenRouterFree } from '@shared/defaults/models'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { useSearchProviderStore } from '@/stores/search-provider-store'
 import { resetStore } from '@/test-utils/chat-store-mocks'
@@ -63,7 +63,9 @@ const makeDependencies = (overrides: Partial<Dependencies> = {}) => ({
   needsManual: () => false,
   openUrl: mock(async (_url: string | URL) => {}),
   prepareModel: mock(async (provider: OnboardingProvider, apiKey: string) => {
-    const preferred = defaultModels.find((model) => model.id === defaultModelId)!
+    // Fork: `defaultModels` ships EMPTY, so the row `defaultModelId` names comes
+    // from the exported const (same as `provider-default-model.ts`).
+    const preferred = defaultModelOpenRouterFree
     return {
       providerDefault: 1 as const,
       provider,
@@ -155,7 +157,7 @@ describe('useOnboardingProviderState', () => {
     const models = await getAvailableModels(getDb())
     expect(models).toHaveLength(1)
     expect(models[0].apiKey).toBe('openrouter-key')
-    expect(models[0].model).toBe(defaultModels.find((model) => model.id === defaultModelId)!.model)
+    expect(models[0].model).toBe(defaultModelOpenRouterFree.model)
     expect(models[0].isSystem).toBe(0)
     expect((await getSettings(getDb(), { selected_model: '' })).selectedModel).toBe(models[0].id)
     expect(result.current.addForm.form.getValues('apiKey')).toBe('')
@@ -386,7 +388,7 @@ describe('useOnboardingProviderState', () => {
     await act(async () => getClock().runAllAsync())
     expect(screen.getByRole('radio', { name: 'OpenRouter' })).toBeChecked()
     expect(screen.queryByText('Add another model')).not.toBeInTheDocument()
-    expect(screen.queryByText(defaultModels.find((model) => model.id === defaultModelId)!.name)).not.toBeInTheDocument()
+    expect(screen.queryByText(defaultModelOpenRouterFree.name)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
     expect(onContinue).not.toHaveBeenCalled()
     expect(screen.getByText('Connected')).toBeInTheDocument()
@@ -844,7 +846,7 @@ describe('useOnboardingProviderState', () => {
     expect(model.provider).toBe('tinfoil')
     expect(model.apiKey).toBe('tinfoil-key')
     expect(model.isConfidential).toBe(1)
-    expect(model.contextWindow).toBe(defaultModels.find((model) => model.id === defaultModelId)!.contextWindow)
+    expect(model.contextWindow).toBe(defaultModelOpenRouterFree.contextWindow)
     expect(deps.start).not.toHaveBeenCalled()
   })
 

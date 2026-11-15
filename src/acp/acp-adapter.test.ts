@@ -49,7 +49,6 @@ import { TransportTerminationError } from './termination'
 import type { AcpCommand } from './translators/acp-to-ai-sdk'
 import type { AcpCompaction, AcpSessionEvent } from './compaction'
 import { useAcpSessionStore } from './session-state-store'
-import { ZEROCLAW_DELIVER_CITE_NOTE } from '@/fork/zeroclaw/zc-deliver-cite-note'
 import { buildCanvasCapabilityMeta } from '@/fork/zeroclaw/canvas-negotiation'
 
 const remoteAgent: Agent = {
@@ -1502,7 +1501,7 @@ describe('connectAcpAdapter — Stop cancels the remote ACP turn', () => {
     expect(calls.cancel).toHaveLength(0)
   })
 
-  it('waits for an aborted prompt to settle before starting another prompt on the same session', async () => {
+  it('refuses a second prompt while the aborted one is still settling on the same session', async () => {
     const { transport } = buildFakeTransport()
     const { FakeConnection, calls, releasePrompts } = buildFakeConnection()
 
@@ -1521,32 +1520,32 @@ describe('connectAcpAdapter — Stop cancels the remote ACP turn', () => {
       await readSse(first)
     })
 
-    // Local stream is torn down, but the remote prompt is still gated open —
-    // a follow-up send must not race a second session/prompt onto the wire.
-    let secondStarted = false
-    const secondPromise = adapter
-      .fetch(promptInit('next'), threadCtx('thread-A', { acpSessionId: 'sess-1' }))
-      .then((response) => {
-        secondStarted = true
-        return response
-      })
-
-    await act(async () => {
-      await getClock().tickAsync(1)
-    })
-
-    expect(secondStarted).toBe(false)
+    // The local stream is torn down, but the remote prompt is still gated open.
+    //
+    // Fork note: this used to WAIT for the slot, which is what the fork wanted after
+    // Stop. Upstream's compaction work (#1429) added an explicit refusal here, and a
+    // wait would have to be bounded — an agent that never settles would otherwise hang
+    // the next send forever. The refusal is adopted as upstream wrote it: the send
+    // queue serializes the common case, and `isAcpSessionBusyError` keeps the retry
+    // loop from amplifying this one. What must stay true is that no second prompt
+    // reaches the wire while the first is open.
+    await expect(adapter.fetch(promptInit('next'), threadCtx('thread-A', { acpSessionId: 'sess-1' }))).rejects.toThrow(
+      'A prompt is already active for this session',
+    )
     expect(calls.prompt).toHaveLength(1)
 
-    let second: Response | undefined
     await act(async () => {
       releasePrompts()
       await getClock().runAllAsync()
-      second = await secondPromise
-      await readSse(second)
     })
 
-    expect(secondStarted).toBe(true)
+    // Once it settles the slot is free again, and the next send goes through.
+    const second = await adapter.fetch(promptInit('next'), threadCtx('thread-A', { acpSessionId: 'sess-1' }))
+    await act(async () => {
+      releasePrompts()
+      await getClock().runAllAsync()
+      await readSse(second)
+    })
     expect(calls.prompt).toHaveLength(2)
     expect(calls.cancel).toHaveLength(1)
   })

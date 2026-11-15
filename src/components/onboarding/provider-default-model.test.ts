@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, it, mock } from 'bun:test'
-import { defaultModelId, defaultModels } from '@shared/defaults/models'
+import { defaultModelOpenRouterFree } from '@shared/defaults/models'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import type { ConnectionTestProbe } from '@/hooks/use-model-connection-test'
 import { prepareProviderDefaultModel, resolveProviderDefaultModel } from './provider-default-model'
 
-const preferred = defaultModels.find((model) => model.id === defaultModelId)!
+// Fork: the shipped catalog is EMPTY, so the row `defaultModelId` names is taken
+// from the exported const instead of being looked up in the bundle.
+const preferred = defaultModelOpenRouterFree
 const getFetch = (): FetchFn =>
   Object.assign(
     async () => {

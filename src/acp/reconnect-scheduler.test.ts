@@ -350,8 +350,7 @@ describe('ReconnectScheduler', () => {
   it('reaches the timers the way a browser requires, not through its own receiver', async () => {
     const realSet = globalThis.setTimeout
     const realClear = globalThis.clearTimeout
-    const windowRule =
-      <T extends (...args: never[]) => unknown>(real: T) =>
+    const windowRule = <T extends (...args: never[]) => unknown>(real: T) =>
       function (this: unknown, ...args: Parameters<T>): ReturnType<T> {
         if (this !== undefined && this !== globalThis) {
           throw new TypeError('Illegal invocation')

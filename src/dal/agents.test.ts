@@ -274,7 +274,7 @@ describe('agents DAL', () => {
       })
       const cached = await seedCachedAdapter('a-off')
 
-      await updateAgent(getDb(), 'a-off', { enabled: 0 })
+      await updateAgent(getDb(), 'a-off', { enabled: 0 }, 'u1')
 
       expect(cached.disconnectCount()).toBe(1)
     })
@@ -291,7 +291,7 @@ describe('agents DAL', () => {
       })
       const cached = await seedCachedAdapter('a-on')
 
-      await updateAgent(getDb(), 'a-on', { enabled: 1 })
+      await updateAgent(getDb(), 'a-on', { enabled: 1 }, 'u1')
 
       expect(cached.disconnectCount()).toBe(0)
     })
@@ -310,7 +310,7 @@ describe('agents DAL', () => {
       await createAgent(getDb(), { ...custom, id: 'on' })
       await createAgent(getDb(), { ...custom, id: 'off', enabled: 0 })
       await createAgent(getDb(), { ...custom, id: 'gone' })
-      await deleteAgent(getDb(), 'gone')
+      await deleteAgent(getDb(), 'gone', 'u1')
       const asAgent = (id: string) => ({ ...custom, id, isSystem: 0 }) as Agent
 
       expect(await isAgentActive(getDb(), asAgent('on'))).toBe(true)
@@ -346,8 +346,8 @@ describe('agents DAL', () => {
     })
 
     it.each([
-      ['disabled', (id: string) => updateAgent(getDb(), id, { enabled: 0 })],
-      ['deleted', (id: string) => deleteAgent(getDb(), id)],
+      ['disabled', (id: string) => updateAgent(getDb(), id, { enabled: 0 }, 'u1')],
+      ['deleted', (id: string) => deleteAgent(getDb(), id, 'u1')],
     ])('stops the adapter cache from dialing an agent once it is %s', async (_, deactivate) => {
       await createAgent(getDb(), { ...custom, id: 'inactive' })
       const agent = { ...custom, id: 'inactive', isSystem: 0, enabled: 1, deletedAt: null } as Agent

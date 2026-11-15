@@ -441,10 +441,13 @@ export const createAgentRoutingFetch = (
         threadId: id,
         traceId: debugTranscriptTraceId,
         engine: debugTranscriptEngineFor(selectedAgent, telemetry),
+        // Fork: `selectedModel` is nullable here — an ACP agent brings its own.
+        // The transcript identity is a record of what ran, not a lookup, so the
+        // empty strings read as "the agent chose it" rather than inventing one.
         model: {
-          id: selectedModel.id,
-          name: selectedModel.model,
-          provider: selectedModel.provider,
+          id: selectedModel?.id ?? '',
+          name: selectedModel?.model ?? '',
+          provider: selectedModel?.provider ?? '',
         },
         agentId: selectedAgent.id,
         userMessageId: lastUserMessage?.id,
@@ -1113,15 +1116,12 @@ export const createChatInstance = (
           finishedTurn.telemetry?.endPhase('final_save')
         }
 
-        // Handle successful responses: message exists, no error, and has parts
-        if (!isError && message && message.parts?.length) {
-          const completedMessage = withDebugMetadata(finishedTurn, message)
-          if (retryCount > 0) {
-            trackEvent('chat_retry_success', {
-              attempts: retryCount + 1,
-              ...getTurnContextProperties(finishedTurn.telemetry, finishedTurn.modelProperties),
-            })
-          }
+        if (isAbort) {
+          // Settle the aborted turn so no spinner survives the stop,
+          // keyed off the trailing assistant message.
+          const lastIndex = instance.messages.length - 1
+          const lastMessage = instance.messages[lastIndex]
+          const completedMessage = message ? withDebugMetadata(finishedTurn, message) : undefined
 
           if (isEmptyAssistantMessage(lastMessage)) {
             // Stopped after the turn opened but before it produced anything (the
@@ -1149,192 +1149,218 @@ export const createChatInstance = (
             // streamed chunk would be lost on reload.
             await saveFinalMessage(completedMessage!)
           }
+          emitTurnCompleted(finishedTurn, 'abort', completedMessage)
+          resetRetryStateIfUnswapped()
+          return
+        }
 
-          // Handle successful responses with content or usage metadata.
-          if (!isError && message && !isEmptyAssistantMessage(message)) {
-            const completedMessage = withDebugMetadata(finishedTurn, message)
-            if (retryCount > 0) {
-              trackEvent('chat_retry_success', {
-                attempts: retryCount + 1,
-                ...getTurnContextProperties(finishedTurn.telemetry, finishedTurn.modelProperties),
-              })
-            }
-
-            const { sessions } = useChatStore.getState()
-
-            const session = sessions.get(id)
-
-            if (!session) {
-              throw new Error('No session found')
-            }
-
-            // Fork: stamp the emitting agent onto the completed assistant message so a
-            // `ui://` canvas action can be gated to the agent that produced it after a
-            // mid-thread agent switch. Stamps the live `instance.messages` copy AND the
-            // persisted one; never overwrites an existing (historical) stamp.
-            const stampedMessage = applyEmittingAgentStamp(
-              instance,
-              instance.messages,
-              completedMessage,
-              session.selectedAgent.id,
-            )
-            await saveFinalMessage(stampedMessage)
-
-            trackEvent('chat_receive_reply', {
-              ...finishedTurn.modelProperties,
-              length: completedMessage.parts.reduce(
-                (acc, part) => acc + (part.type === 'text' ? part.text.length : 0),
-                0,
-              ),
-              reply_number: instance.messages.length + 1,
-              ...getTraceProperties(finishedTurn.telemetry),
+        // Handle successful responses with content or usage metadata.
+        if (!isError && message && !isEmptyAssistantMessage(message)) {
+          const completedMessage = withDebugMetadata(finishedTurn, message)
+          if (retryCount > 0) {
+            trackEvent('chat_retry_success', {
+              attempts: retryCount + 1,
+              ...getTurnContextProperties(finishedTurn.telemetry, finishedTurn.modelProperties),
             })
+          }
 
-            emitTurnCompleted(finishedTurn, 'success', completedMessage)
+          const { sessions } = useChatStore.getState()
+
+          const session = sessions.get(id)
+
+          if (!session) {
+            throw new Error('No session found')
+          }
+
+          // Fork: stamp the emitting agent onto the completed assistant message so a
+          // `ui://` canvas action can be gated to the agent that produced it after a
+          // mid-thread agent switch. Stamps the live `instance.messages` copy AND the
+          // persisted one; never overwrites an existing (historical) stamp.
+          const stampedMessage = applyEmittingAgentStamp(
+            instance,
+            instance.messages,
+            completedMessage,
+            session.selectedAgent.id,
+          )
+          await saveFinalMessage(stampedMessage)
+
+          trackEvent('chat_receive_reply', {
+            ...finishedTurn.modelProperties,
+            length: completedMessage.parts.reduce(
+              (acc, part) => acc + (part.type === 'text' ? part.text.length : 0),
+              0,
+            ),
+            reply_number: instance.messages.length + 1,
+            ...getTraceProperties(finishedTurn.telemetry),
+          })
+
+          emitTurnCompleted(finishedTurn, 'success', completedMessage)
+          resetRetryStateIfUnswapped()
+          return
+        }
+
+        // Background chats have no mounted partial-save subscriber. Persist the
+        // final error snapshot here too, before retrying or leaving the turn idle.
+        // Keep a visible empty failed reply too, so reload cannot auto-run its
+        // trailing prompt. Silent commands never create that live assistant row.
+        if (
+          isError &&
+          message &&
+          (!isEmptyAssistantMessage(message) ||
+            instance.messages.some((item) => item.role === 'assistant' && item.id === message.id))
+        ) {
+          const completedMessage = withDebugMetadata(finishedTurn, finalizeReasoning(message))
+          instance.messages = instance.messages.map((item) => (item.id === message.id ? completedMessage : item))
+          await saveFinalMessage(completedMessage)
+          if (currentTurn !== finishedTurn) {
+            emitTurnCompleted(finishedTurn, 'error', completedMessage)
+            return
+          }
+        }
+
+        // Agent commands may finish silently. Retrying a compaction command can
+        // compact twice; only an explicit user action should send it again.
+        if (instance.messages.findLast((item) => item.role === 'user')?.metadata?.acpCommand) {
+          if (isError) {
+            markRetriesExhausted(finishedTurn)
+          } else {
+            emitTurnCompleted(finishedTurn, 'success', message)
             resetRetryStateIfUnswapped()
+          }
+          return
+        }
+
+        // The agent was disabled or deleted, possibly after the prompt was saved. Flag
+        // it like a stopped prompt so a reload never auto-runs it on a fallback agent.
+        if (getChatErrorKind(lastError) === 'agent-unavailable') {
+          const refusedPrompt = setPromptStopped(true)
+          if (refusedPrompt && useChatStore.getState().sessions.get(id)?.chatThread) {
+            await saveMessages({ id, messages: [refusedPrompt] })
+          }
+          markRetriesExhausted(finishedTurn)
+          return
+        }
+
+        // A transport loss may have interrupted the turn after the agent performed
+        // side effects. Only the user may choose to submit it again.
+        if (getChatErrorKind(lastError) === 'connection-lost') {
+          markRetriesExhausted(finishedTurn)
+          return
+        }
+
+        // A model that rejects tools rejects the identical retry too.
+        if (isToolSupportRejectionError(lastError)) {
+          markRetriesExhausted(finishedTurn)
+          return
+        }
+
+        // The hosted agent refuses a turn while the previous reply still runs. That
+        // clears on its own, so it takes the retry loop below on a longer delay.
+        const isRunInProgress = isAgentRunInProgressError(lastError)
+
+        // Don't auto-retry rate limit errors — retrying immediately makes it worse
+        if (isRateLimitError(lastError) && !isRunInProgress) {
+          markRetriesExhausted(finishedTurn)
+          lastError = null
+          return
+        }
+
+        // Fork: don't auto-retry ACP SESSION_BUSY — the prior turn still owns the
+        // slot (common right after Stop). Blind retries worsen the race.
+        if (isAcpSessionBusyError(lastError)) {
+          lastError = null
+          useChatStore.getState().updateSession(id, { retriesExhausted: true })
+          return
+        }
+
+        // Don't burn retries on errors that won't succeed on identical input:
+        // context overflow, or anything the provider marks non-retryable (4xx
+        // content/auth errors, unsupported content). Transient errors — 408/409,
+        // 5xx, network — keep `isRetryable !== false` and fall through to the retry
+        // loop. (The "Retrying…" UI on a deterministic error would be a lie.)
+        //
+        // Content rejections (400/422) are excluded too, even when the provider
+        // leaves `isRetryable` undefined: they're owned by the attachment-remediation
+        // layer, which re-delivers (native→text→images) on its own. Retrying the
+        // identical payload here would overlap remediation's regenerate() and can't
+        // succeed anyway. Remediation surfaces the error itself once the ladder is
+        // exhausted, so bailing here doesn't swallow it.
+        if (
+          isContextOverflowError(lastError) ||
+          isContentRejectionError(lastError) ||
+          getErrorRetryable(lastError) === false
+        ) {
+          markRetriesExhausted(finishedTurn)
+          return
+        }
+
+        // Regeneration discards this attempt's research history. Once its web
+        // budget is spent, keep the partial response and let the user choose Retry.
+        if (routingState.webToolBudgetState?.budget.probe.isExhausted) {
+          markRetriesExhausted(finishedTurn, 'web_budget_exhausted')
+          return
+        }
+
+        const isEmptyTurn = !isError && !lastError && (!message || isEmptyAssistantMessage(message))
+        const retryReason = getChatErrorKind(lastError) ?? (isEmptyTurn ? emptyResponseRetryReason : 'unknown')
+
+        if (retryCount < maxRetries) {
+          const attemptsMade = getAttemptsMade()
+          if (turnBudget.probe.isExhausted) {
+            finishedTurn.telemetry?.recordRetry({
+              layer: 'turn_budget',
+              reason: 'request_budget_exhausted',
+              attempt: retryCount + 1,
+            })
+            if (finishedTurn.traceId) {
+              recordDebugTranscriptRetry(id, finishedTurn.traceId, 'request_budget_exhausted', attemptsMade)
+            }
+            markRetriesExhausted(finishedTurn, retryReason)
             return
           }
 
-          // Background chats have no mounted partial-save subscriber. Persist the
-          // final error snapshot here too, before retrying or leaving the turn idle.
-          // Keep a visible empty failed reply too, so reload cannot auto-run its
-          // trailing prompt. Silent commands never create that live assistant row.
-          if (
-            isError &&
-            message &&
-            (!isEmptyAssistantMessage(message) ||
-              instance.messages.some((item) => item.role === 'assistant' && item.id === message.id))
-          ) {
-            const completedMessage = withDebugMetadata(finishedTurn, finalizeReasoning(message))
-            instance.messages = instance.messages.map((item) => (item.id === message.id ? completedMessage : item))
-            await saveFinalMessage(completedMessage)
-            if (currentTurn !== finishedTurn) {
-              emitTurnCompleted(finishedTurn, 'error', completedMessage)
+          retryCount++
+          useChatStore.getState().updateSession(id, { retryCount })
+          console.info(`Auto-retrying (${retryCount}/${maxRetries})...`)
+
+          const retryDelayMs = getTurnRetryDelay(retryCount, { isEmptyTurn, isRunInProgress })
+
+          trackEvent('chat_auto_retry', {
+            attempt: retryCount,
+            max_retries: maxRetries,
+            reason: retryReason,
+            ...getTurnContextProperties(finishedTurn.telemetry, finishedTurn.modelProperties),
+          })
+          finishedTurn.telemetry?.recordRetry({
+            layer: 'auto_retry',
+            reason: retryReason,
+            attempt: retryCount + 1,
+          })
+          if (finishedTurn.traceId) {
+            recordDebugTranscriptRetry(id, finishedTurn.traceId, retryReason, attemptsMade)
+          }
+
+          retryTimeout = setTimeout(() => {
+            retryTimeout = null
+            const { sessions, currentSessionId } = useChatStore.getState()
+            // Only retry if the session still exists AND is still the current active session.
+            // This prevents retries from executing when the user has switched to a different thread.
+            if (!sessions.has(id) || currentSessionId !== id) {
+              finishRecordedTurn(finishedTurn, 'abort')
+              resetRetryStateForNewTurn()
+              useChatStore.getState().updateSession(id, { retriesExhausted: true })
               return
             }
-          }
-
-          // Agent commands may finish silently. Retrying a compaction command can
-          // compact twice; only an explicit user action should send it again.
-          if (instance.messages.findLast((item) => item.role === 'user')?.metadata?.acpCommand) {
-            if (isError) {
-              markRetriesExhausted(finishedTurn)
-            } else {
-              emitTurnCompleted(finishedTurn, 'success', message)
-              resetRetryStateIfUnswapped()
-            }
-            return
-          }
-
-          // The agent was disabled or deleted, possibly after the prompt was saved. Flag
-          // it like a stopped prompt so a reload never auto-runs it on a fallback agent.
-          if (getChatErrorKind(lastError) === 'agent-unavailable') {
-            const refusedPrompt = setPromptStopped(true)
-            if (refusedPrompt && useChatStore.getState().sessions.get(id)?.chatThread) {
-              await saveMessages({ id, messages: [refusedPrompt] })
-            }
-            markRetriesExhausted(finishedTurn)
-            return
-          }
-
-          // A transport loss may have interrupted the turn after the agent performed
-          // side effects. Only the user may choose to submit it again.
-          if (getChatErrorKind(lastError) === 'connection-lost') {
-            markRetriesExhausted(finishedTurn)
-            return
-          }
-
-          // A model that rejects tools rejects the identical retry too.
-          if (isToolSupportRejectionError(lastError)) {
-            markRetriesExhausted(finishedTurn)
-            return
-          }
-
-          // The hosted agent refuses a turn while the previous reply still runs. That
-          // clears on its own, so it takes the retry loop below on a longer delay.
-          const isRunInProgress = isAgentRunInProgressError(lastError)
-
-          // Don't auto-retry rate limit errors — retrying immediately makes it worse
-          if (isRateLimitError(lastError) && !isRunInProgress) {
-            markRetriesExhausted(finishedTurn)
-            lastError = null
-            return
-          }
-
-          // Don't auto-retry ACP SESSION_BUSY — the prior turn still owns the slot
-          // (common right after Stop). Blind retries worsen the race.
-          if (isAcpSessionBusyError(lastError)) {
-            lastError = null
-            useChatStore.getState().updateSession(id, { retriesExhausted: true })
-            return
-          }
-
-          // Don't burn retries on errors that won't succeed on identical input:
-          // context overflow, or anything the provider marks non-retryable (4xx
-          // content/auth errors, unsupported content). Transient errors — 408/409,
-          // 5xx, network — keep `isRetryable !== false` and fall through to the retry
-          // loop. (The "Retrying…" UI on a deterministic error would be a lie.)
-          //
-          // Content rejections (400/422) are excluded too, even when the provider
-          // leaves `isRetryable` undefined: they're owned by the attachment-remediation
-          // layer, which re-delivers (native→text→images) on its own. Retrying the
-          // identical payload here would overlap remediation's regenerate() and can't
-          // succeed anyway. Remediation surfaces the error itself once the ladder is
-          // exhausted, so bailing here doesn't swallow it.
-          if (
-            isContextOverflowError(lastError) ||
-            isContentRejectionError(lastError) ||
-            getErrorRetryable(lastError) === false
-          ) {
-            markRetriesExhausted(finishedTurn)
-            return
-          }
-
-          // Regeneration discards this attempt's research history. Once its web
-          // budget is spent, keep the partial response and let the user choose Retry.
-          if (routingState.webToolBudgetState?.budget.probe.isExhausted) {
-            markRetriesExhausted(finishedTurn, 'web_budget_exhausted')
-            return
-          }
-
-          const isEmptyTurn = !isError && !lastError && (!message || isEmptyAssistantMessage(message))
-          const retryReason = getChatErrorKind(lastError) ?? (isEmptyTurn ? emptyResponseRetryReason : 'unknown')
-
-          if (retryCount < maxRetries) {
-            const attemptsMade = getAttemptsMade()
-            if (turnBudget.probe.isExhausted) {
-              finishedTurn.telemetry?.recordRetry({
-                layer: 'auto_retry',
-                reason: retryReason,
-                attempt: retryCount + 1,
-              })
-              if (finishedTurn.traceId) {
-                recordDebugTranscriptRetry(id, finishedTurn.traceId, retryReason, attemptsMade)
-              }
-
-              retryTimeout = setTimeout(() => {
-                retryTimeout = null
-                const { sessions, currentSessionId } = useChatStore.getState()
-                // Only retry if the session still exists AND is still the current active session.
-                // This prevents retries from executing when the user has switched to a different thread.
-                if (!sessions.has(id) || currentSessionId !== id) {
-                  finishRecordedTurn(finishedTurn, 'abort')
-                  resetRetryStateForNewTurn()
-                  useChatStore.getState().updateSession(id, { retriesExhausted: true })
-                  return
-                }
-                regenerateResponse().catch((err) => {
-                  console.error('Auto-retry failed:', err)
-                  // Don't set retriesExhausted here - let onFinish handle retry logic.
-                  // When originalRegenerate() fails, onFinish will be called again and will
-                  // either schedule another retry (if retryCount < maxRetries) or set
-                  // retriesExhausted: true (if retries are exhausted).
-                })
-              }, retryDelayMs)
-            } else {
-              markRetriesExhausted(finishedTurn, retryReason)
-            }
-          }
+            regenerateResponse().catch((err) => {
+              console.error('Auto-retry failed:', err)
+              // Don't set retriesExhausted here - let onFinish handle retry logic.
+              // When originalRegenerate() fails, onFinish will be called again and will
+              // either schedule another retry (if retryCount < maxRetries) or set
+              // retriesExhausted: true (if retries are exhausted).
+            })
+          }, retryDelayMs)
+        } else {
+          markRetriesExhausted(finishedTurn, retryReason)
         }
       }
 

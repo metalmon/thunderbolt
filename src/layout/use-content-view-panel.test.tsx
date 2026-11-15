@@ -53,7 +53,8 @@ const setup = (savedWidth: number | null = 50) => {
     },
   }
   const hook = renderHook(
-    ({ isOpen, savedWidth }) => useContentViewPanel({ isOpen, savedWidth, panelRef, saveWidth }),
+    ({ isOpen, savedWidth }) =>
+      useContentViewPanel({ isOpen, savedWidth, panelRef, saveWidth, viewType: 'document', artifactWidth: null }),
     { initialProps: { isOpen: false, savedWidth } },
   )
   const setOpen = (isOpen: boolean, nextSavedWidth = savedWidth) => {

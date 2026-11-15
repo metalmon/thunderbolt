@@ -5,7 +5,13 @@
 import type { SharedModel } from '@shared/defaults/models'
 import { describe, expect, test } from 'bun:test'
 import { defaultAutomations, hashPrompt } from '../defaults/automations'
-import { defaultModelDeepSeekV41Flash, defaultModelGlm53, defaultModelOpus55, defaultModels, hashModel } from '@shared/defaults/models'
+import {
+  defaultModelDeepSeekV41Flash,
+  defaultModelGlm53,
+  defaultModelOpus55,
+  defaultModels,
+  hashModel,
+} from '@shared/defaults/models'
 
 /**
  * Model fixtures. `hashModel`'s behaviour is what these tests are about, and this

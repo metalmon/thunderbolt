@@ -8,9 +8,6 @@ import { i18n } from '@/i18n'
 import { createModel, getModel } from '@/dal'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { getDb } from '@/db/database'
-import { modelsTable } from '@/db/tables'
-import { eq } from 'drizzle-orm'
-import { stubJsonResponse } from '@/test-utils/http'
 import { renderWithReactivity, waitForElement } from '@/test-utils/powersync-reactivity-test'
 import { getClock } from '@/testing-library'
 import '@testing-library/jest-dom'
@@ -171,9 +168,15 @@ describe('ModelsPage reactivity', () => {
     act(() => useLocalSettingsStore.setState({ cloudUrl: 'https://cloud.example/v1' }))
     expect(screen.queryByText('Thunderbolt hosted model')).not.toBeInTheDocument()
     act(() => setAuthToken('cloud-session'))
-    expect(screen.getByText('Thunderbolt hosted model')).toBeInTheDocument()
+    // Fork: the backend lanes are excluded in SQL (see `excludeBackendLanes`), so
+    // signing in re-queries rather than re-filtering an already-loaded list — the
+    // rows return on the next tick instead of synchronously.
+    expect(await waitForElement(() => screen.queryByText('Thunderbolt hosted model'))).toBeInTheDocument()
     expect(screen.getByText('Thunderbolt private model')).toBeInTheDocument()
     act(() => clearAuthToken())
+    await act(async () => {
+      await getClock().runAllAsync()
+    })
     expect(screen.queryByText('Thunderbolt hosted model')).not.toBeInTheDocument()
     expect(screen.queryByText('Thunderbolt private model')).not.toBeInTheDocument()
     expect(screen.getByText('My OpenRouter model')).toBeInTheDocument()

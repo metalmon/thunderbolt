@@ -183,12 +183,14 @@ export const buildDocumentCitationPlaceholders = (
   return { fullText, citations }
 }
 
+// Streaming updates clone unchanged SDK parts; compare the inputs this renderer actually reads.
 export const TextPart = memo(
   ({ part, messageId, isStreaming = false, sources, haystackReferences, deliveredFiles }: TextPartProps) => {
     const isPartStreaming = isStreaming && part.state === 'streaming'
     const revealedText = useSmoothText(part.text, isPartStreaming)
     // The parser strips complete native citations; withhold their unfinished suffix to avoid syntax flashes.
     const text = isPartStreaming ? revealedText.replace(/【(?:\d+(?:†[^】]*)?)?$/, '') : revealedText
+    const privateSources = usePrivateSources(sources)
     const hasNewSources = !!sources && sources.length > 0
     const hasDocumentRefs = !!haystackReferences && haystackReferences.length > 0
     const hasDeliveredRefs = !!deliveredFiles && deliveredFiles.length > 0
@@ -272,7 +274,7 @@ export const TextPart = memo(
                       key={`${messageId}-text-${index}`}
                       id={`${messageId}-${index}`}
                       content={part.content}
-                      components={citationMarkdownComponents}
+                      components={privateSources ? privateSourceCitationMarkdownComponents : citationMarkdownComponents}
                     />
                   </div>
                 )
@@ -312,7 +314,12 @@ export const TextPart = memo(
           if (contentPart.type === 'text') {
             return (
               <div key={`text-${index}`} className="p-4 my-2">
-                <MemoizedMarkdown key={`${messageId}-text`} id={messageId} content={contentPart.content} />
+                <MemoizedMarkdown
+                  key={`${messageId}-text`}
+                  id={messageId}
+                  content={contentPart.content}
+                  components={privateSources ? privateSourceMarkdownComponents : undefined}
+                />
               </div>
             )
           }
@@ -332,6 +339,17 @@ export const TextPart = memo(
       </>
     )
   },
+  (previous, next) =>
+    previous.part.text === next.part.text &&
+    previous.part.state === next.part.state &&
+    previous.messageId === next.messageId &&
+    (Boolean(previous.isStreaming) && previous.part.state === 'streaming') ===
+      (Boolean(next.isStreaming) && next.part.state === 'streaming') &&
+    previous.sources === next.sources &&
+    previous.haystackReferences === next.haystackReferences &&
+    // Fork: the delivered-files prop drives its own citation builder, so it joins
+    // the inputs this renderer reads — without it a new delivery never repaints.
+    previous.deliveredFiles === next.deliveredFiles,
 )
 
 TextPart.displayName = 'TextPart'

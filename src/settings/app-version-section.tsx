@@ -71,7 +71,10 @@ export const AppVersionSection = () => {
   const mobile = isMobile()
   const { enabled, status, update, error, errorPhase, downloadProgress, primaryAction, checkForUpdates } =
     useDesktopUpdate()
-  const showCheckButton = isTauri() && (enabled || mobile)
+  // Fork: `enabled` already honours VITE_UPDATER_ENABLED for desktop (the flag is
+  // read inside useDesktopUpdate), but the mobile arm bypasses it — so the build
+  // flag is applied once more here, where every surface passes.
+  const showCheckButton = isTauri() && (enabled || mobile) && isUpdaterEnabled()
   const checkDisabled = desktop && (status === 'checking' || status === 'downloading' || status === 'restarting')
 
   const handleDesktopCheck = () => {

@@ -23,7 +23,6 @@ import { updateSettings } from '@/dal/settings'
 import { getModel, updateModel } from '@/dal/models'
 import { saveProviderConnection } from '@/dal/provider-connections'
 import * as modelPrewarm from '@/ai/prewarm-tinfoil-model'
-import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { saveMessagesWithContextUpdate } from '@/dal/chat-messages'
 import type { ThunderboltUIMessage } from '@/types'
 import { createElement, type ReactNode } from 'react'
@@ -324,7 +323,7 @@ describe('useHydrateChatStore', () => {
           })
           expect(prewarm).toHaveBeenCalledTimes(1)
           expect(prewarm).toHaveBeenCalledWith(getCurrentSession()?.selectedModel)
-          expect(getCurrentSession()?.selectedModel.id).toBe(modelId)
+          expect(getCurrentSession()?.selectedModel?.id).toBe(modelId)
           prewarm.mockClear()
           await act(async () => {
             await result.current.hydrateChatStore()
