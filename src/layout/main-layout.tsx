@@ -11,7 +11,6 @@ import { ResponsiveModalContentComposable } from '@/components/ui/responsive-mod
 import { SidebarInset } from '@/components/ui/sidebar'
 import { ActiveContentView } from '@/content-view/active-content-view'
 import { useContentView } from '@/content-view/context'
-import { openTargetWidth } from '@/content-view/panel-width'
 import { useIsMobile, useIsNativeMobile } from '@/hooks/use-mobile'
 import { edgeSpacing } from '@/lib/constants'
 import { isTauri, isTauriDesktop } from '@/lib/platform'
