@@ -8,6 +8,7 @@
 // `isStandalone` and a fetch override so tests can wire fakes via constructor
 // arguments — pure dependency injection.
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { encodeWsBearer } from '@shared/ws-bearer'
 import { encodeBase64Url } from '@shared/base64url'
@@ -48,7 +49,7 @@ describe('retired server transports', () => {
     })
     const socket = createProxyWebSocket({ cloudUrl: settings.cloudUrl, getAuthToken: token, isStandalone: () => false })
     localStorage.setItem(
-      'thunderbolt-local-settings',
+      localSettingsStorageName,
       JSON.stringify({ state: { ...settings, cloudUrl: 'https://other.example/v1' } }),
     )
     try {

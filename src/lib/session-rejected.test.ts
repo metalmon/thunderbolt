@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { setAuthToken } from './auth-token'
 import { handleSessionRejected } from './session-rejected'
@@ -73,7 +74,7 @@ describe('handleSessionRejected', () => {
         if (windowSource === 'this window') {
           useLocalSettingsStore.setState(settings)
         } else {
-          localStorage.setItem('thunderbolt-local-settings', JSON.stringify({ state: settings }))
+          localStorage.setItem(localSettingsStorageName, JSON.stringify({ state: settings }))
         }
         finishedReading.resolve({ code: 'UNAUTHENTICATED' })
         await pending
