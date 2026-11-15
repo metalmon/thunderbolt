@@ -289,8 +289,7 @@ export const createRealtimeSession = (options: RealtimeSessionOptions): VoiceSes
     }
 
     // Process server events in the background for the lifetime of the session.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    processEvents(engine.events())
+    void processEvents(engine.events())
 
     const capture = createMicCapture(onFrame)
     await capture.start()

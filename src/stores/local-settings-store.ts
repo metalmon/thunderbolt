@@ -131,6 +131,11 @@ export const mergeLocalSettings = (persistedState: unknown, currentState: LocalS
     ...persisted,
     localMode: persisted.localMode ?? !cloudUrl,
     serverHasAuthenticated: persisted.serverHasAuthenticated ?? !!cloudUrl,
+    // Fork: the merge above is shallow, so a `voiceProvider` persisted before the
+    // Gemini Live fields existed would arrive without them and crash the voice
+    // settings (geminiVoices[undefined].map / personality.trim()). Deep-merge the
+    // one nested object we own so an upgrade falls back to its defaults.
+    voiceProvider: { ...currentState.voiceProvider, ...(persisted.voiceProvider ?? {}) },
   }
 }
 
@@ -162,20 +167,6 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
       // zustand types this as the whole store, but merges it over the initial
       // state, so stored data missing a key keeps that key's default.
       migrate: (persisted, version) => migrateLocalSettings(persisted, version) as LocalSettingsStore,
-      // Deep-merge persisted state over defaults so nested fields added in a
-      // newer build (e.g. voiceProvider.model/voiceName/personalityPrompt) fall
-      // back to their defaults for users upgrading from an older persisted
-      // config. Zustand's default merge is shallow, so a stored voiceProvider
-      // from before those fields existed would leave them undefined and crash
-      // the Gemini Live settings (geminiVoices[undefined].map / personality.trim()).
-      merge: (persisted, current) => {
-        const p = (persisted ?? {}) as Partial<LocalSettingsState>
-        return {
-          ...current,
-          ...p,
-          voiceProvider: { ...current.voiceProvider, ...(p.voiceProvider ?? {}) },
-        }
-      },
       // Listed explicitly (rather than spread + omit) so TS errors if a new
       // LocalSettingsState field is added without persisting it, and so no
       // future store action can silently leak into localStorage.

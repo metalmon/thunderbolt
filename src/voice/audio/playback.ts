@@ -73,8 +73,7 @@ export const createPlaybackQueue = (audioContext?: AudioContext): PlaybackQueue 
   let underruns = 0
   let closed = false
 
-  const pendingDurationSec = () =>
-    pending.reduce((sum, chunk) => sum + chunk.pcm.length / chunk.sampleRate, 0)
+  const pendingDurationSec = () => pending.reduce((sum, chunk) => sum + chunk.pcm.length / chunk.sampleRate, 0)
 
   const clearHoldTimer = () => {
     if (holdTimer !== null) {
