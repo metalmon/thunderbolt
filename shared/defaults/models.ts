@@ -232,10 +232,15 @@ const imageCapableManagedVendors: ReadonlySet<string> = new Set(['anthropic', 'o
  * needs detection, which only the app can do.
  */
 export const staticImageSupport = (model: ImageSupportModel, lineup: ImageSupportLineup): ImageSupport | undefined => {
-  const shipped = lineup.data.find(
-    (candidate) => candidate.provider === model.provider && candidate.model === model.model,
-  )
-  const declared = shipped && lineup.imageSupport[shipped.id]
+  const sameSlug = (candidate: ImageSupportModel) =>
+    candidate.provider === model.provider && candidate.model === model.model
+  const shipped = lineup.data.find(sameSlug)
+  // Fork: the lineup is routinely EMPTY here — `defaultModels` ships nothing, so
+  // resolving only through it would make every declaration above unreachable and
+  // leave the known models to detection. The lineup still answers first: this is
+  // the floor under an empty or older bundle, never an override of a live one.
+  const known = imageSupportKnownModels.find(sameSlug)
+  const declared = (shipped && lineup.imageSupport[shipped.id]) ?? (known && defaultModelImageSupport[known.id])
   if (declared) {
     return declared
   }
