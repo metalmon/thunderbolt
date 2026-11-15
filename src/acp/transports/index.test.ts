@@ -18,6 +18,7 @@
  * required (DI for `isStandalone` / `getAuthToken`).
  */
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import '@/testing-library'
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
@@ -75,7 +76,7 @@ let originalStoredSettings: string | null
 beforeEach(() => {
   originalWebSocket = globalThis.WebSocket
   originalCloudUrl = useLocalSettingsStore.getState().cloudUrl
-  originalStoredSettings = localStorage.getItem('thunderbolt-local-settings')
+  originalStoredSettings = localStorage.getItem(localSettingsStorageName)
   originalProxyEnabled = localStorage.getItem('proxy_enabled')
   localStorage.removeItem('proxy_enabled')
   FakeBrowserSocket.reset()
@@ -90,7 +91,7 @@ afterEach(() => {
   useLocalSettingsStore.setState({ cloudUrl: originalCloudUrl })
   for (const [key, value] of [
     ['proxy_enabled', originalProxyEnabled],
-    ['thunderbolt-local-settings', originalStoredSettings],
+    [localSettingsStorageName, originalStoredSettings],
   ] as const) {
     if (value === null) {
       localStorage.removeItem(key)

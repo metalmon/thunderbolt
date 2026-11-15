@@ -6,7 +6,7 @@ import { getAllAgents, useAllAgents } from '@/dal'
 import { getDb } from '@/db/database'
 import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/dal/test-utils'
 import { createMockAuthClient } from '@/test-utils/auth-client'
-import { setCurrentAgentOwner } from '@/fork/agents/agent-owner'
+import { localAgentOwnerId, setCurrentAgentOwner } from '@/fork/agents/agent-owner'
 import { createTestProvider } from '@/test-utils/test-provider'
 import { getClock } from '@/testing-library'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
@@ -73,6 +73,9 @@ describe('CreateAgentDetailPanel', () => {
     const onClose = mock(() => {})
     const enrollIroh = mock(async () => {})
     const TestProvider = createTestProvider({ authClient: createMockAuthClient() })
+    // Fork: an install with no session still has an owner — the device marker — and
+    // a row written without one is unreachable by design (see `ownedBy`).
+    setCurrentAgentOwner(localAgentOwnerId)
     render(
       <CreateAgentDetailPanel onClose={onClose} loadAppNodeId={async () => 'b'.repeat(52)} enrollIroh={enrollIroh} />,
       { wrapper: TestProvider },
@@ -87,7 +90,9 @@ describe('CreateAgentDetailPanel', () => {
       await getClock().runAllAsync()
     })
 
-    expect(await getAllAgents(getDb())).toMatchObject([{ name: 'Local Agent', userId: null }])
+    expect(await getAllAgents(getDb(), localAgentOwnerId)).toMatchObject([
+      { name: 'Local Agent', userId: localAgentOwnerId },
+    ])
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(enrollIroh).not.toHaveBeenCalled()
   })

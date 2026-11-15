@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -403,7 +404,7 @@ describe('local data owner', () => {
       spyOn(platform, 'isOpfsAvailable').mockResolvedValue(true)
       spyOn(platform, 'hasOpfsFile').mockResolvedValue(true)
       localStorage.setItem(
-        'thunderbolt-local-settings',
+        localSettingsStorageName,
         JSON.stringify({ state: { cloudUrl: '', localMode: true, serverHasAuthenticated }, version: 1 }),
       )
 
@@ -626,7 +627,7 @@ describe('local data owner', () => {
     // Capture every state the switch persists. The ownership record and the voice key live in two keys,
     // and every write to either serializes first. So the storage seen at each serialization is the
     // state right after the previous write, which is exactly what a crash at that point leaves.
-    const persisted = [localDataKey, 'thunderbolt-local-settings']
+    const persisted = [localDataKey, localSettingsStorageName]
     const states = new Map<string, [string, string | null][]>()
     const capture = () => {
       const entries = persisted.map((name): [string, string | null] => [name, localStorage.getItem(name)])
@@ -762,7 +763,7 @@ describe('local data owner', () => {
 
         // Another tab writes storage without updating this tab's already-hydrated store.
         localStorage.setItem(
-          'thunderbolt-local-settings',
+          localSettingsStorageName,
           JSON.stringify({
             state: { ...useLocalSettingsStore.getState(), ...stashedSettings('voice-b-key') },
             version: 1,

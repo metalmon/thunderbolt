@@ -6,6 +6,7 @@ import { msg } from '@lingui/core/macro'
 import { invoke } from '@tauri-apps/api/core'
 import { activateLocale, getActiveLocale, i18n } from '@/i18n'
 import { isTauriDesktop } from '@/lib/platform'
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { isRecord } from '@shared/lib/is-record'
 import '@/index.css'
 import './style.css'
@@ -27,7 +28,10 @@ const readState = (key: string): Record<string, unknown> => {
   }
 }
 
-const chosenTheme = readState('thunderbolt-local-settings').theme
+// Fork: the store moved to `volt-local-settings` and the migration REMOVES the
+// upstream-named entry, so reading the old name here found nothing after the first
+// boot and the recovery page always fell back to system appearance.
+const chosenTheme = readState(localSettingsStorageName).theme
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
 
 /** Match the app's explicit appearance, or follow native/system appearance when unset. */

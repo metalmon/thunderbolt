@@ -311,7 +311,7 @@ describe('chat-store', () => {
 
       const after = useChatStore.getState().sessions
       expect(after.get('hosted')).toBe(before.get('hosted'))
-      expect(after.get('fits')).toBe(before.get('fits'))
+      expect(after.get('fits')?.selectedModel?.id).toBe(addedModel.id)
       expect(after.get('blocked')?.selectedModel?.id).toBe(addedModel.id)
     })
   })

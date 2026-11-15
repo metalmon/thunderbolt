@@ -20,7 +20,9 @@ const localDefaults = () => ({
 
 describe('server selection across windows', () => {
   const settings = useLocalSettingsStore.getState()
-  const key = 'thunderbolt-local-settings'
+  // Fork: the store was renamed to `volt-local-settings`; reading upstream's old
+  // name here left every case asserting against a key nothing writes.
+  const key = localSettingsStorageName
   afterEach(() => useLocalSettingsStore.setState(settings))
 
   it('checks shared storage before the queued change event arrives', () => {
