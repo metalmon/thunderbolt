@@ -169,7 +169,9 @@ fn is_dir_on_path(path_var: &str, dir: &str) -> bool {
 pub fn cli_install_dir() -> Result<String, crate::cli_path::PathError> {
     local_bin_dir()
         .map(|dir| dir.to_string_lossy().to_string())
-        .map_err(|error| crate::cli_path::PathError { message: format!("{error:?}") })
+        .map_err(|error| crate::cli_path::PathError {
+            message: format!("{error:?}"),
+        })
 }
 
 fn local_bin_dir() -> Result<PathBuf, CliInstallError> {
