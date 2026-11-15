@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'bun:test'
 import { cliVersion } from '../version.ts'
 import { fetchManagedCatalog } from './catalog.ts'
-import { futureDirectCatalog, testManagedCatalog } from './test-fixtures.ts'
+import { futureDirectCatalog, testConfidentialModel, testManagedCatalog } from './test-fixtures.ts'
 import type { AccountFetch } from './types.ts'
 
 type FetchCall = { readonly url: string; readonly init: RequestInit | undefined }
@@ -113,19 +113,24 @@ describe('fetchManagedCatalog', () => {
     await expect(fetchManagedCatalog('https://api.test/v1', fetchFn)).rejects.toMatchObject({ code: 'config-invalid' })
   })
 
+  // Fork: both cases run against the FIXTURE catalog, not `bundledManagedCatalog` -
+  // this fork ships `defaultModels` empty, so the bundled one carries no rows and
+  // there would be nothing for the fallback to answer about. The fixture rows keep an
+  // upstream model's provider and slug, which is what the floor in
+  // `staticImageSupport` resolves through.
   it('falls back to the bundled image support when an older backend omits it', async () => {
-    const { imageSupport: _omitted, ...legacyCatalog } = bundledManagedCatalog
+    const { imageSupport: declared, ...legacyCatalog } = testManagedCatalog
     const { fetchFn } = createJsonFetch(JSON.stringify({ defaults: { models: legacyCatalog } }))
 
     await expect(fetchManagedCatalog('https://api.test/v1', fetchFn)).resolves.toEqual({
       ...legacyCatalog,
-      imageSupport: defaultModelImageSupport,
+      imageSupport: declared,
     })
   })
 
   it('does not carry a bundled declaration over to a row that kept its id but serves another model', async () => {
-    const { imageSupport: _omitted, ...legacyCatalog } = bundledManagedCatalog
-    const replaced = { ...defaultModelDeepSeekV41Flash, model: 'text-only-predecessor' }
+    const { imageSupport: _omitted, ...legacyCatalog } = testManagedCatalog
+    const replaced = { ...testConfidentialModel, model: 'text-only-predecessor' }
     const catalog = {
       ...legacyCatalog,
       data: legacyCatalog.data.map((model) => (model.id === replaced.id ? replaced : model)),
