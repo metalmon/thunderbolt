@@ -37,15 +37,14 @@ import { listRepoFiles, readRepoFile } from '../testing/source-file'
  */
 const backendCallers = [
   'src/acp/managed-http-adapter.ts',
-  'src/ai/inference-usage-receipt.ts',
   'src/api/account.ts',
   'src/api/encryption.ts',
   'src/chats/use-hydrate-chat-store.ts',
   'src/components/auth-gate/altcha.ts',
   'src/components/auth-gate/use-auth-gate.ts',
   'src/components/device-approval.tsx',
-  'src/components/logout-modal.tsx',
   'src/components/magic-link-verify.tsx',
+  'src/components/recovery-continuity/recovery-continuity-provider.tsx',
   'src/components/share-debug-transcript/use-share-debug-transcript-state.ts',
   'src/components/sidebar-footer.tsx',
   'src/components/sso-redirect.tsx',
@@ -65,13 +64,14 @@ const backendCallers = [
   'src/lib/locations.ts',
   'src/lib/passkey.ts',
   'src/lib/returning-user-onboarding.ts',
+  'src/lib/server-connection.ts',
   'src/lib/session-cache.ts',
   'src/lib/sign-in-with-otp.ts',
+  'src/lib/sign-out.ts',
   'src/mini-apps/mini-app-auth.ts',
   'src/mini-apps/use-mini-apps.ts',
   'src/search/commands/use-commands.ts',
   'src/settings/preferences.tsx',
-  'src/skills/telemetry.ts',
   'src/widgets/document-result/use-document-blob.ts',
 ]
 

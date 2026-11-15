@@ -32,9 +32,12 @@ describe('local mode disables the lanes that go through our backend', () => {
   it('gates the model-facing tool set on the same predicate, not just the UI', () => {
     const tools = readRepoFile('src/lib/tools.ts')
     expect(tools.includes('hasProAccess')).toBe(true)
-    // The Pro tool configs must sit behind that check rather than being pushed
-    // unconditionally.
-    const proEnabledGate = /proEnabled[\s\S]{0,400}createProConfigs/.test(tools)
+    // The Pro search lane must sit behind that check rather than being pushed
+    // unconditionally. Upstream moved it into the search-provider selection
+    // (0.1.167, `resolveSearchSelection`), so the shape to look for is the `cloud`
+    // candidate being offered only when a server session AND `proEnabled` agree —
+    // the same predicate the UI reads.
+    const proEnabledGate = /cloud: hasServer(Authentication\(\))? && proEnabled/.test(tools)
     expect(proEnabledGate).toBe(true)
   })
 
