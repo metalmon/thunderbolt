@@ -14,6 +14,11 @@ const config: VoiceProviderConfig = {
   sttModel: 'stt',
   ttsModel: 'tts',
   ttsVoice: 'voice',
+  // Fork: the Gemini Live lane's fields are part of the config everywhere.
+  geminiApiKey: '',
+  model: 'native-audio',
+  voiceName: 'Puck',
+  personalityPrompt: '',
 }
 const models = { stt: ['stt'], tts: [{ id: 'tts', voices: ['voice'] }] }
 

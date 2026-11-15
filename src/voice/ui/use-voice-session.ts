@@ -57,6 +57,9 @@ const privateChatHeldMessage = (agentName: string, builtInAgentName: string | nu
  *  straight from the backend; the cause is already on the console next to it. */
 const voiceServiceErrorMessage = msg`Voice service error. Try again, or switch the provider in Settings → Voice.`
 
+/** Fork: the direct (BYOK) lane has no key on this device. */
+const geminiKeyMissingMessage = msg`Add your Gemini API key in Settings → Voice to use voice on this device.`
+
 /**
  * The line the voice overlay shows for a session error. A held private chat gets
  * the composer notice's translated copy, resolved now because the overlay stores
@@ -172,7 +175,6 @@ export const voiceUiReducer = (state: VoiceUiState, action: VoiceUiAction): Voic
 }
 
 export const useVoiceSession = () => {
-  const { t } = useLingui()
   const session = useCurrentChatSession()
   const db = useDatabase()
   const [ui, dispatch] = useReducer(voiceUiReducer, { phase: 'closed' })
@@ -237,7 +239,6 @@ export const useVoiceSession = () => {
         { createVoiceEngine },
         { createChatReply },
         { buildSystemInstruction },
-        { getLocalSetting },
         { experimentalFeatureVoice },
       ] = await Promise.all([
         import('@/voice/session'),
@@ -245,7 +246,6 @@ export const useVoiceSession = () => {
         import('@/voice/engine/router'),
         import('@/voice/chat-reply'),
         import('@/voice/gemini/prompts'),
-        import('@/stores/local-settings-store'),
         getSettings(db, { experimental_feature_voice: false }),
       ])
       signal.throwIfAborted()
@@ -266,7 +266,7 @@ export const useVoiceSession = () => {
         // start exactly as the sign-in gate below does.
         dispatch({
           type: 'START_FAILED',
-          error: t`Add your Gemini API key in Settings → Voice to use voice on this device.`,
+          error: i18n._(geminiKeyMissingMessage),
         })
         return null
       }
