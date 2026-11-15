@@ -21,7 +21,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { geminiVoices } from '@/voice/engine/gemini-live-engine'
 import { geminiModelIds } from '@/voice/engine/router'
-import { type DiscoveredModels, fetchOpenAiModels, testOpenAiConnection } from '@/voice/engine/openai-compatible-engine'
 import { type GeminiLiveModel, type VoiceProviderConfig, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { mintGeminiEphemeralToken } from '@/fork/voice/gemini-ephemeral-token'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
@@ -127,11 +126,11 @@ export const VoiceSettingsPage = () => {
   const isGeminiLive = config.kind === 'gemini-live'
   const canTest = isCustom && config.baseUrl.trim().length > 0
 
-  const runTest = async () => {
-    setUi((s) => ({ ...s, conn: { status: 'testing' } }))
-    const result = await testOpenAiConnection(config)
-    setUi((s) => ({ ...s, conn: { status: result.ok ? 'ok' : 'error', detail: result.detail } }))
-  }
+  // The Gemini lane keeps its own connection state: `useVoiceSettingsState` keys
+  // its result on the OpenAI-compatible endpoint fields, which say nothing about
+  // whether the Gemini key still holds — one shared slot would show a stale verdict
+  // from the other engine. Reset it wherever the key changes, below.
+  const [geminiConn, setGeminiConn] = useState<ConnState>({ status: 'idle' })
 
   // Gemini BYOK key: write-only secret field matching the ACP agent token UX
   // (agent-token-field.tsx) for one consistent secret style across the app — the
@@ -149,7 +148,7 @@ export const VoiceSettingsPage = () => {
 
   const changeGeminiKey = (value: string) => {
     setGeminiKeyDraft(value)
-    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+    setGeminiConn({ status: 'idle' })
   }
   const saveGeminiKey = () => {
     if (trimmedGeminiKey === '') {
@@ -157,33 +156,24 @@ export const VoiceSettingsPage = () => {
     }
     update({ geminiApiKey: trimmedGeminiKey })
     setGeminiKeyDraft('')
-    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+    setGeminiConn({ status: 'idle' })
   }
   const removeGeminiKey = () => {
     update({ geminiApiKey: '' })
     setGeminiKeyDraft('')
-    setUi((s) => ({ ...s, conn: { status: 'idle' } }))
+    setGeminiConn({ status: 'idle' })
   }
   const runGeminiTest = async () => {
-    setUi((s) => ({ ...s, conn: { status: 'testing' } }))
+    setGeminiConn({ status: 'testing' })
     try {
       await mintGeminiEphemeralToken({
         apiKey: effectiveGeminiKey,
         model: geminiModelIds[config.model],
       })
-      setUi((s) => ({ ...s, conn: { status: 'ok', detail: t`Key is valid — Gemini Live is reachable.` } }))
+      setGeminiConn({ status: 'ok', detail: t`Key is valid — Gemini Live is reachable.` })
     } catch (error) {
-      setUi((s) => ({
-        ...s,
-        conn: { status: 'error', detail: error instanceof Error ? error.message : String(error) },
-      }))
+      setGeminiConn({ status: 'error', detail: error instanceof Error ? error.message : String(error) })
     }
-  }
-
-  const loadModels = async () => {
-    setUi((s) => ({ ...s, loadingModels: true }))
-    const models = await fetchOpenAiModels(config.baseUrl, config.apiKey)
-    setUi((s) => ({ ...s, models, loadingModels: false }))
   }
 
   const sttOptions = ui.models?.stt ?? []
@@ -352,9 +342,9 @@ export const VoiceSettingsPage = () => {
                       type="button"
                       variant="outline"
                       onClick={runGeminiTest}
-                      disabled={!canTestGemini || ui.conn.status === 'testing'}
+                      disabled={!canTestGemini || geminiConn.status === 'testing'}
                     >
-                      {ui.conn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
+                      {geminiConn.status === 'testing' && <Loader2 className="size-4 animate-spin" />}
                       <Trans>Test connection</Trans>
                     </Button>
                     {trimmedGeminiKey !== '' && (
@@ -365,16 +355,16 @@ export const VoiceSettingsPage = () => {
                   </div>
                 )}
 
-                {ui.conn.status === 'ok' && (
+                {geminiConn.status === 'ok' && (
                   <p className="flex items-center gap-1.5 text-[length:var(--font-size-sm)] text-primary">
                     <CheckCircle2 className="size-4 shrink-0" />
-                    {ui.conn.detail}
+                    {geminiConn.detail}
                   </p>
                 )}
-                {ui.conn.status === 'error' && (
+                {geminiConn.status === 'error' && (
                   <p className="flex items-start gap-1.5 text-[length:var(--font-size-sm)] text-destructive">
                     <XCircle className="mt-0.5 size-4 shrink-0" />
-                    <span className="min-w-0 break-words">{ui.conn.detail}</span>
+                    <span className="min-w-0 break-words">{geminiConn.detail}</span>
                   </p>
                 )}
               </div>

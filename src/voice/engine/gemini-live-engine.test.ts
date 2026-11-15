@@ -348,10 +348,7 @@ describe('createGeminiLiveEngine — wire protocol', () => {
     getSocket()!.emitClose(1008, 'Gemini provider not configured')
 
     const events = await pendingEvents
-    expect(events).toEqual([
-      { type: 'error', message: 'Gemini provider not configured' },
-      { type: 'closed' },
-    ])
+    expect(events).toEqual([{ type: 'error', message: 'Gemini provider not configured' }, { type: 'closed' }])
   })
 
   it('direct: does not open a zombie socket when close() races a reconnect mint still in flight', async () => {
