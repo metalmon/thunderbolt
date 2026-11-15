@@ -38,7 +38,9 @@ pub struct PathError {
 
 impl From<std::io::Error> for PathError {
     fn from(error: std::io::Error) -> Self {
-        Self { message: error.to_string() }
+        Self {
+            message: error.to_string(),
+        }
     }
 }
 
@@ -52,7 +54,9 @@ impl From<std::io::Error> for PathError {
 pub fn path_contains(value: &str, dir: &str) -> bool {
     let normalize = |s: &str| s.trim().trim_end_matches(['\\', '/']).to_lowercase();
     let target = normalize(dir);
-    value.split(';').any(|entry| !entry.trim().is_empty() && normalize(entry) == target)
+    value
+        .split(';')
+        .any(|entry| !entry.trim().is_empty() && normalize(entry) == target)
 }
 
 /// Appends `dir` to `value`, inserting the separator only when needed.
@@ -84,22 +88,38 @@ pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
             (text.trim_end_matches('\u{0}').to_string(), value.vtype)
         }
         // No user-level Path at all is normal on a fresh profile.
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => (String::new(), REG_EXPAND_SZ),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            (String::new(), REG_EXPAND_SZ)
+        }
         Err(error) => return Err(PathError::from(error)),
     };
 
     if path_contains(&existing, dir) {
-        return Ok(PathUpdate::AlreadyPresent { dir: dir.to_string() });
+        return Ok(PathUpdate::AlreadyPresent {
+            dir: dir.to_string(),
+        });
     }
 
     let updated = append_entry(&existing, dir);
-    let vtype = if kind == REG_SZ { REG_SZ } else { REG_EXPAND_SZ };
+    let vtype = if kind == REG_SZ {
+        REG_SZ
+    } else {
+        REG_EXPAND_SZ
+    };
     environment
-        .set_raw_value("Path", &RegValue { bytes: to_bytes(&updated), vtype })
+        .set_raw_value(
+            "Path",
+            &RegValue {
+                bytes: to_bytes(&updated),
+                vtype,
+            },
+        )
         .map_err(PathError::from)?;
 
     broadcast_environment_change();
-    Ok(PathUpdate::Added { dir: dir.to_string() })
+    Ok(PathUpdate::Added {
+        dir: dir.to_string(),
+    })
 }
 
 /// The shell startup file that owns `PATH` for `shell`, relative to `$HOME`.
@@ -138,19 +158,24 @@ pub const PROFILE_MARKER: &str = "# Added by the desktop app: CLI on PATH";
 pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
     use std::io::Write;
 
-    let home = std::env::var("HOME")
-        .map_err(|_| PathError { message: "HOME environment variable is not set".to_string() })?;
+    let home = std::env::var("HOME").map_err(|_| PathError {
+        message: "HOME environment variable is not set".to_string(),
+    })?;
     let shell = std::env::var("SHELL").unwrap_or_default();
     let profile = std::path::Path::new(&home).join(profile_for_shell(&shell));
 
     // Already on the live PATH — nothing to add, whatever the profile says.
     if std::env::var("PATH").is_ok_and(|value| path_contains_posix(&value, dir)) {
-        return Ok(PathUpdate::AlreadyPresent { dir: dir.to_string() });
+        return Ok(PathUpdate::AlreadyPresent {
+            dir: dir.to_string(),
+        });
     }
 
     let existing = std::fs::read_to_string(&profile).unwrap_or_default();
     if existing.contains(PROFILE_MARKER) {
-        return Ok(PathUpdate::AlreadyPresent { dir: dir.to_string() });
+        return Ok(PathUpdate::AlreadyPresent {
+            dir: dir.to_string(),
+        });
     }
 
     if let Some(parent) = profile.parent() {
@@ -158,10 +183,15 @@ pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
     }
     // Appended, never rewritten: this is a file the user maintains by hand, and
     // a leading newline keeps our block off the end of whatever line is there.
-    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(&profile)?;
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&profile)?;
     writeln!(file, "\n{PROFILE_MARKER}\n{}", export_line(&shell, dir))?;
 
-    Ok(PathUpdate::Added { dir: dir.to_string() })
+    Ok(PathUpdate::Added {
+        dir: dir.to_string(),
+    })
 }
 
 /// Whether `dir` is one of the `:`-separated entries of a POSIX `PATH`.
@@ -170,7 +200,9 @@ pub fn add_dir_to_user_path(dir: &str) -> Result<PathUpdate, PathError> {
 fn path_contains_posix(value: &str, dir: &str) -> bool {
     let normalize = |s: &str| s.trim_end_matches('/').to_string();
     let target = normalize(dir);
-    value.split(':').any(|entry| !entry.is_empty() && normalize(entry) == target)
+    value
+        .split(':')
+        .any(|entry| !entry.is_empty() && normalize(entry) == target)
 }
 
 /// What the confirmation dialog must name before anything is written.
@@ -216,7 +248,10 @@ fn broadcast_environment_change() {
         SendMessageTimeoutW, HWND_BROADCAST, SMTO_ABORTIFHUNG, WM_SETTINGCHANGE,
     };
 
-    let environment: Vec<u16> = "Environment".encode_utf16().chain(std::iter::once(0)).collect();
+    let environment: Vec<u16> = "Environment"
+        .encode_utf16()
+        .chain(std::iter::once(0))
+        .collect();
     // Best effort by design: the PATH is already written, and a hung listener
     // must not turn a successful install into a reported failure.
     unsafe {
@@ -251,7 +286,10 @@ mod tests {
     #[test]
     fn picks_the_startup_file_each_shell_actually_reads() {
         assert_eq!(profile_for_shell("/bin/zsh"), ".zshrc");
-        assert_eq!(profile_for_shell("/usr/bin/fish"), ".config/fish/config.fish");
+        assert_eq!(
+            profile_for_shell("/usr/bin/fish"),
+            ".config/fish/config.fish"
+        );
         assert_eq!(profile_for_shell("/bin/bash"), ".bashrc");
         // Unknown or unset: .profile is read by every Bourne-compatible login shell.
         assert_eq!(profile_for_shell(""), ".profile");
@@ -261,7 +299,10 @@ mod tests {
     #[test]
     fn writes_fish_syntax_for_fish_and_bourne_syntax_elsewhere() {
         // `export PATH=...` is a syntax error in fish, so this is not cosmetic.
-        assert_eq!(export_line("/usr/bin/fish", "/home/x/.local/bin"), "fish_add_path /home/x/.local/bin");
+        assert_eq!(
+            export_line("/usr/bin/fish", "/home/x/.local/bin"),
+            "fish_add_path /home/x/.local/bin"
+        );
         assert_eq!(
             export_line("/bin/bash", "/home/x/.local/bin"),
             "export PATH=\"/home/x/.local/bin:$PATH\""
@@ -271,7 +312,10 @@ mod tests {
     #[test]
     fn appends_without_doubling_or_leading_separators() {
         assert_eq!(append_entry(r"C:\Windows", r"C:\bin"), r"C:\Windows;C:\bin");
-        assert_eq!(append_entry(r"C:\Windows;", r"C:\bin"), r"C:\Windows;C:\bin");
+        assert_eq!(
+            append_entry(r"C:\Windows;", r"C:\bin"),
+            r"C:\Windows;C:\bin"
+        );
         assert_eq!(append_entry("", r"C:\bin"), r"C:\bin");
     }
 }
