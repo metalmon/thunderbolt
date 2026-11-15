@@ -11,6 +11,7 @@ import { clearAuthToken } from '@/lib/auth-token'
 import { clearCachedSession } from '@/lib/session-cache'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
 import { ConnectProviderButton } from './connect-provider-button'
+import { getAppName } from '@/lib/branding-selectors'
 
 beforeEach(async () => {
   await resetTestDatabase()
@@ -57,5 +58,5 @@ it.each([
   )
   expect(connect).toHaveBeenCalledWith(provider)
   expect(screen.queryByText('Connect your account')).toBeNull()
-  expect(screen.queryByText('Sign in to Thunderbolt')).toBeNull()
+  expect(screen.queryByText(`Sign in to ${getAppName()}`)).toBeNull()
 })
