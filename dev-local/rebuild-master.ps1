@@ -156,6 +156,26 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "    bun.lock already in sync" -ForegroundColor Yellow
 }
 
+# `pub mod` ORDER is an assembly artifact too, for the same reason as bun.lock: rustfmt
+# sorts module declarations, and the complete module list exists only here — every branch
+# contributes its own `pub mod`, so normalizing the order on a patch branch adds a second
+# declaration at assembly instead of moving the first. Format the crate once the stack is
+# whole and fold the result into the tip, so `cargo fmt --check` is clean on master.
+Write-Host "==> rustfmt on the assembled crate" -ForegroundColor Cyan
+Push-Location src-tauri
+cargo fmt
+$fmtFailed = $LASTEXITCODE -ne 0
+Pop-Location
+if ($fmtFailed) { throw "cargo fmt failed on the assembled crate" }
+git add src-tauri/src
+git diff --cached --quiet HEAD -- src-tauri/src
+if ($LASTEXITCODE -ne 0) {
+    git commit -q -m "style(assembly): rustfmt the assembled crate"
+    Write-Host "    committed rustfmt result" -ForegroundColor Yellow
+} else {
+    Write-Host "    already rustfmt-clean" -ForegroundColor Yellow
+}
+
 Write-Host "==> master rebuilt" -ForegroundColor Green
 git --no-pager log --oneline -n ($Branches.Count + 5)
 
