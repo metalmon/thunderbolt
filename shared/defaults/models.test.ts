@@ -52,8 +52,11 @@ const computeMetadataHash = () =>
 
 const expected = {
   version: 11,
-  hash: '0:019af08a-c27b-7074-8aac-95315d1ef3fd:-8jt8am|1:01a06dd7-67ee-75be-b957-2b746271c49d:-bs87m1|2:019e7580-2b0e-719c-a43f-d2b56e7f31b4:-mx717t',
-  metadataHash: '0:-5cyn16|1:-v53uf0|2:-bj1ngs',
+  // Empty: this fork ships no models (see the header on `defaultModels`). Both
+  // hashes are the join of an empty list, and that is still the guard — a model
+  // reappearing in the bundle without a version bump fails here.
+  hash: '',
+  metadataHash: '',
 }
 
 describe('defaultModels version snapshot', () => {
@@ -93,6 +96,9 @@ describe('staticImageSupport', () => {
     ...overrides,
   })
 
+  // Fork: `defaultModels` is empty, so this lineup carries no rows at all — the
+  // answers below come from the known-models floor inside `staticImageSupport`,
+  // which is exactly what must keep working when nothing is bundled.
   const bundled: ImageSupportLineup = { data: defaultModels, imageSupport: defaultModelImageSupport }
 
   test('answers for the shipped defaults from their declarations', () => {
