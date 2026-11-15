@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 import { beforeEach, describe, expect, it } from 'bun:test'
 
 import { localSettingsStorageName, migrateLocalSettingsKey } from './local-settings-key'

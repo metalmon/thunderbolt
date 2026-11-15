@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 import { describe, expect, it } from 'bun:test'
 
 import { resolveAppearance } from './resolved-appearance'
