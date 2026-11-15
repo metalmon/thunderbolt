@@ -52,6 +52,10 @@ mock.module('@/voice/audio/vad', () => ({
 }))
 
 let enqueued: AudioChunk[] = []
+/** Drives the fake queue's `isPlaying`. False by default so the session's
+ *  "wait for playback" loop exits at once (the real loop polls a timer we don't
+ *  want to run); the drain cases below raise it deliberately. */
+let playbackRunning = false
 /** ⚠ PASSED IN, not registered with `mock.module`: that registration is
  *  process-wide and handed this fake to the suite that tests the REAL
  *  queue (`voice/audio/playback.test.ts`), which then failed only in a
@@ -62,10 +66,8 @@ const fakePlayback = (): PlaybackQueue =>
     flush: () => {},
     close: () => {},
     getLevel: () => 0,
-    // Always drained so the session's "wait for playback" loop exits at once
-    // (the real loop polls a timer we don't want to run in tests).
     get isPlaying() {
-      return false
+      return playbackRunning
     },
   }) as unknown as PlaybackQueue
 
@@ -252,6 +254,7 @@ describe('createVoiceSession', () => {
   test('stop releases an open mic while engine warmup is still pending', async () => {
     const loading = Promise.withResolvers<void>()
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi', { load: () => loading.promise }),
       reply: makeReply(['hi']),
@@ -274,6 +277,7 @@ describe('createVoiceSession', () => {
     const gateStart = Promise.withResolvers<void>()
     pendingGateStart = gateStart.promise
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi', { load: () => loading.promise }),
       reply: makeReply(['hi']),
@@ -292,6 +296,7 @@ describe('createVoiceSession', () => {
     const { earcons, played } = makeEarcons()
     const transcripts: string[] = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons,
       engine: makeEngine('late utterance'),
       reply: makeReply(['should not run']),
@@ -313,6 +318,7 @@ describe('createVoiceSession', () => {
   test('rejects duplicate starts without creating a second microphone gate', async () => {
     const loading = Promise.withResolvers<void>()
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi', { load: () => loading.promise }),
       reply: makeReply(['hi']),
@@ -330,6 +336,7 @@ describe('createVoiceSession', () => {
     const error = new Error('transcription failed')
     const errors: unknown[] = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi', {
         transcribe: async function* () {
@@ -350,6 +357,7 @@ describe('createVoiceSession', () => {
     const transcript = Promise.withResolvers<string>()
     const errors: unknown[] = []
     const session = createVoiceSession({
+      createPlayback: fakePlayback,
       earcons: makeEarcons().earcons,
       engine: makeEngine('hi', {
         transcribe: async function* () {
@@ -372,6 +380,7 @@ describe('createVoiceSession', () => {
     test(`waits for queued playback and ${stopBeforeDrain ? 'stays idle after stop' : 'then returns to listening'}`, async () => {
       playbackRunning = true
       const session = createVoiceSession({
+        createPlayback: fakePlayback,
         earcons: makeEarcons().earcons,
         engine: makeEngine('hi'),
         reply: makeReply(['A complete reply.']),
