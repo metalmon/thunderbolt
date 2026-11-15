@@ -50,7 +50,7 @@ msgstr "{agentName} не принимает вложения. Удалите п�
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "{agentName} receives this chat and manages its own model connection. This device has not verified the agent's execution environment."
-msgstr ""
+msgstr "{agentName} получает эту переписку и сам управляет своим подключением к модели. Это устройство не проверяло среду выполнения агента."
 
 #: src/settings/voice.tsx
 msgid "{appName} (hosted, private)"
@@ -66,7 +66,7 @@ msgstr "{appName} не смог соединиться со своим серв�
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, connections, and MCP servers) to help with whatever you are working on."
-msgstr ""
+msgstr "{appName} — встроенный в приложение агент: он всегда под рукой и не требует настройки. Он пользуется всем, что включено в вашей библиотеке (навыками, подключениями и серверами MCP), чтобы помочь с текущей работой."
 
 #: src/components/settings/agents/agent-detail.tsx
 #~ msgid "{appName} is the agent built into the app — always here, no setup needed. It draws on everything you have enabled in your library (skills, integrations, and MCP servers) to help with whatever you are working on."
@@ -223,11 +223,11 @@ msgstr "{wordCount}/24 слов"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "********"
-msgstr ""
+msgstr "********"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "<0>Connect a model provider</0> or <1>add a model</1> to enable chat."
-msgstr ""
+msgstr "<0>Подключите провайдера моделей</0> или <1>добавьте модель</1>, чтобы включить переписку."
 
 #: src/settings/preferences.tsx
 msgid "⚠ This export was made by a different account ({importSourceEmail}). Importing it here will mix that data into your account. Confirm only if you intend to."
@@ -309,7 +309,7 @@ msgstr "Действие"
 
 #: src/components/recovery-continuity/recovery-continuity-nav-dot.tsx
 msgid "Action needed"
-msgstr ""
+msgstr "Требуется действие"
 
 #: src/search/palette/search-palette.tsx
 msgid "Actions"
@@ -321,7 +321,7 @@ msgstr "Активно"
 
 #: src/settings/connections/chatgpt-account-picker.tsx
 msgid "Active account"
-msgstr ""
+msgstr "Текущая учётная запись"
 
 #: src/projects/emoji-catalog.ts
 msgid "Activity"
@@ -341,7 +341,7 @@ msgstr "Добавить и авторизовать"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Add a model"
-msgstr ""
+msgstr "Добавить модель"
 
 #: src/tasks/index.tsx
 msgid "Add a new task…"
@@ -353,7 +353,7 @@ msgstr "Добавить ключ доступа"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Add a provider in your Otari workspace, then refresh to choose a model."
-msgstr ""
+msgstr "Добавьте провайдера в своём рабочем пространстве Otari, затем обновите список, чтобы выбрать модель."
 
 #: src/components/chat/chat-skills-bar.tsx
 msgid "Add a skill"
@@ -368,13 +368,13 @@ msgstr "Добавить агента"
 #: src/settings/connections/provider-connection-form.tsx
 #: src/settings/connections/provider-connection-summary.tsx
 msgid "Add another instance via API key"
-msgstr ""
+msgstr "Добавить ещё один экземпляр по API-ключу"
 
 #: src/components/chat/chat-model-setup.tsx
 #: src/settings/connections/connections-list.tsx
 #: src/settings/search/index.tsx
 msgid "Add connection"
-msgstr ""
+msgstr "Добавить подключение"
 
 #: src/settings/connections/index.tsx
 msgid "Add failed"
@@ -398,7 +398,7 @@ msgstr "Добавить модель"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Add models"
-msgstr ""
+msgstr "Добавить модели"
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Add Server"
@@ -406,7 +406,7 @@ msgstr "Добавить сервер"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Add summary instructions (optional)"
-msgstr ""
+msgstr "Указания к выжимке (необязательно)"
 
 #: src/fork/cli/add-to-path-button.tsx
 msgid "Add the CLI to your PATH?"
@@ -423,7 +423,7 @@ msgstr "Добавить в PATH"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Add web search"
-msgstr ""
+msgstr "Добавить поиск в интернете"
 
 #: src/settings/connections/connections-list.tsx
 #~ msgid "Add your first server"
@@ -439,7 +439,7 @@ msgstr "Добавьте ключ Gemini API в Настройках → Гол�
 
 #: src/settings/models/provider-model-option.tsx
 msgid "Added"
-msgstr ""
+msgstr "Добавлено"
 
 #: src/fork/cli/add-to-path-button.tsx
 msgid "Added to your PATH. Open a new terminal to use it."
@@ -458,7 +458,7 @@ msgstr "Расширенный (JSON)"
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Agent privacy"
-msgstr ""
+msgstr "Приватность агента"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/routes/settings/agents/index.tsx
@@ -468,11 +468,11 @@ msgstr "Агенты"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "AI provider"
-msgstr ""
+msgstr "Провайдер ИИ"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "AI that <0>you</0> control."
-msgstr ""
+msgstr "ИИ, которым управляете <0>вы</0>."
 
 #: src/components/chat/error-message.tsx
 msgid "AI usage limit reached"
@@ -493,7 +493,7 @@ msgstr "Все навыки закреплены"
 
 #: src/settings/connections/provider-connection-summary.tsx
 msgid "Allow access to your ChatGPT plan to use its models. You can also add an API-key connection."
-msgstr ""
+msgstr "Разрешите доступ к своей подписке ChatGPT, чтобы пользоваться её моделями. Можно вместо этого добавить подключение по API-ключу."
 
 #: src/components/chat/permission-dialog.tsx
 msgid "Allow once"
@@ -501,7 +501,7 @@ msgstr "Разрешить один раз"
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Allow plan access"
-msgstr ""
+msgstr "Разрешить доступ к подписке"
 
 #: src/fork/cli/add-to-path-button.tsx
 msgid "Already on your PATH."
@@ -537,7 +537,7 @@ msgstr "Всегда разрешать всё от этого агента"
 
 #: src/mini-apps/mini-app-approval-prompt.tsx
 msgid "Always approve this action"
-msgstr ""
+msgstr "Всегда разрешать это действие"
 
 #: src/components/external-link-toggle-group.tsx
 msgid "Always ask"
@@ -553,7 +553,7 @@ msgstr "Учётная запись с этим адресом уже есть, 
 
 #: src/components/chat/attestation/attestation-panel.tsx
 msgid "An encrypted agent connection alone does not verify the agent or its model provider."
-msgstr ""
+msgstr "Шифрованное подключение к агенту само по себе не подтверждает ни агента, ни его провайдера моделей."
 
 #: src/lib/tool-metadata.ts
 msgid "Analyzing…"
@@ -593,7 +593,7 @@ msgstr "API-ключ"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "API key (optional)"
-msgstr ""
+msgstr "API-ключ (необязательно)"
 
 #: src/settings/models/add-model-form.tsx
 msgid "API Key (Optional)"
@@ -620,7 +620,7 @@ msgstr "Версия приложения"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Approval code"
-msgstr ""
+msgstr "Код подтверждения"
 
 #: src/components/approve-device/fingerprint-confirmation.tsx
 #: src/components/device-approval.tsx
@@ -653,11 +653,11 @@ msgstr "Разрешить это устройство?"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Approved"
-msgstr ""
+msgstr "Разрешено"
 
 #: src/mini-apps/mini-app-approval-prompt.tsx
 msgid "Approving sends this request, with the details shown, to {appName}."
-msgstr ""
+msgstr "Разрешение отправит этот запрос вместе с показанными данными в {appName}."
 
 #: src/components/approve-device/fingerprint-confirmation.tsx
 #: src/settings/devices.tsx
@@ -690,7 +690,7 @@ msgstr "Спросите что угодно…"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Assistant"
-msgstr ""
+msgstr "Ассистент"
 
 #: src/components/sync-enable-warning-dialog.tsx
 msgid "At this time, synced data is not encrypted. Enabling sync will store your data on our servers without encryption. Do you want to continue?"
@@ -699,7 +699,7 @@ msgstr "Сейчас синхронизируемые данные не шифр
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Authorization code"
-msgstr ""
+msgstr "Код авторизации"
 
 #: src/settings/connections/index.tsx
 msgid "Authorization error"
@@ -756,7 +756,7 @@ msgstr "Доступные инструменты:"
 
 #: src/components/onboarding/onboarding-action-buttons.tsx
 msgid "Back"
-msgstr ""
+msgstr "Назад"
 
 #: src/components/account-deleted.tsx
 #: src/components/device-revoked.tsx
@@ -774,7 +774,7 @@ msgstr "Bearer-токен или API-ключ"
 
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Brave provides search results. Choose Exa, Tavily, or Tinfoil to read full pages."
-msgstr ""
+msgstr "Результаты поиска даёт Brave. Чтобы читать страницы целиком, выберите Exa, Tavily или Tinfoil."
 
 #: src/settings/devices.tsx
 msgid "Bridge"
@@ -794,7 +794,7 @@ msgstr "Или соберите из исходников (нужен Bun):"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Built to protect your data."
-msgstr ""
+msgstr "Создано, чтобы защищать ваши данные."
 
 #: src/settings/models/model-detail.tsx
 msgid "Built-in models can't be edited or removed"
@@ -852,7 +852,7 @@ msgstr "Отмена"
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/components/provider-connection-button.tsx
 msgid "Cancel connection"
-msgstr ""
+msgstr "Отменить подключение"
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Cannot change agent during reply"
@@ -877,7 +877,7 @@ msgstr "Сменить фразу восстановления"
 
 #: src/components/server-connection/change-server-button.tsx
 msgid "Change server"
-msgstr ""
+msgstr "Сменить сервер"
 
 #: src/settings/encryption/change-recovery-key-section.tsx
 msgid "Change your recovery phrase?"
@@ -910,7 +910,7 @@ msgstr "Название чата"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "ChatGPT sign-in is available in the desktop app. You can use an OpenAI API key here."
-msgstr ""
+msgstr "Вход через ChatGPT доступен в настольном приложении. Здесь можно воспользоваться API-ключом OpenAI."
 
 #: src/layout/sidebar/nav-toggle.tsx
 #: src/search/palette/entity-meta.ts
@@ -954,7 +954,7 @@ msgstr "Проверка обновлений…"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Checking model…"
-msgstr ""
+msgstr "Проверка модели…"
 
 #: src/components/device-approval.tsx
 msgid "Checking sign-in request…"
@@ -979,20 +979,20 @@ msgstr "Проверка…"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Choose a connection"
-msgstr ""
+msgstr "Выберите подключение"
 
 #: src/components/chat/effort-selector/effort-selector.tsx
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Choose a model"
-msgstr ""
+msgstr "Выберите модель"
 
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Choose a provider"
-msgstr ""
+msgstr "Выберите провайдера"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Choose a provider to power your agents."
-msgstr ""
+msgstr "Выберите провайдера, на котором будут работать ваши агенты."
 
 #: src/components/ui/agent-selector/agent-selector.tsx
 msgid "Choose agent"
@@ -1012,24 +1012,24 @@ msgstr "Выберите вариант"
 
 #: src/settings/connections/chatgpt-account-picker.tsx
 msgid "Choose ChatGPT account"
-msgstr ""
+msgstr "Выберите учётную запись ChatGPT"
 
 #: src/components/server-connection/server-connection-modal.tsx
 msgid "Choose Cloud or Enterprise to connect your account."
-msgstr ""
+msgstr "Выберите «Облако» или «Корпоративный», чтобы подключить учётную запись."
 
 #: src/components/chat/effort-selector/effort-controls.tsx
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Choose effort"
-msgstr ""
+msgstr "Выберите глубину"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Choose from available models"
-msgstr ""
+msgstr "Выберите из доступных моделей"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Choose how you use Thunderbolt."
-msgstr ""
+msgstr "Выберите, как вы пользуетесь Вольтом."
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Choose model"
@@ -1045,7 +1045,7 @@ msgstr "Выбрать проект"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Choose your agents, models, and tools."
-msgstr ""
+msgstr "Выберите своих агентов, модели и инструменты."
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Choose your email provider {reason}"
@@ -1065,11 +1065,11 @@ msgstr "Выберите почтовый провайдер, чтобы пол�
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Choose your setup"
-msgstr ""
+msgstr "Выберите вариант установки"
 
 #: src/settings/preferences.tsx
 msgid "City or region"
-msgstr ""
+msgstr "Город или регион"
 
 #: src/layout/sidebar/chat-actions.tsx
 #: src/layout/sidebar/chat-list.tsx
@@ -1144,11 +1144,11 @@ msgstr "Закрыть изменение порядка"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Cloud"
-msgstr ""
+msgstr "Облако"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Cloud (Waitlist)"
-msgstr ""
+msgstr "Облако (список ожидания)"
 
 #: src/components/sidebar-footer.tsx
 msgid "Cloud Sync"
@@ -1164,11 +1164,11 @@ msgstr "Код не подошёл"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Code you can inspect and improve."
-msgstr ""
+msgstr "Исходный код, который можно изучить и улучшить."
 
 #: src/components/approve-device/approval-code-options.tsx
 msgid "Codes to choose from"
-msgstr ""
+msgstr "Коды на выбор"
 
 #: src/fork/reasoning/reasoning-collapse-toggle.tsx
 msgid "Collapse reasoning"
@@ -1188,43 +1188,43 @@ msgstr "Палитра команд"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Command result"
-msgstr ""
+msgstr "Результат команды"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Compact now"
-msgstr ""
+msgstr "Уплотнить сейчас"
 
 #: src/components/context-usage/compaction-notice.tsx
 msgid "Compacted"
-msgstr ""
+msgstr "Уплотнено"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Compacting context…"
-msgstr ""
+msgstr "Уплотнение истории…"
 
 #: src/components/context-usage/compaction-notice.tsx
 msgid "Compacting…"
-msgstr ""
+msgstr "Уплотнение…"
 
 #: src/components/context-usage/compaction-notice.tsx
 msgid "Compaction"
-msgstr ""
+msgstr "Уплотнение"
 
 #: src/components/context-usage/compaction-notice.tsx
 msgid "Compaction cancelled"
-msgstr ""
+msgstr "Уплотнение отменено"
 
 #: src/components/context-usage/compaction-notice.tsx
 msgid "Compaction failed"
-msgstr ""
+msgstr "Уплотнить не удалось"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Compaction instructions (optional)"
-msgstr ""
+msgstr "Указания к уплотнению (необязательно)"
 
 #: src/components/context-usage/compaction-summary-content.tsx
 msgid "Compaction summary"
-msgstr ""
+msgstr "Выжимка уплотнения"
 
 #: src/tasks/index.tsx
 msgid "Complete {taskItem}"
@@ -1232,7 +1232,7 @@ msgstr "Выполнить {taskItem}"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Complete connection"
-msgstr ""
+msgstr "Завершить подключение"
 
 #: src/tasks/index.tsx
 msgid "Complete new task"
@@ -1261,7 +1261,7 @@ msgstr "Настроить {0}"
 
 #: src/chats/chat-instance.ts
 msgid "Configure and select an available model before sending a message."
-msgstr ""
+msgstr "Настройте и выберите доступную модель, прежде чем отправлять сообщение."
 
 #: src/components/modification-indicator.tsx
 msgid "Confirm"
@@ -1277,11 +1277,11 @@ msgstr "Убедитесь, что код совпадает с тем, что �
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Connect"
-msgstr ""
+msgstr "Подключить"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Connect {name}"
-msgstr ""
+msgstr "Подключить {name}"
 
 #: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-auth-step.tsx
@@ -1292,7 +1292,7 @@ msgstr "Подключить {providerName}"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Connect a local model or use an API key."
-msgstr ""
+msgstr "Подключите локальную модель или воспользуйтесь API-ключом."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Connect a remote agent that speaks the Agent Client Protocol."
@@ -1300,7 +1300,7 @@ msgstr "Подключите удалённого агента по Agent Client
 
 #: src/settings/search/index.tsx
 msgid "Connect a search provider to let your agents search the web."
-msgstr ""
+msgstr "Подключите провайдера поиска, чтобы агенты могли искать в интернете."
 
 #: src/fork/local-mode/server-section.tsx
 msgid "Connect and keep local data"
@@ -1320,25 +1320,25 @@ msgstr "Подключить Microsoft"
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Connect on this device"
-msgstr ""
+msgstr "Подключить на этом устройстве"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 #: src/settings/search/index.tsx
 #: src/settings/search/search-connection-detail.tsx
 msgid "Connect or enable this connection to use search"
-msgstr ""
+msgstr "Подключите или включите это подключение, чтобы пользоваться поиском"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Connect Otari"
-msgstr ""
+msgstr "Подключить Otari"
 
 #: src/settings/connections/connections-list.tsx
 msgid "Connect providers, accounts, or MCP servers to use their models and tools."
-msgstr ""
+msgstr "Подключите провайдеров, учётные записи или серверы MCP, чтобы пользоваться их моделями и инструментами."
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Connect this provider on this device to add models."
-msgstr ""
+msgstr "Подключите этого провайдера на этом устройстве, чтобы добавить модели."
 
 #: src/fork/local-mode/server-section.tsx
 msgid "Connect this server"
@@ -1350,35 +1350,35 @@ msgstr "Подключить этот сервер?"
 
 #: src/components/server-connection/server-connection-form.tsx
 msgid "Connect to server"
-msgstr ""
+msgstr "Подключиться к серверу"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Connect to the official Otari server."
-msgstr ""
+msgstr "Подключиться к официальному серверу Otari."
 
 #: src/components/server-connection/server-connection-modal.tsx
 msgid "Connect to Thunderbolt"
-msgstr ""
+msgstr "Подключиться к Вольту"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Connect to your organization's server."
-msgstr ""
+msgstr "Подключиться к серверу вашей организации."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Connect to your Otari server."
-msgstr ""
+msgstr "Подключиться к своему серверу Otari."
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Connect to your server"
-msgstr ""
+msgstr "Подключиться к своему серверу"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Connect with an API key."
-msgstr ""
+msgstr "Подключиться по API-ключу."
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Connect your account"
-msgstr ""
+msgstr "Подключите учётную запись"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Connect your account to make these tools available to agents."
@@ -1386,12 +1386,12 @@ msgstr "Подключите аккаунт, чтобы эти инструме�
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Connect your account to power your agents."
-msgstr ""
+msgstr "Подключите учётную запись, чтобы на ней работали ваши агенты."
 
 #: src/components/chat/chat-model-setup.tsx
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Connect your AI"
-msgstr ""
+msgstr "Подключите свой ИИ"
 
 #: src/settings/connections/connections-list.tsx
 #~ msgid "Connect your own MCP servers to give agents more tools."
@@ -1431,15 +1431,15 @@ msgstr "Подключено к {integrationName}"
 
 #: src/settings/connections/provider-connection-summary.tsx
 msgid "Connected to {name}"
-msgstr ""
+msgstr "Подключено к {name}"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Connected to Otari"
-msgstr ""
+msgstr "Подключено к Otari"
 
 #: src/components/otari-connection/use-otari-connection-state.ts
 msgid "Connected to Otari, but couldn't load your models. Please try again."
-msgstr ""
+msgstr "Подключение к Otari есть, но загрузить ваши модели не удалось. Попробуйте снова."
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Connected without tools"
@@ -1456,7 +1456,7 @@ msgstr "Подключение к {agentName}…"
 
 #: src/components/approve-device/approval-code-options.tsx
 msgid "Connecting to the new device…"
-msgstr ""
+msgstr "Подключение к новому устройству…"
 
 #: src/components/connect-provider-button.tsx
 #: src/components/onboarding/onboarding-dialog.tsx
@@ -1477,7 +1477,7 @@ msgstr "Подключение"
 
 #: src/lib/otari-browser-auth.ts
 msgid "Connection cancelled. You can connect to Otari whenever you're ready."
-msgstr ""
+msgstr "Подключение отменено. К Otari можно подключиться в любой момент."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 #: src/fork/agent-pairing/pair-by-code-field.tsx
@@ -1486,7 +1486,7 @@ msgstr "Код подключения"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Connection details"
-msgstr ""
+msgstr "Сведения о подключении"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Connection error"
@@ -1500,11 +1500,11 @@ msgstr "Не удалось подключиться"
 
 #: src/components/provider-authorization-result.tsx
 msgid "Connection not completed"
-msgstr ""
+msgstr "Подключение не завершено"
 
 #: src/components/chat/attestation/attestation-control.tsx
 msgid "Connection privacy: {label}"
-msgstr ""
+msgstr "Приватность подключения: {label}"
 
 #: src/components/chat/error-message.tsx
 msgid "Connection problem. Check your internet and try again."
@@ -1517,23 +1517,23 @@ msgstr "Соединение установлено!"
 
 #: src/hooks/use-model-connection-test.ts
 msgid "Connection test timed out. Please try again."
-msgstr ""
+msgstr "Проверка подключения не уложилась в отведённое время. Попробуйте снова."
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "Connection type"
-msgstr ""
+msgstr "Тип подключения"
 
 #: src/settings/models/model-detail.tsx
 msgid "Connection unavailable on this device."
-msgstr ""
+msgstr "Подключение недоступно на этом устройстве."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Connection verified"
-msgstr ""
+msgstr "Подключение подтверждено"
 
 #: src/components/chat/attestation/attestation-modal.tsx
 msgid "Connection Verified"
-msgstr ""
+msgstr "Подключение подтверждено"
 
 #: src/components/chat/chat-add-menu.tsx
 #: src/components/settings/agents/agent-detail.tsx
@@ -1550,19 +1550,19 @@ msgstr "Связаться с поддержкой"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Content to send"
-msgstr ""
+msgstr "Что будет отправлено"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Context"
-msgstr ""
+msgstr "История"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Context usage"
-msgstr ""
+msgstr "Заполнение истории"
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Context usage is not available."
-msgstr ""
+msgstr "Заполнение истории недоступно."
 
 #: src/components/context-overflow-modal.tsx
 msgid "Context Window Exceeded"
@@ -1586,28 +1586,28 @@ msgstr "Продолжить"
 
 #: src/components/provider-authorization-result.tsx
 msgid "Continue in your Thunderbolt window"
-msgstr ""
+msgstr "Продолжите в окне Вольта"
 
 #: src/components/sso-error.tsx
 #: src/components/sso-redirect.tsx
 msgid "Continue locally"
-msgstr ""
+msgstr "Продолжить автономно"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Continue setup without signing in"
-msgstr ""
+msgstr "Продолжить настройку без входа"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Continue with ChatGPT"
-msgstr ""
+msgstr "Продолжить с ChatGPT"
 
 #: src/components/sign-in-modal.tsx
 msgid "Continue with organization"
-msgstr ""
+msgstr "Продолжить через организацию"
 
 #: src/components/sign-in-modal.tsx
 msgid "Continue with your organization's sign-in to connect to this server."
-msgstr ""
+msgstr "Чтобы подключиться к этому серверу, войдите через свою организацию."
 
 #: src/fork/local-mode/server-unavailable-screen.tsx
 msgid "Continue without a server"
@@ -1636,7 +1636,7 @@ msgstr "Скопировать команду сборки"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Copy fingerprint"
-msgstr ""
+msgstr "Скопировать отпечаток"
 
 #: src/components/artifact/artifact-actions.tsx
 msgid "Copy HTML"
@@ -1661,7 +1661,7 @@ msgstr "Скопировать URL"
 
 #: src/settings/models/use-add-provider-models.ts
 msgid "Could not add the models. Try again."
-msgstr ""
+msgstr "Не удалось добавить модели. Попробуйте снова."
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Could not bind the pairing code"
@@ -1669,7 +1669,7 @@ msgstr "Не удалось привязать код сопряжения"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Could not change reasoning effort"
-msgstr ""
+msgstr "Не удалось изменить глубину рассуждений"
 
 #: src/settings/devices.tsx
 msgid "Could not check whether a removed device still holds your account key. Reload to try again."
@@ -1677,23 +1677,23 @@ msgstr "Не удалось проверить, остался ли у отоз�
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Could not compact context. Please try again."
-msgstr ""
+msgstr "Не удалось уплотнить историю. Попробуйте снова."
 
 #: src/components/logout-modal.tsx
 msgid "Could not confirm sign-out. Please try again."
-msgstr ""
+msgstr "Не удалось подтвердить выход. Попробуйте снова."
 
 #: src/providers/use-provider-authorization.ts
 msgid "Could not connect this provider. Please try again."
-msgstr ""
+msgstr "Не удалось подключить этого провайдера. Попробуйте снова."
 
 #: src/components/onboarding/use-onboarding-provider-state.ts
 msgid "Could not connect to OpenRouter. Try again, or use an API key."
-msgstr ""
+msgstr "Не удалось подключиться к OpenRouter. Попробуйте снова или воспользуйтесь API-ключом."
 
 #: src/components/otari-connection/use-otari-connection-state.ts
 msgid "Could not connect to Otari. Please try again."
-msgstr ""
+msgstr "Не удалось подключиться к Otari. Попробуйте снова."
 
 #: src/components/settings/agents/add-custom-agent-form.tsx
 msgid "Could not connect to the agent."
@@ -1705,7 +1705,7 @@ msgstr "Не удалось подключиться к MCP-серверу. Пр
 
 #: src/hooks/use-model-connection-test.ts
 msgid "Could not connect to the model. Check your connection and credentials, then try again."
-msgstr ""
+msgstr "Не удалось подключиться к модели. Проверьте подключение и учётные данные, затем попробуйте снова."
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Could not connect to this server. Check the URL and that the server is reachable."
@@ -1713,11 +1713,11 @@ msgstr "Не удалось подключиться к серверу. Пров
 
 #: src/lib/tinfoil-auth.ts
 msgid "Could not connect to Tinfoil. Try again, or use an API key."
-msgstr ""
+msgstr "Не удалось подключиться к Tinfoil. Попробуйте снова или воспользуйтесь API-ключом."
 
 #: src/components/search-provider-setup/use-search-provider-setup.ts
 msgid "Could not connect. Check your API key and connection, then try again."
-msgstr ""
+msgstr "Не удалось подключиться. Проверьте API-ключ и подключение, затем попробуйте снова."
 
 #: src/projects/use-project-create-state.ts
 msgid "Could not create the project."
@@ -1733,32 +1733,32 @@ msgstr "Не удалось удалить проекты. Попробуйте 
 
 #: src/components/otari-connection/use-otari-connection-state.ts
 msgid "Could not disconnect Otari. Please try again."
-msgstr ""
+msgstr "Не удалось отключить Otari. Попробуйте снова."
 
 #: src/components/onboarding/use-onboarding-provider-state.ts
 msgid "Could not disconnect this provider. Please try again."
-msgstr ""
+msgstr "Не удалось отключить этого провайдера. Попробуйте снова."
 
 #: src/components/search-provider-setup/use-search-provider-setup.ts
 msgid "Could not disconnect this search provider. Please try again."
-msgstr ""
+msgstr "Не удалось отключить этого провайдера поиска. Попробуйте снова."
 
 #: src/providers/use-provider-authorization.ts
 msgid "Could not finish connecting or revoke the unused session. You can remove Thunderbolt’s access in ChatGPT Settings."
-msgstr ""
+msgstr "Не удалось ни завершить подключение, ни отозвать неиспользованный сеанс. Доступ Вольта можно убрать в настройках ChatGPT."
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Could not finish setup. Please try again."
-msgstr ""
+msgstr "Не удалось завершить настройку. Попробуйте снова."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "Could not load the provider's model list. Please try again."
-msgstr ""
+msgstr "Не удалось загрузить список моделей провайдера. Попробуйте снова."
 
 #: src/settings/models/use-add-provider-models.ts
 #: src/settings/models/use-edit-model-form-state.ts
 msgid "Could not load this connection's models. Try again."
-msgstr ""
+msgstr "Не удалось загрузить модели этого подключения. Попробуйте снова."
 
 #: src/hooks/use-external-link-dialog.ts
 msgid "Could not open link. Please try again or copy the URL."
@@ -1786,11 +1786,11 @@ msgstr "Не удалось отрисовать код сопряжения."
 
 #: src/webview-recovery/index.ts
 msgid "Could not restart the app. Quit Thunderbolt and open it again."
-msgstr ""
+msgstr "Не удалось перезапустить приложение. Закройте Вольт и откройте его заново."
 
 #: src/settings/connections/use-provider-connection-form.ts
 msgid "Could not save the connection. Try again."
-msgstr ""
+msgstr "Не удалось сохранить подключение. Попробуйте снова."
 
 #: src/projects/project-form.tsx
 msgid "Could not save the project."
@@ -1798,31 +1798,31 @@ msgstr "Не удалось сохранить проект."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "Could not save the provider connection on this device."
-msgstr ""
+msgstr "Не удалось сохранить подключение к провайдеру на этом устройстве."
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Could not save your preference. Please try again."
-msgstr ""
+msgstr "Не удалось сохранить выбор. Попробуйте снова."
 
 #: src/hooks/use-mcp-server-oauth.ts
 msgid "Could not start authorization. Please try again."
-msgstr ""
+msgstr "Не удалось начать авторизацию. Попробуйте снова."
 
 #: src/settings/connections/use-ai-provider-connections.ts
 msgid "Could not update the connection. Try again."
-msgstr ""
+msgstr "Не удалось обновить подключение. Попробуйте снова."
 
 #: src/components/otari-connection/use-otari-connection-state.ts
 msgid "Could not verify or save the Otari model. Please try again."
-msgstr ""
+msgstr "Не удалось проверить или сохранить модель Otari. Попробуйте снова."
 
 #: src/components/onboarding/use-onboarding-provider-state.ts
 msgid "Could not verify this code. Try again or start a new connection."
-msgstr ""
+msgstr "Не удалось проверить этот код. Попробуйте снова или начните подключение заново."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "Could not verify Tinfoil's secure environment. Finish any macOS keychain prompts, then try again."
-msgstr ""
+msgstr "Не удалось проверить защищённую среду Tinfoil. Ответьте на запросы связки ключей macOS, затем попробуйте снова."
 
 #: src/components/onboarding/onboarding-passkey-step.tsx
 msgid "Couldn't add a passkey. You can add one later when you set up sync."
@@ -1835,7 +1835,7 @@ msgstr "Не удалось добавить агента. Попробуйте 
 #: src/components/approve-device/approve-device-dialog.tsx
 #: src/components/approve-device/fingerprint-confirmation.tsx
 msgid "Couldn't approve this device. Please try again."
-msgstr ""
+msgstr "Не удалось разрешить это устройство. Попробуйте снова."
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "Couldn't attach \"{filename}\" — your browser's storage is full or unavailable."
@@ -1851,12 +1851,12 @@ msgstr "Не удалось проверить обновления."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Couldn’t check whether this Otari workspace has web search."
-msgstr ""
+msgstr "Не удалось выяснить, есть ли в этом рабочем пространстве Otari поиск в интернете."
 
 #: src/components/approve-device/approve-device-dialog.tsx
 #: src/components/approve-device/fingerprint-confirmation.tsx
 msgid "Couldn't complete approval. Close this dialog and check the device list before trying again."
-msgstr ""
+msgstr "Не удалось завершить подтверждение. Закройте это окно и проверьте список устройств, прежде чем пробовать снова."
 
 #: src/voice/ui/use-voice-session.ts
 #~ msgid "Couldn't connect to Gemini Live. Check your Gemini API key in Settings → Voice."
@@ -1864,11 +1864,11 @@ msgstr ""
 
 #: src/components/server-connection/use-server-connection-state.ts
 msgid "Couldn't connect to this Thunderbolt server. Check the address and try again."
-msgstr ""
+msgstr "Не удалось подключиться к этому серверу Вольта. Проверьте адрес и попробуйте снова."
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Couldn't copy. Select the fingerprint to copy it manually."
-msgstr ""
+msgstr "Не удалось скопировать. Выделите отпечаток и скопируйте вручную."
 
 #: src/settings/app-version-section.tsx
 msgid "Couldn't download the update: {error}"
@@ -1880,7 +1880,7 @@ msgstr "Не удалось загрузить обновление."
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Couldn't get a code."
-msgstr ""
+msgstr "Не удалось получить код."
 
 #: src/components/embedded/surface-status.tsx
 msgid "Couldn't load {name}"
@@ -1908,7 +1908,7 @@ msgstr "Не удалось связаться с агентом. Проверь
 
 #: src/components/onboarding/use-onboarding-server-state.ts
 msgid "Couldn't reach Thunderbolt Cloud. Try again, or set up without a server for now."
-msgstr ""
+msgstr "Не удалось связаться с облаком Вольта. Попробуйте снова или пока настройте работу без сервера."
 
 #: src/settings/encryption/use-remove-passkey.ts
 msgid "Couldn't remove the passkey. Please try again."
@@ -1953,7 +1953,7 @@ msgstr "Не удалось войти по ключу доступа. Попр�
 
 #: src/components/local-data-switch-screen.tsx
 msgid "Couldn't switch accounts"
-msgstr ""
+msgstr "Не удалось сменить учётную запись"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Couldn't unlock sync with your passkey. Please try again."
@@ -1965,7 +1965,7 @@ msgstr "Не удалось открепить {name}."
 
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "Couldn't update the passkey. Try again."
-msgstr ""
+msgstr "Не удалось обновить ключ доступа. Попробуйте снова."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Couldn't update. Please try again."
@@ -1977,7 +1977,7 @@ msgstr "Не удалось подтвердить защищённое соед
 
 #: src/hooks/use-sync-setup.ts
 msgid "Couldn't verify this device's approval. Select Check now to try again, or choose another option below."
-msgstr ""
+msgstr "Не удалось проверить, разрешено ли это устройство. Нажмите «Проверить сейчас» или выберите другой вариант ниже."
 
 #: src/projects/project-create-form.tsx
 #: src/search/palette/search-palette.tsx
@@ -2032,7 +2032,7 @@ msgstr "Учётные данные (необязательно)"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Credentials stay on this device."
-msgstr ""
+msgstr "Учётные данные остаются на этом устройстве."
 
 #: src/settings/preferences.tsx
 msgid "Currency"
@@ -2053,7 +2053,7 @@ msgstr "Свой — совместимый с OpenAI сервер"
 #: src/components/otari-connection/otari-connection.tsx
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Custom URL"
-msgstr ""
+msgstr "Свой адрес"
 
 #: src/settings/preferences.tsx
 msgid "Custom voice provider"
@@ -2061,7 +2061,7 @@ msgstr "Голос"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Customizable"
-msgstr ""
+msgstr "Настраивается"
 
 #: src/settings/models/model-detail.tsx
 msgid "Customized model"
@@ -2256,7 +2256,7 @@ msgstr "Отклонить {deviceName}"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "Deny device"
-msgstr ""
+msgstr "Отказать устройству"
 
 #: src/components/revoke-device-dialog.tsx
 msgid "Deny this device?"
@@ -2294,7 +2294,7 @@ msgstr "Доступ устройства отозван"
 #: src/components/approve-device/fingerprint-confirmation.tsx
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Device fingerprint"
-msgstr ""
+msgstr "Отпечаток устройства"
 
 #: src/components/device-qr-code.tsx
 msgid "Device pairing QR code"
@@ -2312,12 +2312,12 @@ msgstr "Устройства"
 #: src/settings/connections/connections-list.tsx
 #: src/settings/search/index.tsx
 msgid "Disable {0}"
-msgstr ""
+msgstr "Отключить {0}"
 
 #. placeholder {0}: providerConnections.pendingDisable.name
 #: src/settings/connections/index.tsx
 msgid "Disable {0}?"
-msgstr ""
+msgstr "Отключить {0}?"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Disable {customAgentName}"
@@ -2345,7 +2345,7 @@ msgstr "Отключить {title}"
 
 #: src/settings/connections/index.tsx
 msgid "Disable connection"
-msgstr ""
+msgstr "Отключить подключение"
 
 #: src/skills/dependents-dialog.tsx
 msgid "Disable skill"
@@ -2378,7 +2378,7 @@ msgstr "Отключить"
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Disconnect this device"
-msgstr ""
+msgstr "Отключить это устройство"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Disconnected"
@@ -2387,7 +2387,7 @@ msgstr "Отключён"
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Disconnecting…"
-msgstr ""
+msgstr "Отключение…"
 
 #: src/components/chat/composer-alert.tsx
 #: src/components/download-app-banner-mobile.tsx
@@ -2419,7 +2419,7 @@ msgstr "Больше не спрашивать"
 
 #: src/components/onboarding/onboarding-celebration-step.tsx
 msgid "Donate anonymous usage data"
-msgstr ""
+msgstr "Передавать обезличенные данные об использовании"
 
 #: src/components/device-approval.tsx
 #: src/components/sync-setup/recovery-key-display-step.tsx
@@ -2501,7 +2501,7 @@ msgstr "напр., gpt-4-turbo-preview"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "e.g., llama3.3"
-msgstr ""
+msgstr "например, llama3.3"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Early Access Login"
@@ -2561,7 +2561,7 @@ msgstr "Адрес почты"
 #. placeholder {0}: provider.name
 #: src/settings/connections/connections-list.tsx
 msgid "Enable {0}"
-msgstr ""
+msgstr "Включить {0}"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Enable {customAgentName}"
@@ -2589,7 +2589,7 @@ msgstr "Включить облачную синхронизацию"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Enable connection"
-msgstr ""
+msgstr "Включить подключение"
 
 #: src/components/sync-enable-warning-dialog.tsx
 msgid "Enable sync without encryption"
@@ -2605,7 +2605,7 @@ msgstr "Включить телеметрию"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Enable this connection to add models."
-msgstr ""
+msgstr "Включите это подключение, чтобы добавить модели."
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Enabled"
@@ -2617,23 +2617,23 @@ msgstr "Включает ответы с учётом местоположени
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Enclave endpoint"
-msgstr ""
+msgstr "Адрес анклава"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Enclave measurement"
-msgstr ""
+msgstr "Измерение анклава"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Enclave-bound encryption key"
-msgstr ""
+msgstr "Ключ шифрования, привязанный к анклаву"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Encrypted syncing and AI hosted by Thunderbolt"
-msgstr ""
+msgstr "Шифрованная синхронизация и ИИ на стороне Вольта"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Encryption"
-msgstr ""
+msgstr "Шифрование"
 
 #: src/components/unsaved-recovery-phrase-prompt.tsx
 msgid "Encryption is set up on this device, but the 24-word recovery phrase was not confirmed. Without it you cannot recover your data if you lose access to this device. The previous phrase cannot be shown again — generate a new one now."
@@ -2653,11 +2653,11 @@ msgstr "Укажите адрес полностью, вместе с https:// �
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Enter a model ID"
-msgstr ""
+msgstr "Укажите идентификатор модели"
 
 #: src/components/otari-connection/use-otari-connection-state.ts
 msgid "Enter a valid HTTPS server URL, or an HTTP localhost URL for local development."
-msgstr ""
+msgstr "Укажите корректный адрес сервера по HTTPS либо адрес localhost по HTTP для локальной разработки."
 
 #: src/lib/mcp-url-validation.ts
 msgid "Enter a valid URL"
@@ -2697,15 +2697,15 @@ msgstr "Введите код из терминала, чтобы продолж
 
 #: src/components/approve-device/fingerprint-confirmation.tsx
 msgid "Enter the fingerprint from the new device's screen or a separate channel you trust."
-msgstr ""
+msgstr "Введите отпечаток с экрана нового устройства или полученный по другому каналу, которому вы доверяете."
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Enter this fingerprint on your trusted device before approving."
-msgstr ""
+msgstr "Прежде чем разрешать, введите этот отпечаток на доверенном устройстве."
 
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Enter your API key"
-msgstr ""
+msgstr "Введите свой API-ключ"
 
 #: src/components/sign-in-modal.tsx
 msgid "Enter your code"
@@ -2721,11 +2721,11 @@ msgstr "Введите код подтверждения"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Enterprise"
-msgstr ""
+msgstr "Корпоративный"
 
 #: src/settings/search/search-connection-detail.tsx
 msgid "Exa provides search and page content through Tinfoil’s encrypted connection and privacy filters. No separate Exa API key is needed."
-msgstr ""
+msgstr "Exa даёт поиск и содержимое страниц через шифрованное подключение Tinfoil и его фильтры приватности. Отдельный API-ключ Exa не нужен."
 
 #: src/fork/agent-pairing/pair-by-code-field.tsx
 #~ msgid "Exchanged for an access token when you test the connection — no need to paste the token yourself."
@@ -2765,7 +2765,7 @@ msgstr "Внешние ссылки"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Extra high"
-msgstr ""
+msgstr "Очень высокая"
 
 #: src/i18n/unit-labels.ts
 #: src/widgets/weather-forecast/display.tsx
@@ -2798,7 +2798,7 @@ msgstr "Не удалось удалить аккаунт."
 
 #: src/settings/models/use-models-page-state.ts
 msgid "Failed to delete the model."
-msgstr ""
+msgstr "Не удалось удалить модель."
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Failed to disconnect integration"
@@ -2842,11 +2842,11 @@ msgstr "Не удалось повторно отправить код. Пров
 
 #: src/settings/models/use-models-page-state.ts
 msgid "Failed to reset the model."
-msgstr ""
+msgstr "Не удалось сбросить модель."
 
 #: src/settings/models/use-models-page-state.ts
 msgid "Failed to save the model."
-msgstr ""
+msgstr "Не удалось сохранить модель."
 
 #: src/settings/account/use-delete-account.ts
 #: src/settings/encryption/use-change-recovery-key.ts
@@ -2872,15 +2872,15 @@ msgstr "Не удалось обновить MCP-сервер"
 
 #: src/settings/models/use-models-page-state.ts
 msgid "Failed to update the model."
-msgstr ""
+msgstr "Не удалось обновить модель."
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "Filter by type"
-msgstr ""
+msgstr "Отбор по типу"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Finish connecting in your browser, then paste the authorization code here."
-msgstr ""
+msgstr "Завершите подключение в браузере, затем вставьте сюда код авторизации."
 
 #: src/settings/devices.tsx
 msgid "Finish securing"
@@ -2960,7 +2960,7 @@ msgstr "Генерация…"
 
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Get an API key"
-msgstr ""
+msgstr "Получить API-ключ"
 
 #: src/settings/connections/use-integrations-controller.tsx
 msgid "Get Pro"
@@ -3015,7 +3015,7 @@ msgstr "Доброе утро"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Got it"
-msgstr ""
+msgstr "Понятно"
 
 #: src/widgets/ask/display.tsx
 #~ msgid "Got it, working on that next."
@@ -3031,7 +3031,7 @@ msgstr "Тактильный отклик"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Hardware attestation"
-msgstr ""
+msgstr "Аппаратное подтверждение"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Having a problem with this chat?"
@@ -3059,7 +3059,7 @@ msgstr "Помогите улучшить {appName}"
 
 #: src/components/onboarding/onboarding-celebration-step.tsx
 msgid "Help make {appName} better."
-msgstr ""
+msgstr "Помогите сделать {appName} лучше."
 
 #: src/settings/preferences.tsx
 #~ msgid "Help Thunderbolt Improve"
@@ -3088,7 +3088,7 @@ msgstr "Скрывать живые рассуждения модели во в�
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "High"
-msgstr ""
+msgstr "Высокая"
 
 #: src/settings/preferences.tsx
 msgid "How {appName} salutes you"
@@ -3100,19 +3100,19 @@ msgstr "Как {appName} к вам обращается"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "http://localhost:11434/v1"
-msgstr ""
+msgstr "http://localhost:11434/v1"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "http://localhost:8099"
-msgstr ""
+msgstr "http://localhost:8099"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "https://otari.example.com"
-msgstr ""
+msgstr "https://otari.example.com"
 
 #: src/components/server-connection/server-connection-form.tsx
 msgid "https://your-server.example"
-msgstr ""
+msgstr "https://your-server.example"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "I agree to share this chat session with the {recipient} team."
@@ -3148,7 +3148,7 @@ msgstr "Если вы получили код для входа, введите 
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Image retained"
-msgstr ""
+msgstr "Изображение сохранено"
 
 #: src/i18n/unit-labels.ts
 msgid "Imperial"
@@ -3256,11 +3256,11 @@ msgstr "На iOS нужен защищённый URL (wss://)"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "It was created before a security update. A new phrase lets recovery confirm your keys are yours."
-msgstr ""
+msgstr "Она создана до обновления безопасности. Новая фраза позволит при восстановлении подтвердить, что ключи действительно ваши."
 
 #: src/components/onboarding/onboarding-celebration-step.tsx
 msgid "It's optional. You can turn this off now or change it later in Settings."
-msgstr ""
+msgstr "Это необязательно. Можно отключить сейчас или изменить позже в настройках."
 
 #: src/projects/project-delete-dialog.tsx
 msgid "Its instructions are removed. Chats in the project are kept and become ordinary chats."
@@ -3268,7 +3268,7 @@ msgstr "Его инструкции удаляются. Чаты проекта 
 
 #: src/waitlist/waitlist-content.tsx
 msgid "Join the waitlist or sign in if you already have access."
-msgstr ""
+msgstr "Запишитесь в список ожидания или войдите, если доступ у вас уже есть."
 
 #: src/components/sidebar-footer.tsx
 msgid "Just synced"
@@ -3300,7 +3300,7 @@ msgstr "Оставить сохранённые учётные данные"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "Keep the new device on its approval screen, or tap New code there, then try again."
-msgstr ""
+msgstr "Оставьте новое устройство на экране подтверждения или нажмите там «Новый код», затем попробуйте снова."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Keep your data in sync across all your devices. Everything is encrypted end-to-end. Only your devices can read your data."
@@ -3340,7 +3340,7 @@ msgstr "Позже"
 
 #: src/mini-apps/mini-app-approval-prompt.tsx
 msgid "Later calls run without asking, with whatever details the model sends, until Thunderbolt reloads."
-msgstr ""
+msgstr "Дальше вызовы будут выполняться без запроса, с теми данными, которые пришлёт модель, — до перезагрузки Вольта."
 
 #: src/components/logout-modal.tsx
 msgid "Leave data on device"
@@ -3407,7 +3407,7 @@ msgstr "Загрузка эмодзи…"
 #: src/components/otari-connection/otari-connection.tsx
 #: src/settings/models/add-provider-models.tsx
 msgid "Loading models…"
-msgstr ""
+msgstr "Загрузка моделей…"
 
 #: src/content-view/sidebar-webview.tsx
 msgid "Loading preview…"
@@ -3426,7 +3426,7 @@ msgstr "Загрузка…"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Local"
-msgstr ""
+msgstr "Автономно"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 #~ msgid "Local Storage"
@@ -3460,7 +3460,7 @@ msgstr "Lora"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Low"
-msgstr ""
+msgstr "Низкая"
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Mainly clear"
@@ -3468,21 +3468,21 @@ msgstr "Преимущественно ясно"
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Manage account"
-msgstr ""
+msgstr "Управление учётной записью"
 
 #: src/settings/search/index.tsx
 msgid "Manage all connections"
-msgstr ""
+msgstr "Все подключения"
 
 #: src/settings/models/model-detail.tsx
 #: src/settings/search/search-connection-detail.tsx
 msgid "Manage connection"
-msgstr ""
+msgstr "Настроить подключение"
 
 #: src/components/settings/agents/agent-detail.tsx
 #: src/settings/models/add-provider-models.tsx
 msgid "Manage connections"
-msgstr ""
+msgstr "Настроить подключения"
 
 #: src/components/settings/agents/agent-detail.tsx
 #~ msgid "Manage integrations"
@@ -3490,7 +3490,7 @@ msgstr ""
 
 #: src/settings/models/edit-model-form.tsx
 msgid "Manage provider connection"
-msgstr ""
+msgstr "Настроить подключение к провайдеру"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "Managed by your deployment — always available, no setup needed."
@@ -3502,7 +3502,7 @@ msgstr "Карту нельзя показать — WebGL отключён ил
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Matching measurements"
-msgstr ""
+msgstr "Измерения совпадают"
 
 #: src/components/window-controls.tsx
 msgid "Maximize"
@@ -3510,11 +3510,11 @@ msgstr "Развернуть"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Maximum"
-msgstr ""
+msgstr "Максимальная"
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "MCP server"
-msgstr ""
+msgstr "Сервер MCP"
 
 #: src/components/settings/agents/agent-detail.tsx
 msgid "MCP servers"
@@ -3544,7 +3544,7 @@ msgstr "Мини-приложения доступны только в наст�
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Minimal"
-msgstr ""
+msgstr "Минимальная"
 
 #: src/components/window-controls.tsx
 msgid "Minimize"
@@ -3564,11 +3564,11 @@ msgstr "Модель"
 
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Model and reasoning effort"
-msgstr ""
+msgstr "Модель и глубина рассуждений"
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Model ID"
-msgstr ""
+msgstr "Идентификатор модели"
 
 #: src/settings/models/add-model-form.tsx
 #~ msgid "Model may not be compatible"
@@ -3581,11 +3581,11 @@ msgstr "Укажите имя модели."
 
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Model: {modelName}"
-msgstr ""
+msgstr "Модель: {modelName}"
 
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Model: {modelName}. Reasoning effort: {effortName}"
-msgstr ""
+msgstr "Модель: {modelName}. Глубина рассуждений: {effortName}"
 
 #: src/layout/sidebar/settings-sidebar.tsx
 #: src/search/commands/navigation.ts
@@ -3598,11 +3598,11 @@ msgstr "Модели"
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "Models and search"
-msgstr ""
+msgstr "Модели и поиск"
 
 #: src/settings/connections/index.tsx
 msgid "Models and search using this connection will be unavailable until you enable it again."
-msgstr ""
+msgstr "Модели и поиск через это подключение будут недоступны, пока вы не включите его снова."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Moderate drizzle"
@@ -3653,7 +3653,7 @@ msgstr "Переместить файл"
 
 #: src/projects/project-badge.tsx
 msgid "Move session?"
-msgstr ""
+msgstr "Перенести сеанс?"
 
 #: src/layout/sidebar/chat-list-item.tsx
 #: src/layout/sidebar/project-drop-list.tsx
@@ -3696,7 +3696,7 @@ msgstr "Навигация"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Needs update"
-msgstr ""
+msgstr "Нужно обновить"
 
 #: src/settings/preferences.tsx
 msgid "Network"
@@ -3732,7 +3732,7 @@ msgstr "Новый чат"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "New code"
-msgstr ""
+msgstr "Новый код"
 
 #: src/components/create-item/context.tsx
 #: src/settings/connections/connections-list.tsx
@@ -3755,7 +3755,7 @@ msgstr "Новый проект"
 
 #: src/settings/search/index.tsx
 msgid "New Search Connection"
-msgstr ""
+msgstr "Новое подключение поиска"
 
 #: src/components/chat/chat-skills-bar.tsx
 #: src/skills/skills-list.tsx
@@ -3797,11 +3797,11 @@ msgstr "Для этой платформы готового CLI пока нет.
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "No connections found."
-msgstr ""
+msgstr "Подключения не найдены."
 
 #: src/settings/connections/connections-list.tsx
 msgid "No connections yet"
-msgstr ""
+msgstr "Подключений пока нет"
 
 #: src/settings/devices.tsx
 msgid "No devices yet. Sign in with sync to see devices here."
@@ -3838,7 +3838,7 @@ msgstr "Подходящих подключений нет."
 
 #: src/settings/models/index.tsx
 msgid "No matching models."
-msgstr ""
+msgstr "Подходящих моделей нет."
 
 #: src/projects/index.tsx
 #~ msgid "No matching projects"
@@ -3859,11 +3859,11 @@ msgstr "Подходящих навыков нет."
 
 #: src/settings/models/add-provider-models.tsx
 msgid "No model providers connected."
-msgstr ""
+msgstr "Провайдеры моделей не подключены."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "No models available yet"
-msgstr ""
+msgstr "Доступных моделей пока нет"
 
 #: src/settings/models/models-list.tsx
 msgid "No models configured"
@@ -3902,7 +3902,7 @@ msgstr "Ничего не найдено."
 
 #: src/settings/search/index.tsx
 msgid "No search connections available"
-msgstr ""
+msgstr "Доступных подключений поиска нет"
 
 #: src/skills/skills-list.tsx
 msgid "No skills yet"
@@ -3922,7 +3922,7 @@ msgstr "Пока нет задач"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "None of these match"
-msgstr ""
+msgstr "Ни один не совпадает"
 
 #: src/components/chat/chat-prompt-input.tsx
 msgid "None of your models can be used in this chat. Choose another agent to send."
@@ -3930,7 +3930,7 @@ msgstr "Ни одна из ваших моделей не подходит дл�
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Not approved yet"
-msgstr ""
+msgstr "Пока не разрешено"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Not available in private chats."
@@ -3962,7 +3962,7 @@ msgstr "По адресу {0} никто не ответил на рукопож
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Nothing to compact yet."
-msgstr ""
+msgstr "Уплотнять пока нечего."
 
 #: src/services/revoke-failure.ts
 msgid "Nothing was changed — the recovery keys the server offered could not be verified against this device. This can indicate tampering."
@@ -4002,7 +4002,7 @@ msgstr "Объекты"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 msgid "Off"
-msgstr ""
+msgstr "Выключено"
 
 #: src/settings/preferences.tsx
 msgid "Off sends own-key model and MCP requests directly from this device. On routes them through {appName}'s backend. Local (loopback) models always connect directly."
@@ -4019,7 +4019,7 @@ msgstr "Офлайн. Изменения синхронизируются при
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "On"
-msgstr ""
+msgstr "Включено"
 
 #: src/components/onboarding/onboarding-dialog.tsx
 msgid "Onboarding Wizard"
@@ -4064,7 +4064,7 @@ msgstr "Открыть"
 #: src/components/settings/agents/agent-row.tsx
 #: src/settings/search/index.tsx
 msgid "Open {0}"
-msgstr ""
+msgstr "Открыть {0}"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Open {appName} CLI"
@@ -4072,7 +4072,7 @@ msgstr "Открыть {appName} CLI"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Open {appName} on a trusted device and approve this one in Settings → Devices."
-msgstr ""
+msgstr "Откройте {appName} на доверенном устройстве и разрешите это в разделе «Настройки → Устройства»."
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 #~ msgid "Open {appName} on one of your trusted devices and go to Settings → Devices to approve this device."
@@ -4133,11 +4133,11 @@ msgstr "Открыть ссылку"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Open Otari"
-msgstr ""
+msgstr "Открыть Otari"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Open Source"
-msgstr ""
+msgstr "Открытый исходный код"
 
 #: src/settings/app-version-section.tsx
 msgid "Open the store to check for updates."
@@ -4145,7 +4145,7 @@ msgstr "Откройте магазин приложений, чтобы про�
 
 #: src/settings/search/index.tsx
 msgid "Open Thunderbolt"
-msgstr ""
+msgstr "Открыть Вольт"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 #~ msgid "Open Thunderbolt CLI"
@@ -4157,7 +4157,7 @@ msgstr ""
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "OpenAI-compatible model provider"
-msgstr ""
+msgstr "Провайдер моделей, совместимый с OpenAI"
 
 #: src/components/chat/external-link-dialog.tsx
 msgid "Opening…"
@@ -4165,7 +4165,7 @@ msgstr "Открытие…"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "OpenRouter"
-msgstr ""
+msgstr "OpenRouter"
 
 #: src/fork/integrations/tool-display-descriptions.ts
 msgid "Opens a public web page and extracts its readable text, with the source."
@@ -4190,7 +4190,7 @@ msgstr "Необязательные инструкции, добавляемы�
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Optionally let your agent search the web"
-msgstr ""
+msgstr "При желании разрешите агенту искать в интернете"
 
 #: src/components/sign-in/sign-in-email-step.tsx
 #: src/waitlist/waitlist-content.tsx
@@ -4217,27 +4217,27 @@ msgstr "Упорядочивайте чаты по проектам."
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/settings/preferences.tsx
 msgid "Otari"
-msgstr ""
+msgstr "Otari"
 
 #: src/lib/otari-browser-auth.ts
 msgid "Otari returned an invalid response. Please connect again."
-msgstr ""
+msgstr "Otari вернул неверный ответ. Подключитесь заново."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Otari server URL"
-msgstr ""
+msgstr "Адрес сервера Otari"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Otari web search isn’t available. Choose a search provider below, or skip for now."
-msgstr ""
+msgstr "Поиск в интернете через Otari недоступен. Выберите провайдера поиска ниже или пропустите этот шаг."
 
 #: src/settings/search/search-connection-detail.tsx
 msgid "Otari web search isn’t available. Configure a search provider in Otari to use it here."
-msgstr ""
+msgstr "Поиск в интернете через Otari недоступен. Настройте провайдера поиска в Otari, чтобы пользоваться им здесь."
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Other provider"
-msgstr ""
+msgstr "Другой провайдер"
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "Outlook & Calendar"
@@ -4290,15 +4290,15 @@ msgstr "Ключ доступа"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Passkey needs an update"
-msgstr ""
+msgstr "Ключ доступа нужно обновить"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Passkey updated"
-msgstr ""
+msgstr "Ключ доступа обновлён"
 
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "Passkey updates aren't available yet. Try again later."
-msgstr ""
+msgstr "Обновление ключей доступа пока недоступно. Попробуйте позже."
 
 #: src/components/set-node-id-dialog.tsx
 msgid "Paste a pairing code or upload its QR image to bind this device to its peer-to-peer identity."
@@ -4339,7 +4339,7 @@ msgstr "Персонализация"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Pick this code on your other device."
-msgstr ""
+msgstr "Выберите этот код на другом своём устройстве."
 
 #: src/projects/project-action-menu-items.tsx
 #: src/projects/project-actions.tsx
@@ -4415,7 +4415,7 @@ msgstr "Приватная"
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Private inference"
-msgstr ""
+msgstr "Приватный вывод"
 
 #: src/lib/tool-metadata.ts
 msgid "Processing…"
@@ -4423,7 +4423,7 @@ msgstr "Обработка…"
 
 #: src/settings/connections/new-connection-picker.tsx
 msgid "Productivity"
-msgstr ""
+msgstr "Продуктивность"
 
 #: src/projects/project-create-form.tsx
 msgid "Project name"
@@ -4445,7 +4445,7 @@ msgstr "Проекты"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Protected"
-msgstr ""
+msgstr "Защищено"
 
 #: src/settings/models/add-model-form.tsx
 #: src/settings/voice.tsx
@@ -4519,11 +4519,11 @@ msgstr "Рассуждение"
 #: src/components/chat/effort-selector/effort-controls.tsx
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Reasoning effort"
-msgstr ""
+msgstr "Глубина рассуждений"
 
 #: src/components/chat/effort-selector/effort-selector.tsx
 msgid "Reasoning effort: {effortName}"
-msgstr ""
+msgstr "Глубина рассуждений: {effortName}"
 
 #: src/settings/models/connection-test-section.tsx
 msgid "Received an error while testing the model."
@@ -4557,19 +4557,19 @@ msgstr "Фраза восстановления"
 
 #: src/hooks/use-sync-setup.ts
 msgid "Recovery phrase must be 24 words (you entered {wordCount})."
-msgstr ""
+msgstr "Фраза восстановления должна состоять из 24 слов (введено {wordCount})."
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Recovery phrase needs an update"
-msgstr ""
+msgstr "Фразу восстановления нужно обновить"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Recovery phrase updated"
-msgstr ""
+msgstr "Фраза восстановления обновлена"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Recovery phrase updated."
-msgstr ""
+msgstr "Фраза восстановления обновлена."
 
 #: src/settings/devices.tsx
 msgid "Refresh keys and retry"
@@ -4578,7 +4578,7 @@ msgstr "Обновить ключи и повторить"
 #: src/components/otari-connection/otari-connection.tsx
 #: src/settings/models/add-provider-models.tsx
 msgid "Refresh models"
-msgstr ""
+msgstr "Обновить модели"
 
 #: src/settings/devices.tsx
 msgid "Refreshing keys…"
@@ -4594,7 +4594,7 @@ msgstr "Отклонить"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Release digest"
-msgstr ""
+msgstr "Отпечаток выпуска"
 
 #: src/components/local-data-switch-screen.tsx
 #: src/components/storage-unavailable-screen.tsx
@@ -4613,11 +4613,11 @@ msgstr "Удалить"
 #. placeholder {0}: connection.name
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Remove {0}?"
-msgstr ""
+msgstr "Удалить {0}?"
 
 #: src/settings/connections/integration-detail.tsx
 msgid "Remove {integrationName}?"
-msgstr ""
+msgstr "Удалить {integrationName}?"
 
 #: src/components/logout-modal.tsx
 msgid "Remove all chats, settings, and cached data from this device."
@@ -4625,7 +4625,7 @@ msgstr "Удалить все чаты, настройки и кэш с этог
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "Remove connection"
-msgstr ""
+msgstr "Удалить подключение"
 
 #: src/layout/sidebar/project-tree.tsx
 #: src/projects/move-chat-to-project-dialog.tsx
@@ -4748,7 +4748,7 @@ msgstr "Перезапустить для обновления"
 
 #: src/components/context-usage/compaction-summary-content.tsx
 msgid "Retained messages and tool results"
-msgstr ""
+msgstr "Сохранённые сообщения и результаты инструментов"
 
 #: src/lib/tool-metadata.ts
 msgid "Retrieving data…"
@@ -4768,7 +4768,7 @@ msgstr "Повторить подключение"
 
 #: src/settings/models/add-model-form.tsx
 msgid "Retry loading models"
-msgstr ""
+msgstr "Загрузить модели снова"
 
 #: src/settings/connections/mcp-server-detail.tsx
 msgid "Retrying…"
@@ -4776,16 +4776,16 @@ msgstr "Повтор…"
 
 #: src/components/provider-authorization-result.tsx
 msgid "Return to Thunderbolt"
-msgstr ""
+msgstr "Вернуться в Вольт"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Review devices"
-msgstr ""
+msgstr "Проверить устройства"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "Review the transcript and note below. Automatic redaction may miss sensitive information."
-msgstr ""
+msgstr "Просмотрите запись и примечание ниже. Автоматическое сокрытие может пропустить чувствительные данные."
 
 #: src/components/revoke-device-dialog.tsx
 #: src/settings/devices.tsx
@@ -4855,7 +4855,7 @@ msgstr "Сохранить изменения"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Save connection"
-msgstr ""
+msgstr "Сохранить подключение"
 
 #: src/settings/connections/index.tsx
 msgid "Save failed"
@@ -4910,7 +4910,7 @@ msgstr "Поиск агентов"
 
 #: src/settings/search/search-connection-detail.tsx
 msgid "Search and page content are provided by your connected Thunderbolt server."
-msgstr ""
+msgstr "Поиск и содержимое страниц предоставляет подключённый сервер Вольта."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Search and work with your OneDrive files and documents."
@@ -4933,7 +4933,7 @@ msgstr "Поиск подключений"
 #: src/settings/connections/new-connection-picker.tsx
 #: src/settings/models/add-provider-models.tsx
 msgid "Search connections…"
-msgstr ""
+msgstr "Поиск по подключениям…"
 
 #: src/settings/preferences.tsx
 msgid "Search currencies…"
@@ -4954,7 +4954,7 @@ msgstr "Поиск мест…"
 #: src/settings/models/add-provider-models.tsx
 #: src/settings/models/index.tsx
 msgid "Search models"
-msgstr ""
+msgstr "Поиск моделей"
 
 #: src/components/ui/model-selector/model-selector.tsx
 msgid "Search Models"
@@ -4975,7 +4975,7 @@ msgstr "Поиск проектов"
 #: src/components/onboarding/onboarding-search-step.tsx
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Search provider"
-msgstr ""
+msgstr "Провайдер поиска"
 
 #: src/components/chat/chat-skills-bar.tsx
 #: src/skills/skills-list.tsx
@@ -5009,7 +5009,7 @@ msgstr "Защищаем…"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Security notice"
-msgstr ""
+msgstr "Предупреждение безопасности"
 
 #: src/voice/speakable.ts
 msgid "See the document on screen."
@@ -5052,7 +5052,7 @@ msgstr "Выберите…"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Selected server"
-msgstr ""
+msgstr "Выбранный сервер"
 
 #: src/components/recovery-phrase-change-dialogs.tsx
 #: src/components/sync-setup/confirm-identity-step.tsx
@@ -5137,7 +5137,7 @@ msgstr "Сервер ответил неизвестной ошибкой."
 
 #: src/settings/models/model-catalog.ts
 msgid "Server responded with status {status}."
-msgstr ""
+msgstr "Сервер ответил со статусом {status}."
 
 #: src/settings/connections/mcp-server-detail.tsx
 #: src/settings/connections/mcp-server-form.tsx
@@ -5192,7 +5192,7 @@ msgstr "Настройки"
 
 #: src/layout/sidebar/nav-toggle.tsx
 msgid "Settings, action needed"
-msgstr ""
+msgstr "Настройки, требуется действие"
 
 #: src/components/share-debug-transcript/share-debug-transcript-button.tsx
 msgid "Share debug transcript"
@@ -5302,20 +5302,20 @@ msgstr "Войти в {appName}"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Sign in to access the services available on this server."
-msgstr ""
+msgstr "Войдите, чтобы получить доступ к службам этого сервера."
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Sign in to connect Otari."
-msgstr ""
+msgstr "Войдите, чтобы подключить Otari."
 
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Sign in to connect your account."
-msgstr ""
+msgstr "Войдите, чтобы подключить учётную запись."
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Sign in to connect your private AI."
-msgstr ""
+msgstr "Войдите, чтобы подключить свой приватный ИИ."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to continue"
@@ -5327,11 +5327,11 @@ msgstr "Войдите, чтобы включить облачный прокс�
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Sign in to reconnect {name} on this device."
-msgstr ""
+msgstr "Войдите, чтобы снова подключить {name} на этом устройстве."
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Sign in to sync your workspace and access more features."
-msgstr ""
+msgstr "Войдите, чтобы синхронизировать рабочее пространство и получить больше возможностей."
 
 #: src/components/device-approval.tsx
 msgid "Sign in to the CLI"
@@ -5381,11 +5381,11 @@ msgstr "Вход отменён, либо поставщик удостовер�
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Signed build provenance"
-msgstr ""
+msgstr "Подтверждённое происхождение сборки"
 
 #: src/settings/connections/provider-connection-summary.tsx
 msgid "Signed in to {name}"
-msgstr ""
+msgstr "Выполнен вход в {name}"
 
 #: src/components/signed-out.tsx
 msgid "Signed Out"
@@ -5393,7 +5393,7 @@ msgstr "Вы вышли"
 
 #: src/components/sign-in/sign-in-form.tsx
 msgid "Signing in…"
-msgstr ""
+msgstr "Вход…"
 
 #: src/components/revoked-device-modal.tsx
 #~ msgid "Signing out…"
@@ -5483,7 +5483,7 @@ msgstr "Что-то пошло не так. Повтор ({retryCount}/{maxRetri
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Source repository"
-msgstr ""
+msgstr "Хранилище исходного кода"
 
 #: src/voice/ui/voice-mode-composer.tsx
 msgid "Speaking"
@@ -5557,7 +5557,7 @@ msgstr "Рекомендуемые"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Summary"
-msgstr ""
+msgstr "Выжимка"
 
 #: src/settings/models/supports-tools-switch.tsx
 msgid "Supports tools"
@@ -5622,7 +5622,7 @@ msgstr "Посмотрите прогноз погоды на экране."
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "Tap the code the new device shows. If none match, don't approve it."
-msgstr ""
+msgstr "Нажмите код, который показывает новое устройство. Если ни один не совпадает, не разрешайте его."
 
 #: src/settings/app-version-section.tsx
 msgid "Tap to check for updates."
@@ -5744,7 +5744,7 @@ msgstr "Провайдер ИИ отвечал слишком долго. Поп
 
 #: src/webview-recovery/index.ts
 msgid "The app's web content stopped unexpectedly more than once. Automatic reloads have been paused."
-msgstr ""
+msgstr "Веб-содержимое приложения неожиданно останавливалось больше одного раза. Автоматические перезагрузки приостановлены."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "The chat will be retained by the {recipient} team."
@@ -5772,15 +5772,15 @@ msgstr "CLI выйдет из аккаунта, и для доступа к ва
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "The codes didn't match"
-msgstr ""
+msgstr "Коды не совпали"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "The codes didn't match, so the device was not approved."
-msgstr ""
+msgstr "Коды не совпали, поэтому устройство не разрешено."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "The connection could not be verified. A verified connection is required before sending to this provider."
-msgstr ""
+msgstr "Подключение не удалось подтвердить. Отправка этому провайдеру возможна только по подтверждённому подключению."
 
 #: src/services/revoke-failure.ts
 msgid "The device lost access, but your account key was not replaced, so it can still read your data — the recovery keys the server offered could not be verified against this device. This can indicate tampering."
@@ -5824,7 +5824,7 @@ msgstr "Файл загружен, но установить его не уда�
 
 #: src/components/approve-device/fingerprint-confirmation.tsx
 msgid "The fingerprint doesn't match. Check the fingerprint shown on the new device and try again."
-msgstr ""
+msgstr "Отпечаток не совпадает. Проверьте отпечаток на экране нового устройства и попробуйте снова."
 
 #: src/components/chat/error-message.tsx
 msgid "The instructions from your skills or project are too long for this agent. Shorten a long skill or the project's instructions, then try again."
@@ -5836,27 +5836,27 @@ msgstr "Не удалось загрузить карту."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "The model connection test timed out. Please try again."
-msgstr ""
+msgstr "Проверка подключения к модели не уложилась в отведённое время. Попробуйте снова."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "The model verification request failed. Please try again."
-msgstr ""
+msgstr "Запрос на проверку модели не прошёл. Попробуйте снова."
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "The new device isn't showing a code"
-msgstr ""
+msgstr "Новое устройство не показывает код"
 
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "The passkey check was cancelled. Try again when you're ready."
-msgstr ""
+msgstr "Проверка ключа доступа отменена. Попробуйте снова, когда будете готовы."
 
 #: src/components/local-data-switch-screen.tsx
 msgid "The previous account's data on this device could not be secured. Reload to try again."
-msgstr ""
+msgstr "Не удалось обезопасить данные предыдущей учётной записи на этом устройстве. Перезагрузите, чтобы попробовать снова."
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "The provider rejected the model request (HTTP {status}). Check model access and your subscription."
-msgstr ""
+msgstr "Провайдер отклонил запрос к модели (HTTP {status}). Проверьте доступ к модели и свою подписку."
 
 #: src/components/device-approval.tsx
 msgid "The request was denied. You can safely close this page."
@@ -5864,15 +5864,15 @@ msgstr "Запрос отклонён. Эту страницу можно зак
 
 #: src/settings/models/edit-model-form.tsx
 msgid "The saved API key is only sent to the URL it was saved for. Enter it again to use this URL."
-msgstr ""
+msgstr "Сохранённый API-ключ отправляется только на тот адрес, для которого он сохранён. Введите его заново, чтобы пользоваться этим адресом."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "The saved authorization only works with the previous URL. Authorize again after saving."
-msgstr ""
+msgstr "Сохранённая авторизация действует только для прежнего адреса. После сохранения авторизуйтесь заново."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "The saved credential is only sent to the URL it was saved for. Enter it again to use this URL."
-msgstr ""
+msgstr "Сохранённые учётные данные отправляются только на тот адрес, для которого они сохранены. Введите их заново, чтобы пользоваться этим адресом."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "The server rejected the credential. Check your bearer token or API key."
@@ -5880,11 +5880,11 @@ msgstr "Сервер отклонил учётные данные. Провер�
 
 #: src/lib/encryption-error-message.ts
 msgid "The server took too long to respond. Please try again."
-msgstr ""
+msgstr "Сервер отвечал слишком долго. Попробуйте снова."
 
 #: src/lib/integration-oauth-client.ts
 msgid "The sign-in service cannot be reached from this app. Check your connection; the server must also allow this app’s address."
-msgstr ""
+msgstr "Служба входа недоступна из этого приложения. Проверьте подключение; сервер также должен разрешать адрес этого приложения."
 
 #: src/lib/device-grant.ts
 msgid "The sign-in service is unavailable right now. Check your connection and try again."
@@ -5913,7 +5913,7 @@ msgstr "Тема"
 #. placeholder {0}: state.modelsWithoutTools.join(', ')
 #: src/settings/models/add-provider-models.tsx
 msgid "These models do not support tools and cannot use features like web search: {0}."
-msgstr ""
+msgstr "Эти модели не поддерживают инструменты и не могут пользоваться, например, поиском в интернете: {0}."
 
 #: src/components/chat/reasoning-group-title.tsx
 #: src/components/chat/reasoning-item.tsx
@@ -5932,7 +5932,7 @@ msgstr "Этот агент недоступен для вашей учётно�
 
 #: src/components/chat/error-message.tsx
 msgid "This agent was disabled or deleted. Choose another agent to continue."
-msgstr ""
+msgstr "Этот агент отключён или удалён. Чтобы продолжить, выберите другого агента."
 
 #: src/fork/updater/update-error-message.ts
 msgid "This build does not receive updates."
@@ -5956,7 +5956,7 @@ msgstr "Этот чат использует {agentName}, недоступный
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "This code expired."
-msgstr ""
+msgstr "Срок действия кода истёк."
 
 #: src/lib/otp-error-messages.ts
 msgid "This code has expired. Please request a new one."
@@ -5964,11 +5964,11 @@ msgstr "Срок действия кода истёк. Запросите нов
 
 #: src/lib/otari-browser-auth.ts
 msgid "This connection expired. Please connect to Otari again."
-msgstr ""
+msgstr "Срок действия подключения истёк. Подключитесь к Otari заново."
 
 #: src/components/provider-authorization-result.tsx
 msgid "This connection link is no longer valid. Return to Thunderbolt and start a new connection."
-msgstr ""
+msgstr "Эта ссылка подключения больше не действует. Вернитесь в Вольт и начните подключение заново."
 
 #: src/components/chat/error-message.tsx
 msgid "This conversation is too large for the model's context window. Start a new chat, remove some attachments, or switch to a model with a larger context window."
@@ -5986,26 +5986,26 @@ msgstr "Это устройство"
 #: src/settings/encryption/passkey-section.tsx
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "This device can't add or update a passkey because its encryption keys couldn't be verified. Do it from a device that was trusted before."
-msgstr ""
+msgstr "Это устройство не может добавить или обновить ключ доступа, потому что не удалось проверить его ключи шифрования. Сделайте это с устройства, которое было доверенным раньше."
 
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
 msgid "This device can't approve other devices because its encryption keys couldn't be verified. Approve from a device that was trusted before."
-msgstr ""
+msgstr "Это устройство не может разрешать другие устройства, потому что не удалось проверить его ключи шифрования. Разрешите с устройства, которое было доверенным раньше."
 
 #: src/components/device-approval.tsx
 #: src/lib/device-grant.ts
 msgid "This device can't approve sign-ins because its encryption keys couldn't be verified. Approve from a device that was trusted before."
-msgstr ""
+msgstr "Это устройство не может разрешать входы, потому что не удалось проверить его ключи шифрования. Разрешите с устройства, которое было доверенным раньше."
 
 #: src/settings/encryption/change-recovery-key-section.tsx
 #: src/settings/encryption/use-change-recovery-key.ts
 msgid "This device can't change the recovery phrase because its encryption keys couldn't be verified. Change it from a device that was trusted before."
-msgstr ""
+msgstr "Это устройство не может сменить фразу восстановления, потому что не удалось проверить его ключи шифрования. Смените её с устройства, которое было доверенным раньше."
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "This device couldn't be verified"
-msgstr ""
+msgstr "Это устройство не удалось проверить"
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This device has been approved and sync is now enabled across your devices."
@@ -6025,7 +6025,7 @@ msgstr "Это устройство потеряло доступ, но ключ
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "This device was not approved. If you aren't adding a device, deny it. To try again, tap New code on the new device first."
-msgstr ""
+msgstr "Устройство не разрешено. Если вы не добавляете устройство, откажите ему. Чтобы попробовать снова, сначала нажмите «Новый код» на новом устройстве."
 
 #: src/components/device-revoked.tsx
 msgid "This device was signed out remotely and its local data has been cleared."
@@ -6033,7 +6033,7 @@ msgstr "Это устройство было отключено от учётн�
 
 #: src/settings/connections/integration-detail.tsx
 msgid "This disconnects your account on this device. Its tools will no longer be available."
-msgstr ""
+msgstr "Это отключит вашу учётную запись на этом устройстве. Её инструменты станут недоступны."
 
 #: src/settings/preferences.tsx
 msgid "This file doesn't look like a {appName} export."
@@ -6073,7 +6073,7 @@ msgstr "Эта ссылка использует адрес, который пр
 
 #: src/mini-apps/mini-app-frame.tsx
 msgid "This mini app uses an outdated SDK. Ask its maintainer to update the SDK and redeploy it."
-msgstr ""
+msgstr "Это мини-приложение использует устаревший SDK. Попросите его разработчика обновить SDK и выложить приложение заново."
 
 #: src/components/chat/error-message.tsx
 msgid "This model couldn't read the attached file. Try a different model."
@@ -6093,19 +6093,19 @@ msgstr "Эта модель не поддерживает инструменты
 
 #: src/settings/models/add-provider-models.tsx
 msgid "This model has already been added."
-msgstr ""
+msgstr "Эта модель уже добавлена."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "This model is marked private, but this device cannot verify its provider yet."
-msgstr ""
+msgstr "Модель помечена как приватная, но это устройство пока не может проверить её провайдера."
 
 #: src/chats/chat-instance.ts
 msgid "This model no longer matches the conversation’s privacy setting."
-msgstr ""
+msgstr "Эта модель больше не соответствует настройке приватности переписки."
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "This model or agent does not offer context compaction."
-msgstr ""
+msgstr "Эта модель или агент не поддерживает уплотнение истории."
 
 #: src/components/sync-setup/passkey-enroll-step.tsx
 msgid "This passkey can sign you in, but it can't unlock sync. You can still approve new devices or use your recovery phrase."
@@ -6113,7 +6113,7 @@ msgstr "Этот ключ доступа подходит для входа, н�
 
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "This passkey can't unlock encrypted data. Remove it and add another passkey."
-msgstr ""
+msgstr "Этот ключ доступа не открывает зашифрованные данные. Удалите его и добавьте другой."
 
 #: src/hooks/use-sync-setup.ts
 msgid "This passkey can't unlock sync for this account."
@@ -6125,11 +6125,11 @@ msgstr "Этот ключ доступа не разблокирует синх�
 
 #: src/settings/encryption/use-passkey-continuity-migration.ts
 msgid "This passkey doesn't match the one saved for sync. Remove it and add it again."
-msgstr ""
+msgstr "Этот ключ доступа не совпадает с тем, что сохранён для синхронизации. Удалите его и добавьте заново."
 
 #: src/hooks/use-sync-setup.ts
 msgid "This passkey unlocked keys that don't belong to your account, so nothing was changed on this device."
-msgstr ""
+msgstr "Этот ключ доступа открыл ключи, не принадлежащие вашей учётной записи, поэтому на этом устройстве ничего не изменено."
 
 #: src/components/remove-bridge-dialog.tsx
 msgid "This permanently removes the revoked bridge registration. The bridge can register again afterward."
@@ -6152,7 +6152,7 @@ msgstr "этот проект"
 
 #: src/components/sync-setup/recovery-key-entry-step.tsx
 msgid "This recovery phrase was created before a security update, so Thunderbolt can't confirm that the encryption keys it unlocks are yours. Continue only if you have no approved device left."
-msgstr ""
+msgstr "Эта фраза восстановления создана до обновления безопасности, поэтому Вольт не может подтвердить, что открываемые ею ключи шифрования принадлежат вам. Продолжайте только если ни одного разрешённого устройства у вас не осталось."
 
 #: src/lib/cli-install.ts
 msgid "This release has no CLI to download yet. You can build it from source."
@@ -6168,7 +6168,7 @@ msgstr "Это удаляет подключение только из {appName}
 
 #: src/settings/connections/provider-connection-detail.tsx
 msgid "This removes the connection from your devices. Models and search using it will become unavailable. Your chat history will be kept."
-msgstr ""
+msgstr "Подключение будет удалено со всех ваших устройств. Модели и поиск через него станут недоступны. Переписка сохранится."
 
 #: src/settings/devices.tsx
 msgid "This replaces your 24-word phrase. The one you have now will stop working, and you will need to save the new one."
@@ -6188,7 +6188,7 @@ msgstr "Серверу нужна авторизация. Нажмите «Ав�
 
 #: src/lib/integration-oauth-client.ts
 msgid "This server requires Thunderbolt sign-in for Google and Microsoft. Standalone connections must be enabled on the server."
-msgstr ""
+msgstr "Для Google и Microsoft этот сервер требует входа через Вольт. Самостоятельные подключения должны быть разрешены на сервере."
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "This server uses OAuth. Add it and authorize to connect."
@@ -6233,7 +6233,7 @@ msgstr "Устройству будет отказано в доступе к з
 #. placeholder {0}: dialog.project.name
 #: src/projects/project-badge.tsx
 msgid "This will move the session to <0>{0}</0>."
-msgstr ""
+msgstr "Сеанс будет перенесён в <0>{0}</0>."
 
 #: src/settings/preferences.tsx
 msgid "This will permanently delete all of your local data including settings, chat history, and cached information. This action cannot be undone."
@@ -6294,7 +6294,7 @@ msgstr "Вольт CLI"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Thunderbolt couldn't verify this device's encryption keys, so it can't update your recovery phrase or passkey. To verify it, sign out with \"Delete data from device\", sign in again, and approve it from a device that was trusted before."
-msgstr ""
+msgstr "Вольт не смог проверить ключи шифрования этого устройства, поэтому не может обновить вашу фразу восстановления или ключ доступа. Чтобы проверить его, выйдите с пунктом «Удалить данные с устройства», войдите снова и разрешите его с устройства, которое было доверенным раньше."
 
 #: src/components/sign-in/sign-in-email-step.tsx
 msgid "Thunderbolt is open-source"
@@ -6314,11 +6314,11 @@ msgstr "Вольт Про пока недоступен. Следите за н�
 
 #: src/webview-recovery/index.ts
 msgid "Thunderbolt ran into a problem"
-msgstr ""
+msgstr "В работе Вольта произошёл сбой"
 
 #: src/components/server-connection/server-connection-form.tsx
 msgid "Thunderbolt server address"
-msgstr ""
+msgstr "Адрес сервера Вольта"
 
 #: src/widgets/connect-integration/widget.tsx
 #~ msgid "Thunderbolt wants to connect to {providerName} Calendar"
@@ -6338,7 +6338,7 @@ msgstr ""
 
 #: src/components/onboarding/provider-setup-error.ts
 msgid "Thunderbolt's default model is not available from this provider."
-msgstr ""
+msgstr "Модель Вольта по умолчанию у этого провайдера недоступна."
 
 #: src/widgets/weather-forecast/lib.ts
 msgid "Thunderstorm"
@@ -6362,19 +6362,19 @@ msgstr "Формат времени"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Tinfoil"
-msgstr ""
+msgstr "Tinfoil"
 
 #: src/integrations/tinfoil-search/api.ts
 msgid "Tinfoil could not retrieve this page."
-msgstr ""
+msgstr "Tinfoil не смог получить эту страницу."
 
 #: src/integrations/tinfoil-search/api.ts
 msgid "Tinfoil returned an empty web tool response."
-msgstr ""
+msgstr "Tinfoil вернул пустой ответ веб-инструмента."
 
 #: src/integrations/tinfoil-search/api.ts
 msgid "Tinfoil web search failed. Check your connection and subscription, then try again."
-msgstr ""
+msgstr "Поиск в интернете через Tinfoil не удался. Проверьте подключение и подписку, затем попробуйте снова."
 
 #: src/components/sync-setup/confirm-identity-step.tsx
 msgid "To continue, we’ll email you a verification code."
@@ -6382,7 +6382,7 @@ msgstr "Чтобы продолжить, мы отправим вам код п�
 
 #: src/lib/encrypted-sync-support.ts
 msgid "To use encrypted sync, open this app over HTTPS and use an up-to-date browser or operating system."
-msgstr ""
+msgstr "Чтобы пользоваться шифрованной синхронизацией, откройте приложение по HTTPS и работайте в современном браузере или операционной системе."
 
 #: src/search/commands/use-commands.ts
 msgid "Toggle sidebar"
@@ -6412,7 +6412,7 @@ msgstr "Слишком много попыток. Запросите новый 
 
 #: src/components/approve-device/fingerprint-confirmation.tsx
 msgid "Too many codes didn't match on this device today, so approve with the fingerprint instead."
-msgstr ""
+msgstr "Сегодня на этом устройстве слишком много кодов не совпало, поэтому разрешайте по отпечатку."
 
 #: src/components/chat/error-message.tsx
 msgid "Too many requests. Please try again in a moment."
@@ -6424,7 +6424,7 @@ msgstr "Ввод инструмента"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "Tool result"
-msgstr ""
+msgstr "Результат инструмента"
 
 #: src/components/share-debug-transcript/share-debug-transcript-toast.tsx
 msgid "Transcript sent — thank you."
@@ -6461,7 +6461,7 @@ msgstr "Попробовать снова"
 
 #: src/webview-recovery/index.ts
 msgid "Try again, or install available system updates and reopen Thunderbolt if the problem continues."
-msgstr ""
+msgstr "Попробуйте снова, а если сбой повторяется — установите доступные обновления системы и откройте Вольт заново."
 
 #: src/components/chat/image-support-notice.tsx
 msgid "Try anyway"
@@ -6469,7 +6469,7 @@ msgstr "Всё равно отправить"
 
 #: src/components/provider-authorization-result.tsx
 msgid "Try connecting again"
-msgstr ""
+msgstr "Подключиться снова"
 
 #: src/settings/voice.tsx
 msgid "TTS model"
@@ -6529,7 +6529,7 @@ msgstr "Разблокировать ключом доступа"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Unlocking with this passkey now confirms your encryption keys."
-msgstr ""
+msgstr "Теперь открытие этим ключом доступа подтверждает ваши ключи шифрования."
 
 #: src/projects/project-action-menu-items.tsx
 #: src/projects/project-actions.tsx
@@ -6548,7 +6548,7 @@ msgstr "Без названия"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Unverified"
-msgstr ""
+msgstr "Не подтверждено"
 
 #: src/components/chat/chat-ui-greeting.ts
 msgid "Up late?"
@@ -6556,7 +6556,7 @@ msgstr "Не спится?"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Up to date"
-msgstr ""
+msgstr "Обновлений нет"
 
 #: src/settings/preferences.tsx
 msgid "Update Defaults?"
@@ -6568,7 +6568,7 @@ msgstr "Не удалось обновить"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Update now"
-msgstr ""
+msgstr "Обновить сейчас"
 
 #: src/settings/devices.tsx
 msgid "Update pairing"
@@ -6580,7 +6580,7 @@ msgstr "Обновить сопряжение для {deviceName}"
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Update passkey"
-msgstr ""
+msgstr "Обновить ключ доступа"
 
 #: src/components/update-notification.tsx
 msgid "Update ready! Restart to apply."
@@ -6592,7 +6592,7 @@ msgstr "Обновление готово. Перезапустите, чтоб�
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Update recovery phrase"
-msgstr ""
+msgstr "Обновить фразу восстановления"
 
 #: src/components/upgrade-required.tsx
 msgid "Update required"
@@ -6600,11 +6600,11 @@ msgstr "Требуется обновление"
 
 #: src/components/server-connection/use-server-connection-state.ts
 msgid "Update Thunderbolt before connecting to this server. You can continue using your local models."
-msgstr ""
+msgstr "Обновите Вольт, прежде чем подключаться к этому серверу. Своими локальными моделями можно пользоваться и дальше."
 
 #: src/components/onboarding/use-onboarding-server-state.ts
 msgid "Update Thunderbolt to connect to Thunderbolt Cloud. You can still set up without a server."
-msgstr ""
+msgstr "Обновите Вольт, чтобы подключиться к облаку Вольта. Настроить работу без сервера можно и сейчас."
 
 #: src/settings/preferences.tsx
 msgid "Update Units"
@@ -6612,15 +6612,15 @@ msgstr "Обновить единицы"
 
 #: src/components/recovery-continuity/recovery-continuity-provider.tsx
 msgid "Update your recovery phrase?"
-msgstr ""
+msgstr "Обновить фразу восстановления?"
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Update your recovery phrase."
-msgstr ""
+msgstr "Обновите фразу восстановления."
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Updated on another device"
-msgstr ""
+msgstr "Обновлено на другом устройстве"
 
 #: src/settings/app-version-section.tsx
 msgid "Updates"
@@ -6642,16 +6642,16 @@ msgstr "Для пользовательских провайдеров нуже�
 
 #: src/settings/models/use-add-model-form.ts
 msgid "URL is required for this provider"
-msgstr ""
+msgstr "Для этого провайдера нужен адрес"
 
 #. placeholder {0}: connection.name
 #: src/settings/search/index.tsx
 msgid "Use {0}"
-msgstr ""
+msgstr "Выбрать {0}"
 
 #: src/components/onboarding/onboarding-model-step.tsx
 msgid "Use an API key instead"
-msgstr ""
+msgstr "Вместо этого ввести API-ключ"
 
 #: src/lib/mcp-url-validation.ts
 msgid "Use an http:// or https:// URL"
@@ -6659,11 +6659,11 @@ msgstr "Используйте URL http:// или https://"
 
 #: src/settings/connections/chatgpt-account-picker.tsx
 msgid "Use another ChatGPT account"
-msgstr ""
+msgstr "Другая учётная запись ChatGPT"
 
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Use API Key instead"
-msgstr ""
+msgstr "Вместо этого ввести API-ключ"
 
 #: src/settings/preferences.tsx
 msgid "Use Cloud Proxy"
@@ -6671,12 +6671,12 @@ msgstr "Облачный прокси"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Use code instead"
-msgstr ""
+msgstr "Вместо этого по коду"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Use fingerprint instead"
-msgstr ""
+msgstr "Вместо этого по отпечатку"
 
 #: src/lib/mcp-url-validation.ts
 msgid "Use https:// (http is only allowed for localhost or a local network)"
@@ -6693,7 +6693,7 @@ msgstr "Использовать ключ доступа"
 #: src/components/onboarding/onboarding-model-step.tsx
 #: src/settings/connections/provider-connection-form.tsx
 msgid "Use sign-in instead"
-msgstr ""
+msgstr "Вместо этого войти"
 
 #: src/search/commands/use-commands.ts
 msgid "Use System"
@@ -6705,23 +6705,23 @@ msgstr "Используйте запрос подключения на экра
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Use the new phrase you saved there; the old one no longer works. Not you? Review your devices."
-msgstr ""
+msgstr "Пользуйтесь новой фразой, которую вы там сохранили, — старая больше не действует. Это были не вы? Проверьте свои устройства."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Use the official Otari server"
-msgstr ""
+msgstr "Пользоваться официальным сервером Otari"
 
 #: src/components/onboarding/onboarding-search-step.tsx
 msgid "Use this connection."
-msgstr ""
+msgstr "Выбрать это подключение."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Use this model"
-msgstr ""
+msgstr "Выбрать эту модель"
 
 #: src/settings/search/index.tsx
 msgid "Use Thunderbolt"
-msgstr ""
+msgstr "Пользоваться Вольтом"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "Use Thunderbolt from the command line."
@@ -6734,7 +6734,7 @@ msgstr "Входите по отпечатку, лицу или PIN-коду у�
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Use your own API keys without a server."
-msgstr ""
+msgstr "Пользуйтесь своими API-ключами без сервера."
 
 #: src/settings/voice.tsx
 msgid "Used only on this device. Leave empty to use the workspace key if the operator configured one."
@@ -6750,11 +6750,11 @@ msgstr "Использовано {usedTokensLabel} из {maxTokensLabel} кон�
 
 #: src/components/chat/attestation/attestation-panel.tsx
 msgid "Verification covers model inference. Connected tools and external services have their own privacy boundaries."
-msgstr ""
+msgstr "Проверка охватывает вывод модели. У подключённых инструментов и внешних служб свои границы приватности."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Verification failed"
-msgstr ""
+msgstr "Проверка не прошла"
 
 #: src/components/magic-link-verify.tsx
 msgid "Verification Failed"
@@ -6769,23 +6769,23 @@ msgstr "Не удалось подтвердить. Попробуйте ещё 
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Verification timed out. A verified connection is required before sending to this provider."
-msgstr ""
+msgstr "Проверка не уложилась в отведённое время. Отправка этому провайдеру возможна только по подтверждённому подключению."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Verification unavailable"
-msgstr ""
+msgstr "Проверка недоступна"
 
 #: src/components/chat/attestation/attestation-details.tsx
 msgid "Verified on this device"
-msgstr ""
+msgstr "Подтверждено на этом устройстве"
 
 #: src/components/chat/attestation/attestation-panel.tsx
 msgid "Verify connection"
-msgstr ""
+msgstr "Проверить подключение"
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Verifying connection…"
-msgstr ""
+msgstr "Проверка подключения…"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 #: src/components/sync-setup/recovery-key-entry-step.tsx
@@ -6811,11 +6811,11 @@ msgstr "Просматривайте и управляйте расписани�
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "View devices"
-msgstr ""
+msgstr "Посмотреть устройства"
 
 #: src/components/chat/markdown-utils.tsx
 msgid "View image"
-msgstr ""
+msgstr "Посмотреть изображение"
 
 #: src/components/settings/agents/thunderbolt-cli.tsx
 msgid "View install guide"
@@ -6828,7 +6828,7 @@ msgstr "Показать цитату"
 #: src/components/context-usage/compaction-notice.tsx
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "View summary"
-msgstr ""
+msgstr "Посмотреть выжимку"
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "View your schedule and upcoming events."
@@ -6862,11 +6862,11 @@ msgstr "Ошибка голосового сервиса. Попробуйте �
 
 #: src/components/context-usage/context-usage-indicator.tsx
 msgid "Wait for the current response to finish before compacting."
-msgstr ""
+msgstr "Дождитесь окончания текущего ответа, прежде чем уплотнять."
 
 #: src/components/local-data-switch-screen.tsx
 msgid "Waiting for a spark… Thunderbolt opens on its own."
-msgstr ""
+msgstr "Ждём искру… Вольт откроется сам."
 
 #: src/components/pending-device-modal.tsx
 #: src/settings/devices.tsx
@@ -6875,11 +6875,11 @@ msgstr "Ожидание подтверждения"
 
 #: src/components/sync-setup/approval-waiting-step.tsx
 msgid "Waiting for your other device…"
-msgstr ""
+msgstr "Ожидание другого вашего устройства…"
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Waitlist"
-msgstr ""
+msgstr "Список ожидания"
 
 #: src/waitlist/waitlist-content.tsx
 msgid "Want early access?"
@@ -6932,11 +6932,11 @@ msgstr "Поиск в сети"
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Web search is disabled in this Otari workspace."
-msgstr ""
+msgstr "В этом рабочем пространстве Otari поиск в интернете отключён."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "Web search isn’t set up in this Otari workspace."
-msgstr ""
+msgstr "В этом рабочем пространстве Otari поиск в интернете не настроен."
 
 #: src/components/welcome-dialog.tsx
 msgid "Welcome"
@@ -7018,7 +7018,7 @@ msgstr "Где открываются ссылки из чатов"
 
 #: src/components/approve-device/approve-device-dialog.tsx
 msgid "Which code is on the new device?"
-msgstr ""
+msgstr "Какой код на новом устройстве?"
 
 #: src/components/onboarding/onboarding-language-step.tsx
 msgid "Which language do you prefer?"
@@ -7074,7 +7074,7 @@ msgstr "wss://example.com/ws или вставьте iroh-тикет"
 
 #: src/components/context-usage/retained-context-message.tsx
 msgid "You"
-msgstr ""
+msgstr "Вы"
 
 #: src/components/sign-in/sign-in-otp-step.tsx
 msgid "You appear to be using a <0>localhost</0> backend. Check your backend server logs for the code or magic link."
@@ -7086,7 +7086,7 @@ msgstr "Можно прикрепить до {maxAttachmentCount} файлов."
 
 #: src/components/otari-connection/otari-connection.tsx
 msgid "You can choose a search provider in the next step."
-msgstr ""
+msgstr "Провайдера поиска можно выбрать на следующем шаге."
 
 #: src/widgets/connect-integration/widget.tsx
 msgid "You can connect integrations later in Settings."
@@ -7122,7 +7122,7 @@ msgstr "Этим ключом доступа больше нельзя буде�
 
 #: src/components/recovery-continuity/recovery-continuity-provider.tsx
 msgid "You'll get a new 24-word recovery phrase, shown once. It lets recovery confirm that your encryption keys are really yours. Your current phrase stops working as soon as the new one is created, and your synced data is unaffected. To continue, we'll email you a verification code."
-msgstr ""
+msgstr "Вы получите новую фразу восстановления из 24 слов, показанную один раз. Она позволяет при восстановлении подтвердить, что ключи шифрования действительно ваши. Текущая фраза перестанет действовать сразу после создания новой; на синхронизированные данные это не влияет. Чтобы продолжить, мы отправим вам код подтверждения на электронную почту."
 
 #: src/skills/discard-create-dialog.tsx
 #: src/skills/skills-view.tsx
@@ -7145,7 +7145,7 @@ msgstr "Вы вошли в аккаунт."
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "You're offline. You can update it once you reconnect."
-msgstr ""
+msgstr "Нет подключения к сети. Обновить можно будет, когда связь восстановится."
 
 #: src/settings/app-version-section.tsx
 msgid "You're on the latest version."
@@ -7197,7 +7197,7 @@ msgstr "ИИ-помощник будет использовать это имя 
 
 #: src/components/search-provider-setup/search-provider-setup.tsx
 msgid "Your API key stays on this device."
-msgstr ""
+msgstr "Ваш API-ключ остаётся на этом устройстве."
 
 #: src/components/onboarding/onboarding-auth-step.tsx
 msgid "Your assistant can help you manage your email and calendar."
@@ -7234,15 +7234,15 @@ msgstr "Сервер вашей установки"
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Your device checks the enclave hardware and signed build before sending to {provider}."
-msgstr ""
+msgstr "Перед отправкой в {provider} ваше устройство проверяет оборудование анклава и подписанную сборку."
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Your device verified {provider}'s confidential inference endpoint. Model request bodies are encrypted for that enclave."
-msgstr ""
+msgstr "Ваше устройство подтвердило конфиденциальный адрес вывода {provider}. Тела запросов к модели шифруются для этого анклава."
 
 #: src/components/onboarding/onboarding-celebration-step.tsx
 msgid "Your donation helps us understand how the app is used and improve the product."
-msgstr ""
+msgstr "Передача данных помогает нам понять, как пользуются приложением, и улучшать продукт."
 
 #: src/app.tsx
 msgid "Your encryption was upgraded and a new 24-word recovery phrase was generated. Write it down in order and store it somewhere safe. This phrase won't be shown again."
@@ -7250,7 +7250,7 @@ msgstr "Шифрование обновлено, создана новая фр�
 
 #: src/components/onboarding/onboarding-server-step.tsx
 msgid "Your local data stays on this device until you enable sync."
-msgstr ""
+msgstr "Ваши локальные данные остаются на этом устройстве, пока вы не включите синхронизацию."
 
 #: src/components/context-overflow-modal.tsx
 msgid "Your message would exceed the model's {formattedMaxTokens}-token context window."
@@ -7263,7 +7263,7 @@ msgstr "Ваше имя"
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your new phrase is the only one that works now. Keep it somewhere safe."
-msgstr ""
+msgstr "Теперь действует только новая фраза. Храните её в надёжном месте."
 
 #: src/components/recovery-phrase-change-dialogs.tsx
 msgid "Your old recovery phrase no longer works. Write down these 24 words in order and store them somewhere safe. This phrase won't be shown again."
@@ -7271,7 +7271,7 @@ msgstr "Старая фраза восстановления больше не �
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your passkey was added before a security update. Check it once so unlocking with it can confirm your encryption keys are yours."
-msgstr ""
+msgstr "Ваш ключ доступа добавлен до обновления безопасности. Проверьте его один раз, чтобы открытие этим ключом подтверждало, что ключи шифрования принадлежат вам."
 
 #: src/settings/encryption/use-change-recovery-key.ts
 msgid "Your passkey's sync keys couldn't be verified. Remove the passkey in Settings → Preferences on the web, then try again."
@@ -7279,11 +7279,11 @@ msgstr "Не удалось проверить ключи синхронизац
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your phrase was created before a security update. Replace it so recovery can confirm your encryption keys are yours. Your current phrase keeps working until you do."
-msgstr ""
+msgstr "Ваша фраза создана до обновления безопасности. Замените её, чтобы при восстановлении можно было подтвердить, что ключи шифрования ваши. До замены текущая фраза продолжает действовать."
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your phrase was created before a security update. This device isn't approved yet, so it can't create a new one. Open Thunderbolt on an approved device and update it there."
-msgstr ""
+msgstr "Ваша фраза создана до обновления безопасности. Это устройство пока не разрешено и не может создать новую. Откройте Вольт на разрешённом устройстве и обновите фразу там."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 #~ msgid "Your private AI assistant"
@@ -7295,15 +7295,15 @@ msgstr "Фраза восстановления не была сохранена
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your recovery phrase was replaced on another of your devices. Use the new phrase you saved there; the old one no longer works. If this wasn't you, review your devices from an approved device."
-msgstr ""
+msgstr "Фразу восстановления заменили на другом вашем устройстве. Пользуйтесь новой фразой, которую вы там сохранили, — старая больше не действует. Если это были не вы, проверьте свои устройства с разрешённого устройства."
 
 #: src/components/recovery-continuity/recovery-continuity-status-card.tsx
 msgid "Your recovery phrase was replaced on another of your devices. Use the new phrase you saved there; the old one no longer works. If this wasn't you, review your devices."
-msgstr ""
+msgstr "Фразу восстановления заменили на другом вашем устройстве. Пользуйтесь новой фразой, которую вы там сохранили, — старая больше не действует. Если это были не вы, проверьте свои устройства."
 
 #: src/components/recovery-continuity/recovery-continuity-banner.tsx
 msgid "Your recovery phrase was updated on another device."
-msgstr ""
+msgstr "Фраза восстановления обновлена на другом устройстве."
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "Your request to sync this device was denied by another device. You can try again or close this dialog."
@@ -7311,7 +7311,7 @@ msgstr "Запрос на синхронизацию этого устройст
 
 #: src/lib/tinfoil-auth.ts
 msgid "Your Tinfoil connection has expired. Reconnect Tinfoil in Settings → Connections."
-msgstr ""
+msgstr "Срок действия подключения Tinfoil истёк. Подключите Tinfoil заново в разделе «Настройки → Подключения»."
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 #~ msgid "Zero Logs"
