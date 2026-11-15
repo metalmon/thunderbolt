@@ -99,6 +99,11 @@ Per-branch apply-order rationale lives as comments in `dev-local/fork-branches.p
    the only moment the loss is visible. Move anything real onto the branch that owns the
    file first.
 6. `pwsh dev-local/rebuild-master.ps1` to reassemble `master`; build.
+   **Run `cd src-tauri && cargo check` as part of that acceptance, next to `type-check`.**
+   Nothing else sees the Rust half: a stale rerere postimage once kept re-adding
+   `commands::save_bytes_to_path` to `invoke_handler!` long after the command itself
+   had been replaced, and `type-check`, `lint`, the test suites and the build were all
+   green over it. The failure reads `error[E0433]: cannot find __cmd__<name> in commands`.
 7. Re-run the orphan check against the rebuilt master (`-Current master`) and read every
    line: upstream superseding it, a deliberate drop, or a loss — only the third is a bug.
 
