@@ -8,11 +8,11 @@ import { buildAttachmentPart } from '@/lib/attachments'
 import { getClock } from '@/testing-library'
 import { createQueryTestWrapper } from '@/test-utils/react-query'
 import type { AttachmentData, Model, ThunderboltUIMessage } from '@/types'
+import type { defaultModels } from '@shared/defaults/models'
 import {
   defaultModelDeepSeekV41Flash,
   defaultModelGlm53,
   defaultModelId,
-  defaultModels,
   defaultModelsVersion,
   type ImageSupport,
 } from '@shared/defaults/models'
@@ -225,7 +225,11 @@ describe('useImageSupportCheck', () => {
   })
 
   describe('a newer lineup arriving with /config', () => {
-    const declare = (modelId: string, support: ImageSupport) =>
+    // Fork: the payload carries the row it declares. `defaultModels` ships EMPTY
+    // here, and `pickModelsDefaults` refuses a payload with no rows at all — so
+    // spreading the bundle would publish an empty lineup and the declaration would
+    // never reach the hook.
+    const declare = (model: { id: string }, support: ImageSupport) =>
       act(async () => {
         useConfigStore.setState({
           config: {
@@ -233,8 +237,8 @@ describe('useImageSupportCheck', () => {
               models: {
                 version: defaultModelsVersion + 1,
                 defaultModelId,
-                data: [...defaultModels],
-                imageSupport: { [modelId]: support },
+                data: [model as (typeof defaultModels)[number]],
+                imageSupport: { [model.id]: support },
               },
             },
           },
@@ -247,7 +251,7 @@ describe('useImageSupportCheck', () => {
       const { result } = renderCheck({ model: defaultModelGlm53 as Model, detect })
       expect(result.current.notice).toBe('unsupported')
 
-      await declare(defaultModelGlm53.id, 'supported')
+      await declare(defaultModelGlm53, 'supported')
 
       expect(result.current.notice).toBeUndefined()
     })
@@ -257,7 +261,7 @@ describe('useImageSupportCheck', () => {
       const { result } = renderCheck({ model: defaultModelDeepSeekV41Flash as Model, detect })
       expect(result.current.notice).toBeUndefined()
 
-      await declare(defaultModelDeepSeekV41Flash.id, 'unsupported')
+      await declare(defaultModelDeepSeekV41Flash, 'unsupported')
 
       expect(result.current.notice).toBe('unsupported')
       expect(result.current.tryAnyway).toBeUndefined()

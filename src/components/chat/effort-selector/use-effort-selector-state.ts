@@ -23,22 +23,27 @@ export const useEffortSelectorState = () => {
   const db = useDatabase()
   const session = useCurrentChatSession()
   const { id, selectedModel, selectedAgent, chatInstance, compactionStatus } = session
-  const builtIn = selectedAgent.type === 'built-in'
-  const legacyKey = reasoningEffortSettingKey(id, selectedModel.id)
+  // Fork: `selectedModel` is nullable here — an ACP agent brings its own. The
+  // built-in lane is the only one that reads a model, and every query below is
+  // already gated on `builtIn`, so an absent model only needs a stable placeholder
+  // for the query keys, never a resolvable id.
+  const builtIn = selectedAgent.type === 'built-in' && selectedModel !== null
+  const modelId = selectedModel?.id ?? ''
+  const legacyKey = reasoningEffortSettingKey(id, modelId)
   const legacySetting = useSettings({ [legacyKey]: String }, { camelCase: false })[legacyKey]
   const modelQuery = usePowerSyncQuery({
-    queryKey: ['models', selectedModel.id, 'reasoning-effort'],
-    query: toCompilableQuery(getModelReasoningEffortQuery(db, selectedModel.id)),
+    queryKey: ['models', modelId, 'reasoning-effort'],
+    query: toCompilableQuery(getModelReasoningEffortQuery(db, modelId)),
     enabled: builtIn,
   })
   const profileQuery = usePowerSyncQuery({
-    queryKey: ['model-provider-options', selectedModel.id],
-    query: toCompilableQuery(getModelProviderOptionsQuery(db, selectedModel.id)),
+    queryKey: ['model-provider-options', modelId],
+    query: toCompilableQuery(getModelProviderOptionsQuery(db, modelId)),
     enabled: builtIn,
   })
   const catalog = useQuery({
-    queryKey: ['reasoning-capabilities', selectedModel.provider, selectedModel.model, selectedModel.vendor],
-    queryFn: () => loadReasoningCapabilities(selectedModel),
+    queryKey: ['reasoning-capabilities', selectedModel?.provider, selectedModel?.model, selectedModel?.vendor],
+    queryFn: () => (selectedModel ? loadReasoningCapabilities(selectedModel) : noReasoningEffort),
     enabled: builtIn,
     staleTime: 300_000,
     retry: false,
@@ -51,7 +56,7 @@ export const useEffortSelectorState = () => {
     capabilities,
     resolveProfileReasoningEffort(profileQuery.data?.[0]?.providerOptions, capabilities),
   )
-  const scope = `${selectedAgent.id}:${selectedModel.id}`
+  const scope = `${selectedAgent.id}:${modelId}`
   const [failure, setFailure] = useState<{ scope: string; message: string } | null>(null)
   const [pending, setPending] = useState<ReadonlyMap<string, { scope: string; value: string }>>(() => new Map())
   // Built-in preferences are per model; an ACP configuration write belongs to the entire session.
@@ -95,8 +100,8 @@ export const useEffortSelectorState = () => {
     setPending((current) => new Map(current).set(writeScope, { scope, value: next }))
     try {
       if (builtIn) {
-        await queueReasoningEffortWrite(db, selectedModel.id, async () => {
-          await updateModel(db, selectedModel.id, { reasoningEffort: next })
+        await queueReasoningEffortWrite(db, modelId, async () => {
+          await updateModel(db, modelId, { reasoningEffort: next })
           await modelQuery.refetch()
         })
       } else if (remote && option) {

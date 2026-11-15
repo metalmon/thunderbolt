@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { describe, expect, test } from 'bun:test'
-import {
-  defaultModelDeepSeekV41Flash,
-  defaultModelGlm53,
-  defaultModelOpus55,
-} from '@shared/defaults/models'
+import { defaultModelDeepSeekV41Flash, defaultModelGlm53, defaultModelOpus55 } from '@shared/defaults/models'
 import { deriveEvalModelMatrix, evalModelSlugs, evalModels, evalReferenceModels, getScenarios } from './scenarios'
 
 describe('eval model matrix', () => {

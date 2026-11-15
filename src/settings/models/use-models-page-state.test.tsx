@@ -11,7 +11,8 @@ import { resetTestDatabase, setupTestDatabase, teardownTestDatabase } from '@/da
 import { getDb } from '@/db/database'
 import { getClock } from '@/testing-library'
 import { renderWithReactivity } from '@/test-utils/powersync-reactivity-test'
-import { defaultModels } from '@shared/defaults/models'
+import { defaultModelOpus55, defaultModelsVersion } from '@shared/defaults/models'
+import { useConfigStore } from '@/api/config-store'
 import * as dal from '@/dal'
 import { createTestProvider } from '@/test-utils/test-provider'
 import { useModelsPageState } from './use-models-page-state'
@@ -164,7 +165,16 @@ describe('model settings update active chat availability', () => {
   })
 
   it('refreshes a reset default instead of retaining its edited credentials', async () => {
-    const model = defaultModels[0]
+    // Fork: `defaultModels` ships EMPTY, so the restorable set is the server's —
+    // `pickModelsDefaults` takes the OTA payload whenever it declares the higher
+    // version, which is exactly how a deployment restores a default here.
+    const model = defaultModelOpus55
+    useConfigStore.setState((state) => ({
+      config: {
+        ...state.config,
+        defaults: { models: { version: defaultModelsVersion + 1, data: [model], imageSupport: {} } },
+      },
+    }))
     await createModel(getDb(), { ...model, name: 'Edited default', apiKey: 'stale-key' })
     useChatStore.getState().setModels(await getAvailableModels(getDb()))
     renderWithReactivity(<MutationHarness id={model.id} />, { tables: ['models'] })

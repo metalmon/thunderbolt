@@ -31,7 +31,9 @@ export const EffortSelector = ({ modelPicker }: { modelPicker?: (onClose: () => 
   const current = choices.findIndex((choice) => choice.value === value)
   const effortName = choices[current]?.name ?? t`Choose effort`
   const effortDescription = t`Reasoning effort: ${effortName}`
-  const modelName = selectedModel.name
+  // Fork: no model is a real state here — the shipped catalog is empty until the
+  // user adds one or the server ships a lineup — so the picker names the gap.
+  const modelName = selectedModel?.name ?? t`Choose a model`
   const accessibleDescription = modelPicker
     ? choices.length
       ? t`Model: ${modelName}. Reasoning effort: ${effortName}`
@@ -45,15 +47,15 @@ export const EffortSelector = ({ modelPicker }: { modelPicker?: (onClose: () => 
       aria-haspopup="dialog"
       // With the model picker the visible model name is the accessible name, so voice control can say it.
       aria-label={modelPicker ? undefined : t`Reasoning effort`}
-      title={choices.length ? effortDescription : selectedModel.name}
+      title={choices.length ? effortDescription : modelName}
       aria-description={accessibleDescription}
       className="flex min-w-0 cursor-pointer items-center gap-1.5 px-2 h-[var(--touch-height-control)] rounded-[var(--radius-control)] text-[length:var(--font-size-sm)] font-medium text-muted-foreground transition-colors hover:bg-accent/50 data-[state=open]:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:cursor-default disabled:opacity-50"
     >
-      {modelPicker && <ModelProviderIcon model={selectedModel} className="size-3.5 shrink-0" />}
-      {modelPicker && needsApiKey(selectedModel) && (
+      {modelPicker && selectedModel && <ModelProviderIcon model={selectedModel} className="size-3.5 shrink-0" />}
+      {modelPicker && selectedModel && needsApiKey(selectedModel) && (
         <AlertTriangle aria-label={t`API key not configured`} className="size-3.5 shrink-0 text-warning" />
       )}
-      {modelPicker && <span className="max-w-40 truncate">{selectedModel.name}</span>}
+      {modelPicker && <span className="max-w-40 truncate">{modelName}</span>}
       {current >= 0 && <EffortRing value={value} values={choices.map((choice) => choice.value)} kind={kind} />}
       <ChevronDown aria-hidden="true" className="size-3.5 shrink-0" />
     </button>
@@ -82,7 +84,7 @@ export const EffortSelector = ({ modelPicker }: { modelPicker?: (onClose: () => 
             onClick={() => setPrivacyOpen(true)}
           />
         )}
-        {choices.length > 0 && <EffortControls key={selectedModel.id} {...effort} />}
+        {choices.length > 0 && <EffortControls key={selectedModel?.id} {...effort} />}
       </ResponsivePopover>
       {modelPicker && attestation.target && (
         <AttestationModal

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ProviderSetupError, runProviderSetupStage } from './provider-setup-error'
-import { defaultModelId, defaultModels, type SharedModel } from '@shared/defaults/models'
+import { defaultModelOpenRouterFree, type SharedModel } from '@shared/defaults/models'
 import { createDefaultProbe } from '@/hooks/use-model-connection-test'
 import type { FetchFn } from '@/lib/proxy-fetch'
 import { fetchModelsForProvider, type AvailableModel } from '@/settings/models/model-catalog'
@@ -29,7 +29,11 @@ const modelIdentity = (value: string) =>
 /** Resolves the shipped agent default to an actual catalog ID, never a guessed endpoint slug. */
 export const resolveProviderDefaultModel = (
   catalog: AvailableModel[],
-  preferred = defaultModels.find((model) => model.id === defaultModelId)!,
+  // Fork: `defaultModels` ships EMPTY here (system models arrive from the backend),
+  // so searching the bundle for `defaultModelId` returned undefined and the filter
+  // below threw during provider setup. The row the id names is exported in its own
+  // right; take it from there.
+  preferred: SharedModel = defaultModelOpenRouterFree,
 ) => {
   const matches = catalog.filter(
     (model) => model.supports_tools !== false && modelIdentity(model.id) === modelIdentity(preferred.model),
@@ -56,7 +60,8 @@ export const prepareProviderDefaultModel = async (
     if (!model) {
       throw new ProviderSetupError('model')
     }
-    const preferred = defaultModels.find((model) => model.id === defaultModelId)!
+    // Fork: same empty-bundle reason as `resolveProviderDefaultModel` above.
+    const preferred = defaultModelOpenRouterFree
     const toolSupport = await runProviderSetupStage('probe', () =>
       deps.probe({ provider, model: model.id, apiKey, url: null }, getProxyFetch, boundedSignal),
     )

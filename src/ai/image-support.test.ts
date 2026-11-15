@@ -87,7 +87,11 @@ describe('getKnownImageSupport', () => {
   describe('with a newer server lineup', () => {
     const serverOnly = { ...defaultModelDeepSeekV41Flash, id: 'server-only-default', model: 'kimi-k3' }
 
-    it('picks the lineup once per payload, so a rejected one warns once', () => {
+    // Fork: upstream rejects a payload that shares no id with `defaultModels` (and
+    // warns once). This fork ships that bundle EMPTY, so the overlap rule is
+    // deliberately not applied — see `pickModelsDefaults` — and a well-formed
+    // payload is simply taken. What stays worth pinning is that it is picked once.
+    it('picks the lineup once per payload, with nothing to reject against an empty bundle', () => {
       const warn = spyOn(console, 'warn').mockImplementation(() => {})
       useConfigStore.setState({
         config: {
@@ -105,8 +109,8 @@ describe('getKnownImageSupport', () => {
       getKnownImageSupport(serverOnly)
       getKnownImageSupport(serverOnly)
 
-      expect(getKnownImageSupport(serverOnly)).toBeUndefined()
-      expect(warn).toHaveBeenCalledTimes(1)
+      expect(getKnownImageSupport(serverOnly)).toBe('supported')
+      expect(warn).not.toHaveBeenCalled()
       warn.mockRestore()
     })
 

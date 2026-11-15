@@ -17,6 +17,7 @@ import { updateSettings } from '@/dal/settings'
 import { createModel, updateModel } from '@/dal/models'
 import { upsertModelProfile, deleteModelProfileForModel, getModelProfile } from '@/dal/model-profiles'
 import { defaultModelDeepSeekV41Flash, defaultModelGlm53 } from '@shared/defaults/models'
+import { defaultModelProfileDeepSeekV41Flash, defaultModelProfileGlm53 } from '@/defaults/model-profiles'
 import { eq } from 'drizzle-orm'
 import { getCurrentDatabase, getDb, setDatabase } from '@/db/database'
 import { modelsTable } from '@/db/tables'
@@ -291,10 +292,14 @@ it('shares model choices across chats, preserves legacy choices, and defaults to
 })
 
 it.each([
-  { model: defaultModelDeepSeekV41Flash, effort: 'low' },
-  { model: defaultModelGlm53, effort: 'max' },
-] as const)('preserves the bundled tuned profile for $model.name', async ({ model: defaultModel, effort }) => {
+  { model: defaultModelDeepSeekV41Flash, profile: defaultModelProfileDeepSeekV41Flash, effort: 'low' },
+  { model: defaultModelGlm53, profile: defaultModelProfileGlm53, effort: 'max' },
+] as const)('preserves the bundled tuned profile for $model.name', async ({ model: defaultModel, profile, effort }) => {
   const model = { ...defaultModel, apiKey: null, reasoningEffort: null }
+  // Fork: `setupTestDatabase` reconciles the bundle, which this fork ships EMPTY,
+  // so the row and its tuned profile are written here instead of being inherited.
+  await createModel(getDb(), { ...model })
+  await upsertModelProfile(getDb(), { modelId: model.id, providerOptions: profile.providerOptions })
   await updateModel(getDb(), model.id, { reasoningEffort: null })
   const capabilities = async () => ({ efforts: ['none', 'low', 'medium', 'high', 'max'] as const })
   expect((await getModelProfile(getDb(), model.id))?.providerOptions?.reasoningEffort).toBe(effort)

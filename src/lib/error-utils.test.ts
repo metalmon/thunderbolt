@@ -629,7 +629,9 @@ describe('getErrorRetryable', () => {
 describe('isAcpSessionBusyError', () => {
   it('detects Zeroclaw / ACP "active prompt turn" busy rejects', () => {
     expect(
-      isAcpSessionBusyError(new Error('Session already has an active prompt turn: 50be29d3-97bd-4bcc-8012-dd7e0a160ac3')),
+      isAcpSessionBusyError(
+        new Error('Session already has an active prompt turn: 50be29d3-97bd-4bcc-8012-dd7e0a160ac3'),
+      ),
     ).toBe(true)
     expect(
       isAcpSessionBusyError(

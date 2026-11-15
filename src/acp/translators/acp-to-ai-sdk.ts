@@ -302,7 +302,8 @@ export const createTranslator = (emit: (chunk: AiSdkChunk) => void, options: Tra
     textStarted = true
     emitReasoningDuration()
     emitAttachmentSources()
-    emit({ type: 'text-start', id: textId })
+    textThrottle.id = textPart === 0 ? textId : `${textId}-${textPart}`
+    emit({ type: 'text-start', id: textThrottle.id })
   }
 
   const ensureReasoningStarted = (): void => {

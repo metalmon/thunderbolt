@@ -148,7 +148,13 @@ describe('AddCustomAgentForm', () => {
     const pair = mock(async (_inputs: { url: string; code: string }) => ({ token: `zc_token_${++issued}` }))
     const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
     render(
-      <AddCustomAgentForm onClose={() => {}} onSubmit={async () => {}} isIos={notIos} testAcpConnection={probe} pair={pair} />,
+      <AddCustomAgentForm
+        onClose={() => {}}
+        onSubmit={async () => {}}
+        isIos={notIos}
+        testAcpConnection={probe}
+        pair={pair}
+      />,
     )
 
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
@@ -177,7 +183,13 @@ describe('AddCustomAgentForm', () => {
     })
     const probe = mock<TestAcpConnectionFn>(async () => ({ success: true }))
     render(
-      <AddCustomAgentForm onClose={() => {}} onSubmit={async () => {}} isIos={notIos} testAcpConnection={probe} pair={pair} />,
+      <AddCustomAgentForm
+        onClose={() => {}}
+        onSubmit={async () => {}}
+        isIos={notIos}
+        testAcpConnection={probe}
+        pair={pair}
+      />,
     )
 
     fireEvent.change(screen.getByLabelText(/url/i), { target: { value: 'wss://gw.example/acp' } })
