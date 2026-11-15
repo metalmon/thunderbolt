@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { localSettingsStorageName } from '@/fork/storage/local-settings-key'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { setActiveLocale } from '@/i18n/active-locale'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
@@ -100,10 +101,7 @@ describe('auth-token', () => {
       const settings = useLocalSettingsStore.getState()
       setAuthToken('old-token')
       const nextServer = 'https://other.example/v1'
-      localStorage.setItem(
-        'thunderbolt-local-settings',
-        JSON.stringify({ state: { ...settings, cloudUrl: nextServer } }),
-      )
+      localStorage.setItem(localSettingsStorageName, JSON.stringify({ state: { ...settings, cloudUrl: nextServer } }))
       localStorage.setItem(authTokenKey, JSON.stringify({ token: 'next-token', cloudUrl: nextServer }))
       try {
         expect(getAuthToken()).toBeNull()

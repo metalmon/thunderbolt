@@ -127,11 +127,13 @@ export const initialLocalSettings: LocalSettingsState = {
   cloudUrl: initialCloudUrl,
   localMode: !initialCloudUrl,
   serverHasAuthenticated: !!initialCloudUrl,
-  cloudUrl: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL || 'http://localhost:8000/v1',
-  // An unset (or empty) backend address is the signal: nothing to talk to, so
-  // start autonomous. It cannot be inferred from `cloudUrl` above, whose
-  // fallback is a real-looking localhost URL.
-  operationMode: import.meta.env.VITE_THUNDERBOLT_CLOUD_URL ? 'server' : 'local',
+  // Fork: the same signal upstream now reads as `localMode` — an unset backend
+  // address means there is nothing to talk to, so start autonomous. Derived from
+  // `initialCloudUrl` rather than the raw env var so the two can never disagree
+  // (upstream's also answers 'local' for a non-SSO desktop build). The fork's own
+  // readers still go through `operationMode`; collapsing them onto `localMode` is
+  // its own change, not this sync's.
+  operationMode: initialCloudUrl ? 'server' : 'local',
   externalLinkBehavior: 'ask',
   debugPosthog: false,
   isNativeFetchEnabled: true,

@@ -18,7 +18,9 @@ import { jest as bunJest } from 'bun:test'
 let activeClock: Clock | null = null
 
 const guardedTick = (fn: (clock: Clock) => void) => () => {
-  if (activeClock) {fn(activeClock)}
+  if (activeClock) {
+    fn(activeClock)
+  }
 }
 
 // bun's jest timer methods are typed to return the chainable jest object; our
@@ -60,7 +62,9 @@ export const installFakeTimers = (config?: { now?: number; shouldAdvanceTime?: b
   activeClock = clock
   const originalUninstall = clock.uninstall.bind(clock)
   clock.uninstall = () => {
-    if (activeClock === clock) {activeClock = null}
+    if (activeClock === clock) {
+      activeClock = null
+    }
     originalUninstall()
   }
 

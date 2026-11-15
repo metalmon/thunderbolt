@@ -8,3 +8,12 @@ preload = [
   "./fork/testing/reset-process-state.ts",
   "./testing-library.ts",
 ]
+
+# Fork: name the SVG loader explicitly. Left to the default, bun hands an importer
+# a record WITHOUT its default export once a graph grows past some size - the
+# failure reads "Missing 'default' export in module .../logo.svg" and aborts the whole
+# FILE between tests. It only bit single-file runs (the full suite loads the asset
+# early and keeps it), which is exactly the run the docs tell people to use while
+# working on one test, so it looked like flakiness for a while.
+[loader]
+".svg" = "file"

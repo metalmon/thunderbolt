@@ -52,7 +52,9 @@ export const AddToPathButton = ({
     let cancelled = false
     readTarget()
       .then((value) => {
-        if (!cancelled) setTarget(value)
+        if (!cancelled) {
+          setTarget(value)
+        }
       })
       // A missing description must not hide the button; the directory below is
       // named either way, and the backend refuses what it cannot do.
