@@ -5,6 +5,7 @@
 import { createClient, type HttpClient } from '@/lib/http'
 import { isCurrentServer } from '@/stores/local-settings-store'
 import { markConfigAbsent } from '@/fork/local-mode/config-absent'
+import { isLocalMode } from '@/fork/local-mode/mode'
 import { useConfigStore, type AppConfig } from './config-store'
 
 /**
@@ -13,7 +14,9 @@ import { useConfigStore, type AppConfig } from './config-store'
  * @param httpClient - Optional pre-configured client; when omitted, creates an unauthenticated client with `cloudUrl`.
  */
 export const fetchConfig = async (cloudUrl: string, httpClient?: HttpClient): Promise<AppConfig | null> => {
-  if (!cloudUrl) {
+  // Fork: `isLocalMode()` rides upstream's missing-URL branch — an autonomous install
+  // must not ask even when the user has named a server but stayed local.
+  if (!cloudUrl || isLocalMode()) {
     // Fork: an autonomous install has no backend to ask, so the config is declared
     // absent-and-settled — that keeps the deployment-gated controls rendering.
     markConfigAbsent()
