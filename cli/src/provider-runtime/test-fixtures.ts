@@ -35,6 +35,10 @@ export const testManagedCatalog: ManagedCatalog = {
   version: 1,
   defaultModelId: testDirectModel.id,
   data: [testDirectModel, testConfidentialModel],
+  // Both fixtures keep an upstream model's provider and slug, so the known-models
+  // floor in `staticImageSupport` answers for them — a payload that omitted the map
+  // is filled in with exactly these two entries (see `bundledImageSupport`).
+  imageSupport: { [testDirectModel.id]: 'supported', [testConfidentialModel.id]: 'supported' },
 }
 
 const futureDirectModelId = '019f0000-0000-7000-8000-000000000001'
