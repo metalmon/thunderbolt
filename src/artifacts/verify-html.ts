@@ -62,7 +62,9 @@ export const runIframeVerification: RuntimeVerifier = async (html, opts) => {
   } catch (error) {
     return {
       ok: false,
-      errors: [`Could not host the artifact for verification: ${error instanceof Error ? error.message : String(error)}`],
+      errors: [
+        `Could not host the artifact for verification: ${error instanceof Error ? error.message : String(error)}`,
+      ],
     }
   }
 
