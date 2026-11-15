@@ -22,7 +22,9 @@ describe('MobileCardMenu', () => {
     // `closest` is typed Element | null, and reading .className below needs it narrowed.
     // A throw rather than a non-null assertion, so a component that stops rendering the
     // drawer says so instead of failing on an unrelated line.
-    if (!drawer) {throw new Error('no [data-slot="drawer-content"] ancestor')}
+    if (!drawer) {
+      throw new Error('no [data-slot="drawer-content"] ancestor')
+    }
     expect(drawer).toHaveClass('w-full')
     // eece0f367 made these surfaces opaque on purpose: animating opacity over a
     // backdrop blur is expensive on weak hardware. Assert the DECISION — solid
@@ -106,7 +108,11 @@ describe('MobileCardMenu', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(1)
     expect(onOpenChange.mock.calls[0]?.[0]).toBe(false)
   })
-  it('renders its own blur backdrop when nested in another drawer', () => {
+  // Fork: the drawer backdrop dims without blurring — animating opacity over a
+  // backdrop-filter re-samples the page every frame and janks on weak hardware
+  // (fork/perf). What this case is really about, a nested drawer getting its OWN
+  // overlay rather than sharing the parent's, is unchanged.
+  it('renders its own backdrop when nested in another drawer', () => {
     render(
       <MobileCardMenu open onOpenChange={() => {}} title="Parent">
         <MobileCardMenu open forceBackdrop onOpenChange={() => {}} title="Account menu">
@@ -116,6 +122,6 @@ describe('MobileCardMenu', () => {
     )
     const overlays = document.querySelectorAll('[data-slot="drawer-overlay"]')
     expect(overlays).toHaveLength(2)
-    expect(overlays[1]).toHaveClass('backdrop-blur-xs', 'backdrop-saturate-75')
+    expect(overlays[1]).toHaveClass('bg-black/40')
   })
 })
