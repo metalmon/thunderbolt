@@ -74,7 +74,6 @@ pub fn create_app() -> tauri::Builder<tauri::Wry> {
             commands::install_thunderbolt_cli,
             #[cfg(any(target_os = "macos", target_os = "ios"))]
             webview_recovery::native::retry_webview_after_crash,
-            commands::save_bytes_to_path,
             commands::add_cli_dir_to_path,
             commands::cli_path_target,
             fork_boot_log::fork_boot_log,
