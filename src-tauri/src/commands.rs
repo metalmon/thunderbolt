@@ -79,8 +79,8 @@ pub fn hide_main_window(app: tauri::AppHandle) -> Result<(), String> {
 /// - `svg` — opens in a browser and can carry script, so "view a picture" would
 ///   mean running someone's markup.
 const OPENABLE_EXTENSIONS: &[&str] = &[
-    "pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp", "rtf", "txt", "md", "csv", "json", "png", "jpg", "jpeg", "gif",
-    "webp",
+    "pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp", "rtf", "txt", "md", "csv", "json", "png",
+    "jpg", "jpeg", "gif", "webp",
 ];
 
 /// Mark a saved file as coming from the internet zone, the way a browser marks a
@@ -135,7 +135,12 @@ pub async fn save_document_as(
         .unwrap_or("document")
         .to_string();
 
-    let Some(chosen) = app_handle.dialog().file().set_file_name(&leaf).blocking_save_file() else {
+    let Some(chosen) = app_handle
+        .dialog()
+        .file()
+        .set_file_name(&leaf)
+        .blocking_save_file()
+    else {
         return Ok(false); // cancelled
     };
     let path = chosen
@@ -251,8 +256,8 @@ pub async fn cli_path_target() -> String {
 /// install itself — the install reports whether the directory is on `PATH` and
 /// the user decides.
 #[command]
-pub async fn add_cli_dir_to_path(
-) -> Result<crate::cli_path::PathUpdate, crate::cli_path::PathError> {
+pub async fn add_cli_dir_to_path() -> Result<crate::cli_path::PathUpdate, crate::cli_path::PathError>
+{
     let dir = crate::cli_installer::cli_install_dir()?;
     crate::cli_path::add_dir_to_user_path(&dir)
 }
