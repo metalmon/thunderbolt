@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 // Fork-owned (metalmon / Volt). Adds the CLI's install directory to the user's
 // persistent `PATH`, on the user's explicit confirmation — never silently.
 //
