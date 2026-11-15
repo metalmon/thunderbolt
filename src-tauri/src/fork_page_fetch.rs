@@ -209,8 +209,9 @@ mod tests {
     #[test]
     #[ignore = "требует сети"]
     fn pinned_fetch_reaches_a_public_page_over_tls() {
-        let addresses = tauri::async_runtime::block_on(fork_resolve_host("example.com".to_string()))
-            .expect("имя должно разрешиться");
+        let addresses =
+            tauri::async_runtime::block_on(fork_resolve_host("example.com".to_string()))
+                .expect("имя должно разрешиться");
         let response = tauri::async_runtime::block_on(fork_fetch_pinned(
             "https://example.com/".to_string(),
             addresses[0].clone(),
