@@ -70,7 +70,12 @@ pub struct SandboxStore(pub Mutex<HashMap<String, StoredContent>>);
 
 /// JS → Rust: register content under `id`, to be served at `sandbox://localhost/<id>`.
 #[tauri::command]
-pub fn store_sandbox_content(state: State<'_, SandboxStore>, id: String, html: String, csp: String) {
+pub fn store_sandbox_content(
+    state: State<'_, SandboxStore>,
+    id: String,
+    html: String,
+    csp: String,
+) {
     if let Ok(mut map) = state.0.lock() {
         map.insert(id, StoredContent { html, csp });
     }
