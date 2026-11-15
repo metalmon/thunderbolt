@@ -8,6 +8,14 @@ import { expect, test } from './test'
 
 test.slow()
 
+// Fork: the lineup arrives from the deployment (`DEFAULT_MODELS`), so `defaultModels`
+// ships EMPTY here and the loop below declares no tests at all — which reads to
+// `bun run e2e:check-collected` as a spec file no Playwright project collects. Say so
+// in one skipped test; the loop comes back on its own if a build ever bundles a model.
+if (defaultModels.length === 0) {
+  test.skip('bundled models stream a non-empty reply', () => {})
+}
+
 for (const model of defaultModels) {
   test(`${model.name} streams a non-empty reply`, async ({ page }) => {
     const streams: string[] = []
