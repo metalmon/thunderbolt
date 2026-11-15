@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 /* Fork IP — additive. Not upstream MPL logic; a thin fork-only helper. */
 
 /**
