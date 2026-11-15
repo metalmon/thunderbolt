@@ -28,6 +28,7 @@ import { SignInModalProvider, type AuthClient } from '@/contexts'
 import { createMockAuthClient } from '@/test-utils/auth-client'
 import { thunderboltCloudUrl } from '@/lib/constants'
 import * as otariCapabilities from '@/integrations/otari-search/capabilities'
+import { getAppName } from '@/lib/branding-selectors'
 
 let consoleSpies: ConsoleSpies
 let originalCloudUrl: string
@@ -219,7 +220,7 @@ describe('OnboardingDialog', () => {
       render(<OnboardingDialog />, { wrapper: createRouterWrapper() })
       await flush()
       expect(screen.getByText('Want early access?')).toBeInTheDocument()
-      expect(screen.queryByText('Sign in to Thunderbolt')).not.toBeInTheDocument()
+      expect(screen.queryByText(`Sign in to ${getAppName()}`)).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByRole('button', { name: 'Back' }))
       expect(screen.getByText('Choose your setup')).toBeInTheDocument()
@@ -262,7 +263,7 @@ describe('OnboardingDialog', () => {
       await flush()
       fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
       await flush()
-      expect(screen.queryByText('Sign in to Thunderbolt')).not.toBeNull()
+      expect(screen.queryByText(`Sign in to ${getAppName()}`)).not.toBeNull()
       act(() => setAuthToken('new-session'))
       sessionSpy.mockImplementation(signedInClient.useSession)
       rerender(<OnboardingDialog />)
