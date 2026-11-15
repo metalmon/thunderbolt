@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 /**
  * The managed lane: the deployment's own model, with the key held on the server.
  *
