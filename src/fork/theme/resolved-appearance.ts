@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 /* Fork (metalmon): the appearance a guest surface has to match.
  *
  * Volt ships a third theme, "paper" — a fixed warm appearance that is neither
