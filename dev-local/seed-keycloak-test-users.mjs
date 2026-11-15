@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 /**
  * Seeds the local Keycloak `volt` realm with the test users the voltd live test
  * needs, and assigns each the group the gateway maps to a permission profile.

@@ -63,6 +63,10 @@ const skipPathPatterns: RegExp[] = [
   /(^|\/)backend\/src\/emails\/locales\//,
   // Fork: the CLI's catalogs, generated the same way and for the same reason.
   /(^|\/)cli\/src\/locales\//,
+  // Fork: the pilot kit is a vendored deployment bundle (compose files, Keycloak
+  // theme, operator shell scripts) copied to a stick as-is, not source we author
+  // under either licence.
+  /(^|\/)dev-local\/pilot-kit\//,
   /(^|\/)crates\/[^/]+\/target\//,
   /\.gen\.[a-z]+$/i,
 ]
@@ -85,8 +89,16 @@ const renderHeader = (style: CommentStyle): string => {
   }
 }
 
+/**
+ * Fork: a file is headed if it carries EITHER licence. Additive fork files are our
+ * own IP under the boundary in CLAUDE.md and deliberately carry the Okta Plus header
+ * instead of the MPL one — they are headed, not missing, and giving them an MPL
+ * header would erase the separation this fork is organised around.
+ */
 const hasHeader = (content: string): boolean =>
-  content.includes('Mozilla Public License') || content.includes('mozilla.org/MPL')
+  content.includes('Mozilla Public License') ||
+  content.includes('mozilla.org/MPL') ||
+  content.includes('Okta Plus')
 
 const isInScope = (path: string): boolean => {
   if (skipPathPatterns.some((re) => re.test(path))) {

@@ -1,3 +1,6 @@
+/* Copyright (c) Okta Plus LLC. All rights reserved.
+ * Fork-owned file (see AGENTS.md / CLAUDE.md: additive fork surface). */
+
 // Fork brand swap (metalmon / Volt). Upstream hardcodes the brand "Thunderbolt"
 // in source strings; the fork ships as "Volt". Rather than edit every source
 // `<Trans>` (which re-keys the RU catalog and must be redone on every upstream
