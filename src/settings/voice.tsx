@@ -10,7 +10,6 @@
  * turn.
  */
 import { useAppName } from '@/lib/branding-selectors'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -105,7 +104,7 @@ export const VoiceSettingsPage = () => {
   const { t } = useLingui()
   const appName = useAppName()
   const config = useLocalSettingsStore((s) => s.voiceProvider)
-  const localMode = useIsLocalMode()
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
   const setLocalSetting = useLocalSettingsStore((s) => s.setLocalSetting)
   const ui = useVoiceSettingsState(config)
   const { runTest, loadModels } = ui
