@@ -1953,14 +1953,21 @@ describe('reconcileDefaults per-table version gates (THU-677)', () => {
   })
 })
 
-describe('analytics opt-in (`data_collection` ships on)', () => {
+/**
+ * Fork: upstream ships `data_collection` ON and uses a defaults bump to opt existing
+ * accounts back IN, including ones that had switched it off. Volt ships into closed
+ * perimeters and reverses both halves: the shipped value is OFF, and no bump rides
+ * with it, so reconcile only INSERTS the row where it is missing and never rewrites
+ * a choice somebody already made — in either direction.
+ */
+describe('analytics consent (`data_collection` ships off)', () => {
   const key = 'data_collection'
   const shipped = defaultSettings.find((setting) => setting.key === key)
   if (!shipped) {
     throw new Error('fixture drift: `data_collection` no longer in defaultSettings')
   }
-  /** What the previous bundle shipped, and so the hash every existing row carries. */
-  const previousDefault = { ...shipped, value: 'false' }
+  /** What an upstream-seeded account carries: upstream's value, under upstream's hash. */
+  const upstreamDefault = { ...shipped, value: 'true' }
 
   const storedValue = async () =>
     (await getDb().select().from(settingsTable).where(eq(settingsTable.key, key)).get())?.value
@@ -1972,26 +1979,36 @@ describe('analytics opt-in (`data_collection` ships on)', () => {
       .set({ value: String(defaultSettingsVersion - 1) })
       .where(eq(settingsTable.key, 'defaults_version.settings'))
 
-  /** An account from the previous bundle: `value` stored under the old default's hash. */
+  /** An account seeded by an upstream build: `value` stored under upstream's hash. */
   const stageAccountFromPreviousBundle = async (value: 'true' | 'false') => {
     await reconcileDefaults(getDb())
     await getDb()
       .update(settingsTable)
-      .set({ value, defaultHash: hashSetting(previousDefault) })
+      .set({ value, defaultHash: hashSetting(upstreamDefault) })
       .where(eq(settingsTable.key, key))
     await rewindSettingsMarker()
   }
 
-  test('starts a new account opted in', async () => {
+  test('starts a new account opted out', async () => {
     await reconcileDefaults(getDb())
-    expect(await storedValue()).toBe('true')
+    expect(await storedValue()).toBe('false')
   })
 
-  test('opts in an existing account that had it off, even one that switched it off itself', async () => {
-    await stageAccountFromPreviousBundle('false')
-    await reconcileDefaults(getDb())
-    expect(await storedValue()).toBe('true')
-  })
+  // The reason the fork changed the shipped value WITHOUT bumping the version: a bump
+  // would rewrite this row on every device that never touched the setting, which is a
+  // decision about somebody else's consent.
+  test.each(['true', 'false'] as const)(
+    'leaves an account seeded by an upstream build alone (had %s)',
+    async (seeded) => {
+      await reconcileDefaults(getDb())
+      await getDb()
+        .update(settingsTable)
+        .set({ value: seeded, defaultHash: hashSetting(upstreamDefault) })
+        .where(eq(settingsTable.key, key))
+      await reconcileDefaults(getDb())
+      expect(await storedValue()).toBe(seeded)
+    },
+  )
 
   // An account that was already on keeps the old default's hash unless reconcile re-stamps it, and an opt-out back
   // to the old default would then read as unedited and be overwritten by the next bump.
