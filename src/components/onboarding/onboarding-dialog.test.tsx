@@ -90,7 +90,11 @@ describe('OnboardingDialog', () => {
     it.each([true, false])('persists opting out before completing onboarding (local: %s)', async (local) => {
       useLocalSettingsStore.setState({ cloudUrl: local ? '' : 'https://cloud.example.com/v1', localMode: local })
       await reconcileDefaults(getDb())
-      await updateSettings(getDb(), { onboarding_current_step: '7' })
+      // Fork: seeded on, because the fork ships `data_collection` OFF by default
+      // (`src/defaults/settings.ts`). This test is about the choice surviving to
+      // the end of onboarding, not about which way the switch starts — the
+      // shipped default has its own snapshot test.
+      await updateSettings(getDb(), { onboarding_current_step: '7', data_collection: true })
       render(<OnboardingDialog />, { wrapper: createRouterWrapper() })
       await flush()
 
