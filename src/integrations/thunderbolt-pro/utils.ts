@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { isLocalMode } from '@/fork/local-mode/mode'
 import type { ThunderboltProStatus } from './types'
+import { getLocalSetting } from '@/stores/local-settings-store'
 
 // Hardcoded constant for testing - can be switched back and forth
 const isProUser = true // Set to false to test "Get Pro" button
@@ -27,7 +27,7 @@ export const hasProAccess = async (): Promise<boolean> => {
   // of them. This predicate is the single gate for both the integrations UI and
   // the tool list handed to the model — the latter matters more: a model holding
   // a search tool it cannot reach keeps calling it.
-  if (isLocalMode()) {
+  if (!getLocalSetting('cloudUrl')) {
     return false
   }
   const status = await getProStatus()

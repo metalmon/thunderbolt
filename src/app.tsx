@@ -82,7 +82,6 @@ import { LazyMotion } from 'framer-motion'
 import { ProjectRedirect } from '@/projects/project-redirect'
 import { forkBootLogOnce } from '@/fork/boot-log/boot-log'
 import { AppErrorBoundary } from '@/fork/error-boundary/app-error-boundary'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 
 // Loaded after first paint so framer-motion feature code lives in an
 // async chunk instead of the entry bundle.
@@ -212,7 +211,7 @@ const AppRoutes = ({ initData }: { initData: InitData }) => {
   // Fork: routes that exist only to talk to our backend. Not mounted rather than
   // mounted-and-broken, so a stale link lands on "not found" instead of a screen
   // that spins forever.
-  const localMode = useIsLocalMode()
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
 
   return (
     <Suspense fallback={<Loading />}>

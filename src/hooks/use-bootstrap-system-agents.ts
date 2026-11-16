@@ -4,14 +4,13 @@
 
 import { useChatStore } from '@/chats/chat-store'
 import { resolveAgentOwner, setCurrentAgentOwner, setCurrentOwnerIsAnonymous } from '@/fork/agents/agent-owner'
-import { isLocalMode } from '@/fork/local-mode/mode'
 import { useAuth, useDatabase, useHttpClient } from '@/contexts'
 import { getSettings } from '@/dal'
 import { loadAllAgents } from '@/dal/agents'
 import { selectBuiltInAgentEnabled, useConfigStore } from '@/api/config-store'
 import type { AnyDrizzleDatabase } from '@/db/database-interface'
 import { refreshSystemAgents } from '@/db/seeding/seed-agents'
-import { useLocalSettingsStore } from '@/stores/local-settings-store'
+import { getLocalSetting, useLocalSettingsStore } from '@/stores/local-settings-store'
 import type { Agent } from '@/types/acp'
 import { useEffect } from 'react'
 
@@ -75,7 +74,7 @@ export const useBootstrapSystemAgents = ({ refresh = refreshSystemAgents }: UseB
   // stay visible on a shared device. Autonomous mode has no session at all, so there
   // the owner is the device mark; otherwise a custom agent could not exist there.
   //
-  // `isLocalMode()` is read here rather than subscribed to: the mode is decided once
+  // `!getLocalSetting('cloudUrl')` is read here rather than subscribed to: the mode is decided once
   // per boot and changing it reloads the window (see `enterLocalMode`), so there is no
   // in-session transition for a dependency to catch.
   // Anonymity rides along because the management gate needs it and this is the only
@@ -84,7 +83,7 @@ export const useBootstrapSystemAgents = ({ refresh = refreshSystemAgents }: UseB
   const isAnonymous = session?.user?.isAnonymous === true
 
   useEffect(() => {
-    setCurrentAgentOwner(resolveAgentOwner(userId, isLocalMode()))
+    setCurrentAgentOwner(resolveAgentOwner(userId, !getLocalSetting('cloudUrl')))
     setCurrentOwnerIsAnonymous(isAnonymous)
   }, [userId, isAnonymous])
 
