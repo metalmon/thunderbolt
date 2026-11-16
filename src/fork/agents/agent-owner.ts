@@ -46,12 +46,13 @@ export const localAgentOwnerId = 'volt:local-device'
  * A session id always wins, so a deployment with a backend is unchanged — before
  * sign-in there is still no owner and still no custom agents.
  *
- * `localMode` is a parameter rather than an `isLocalMode()` call inside, so the one
- * publisher states which mode it is publishing for and the test needs no module mock
- * (which in bun is process-wide and never undone).
+ * `hasNoBackend` is a parameter rather than a store read inside, so the one publisher
+ * states what it is publishing for and the test needs no module mock (which in bun is
+ * process-wide and never undone). The publisher derives it from an empty `cloudUrl`,
+ * which is what upstream reads as autonomous everywhere else.
  */
-export const resolveAgentOwner = (sessionUserId: string | null | undefined, localMode: boolean): string | null =>
-  sessionUserId ?? (localMode ? localAgentOwnerId : null)
+export const resolveAgentOwner = (sessionUserId: string | null | undefined, hasNoBackend: boolean): string | null =>
+  sessionUserId ?? (hasNoBackend ? localAgentOwnerId : null)
 
 let currentOwner: string | null = null
 let ownerIsAnonymous = false
