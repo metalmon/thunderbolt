@@ -19,7 +19,6 @@ import { configs as googleToolConfigs } from '@/integrations/google/tools'
 import { configs as microsoftToolConfigs } from '@/integrations/microsoft/tools'
 import { configs as proToolConfigs } from '@/integrations/thunderbolt-pro/tools'
 import { getProStatus } from '@/integrations/thunderbolt-pro/utils'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import type { OAuthProvider } from '@/lib/auth'
 import type { ConnectionsPageAction } from './page-state'
 import type { Integration } from './types'
@@ -40,7 +39,6 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
   const integrationSettings = useSettings({ integrations_pro_is_enabled: false })
   const { data: status, isLoading: isStatusLoading } = useIntegrationStatus()
   const { data: proStatus } = useQuery({ queryKey: ['proStatus'], queryFn: getProStatus, enabled: authenticated })
-  const localMode = useIsLocalMode()
   const areIntegrationsReady =
     !isStatusLoading &&
     (!authenticated || (!integrationSettings.integrationsProIsEnabled.isLoading && proStatus !== undefined))
@@ -92,10 +90,12 @@ export const useIntegrationsController = ({ db, dispatch }: IntegrationsControll
       (integration) =>
         integration.provider !== 'google' &&
         integration.provider !== 'microsoft' &&
-        (integration.provider !== 'thunderbolt-pro' || authenticated) &&
-        !(localMode && integration.provider === 'thunderbolt-pro'),
+        // `authenticated` is `useServerAuthentication()`, which is false without a
+        // backend address — so this one term covers both "signed out" and "no
+        // server at all", and the fork's second term was redundant.
+        (integration.provider !== 'thunderbolt-pro' || authenticated),
     )
-  }, [authenticated, localMode, integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status, t])
+  }, [authenticated, integrationSettings.integrationsProIsEnabled.value, proStatus?.isProUser, status, t])
 
   const toolConfigsByProvider: Record<Integration['provider'], { name: string; description: string }[]> = {
     'thunderbolt-pro': proToolConfigs,
