@@ -242,11 +242,11 @@ describe('useHydrateChatStore', () => {
   // 0.1.148, after the user chose "Continue without a server".
   describe('local mode', () => {
     afterEach(() => {
-      useLocalSettingsStore.setState({ operationMode: 'server' })
+      useLocalSettingsStore.setState({ cloudUrl: 'https://test-api.local/v1' })
     })
 
     it('hydrates without asking a server that is not there', async () => {
-      useLocalSettingsStore.setState({ operationMode: 'local' })
+      useLocalSettingsStore.setState({ cloudUrl: '' })
       let asked = 0
       const offlineAuthClient = createMockAuthClient({
         session: null,
