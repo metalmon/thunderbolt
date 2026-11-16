@@ -129,7 +129,10 @@ describe('OnboardingDialog', () => {
 
     it('keeps setup open if the donation preference fails to save and allows retry', async () => {
       await reconcileDefaults(getDb())
-      await updateSettings(getDb(), { onboarding_current_step: '7' })
+      // Fork: seeded on for the same reason as the test above — the fork ships
+      // `data_collection` OFF, and this case asserts the value the RETRY lands
+      // on, which is whichever way the first click went.
+      await updateSettings(getDb(), { onboarding_current_step: '7', data_collection: true })
       render(<OnboardingDialog />, { wrapper: createRouterWrapper() })
       await flush()
 
