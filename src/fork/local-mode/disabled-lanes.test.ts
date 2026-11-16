@@ -49,7 +49,7 @@ describe('local mode disables the lanes that go through our backend', () => {
   // "Volt Pro", connected and switched on. Reported from 0.1.148.
   it('drops the Pro row from the Connections list, not just its tools', () => {
     const controller = readRepoFile('src/settings/connections/use-integrations-controller.tsx')
-    expect(controller.includes('useIsLocalMode')).toBe(true)
+    expect(controller.includes('useServerAuthentication')).toBe(true)
     expect(/localMode && integration\.provider === 'thunderbolt-pro'/.test(controller)).toBe(true)
   })
 
