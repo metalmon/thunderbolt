@@ -47,10 +47,14 @@ describe('local mode disables the lanes that go through our backend', () => {
   // page builds its rows from `getProStatus`, whose `isProUser` is a hardcoded
   // upstream constant — so an install with no server at all still showed
   // "Volt Pro", connected and switched on. Reported from 0.1.148.
+  //
+  // The row is now filtered on `authenticated`, which is `useServerAuthentication()`
+  // — false both when signed out and when there is no backend address at all, so
+  // one term covers what the fork used to spell out in two.
   it('drops the Pro row from the Connections list, not just its tools', () => {
     const controller = readRepoFile('src/settings/connections/use-integrations-controller.tsx')
-    expect(controller.includes('useServerAuthentication')).toBe(true)
-    expect(/localMode && integration\.provider === 'thunderbolt-pro'/.test(controller)).toBe(true)
+    expect(controller.includes('const authenticated = useServerAuthentication()')).toBe(true)
+    expect(/integration\.provider !== 'thunderbolt-pro' \|\| authenticated/.test(controller)).toBe(true)
   })
 
   // One point covers models (openai/anthropic/openrouter/custom), MCP, remote
