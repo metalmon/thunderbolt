@@ -882,7 +882,6 @@ msgstr ""
 #: src/components/ui/chat-nav-button.tsx
 #: src/components/ui/confirm-action-dialog.tsx
 #: src/components/ui/responsive-modal.tsx
-#: src/fork/local-mode/server-section.tsx
 #: src/layout/sidebar/rename-chat-dialog.tsx
 #: src/projects/project-create-form.tsx
 #: src/settings/connections/index.tsx
@@ -1374,12 +1373,12 @@ msgid "Connect a search provider to let your agents search the web."
 msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Connect and keep local data"
-msgstr ""
+#~ msgid "Connect and keep local data"
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Connect and start clean"
-msgstr ""
+#~ msgid "Connect and start clean"
+#~ msgstr ""
 
 #: src/components/otari-connection/otari-connection.tsx
 #~ msgid "Connect another account"
@@ -1424,12 +1423,12 @@ msgid "Connect this provider on this device to add models."
 msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Connect this server"
-msgstr ""
+#~ msgid "Connect this server"
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Connect this server?"
-msgstr ""
+#~ msgid "Connect this server?"
+#~ msgstr ""
 
 #: src/components/server-connection/server-connection-form.tsx
 msgid "Connect to server"
@@ -2855,8 +2854,8 @@ msgid "Enter a different code"
 msgstr "別のコードを入力"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Enter a full address, including https:// and the /v1 path."
-msgstr ""
+#~ msgid "Enter a full address, including https:// and the /v1 path."
+#~ msgstr ""
 
 #: src/settings/models/add-provider-models.tsx
 msgid "Enter a model ID"
@@ -4279,8 +4278,8 @@ msgid "Only available in private chats."
 msgstr "プライベートチャットでのみ利用できます。"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Only https is allowed, or http for an address on this machine."
-msgstr ""
+#~ msgid "Only https is allowed, or http for an address on this machine."
+#~ msgstr ""
 
 #: src/components/sidebar-footer.tsx
 msgid "Only on this device"
@@ -5153,8 +5152,8 @@ msgid "Save a file from {appName}?"
 msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Save address"
-msgstr ""
+#~ msgid "Save address"
+#~ msgstr ""
 
 #: src/projects/project-form.tsx
 msgid "Save changes"
@@ -5456,12 +5455,12 @@ msgid "Sent as text"
 msgstr "テキストとして送信しました"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Server"
-msgstr ""
+#~ msgid "Server"
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Server address"
-msgstr ""
+#~ msgid "Server address"
+#~ msgstr ""
 
 #: src/settings/connections/mcp-server-form.tsx
 msgid "Server name (used to prefix tools)"
@@ -5916,12 +5915,12 @@ msgid "Symbols"
 msgstr "記号"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Sync stays off until you sign in and choose what happens to this device's data. Chats created here have no owner yet, so whichever account signs in first would claim them."
-msgstr ""
+#~ msgid "Sync stays off until you sign in and choose what happens to this device's data. Chats created here have no owner yet, so whichever account signs in first would claim them."
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Sync stops and you will be signed out. Everything already on this device stays, and the features that need the server — the account, sync, web search and the server's models — will be hidden."
-msgstr ""
+#~ msgid "Sync stops and you will be signed out. Everything already on this device stays, and the features that need the server — the account, sync, web search and the server's models — will be hidden."
+#~ msgstr ""
 
 #: src/settings/preferences.tsx
 msgid "Sync This Device With Cloud"
@@ -6055,8 +6054,8 @@ msgid "The {recipient} team, for debugging. It's tied to your account — it isn
 msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "The address this installation signs in to and syncs with."
-msgstr ""
+#~ msgid "The address this installation signs in to and syncs with."
+#~ msgstr ""
 
 #: src/components/chat/error-message.tsx
 msgid "The agent connection was lost during the previous turn. Retrying may repeat actions the agent already performed."
@@ -6380,8 +6379,8 @@ msgid "This helps us personalize your experience with local settings and feature
 msgstr "地域に応じた設定や機能で体験をパーソナライズするために使用します。"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "This installation works on this device only. Connect a server to sign in and sync across devices."
-msgstr ""
+#~ msgid "This installation works on this device only. Connect a server to sign in and sync across devices."
+#~ msgstr ""
 
 #: src/components/sync-setup/sync-setup-modal.tsx
 msgid "This is the first device on your account. We'll create an encryption key to protect your data and give you a recovery key to keep safe."
@@ -7418,16 +7417,16 @@ msgid "word1 word2 word3 ..."
 msgstr "単語1 単語2 単語3 ..."
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Work offline"
-msgstr ""
+#~ msgid "Work offline"
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Work on this device only"
-msgstr ""
+#~ msgid "Work on this device only"
+#~ msgstr ""
 
 #: src/fork/local-mode/server-section.tsx
-msgid "Work on this device only?"
-msgstr ""
+#~ msgid "Work on this device only?"
+#~ msgstr ""
 
 #: src/fork/local-mode/local-mode-banner.tsx
 #~ msgid "Working on this device only — no account, no sync."
@@ -7502,8 +7501,8 @@ msgstr ""
 #~ msgstr "データをインポートするにはサインインが必要です。"
 
 #: src/fork/local-mode/server-section.tsx
-msgid "You will be signed out and sync will stop: the credentials you hold were issued by the current server and must not be sent to a different one."
-msgstr ""
+#~ msgid "You will be signed out and sync will stop: the credentials you hold were issued by the current server and must not be sent to a different one."
+#~ msgstr ""
 
 #: src/settings/encryption/passkey-section.tsx
 msgid "You won't be able to sign in or unlock sync with this passkey anymore. Devices that are already set up keep working."
