@@ -110,24 +110,49 @@ describe('hosted voice sign-in gate', () => {
     return { result, unmount, createSession, start }
   }
 
-  it.each(['', 'https://server.example/v1'])(
-    'prompts for server/sign-in before starting hosted voice: %s',
-    async (cloudUrl) => {
-      useLocalSettingsStore.setState({ cloudUrl, localMode: true, voiceProvider: defaultVoiceProvider })
-      const { result, createSession } = renderVoice()
-      const onSignIn = mock()
-      window.addEventListener(showSignInModalEvent, onSignIn)
-      try {
-        await act(() => result.current.start())
-        expect(onSignIn).toHaveBeenCalledTimes(1)
-        expect(createSession).not.toHaveBeenCalled()
-        expect(result.current.active).toBe(false)
-        expect(isVoiceModeActive()).toBe(false)
-      } finally {
-        window.removeEventListener(showSignInModalEvent, onSignIn)
-      }
-    },
-  )
+  // Fork: upstream ran this for an empty address too. It cannot: signing in is
+  // only meaningful against a server that exists, and the fork's router now
+  // refuses the hosted engine outright when no address is named — see the case
+  // below, which pins that half.
+  it('prompts for sign-in before starting hosted voice', async () => {
+    useLocalSettingsStore.setState({
+      cloudUrl: 'https://server.example/v1',
+      localMode: true,
+      voiceProvider: defaultVoiceProvider,
+    })
+    const { result, createSession } = renderVoice()
+    const onSignIn = mock()
+    window.addEventListener(showSignInModalEvent, onSignIn)
+    try {
+      await act(() => result.current.start())
+      expect(onSignIn).toHaveBeenCalledTimes(1)
+      expect(createSession).not.toHaveBeenCalled()
+      expect(result.current.active).toBe(false)
+      expect(isVoiceModeActive()).toBe(false)
+    } finally {
+      window.removeEventListener(showSignInModalEvent, onSignIn)
+    }
+  })
+
+  // Fork: the hosted engine is `/v1/audio/*` on OUR backend, so with no address
+  // there is nothing to sign in to. The user is told the endpoint is unset
+  // rather than sent to a sign-in that cannot succeed.
+  it('says the hosted engine is unavailable instead of prompting, with no server address', async () => {
+    useLocalSettingsStore.setState({ cloudUrl: '', localMode: true, voiceProvider: defaultVoiceProvider })
+    const { result, createSession } = renderVoice()
+    const onSignIn = mock()
+    window.addEventListener(showSignInModalEvent, onSignIn)
+    try {
+      await act(() => result.current.start())
+      expect(onSignIn).not.toHaveBeenCalled()
+      expect(createSession).not.toHaveBeenCalled()
+      expect(result.current.active).toBe(true)
+      expect(result.current.error).toBeTruthy()
+      expect(isVoiceModeActive()).toBe(false)
+    } finally {
+      window.removeEventListener(showSignInModalEvent, onSignIn)
+    }
+  })
 
   it('does not open the microphone after stop during lazy startup', async () => {
     useLocalSettingsStore.setState({ cloudUrl: 'https://server.example/v1', localMode: true })
