@@ -117,7 +117,7 @@ beforeEach(() => {
 afterEach(() => {
   // The mode is persisted global state: leaking 'local' into the next test would
   // silently turn its gate into an unconditional `allowed`.
-  useLocalSettingsStore.setState({ operationMode: initialLocalSettings.operationMode })
+  useLocalSettingsStore.setState({ cloudUrl: initialLocalSettings.cloudUrl })
   // Same reason: a leaked `false` would turn every later gate into `offline`,
   // and a leaked `configLoaded: false` into an unconditional `loading`.
   useConfigStore.setState({ configReachable: true, configLoaded: true })
@@ -331,7 +331,7 @@ describe('useAuthGate — require="authenticated"', () => {
   it('allows the app through in local mode, and never attempts a sign-in', async () => {
     env.VITE_AUTH_ENABLE_ANONYMOUS = 'true'
     env.VITE_BYPASS_WAITLIST = 'true'
-    useLocalSettingsStore.setState({ operationMode: 'local' })
+    useLocalSettingsStore.setState({ cloudUrl: '' })
     const { authClient, signInSpy } = createAuthClientWithAnonSpy({
       initialSession: null,
       initialPending: false,
@@ -349,7 +349,7 @@ describe('useAuthGate — require="authenticated"', () => {
   // `loading` waiting for it — with no backend it resolves only when the request
   // times out, which is a blank screen for as long as that takes.
   it('does not wait on a pending session in local mode', () => {
-    useLocalSettingsStore.setState({ operationMode: 'local' })
+    useLocalSettingsStore.setState({ cloudUrl: '' })
     const authClient = createMockAuthClient({ session: null, isPending: true })
     const wrapper = createTestProvider({ authClient })
     const { result } = renderHook(() => useAuthGate('authenticated'), { wrapper })
