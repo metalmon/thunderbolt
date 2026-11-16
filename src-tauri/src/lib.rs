@@ -14,11 +14,11 @@ pub mod oauth_server;
 pub mod platform_utils;
 #[cfg(any(target_os = "linux", test))]
 mod preview_guard;
+pub mod sandbox;
 #[cfg(desktop)]
 mod tray;
 #[cfg(any(target_os = "macos", target_os = "ios", test))]
 mod webview_recovery;
-pub mod sandbox;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "ios"))]
 use tauri::Manager;
