@@ -36,7 +36,6 @@ import { getAuthToken } from './auth-token'
 import { isLoopbackHost } from './mcp-url-validation'
 import { isTauri } from './platform'
 import { nativeFetch } from './native-fetch'
-import { isLocalMode } from '@/fork/local-mode/mode'
 import { handleSessionRejected } from './session-rejected'
 import { usesLocalProviders } from './provider-mode'
 import { resolveAbsoluteBackendUrl } from './url-utils'
@@ -60,7 +59,7 @@ const defaultReadProxyEnabled = (): string | null =>
 export const computeEffectiveProxyEnabled = (
   isStandalone: () => boolean = defaultIsStandalone,
   read: () => string | null = defaultReadProxyEnabled,
-): boolean => (isLocalMode() ? false : isStandalone() ? read() === 'true' : true)
+): boolean => (!getLocalSetting('cloudUrl') ? false : isStandalone() ? read() === 'true' : true)
 
 /**
  * Canonical fetch-function shape used across the proxy / AI plumbing.

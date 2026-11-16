@@ -39,7 +39,6 @@ import { useAuth, useSignInModal } from '@/contexts'
 import { useE2eeReady } from '@/hooks/use-e2ee-ready'
 import { supportsKeyStoreLock } from '@/crypto/key-store-lock'
 import { encryptedSyncUpgradeMessage } from '@/lib/encrypted-sync-support'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { useCreateNewChat } from '@/hooks/use-create-new-chat'
 import { useHaptics } from '@/hooks/use-haptics'
 import type { Formatters } from '@/i18n/format'
@@ -50,6 +49,7 @@ import { reconnectSync } from '@/db/powersync/sync-state'
 import { getDownloadUrl } from '@/lib/download-links'
 import { isWebDesktopPlatform, isTauri } from '@/lib/platform'
 import { cn } from '@/lib/utils'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
 
@@ -218,7 +218,7 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
   }
 
   const { data: session, isPending } = authClient.useSession()
-  const localMode = useIsLocalMode()
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
   // Treat anonymous sessions as logged-out for the footer UI: anonymous users have a
   // synthetic email and no real account, so showing them as "logged in" is misleading.
   // The Sign In affordance (below) is the correct surface for them to upgrade.
