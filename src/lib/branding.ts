@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useConfigStore, type AppConfig } from '@/api/config-store'
-import { isLocalMode } from '@/fork/local-mode/mode'
 import { appVersionHeader } from '@/lib/app-version'
 import { createClient } from '@/lib/http'
 import { getLocalSetting } from '@/stores/local-settings-store'
@@ -322,7 +321,7 @@ export const installBranding = (): (() => void) => {
     // Fork: the brand's font and logo live on our backend. Nothing to fetch in
     // local mode; whatever is cached stands, and absent branding already reads as
     // the built-in identity.
-    if (isLocalMode()) {
+    if (!getLocalSetting('cloudUrl')) {
       return
     }
     const client = createBrandingClient()

@@ -4,7 +4,6 @@
 
 import { RecoveryContinuityNavDot, useRecoveryContinuityAttention } from '@/components/recovery-continuity'
 import { SidebarFooter } from '@/components/sidebar-footer'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import {
   SidebarContent,
   SidebarGroup,
@@ -28,6 +27,7 @@ import { RailDivider } from './rail-divider'
 import { SidebarHeader } from './sidebar-header'
 import { SidebarHeaderActions } from './sidebar-header-actions'
 import type { SidebarSection } from './types'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 type NavItem = {
   path: string
@@ -86,7 +86,7 @@ export const SettingsSidebarContent = ({
   const location = useLocation()
   const { experimentalFeatureVoice } = useSettings({ experimental_feature_voice: false })
   const attention = useRecoveryContinuityAttention()
-  const localMode = useIsLocalMode()
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
 
   const isItemActive = ({ path, matchPrefix }: NavItem) =>
     matchPrefix ? location.pathname.startsWith(path) : location.pathname === path

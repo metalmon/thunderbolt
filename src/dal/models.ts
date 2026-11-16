@@ -21,9 +21,9 @@ import { clearNullableColumns, nowIso } from '../lib/utils'
 import type { DrizzleQueryWithPromise, Model } from '@/types'
 import { getLastMessage } from './chat-messages'
 import { createDefaultModelProfile, deleteModelProfileForModel } from './model-profiles'
-import { isLocalMode } from '@/fork/local-mode/mode'
 import { usesLocalProviders } from '@/lib/provider-mode'
 import { isModelReady } from '@/settings/models/model-policy'
+import { getLocalSetting } from '@/stores/local-settings-store'
 
 /** Models whose requests and credentials do not require a Thunderbolt server. */
 /** Fork: `managed` is our own server-key lane, so it joins upstream's list of
@@ -110,12 +110,13 @@ const selectModelsWithSecrets = (db: AnyDrizzleDatabase) =>
  * query is byte-for-byte upstream's there. The condition itself is upstream's
  * `standaloneModelCondition`, extended with our `managed` lane.
  *
- * Gated on the fork's own `isLocalMode()`, NOT upstream's `usesLocalProviders()`:
- * the question here is whether this INSTALL has a backend, not whether the device
- * happens to be signed out of one it has. Upstream's predicate is the right one at
- * the display boundary, and the models page still applies it there.
+ * Gated on the ADDRESS, not on upstream's `usesLocalProviders()`: the question
+ * here is whether this INSTALL has a backend, not whether the device happens to
+ * be signed out of one it has — a server install with an expired session must
+ * keep showing its system models. Upstream's predicate is the right one at the
+ * display boundary, and the models page still applies it there.
  */
-const excludeBackendLanes = (): SQL[] => (isLocalMode() ? [standaloneModelCondition] : [])
+const excludeBackendLanes = (): SQL[] => (getLocalSetting('cloudUrl') ? [] : [standaloneModelCondition])
 
 /**
  * Gets all models from the database (excluding soft-deleted)

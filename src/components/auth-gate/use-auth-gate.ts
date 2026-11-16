@@ -7,10 +7,10 @@ import { useAuth, useHttpClient } from '@/contexts'
 import { HttpError } from '@/lib/http'
 import { authRequestHeaders } from '@/contexts/auth-context'
 import { isAltchaCaptchaEnabled, isAnonymousAuthEnabled, isSsoMode, isWaitlistBypassed } from '@/lib/auth-mode'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { captchaTokenHeader, captchaVerificationFailedCode } from '@shared/captcha'
 import { AltchaTransientError, solveAltchaChallenge } from './altcha'
 import { useConfigStore } from '@/api/config-store'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 export type AuthRequirement = 'authenticated' | 'unauthenticated'
 
@@ -37,7 +37,7 @@ type CaptchaStatus = 'idle' | 'verifying' | 'failed'
  *    `verification-failed` with a retry when the challenge fetch fails or the API refuses the solution)
  *  - waitlist active + no session → redirect to /waitlist
  *  - sign-in could not reach the server → `offline` with a retry (fork; see `signInAnonymously`)
- *  - local mode → allowed, with no session and no sign-in attempt (fork; see `@/fork/local-mode/mode`)
+ *  - no backend address → allowed, with no session and no sign-in attempt (fork)
  *
  * For `require="unauthenticated"`:
  *  - has session → redirect to /
@@ -55,11 +55,12 @@ export const useAuthGate = (require: AuthRequirement, search = ''): AuthGateStat
   const { data: session, isPending } = authClient.useSession()
   const isAuthenticated = !!session?.user
 
-  // Fork: `!localMode` is the FIRST of the two points local mode needs. This
-  // one gates the effect below, which fires before any `return` — so the early
-  // exit further down cannot stop it, and without this an autonomous install
-  // would still be firing a sign-in at a backend it does not have.
-  const localMode = useIsLocalMode()
+  // Fork: an install with no backend address is autonomous — the same signal
+  // upstream reads in `AuthGate`. This is the FIRST of the two points it is
+  // needed: it gates the effect below, which fires before any `return`, so the
+  // early exit further down cannot stop it, and without this an autonomous
+  // install would still be firing a sign-in at a backend it does not have.
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
   // Fork: subscribed, not read once — the fetch resolves after the first render,
   // and the gate must re-decide when it does.
   const configReachable = useConfigStore((state) => state.configReachable)
