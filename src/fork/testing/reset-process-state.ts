@@ -36,7 +36,6 @@ beforeEach(() => {
   // runs before the one that asserts a clean message about as often as not.
   usePendingQuotesStore.setState({ quotesByThread: {} })
   useLocalSettingsStore.setState({
-    operationMode: initialLocalSettings.operationMode,
     syncEnabled: initialLocalSettings.syncEnabled,
   })
 })
