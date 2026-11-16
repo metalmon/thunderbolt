@@ -78,8 +78,6 @@ export const accountLocalSettingsSchema = z.object({
 export type AccountLocalSettings = z.infer<typeof accountLocalSettingsSchema>
 
 /** Fork: whether this installation talks to a backend at all. See `@/fork/local-mode/mode`. */
-export type OperationMode = 'server' | 'local'
-
 type LocalSettingsState = {
   cloudUrl: string
   /** Keep local routes available after optionally connecting a server. Never grants server access. */
@@ -89,7 +87,6 @@ type LocalSettingsState = {
   /** Fork: `'local'` means no account, no sync and no backend-bound features.
    *  Defaults from the build — a build with no backend address configured is an
    *  autonomous one — and is then the user's own persisted choice. */
-  operationMode: OperationMode
   externalLinkBehavior: ExternalLinkBehavior
   debugPosthog: boolean
   isNativeFetchEnabled: boolean
@@ -127,13 +124,6 @@ export const initialLocalSettings: LocalSettingsState = {
   cloudUrl: initialCloudUrl,
   localMode: !initialCloudUrl,
   serverHasAuthenticated: !!initialCloudUrl,
-  // Fork: the same signal upstream now reads as `localMode` — an unset backend
-  // address means there is nothing to talk to, so start autonomous. Derived from
-  // `initialCloudUrl` rather than the raw env var so the two can never disagree
-  // (upstream's also answers 'local' for a non-SSO desktop build). The fork's own
-  // readers still go through `operationMode`; collapsing them onto `localMode` is
-  // its own change, not this sync's.
-  operationMode: initialCloudUrl ? 'server' : 'local',
   externalLinkBehavior: 'ask',
   debugPosthog: false,
   isNativeFetchEnabled: true,
@@ -201,7 +191,6 @@ export const useLocalSettingsStore = create<LocalSettingsStore>()(
         cloudUrl: s.cloudUrl,
         localMode: s.localMode,
         serverHasAuthenticated: s.serverHasAuthenticated,
-        operationMode: s.operationMode,
         externalLinkBehavior: s.externalLinkBehavior,
         debugPosthog: s.debugPosthog,
         isNativeFetchEnabled: s.isNativeFetchEnabled,
