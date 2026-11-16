@@ -8,10 +8,12 @@ import { computeEffectiveProxyEnabled } from '@/lib/proxy-fetch'
 import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-settings-store'
 import { readRepoFile } from '../testing/source-file'
 
-const setMode = (operationMode: 'server' | 'local') => useLocalSettingsStore.setState({ operationMode })
+/** An empty backend address IS autonomous: it is what upstream reads as local everywhere. */
+const setMode = (mode: 'server' | 'local') =>
+  useLocalSettingsStore.setState({ cloudUrl: mode === 'local' ? '' : 'https://test-api.local/v1' })
 
 afterEach(() => {
-  setMode(initialLocalSettings.operationMode)
+  useLocalSettingsStore.setState({ cloudUrl: initialLocalSettings.cloudUrl })
 })
 
 describe('local mode disables the lanes that go through our backend', () => {

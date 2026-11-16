@@ -23,7 +23,7 @@ import { listRepoFiles, readRepoFile } from '../testing/source-file'
  * and record the answer in `docs/development/autonomous-mode.md` beside the
  * entry. Three answers are legitimate:
  *
- *   closed  — refuses in local mode (`isLocalMode`), because the lane is ours;
+ *   closed  — refuses without a backend address, because the lane is ours;
  *   inert   — cannot fire without a session, which local mode never has;
  *   allowed — does not go through our backend at all (the user's own endpoint).
  *

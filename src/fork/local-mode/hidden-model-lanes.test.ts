@@ -10,7 +10,9 @@ import { initialLocalSettings, useLocalSettingsStore } from '@/stores/local-sett
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import type { Model } from '@/types'
 
-const setMode = (operationMode: 'server' | 'local') => useLocalSettingsStore.setState({ operationMode })
+/** An empty backend address IS autonomous: it is what upstream reads as local everywhere. */
+const setMode = (mode: 'server' | 'local') =>
+  useLocalSettingsStore.setState({ cloudUrl: mode === 'local' ? '' : 'https://test-api.local/v1' })
 
 const row = (id: string, provider: Model['provider'], isSystem: 0 | 1) => ({
   id,
@@ -46,7 +48,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
-  setMode(initialLocalSettings.operationMode)
+  useLocalSettingsStore.setState({ cloudUrl: initialLocalSettings.cloudUrl })
 })
 
 const ids = async (query: { execute: () => Promise<unknown> }) => {

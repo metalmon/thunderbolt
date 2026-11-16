@@ -6,8 +6,19 @@ import { Trans } from '@lingui/react/macro'
 import { AppWordmark } from '@/components/app-wordmark'
 import { Button } from '@/components/ui/button'
 import { useAppName } from '@/lib/branding-selectors'
+import { clearAuthToken } from '@/lib/auth-token'
+import { clearCachedSession } from '@/lib/session-cache'
+import { setSyncEnabled } from '@/db/powersync/sync-state'
 import { useLocalSettingsStore } from '@/stores/local-settings-store'
-import { enterLocalMode } from './switch-mode'
+
+/** Forget the unreachable server: an empty address is what autonomous means. */
+const forgetServer = async () => {
+  await setSyncEnabled(false)
+  clearAuthToken()
+  clearCachedSession()
+  useLocalSettingsStore.getState().setLocalSetting('cloudUrl', '')
+  window.location.reload()
+}
 
 type ServerUnavailableScreenProps = {
   /** Try the sign-in again. The gate owns the attempt; this only triggers it. */
@@ -56,12 +67,20 @@ export const ServerUnavailableScreen = ({ onRetry }: ServerUnavailableScreenProp
             <Trans>Try again</Trans>
           </Button>
 
-          {/* ⚠ The ONLY way into autonomous operation from a cold start.
-              Everything else that switches modes lives in Settings, which is on
-              the other side of this gate — so without this button an install
-              pointed at a server that is gone cannot be used at all, and the
-              screen that says so is also the screen that traps the user. */}
-          <Button variant="ghost" onClick={() => void enterLocalMode()}>
+          {/* ⚠ The ONLY way out of a server that is gone. Everything upstream
+              offers for forgetting one — `disconnectUnclaimedServer`, the
+              change-server button — refuses once `serverHasAuthenticated` is
+              set, and that latch is never cleared. Without this button an
+              install whose server died cannot be used at all, and the screen
+              that says so is also the screen that traps the user.
+
+              An empty `cloudUrl` IS autonomous operation (upstream reads it
+              that way everywhere), so forgetting the address is the whole
+              switch. The credentials go with it: a token and a session issued
+              by that server must not outlive it, and sync is read on every
+              boot, so an install left with it set would keep trying to
+              upload. */}
+          <Button variant="ghost" onClick={() => void forgetServer()}>
             <Trans>Continue without a server</Trans>
           </Button>
           <p className="max-w-sm text-[length:var(--font-size-xs)] text-muted-foreground">
