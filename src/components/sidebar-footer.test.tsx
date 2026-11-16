@@ -90,11 +90,11 @@ describe('SidebarFooter', () => {
   // the other still rendered.
   describe('local mode', () => {
     afterEach(() => {
-      useLocalSettingsStore.setState({ operationMode: 'server' })
+      useLocalSettingsStore.setState({ cloudUrl: 'https://test-api.local/v1' })
     })
 
     it('offers no sign-in and no account menu', () => {
-      useLocalSettingsStore.setState({ operationMode: 'local' })
+      useLocalSettingsStore.setState({ cloudUrl: '' })
       useConfigStore.setState({ config: {}, configLoaded: true })
       renderWithProviders(createMockAuthClient({ session: null }))
 
@@ -105,7 +105,7 @@ describe('SidebarFooter', () => {
     // A session can linger — the mode switch clears it, but an install that
     // got here another way must still show no account.
     it('offers no account menu even with a session present', () => {
-      useLocalSettingsStore.setState({ operationMode: 'local' })
+      useLocalSettingsStore.setState({ cloudUrl: '' })
       useConfigStore.setState({ config: {}, configLoaded: true })
       renderWithProviders(createMockAuthClient({ session: { user: { id: 'u1', email: 'u@e.com', name: 'U' } } }))
 
