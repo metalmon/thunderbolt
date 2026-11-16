@@ -34,7 +34,12 @@ export const hashSetting = (setting: Setting): string => {
 
 export const defaultSettingDataCollection: Setting = {
   key: 'data_collection',
-  value: 'true',
+  // Fork: off unless the operator asks for it. Volt ships into closed
+  // perimeters, where a telemetry switch shown ON by default is a question the
+  // customer has to be talked out of — and the collection it offers is inert
+  // anyway (no PostHog key on the deployment, and the autonomous build never
+  // starts the client at all; see `src/lib/posthog.tsx`).
+  value: 'false',
   updatedAt: null,
   defaultHash: null,
   userId: null,
