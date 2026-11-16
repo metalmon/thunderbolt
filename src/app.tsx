@@ -34,6 +34,7 @@ import { usePageTracking } from '@/hooks/use-analytics'
 import { useAnalyticsConsent } from '@/hooks/use-analytics-consent'
 import { useAppLanguage } from '@/hooks/use-app-language'
 import { useUnitDefaults } from '@/hooks/use-unit-defaults'
+import { useTrayLabels } from '@/fork/tray/use-tray-labels'
 import { useDeepLinkListener } from '@/hooks/use-deep-link-listener'
 import { useKeyboardInset } from '@/hooks/use-keyboard-inset'
 import { useViewportLock } from '@/hooks/use-viewport-lock'
@@ -153,6 +154,8 @@ const AppContent = ({ initData }: { initData: InitData }) => {
   useAppLanguage()
   useAnalyticsConsent()
   useUnitDefaults()
+  // Fork: the native tray is built once, before the desktop locale lands.
+  useTrayLabels()
   useKeyboardInset()
   useViewportLock()
   useSafeAreaInset()
