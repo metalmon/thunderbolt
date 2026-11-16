@@ -69,7 +69,7 @@ describe('PreferencesSettingsPage — sync toggle gating', () => {
     cleanup()
     // In afterEach, never at the end of the test body: a failing assertion would
     // skip the reset and leak 'local' into every test after it in this process.
-    useLocalSettingsStore.setState({ operationMode: 'server' })
+    useLocalSettingsStore.setState({ cloudUrl: 'https://test-api.local/v1' })
   })
 
   // Upstream's own `isFullUser` gate already hides the sync toggle, the passkey,
@@ -77,13 +77,13 @@ describe('PreferencesSettingsPage — sync toggle gating', () => {
   // ELSE branch invites the user to sign in, which is the one thing local mode
   // must never offer. Both halves asserted.
   it('offers neither the sync toggle nor a sign-in prompt in local mode', () => {
-    useLocalSettingsStore.setState({ operationMode: 'local' })
+    useLocalSettingsStore.setState({ cloudUrl: '' })
     renderPage(createMockAuthClient({ session: null }))
 
     expect(screen.queryByRole('button', { name: 'Sign In' })).not.toBeInTheDocument()
     expect(screen.queryByRole('switch', { name: /sync this device/i })).not.toBeInTheDocument()
     expect(screen.queryByText('Sync This Device With Cloud')).not.toBeInTheDocument()
-    useLocalSettingsStore.setState({ operationMode: 'server' })
+    useLocalSettingsStore.setState({ cloudUrl: 'https://test-api.local/v1' })
   })
 
   it('keeps local backup and reset controls available without an account', () => {
