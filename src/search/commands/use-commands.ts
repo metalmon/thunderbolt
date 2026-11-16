@@ -19,9 +19,9 @@ import { useLingui } from '@lingui/react/macro'
 import { Download, LogOut, MessageCirclePlus, PanelLeft, Trash2 } from 'lucide-react'
 import { isMinimalModeHiddenPath } from '../registry'
 import { buildCreateCommands } from './create-commands'
-import { useIsLocalMode } from '@/fork/local-mode/mode'
 import { navigationCommands, type NavGate } from './navigation'
 import type { PaletteCommand, UseCommandsOptions } from './types'
+import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
 
@@ -182,7 +182,7 @@ export const useCommands = (opts: UseCommandsOptions): PaletteCommand[] => {
   const { toggleSidebar, closeMobileSidebar } = useSidebar()
   const minimalMode = useConfigCapability(selectMinimalMode)
   const { data: session } = useAuth().useSession()
-  const localMode = useIsLocalMode()
+  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
 
   return buildCommands({
     i18n,
