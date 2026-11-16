@@ -35,6 +35,7 @@ import { usePageTracking } from '@/hooks/use-analytics'
 import { useAnalyticsConsent } from '@/hooks/use-analytics-consent'
 import { useAppLanguage } from '@/hooks/use-app-language'
 import { useUnitDefaults } from '@/hooks/use-unit-defaults'
+import { useTrayLabels } from '@/fork/tray/use-tray-labels'
 import { useLinuxEdgeResize } from '@/fork/window-resize/window-resize'
 import { useDeepLinkListener } from '@/hooks/use-deep-link-listener'
 import { useKeyboardInset } from '@/hooks/use-keyboard-inset'
@@ -158,6 +159,8 @@ const AppContent = ({ initData }: { initData: InitData }) => {
   useAnalyticsConsent()
   useUnitDefaults()
   useLinuxEdgeResize()
+  // Fork: the native tray is built once, before the desktop locale lands.
+  useTrayLabels()
   useKeyboardInset()
   useViewportLock()
   useSafeAreaInset()
