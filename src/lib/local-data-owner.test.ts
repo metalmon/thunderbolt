@@ -126,7 +126,16 @@ afterEach(async () => {
   mock.restore()
   localStorage.clear()
   useLocalSettingsStore.setState(previousLocalSettings)
-  rmSync(dir, { recursive: true, force: true })
+  // Best-effort: bun keeps a closed SQLite file mapped until the process exits, and
+  // Windows cannot unlink an open file, so this throws EBUSY where POSIX succeeds.
+  // It must not throw: a failing afterEach skips the preload's timer teardown, and
+  // every later test in the run then dies on "fake timers twice". %TEMP% is the OS's
+  // to reclaim.
+  try {
+    rmSync(dir, { recursive: true, force: true })
+  } catch {
+    // the directory outlives the run; nothing here depends on it being gone
+  }
 })
 
 describe('local data owner', () => {

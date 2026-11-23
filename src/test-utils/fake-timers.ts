@@ -45,6 +45,12 @@ bunJest.clearAllTimers = guardedTick((clock) => clock.reset()) as unknown as typ
  * clock.uninstall()
  */
 export const installFakeTimers = (config?: { now?: number; shouldAdvanceTime?: boolean }): Clock => {
+  // A clock left over from the previous test means that test's afterEach threw before
+  // the preload could tear it down. sinon then refuses to install ("fake timers twice")
+  // and every remaining test in the run dies on the refusal rather than on its own
+  // problem. One installer owns this clock, so nothing legitimately nests: take over.
+  activeClock?.uninstall()
+
   const clock = install({
     now: config?.now ?? Date.now(),
     shouldAdvanceTime: config?.shouldAdvanceTime ?? false,
