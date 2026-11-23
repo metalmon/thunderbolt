@@ -514,7 +514,10 @@ it('persists an upgraded model and its local disconnect across actual database r
     await original.close()
     await reopened.close()
     await restarted.close()
-    await rm(directory, { recursive: true, force: true })
+    // Best-effort: bun keeps a closed SQLite file mapped until the process exits,
+    // and Windows cannot unlink an open file, so this throws EBUSY where POSIX
+    // succeeds. A throw here fails a test that already passed its assertions.
+    await rm(directory, { recursive: true, force: true }).catch(() => undefined)
   }
 })
 
@@ -584,7 +587,10 @@ it('keeps different local keys and selected-model intent when metadata moves bet
     useLocalSettingsStore.setState(localSettings)
     await deviceA.close()
     await deviceB.close()
-    await rm(directory, { recursive: true, force: true })
+    // Best-effort: bun keeps a closed SQLite file mapped until the process exits,
+    // and Windows cannot unlink an open file, so this throws EBUSY where POSIX
+    // succeeds. A throw here fails a test that already passed its assertions.
+    await rm(directory, { recursive: true, force: true }).catch(() => undefined)
   }
 })
 
