@@ -3740,7 +3740,11 @@ msgid "MCP servers"
 msgstr "Servidores MCP"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
+msgid "Medium"
+msgstr ""
+
 #: src/fork/typography/chat-font-toggle.tsx
+msgctxt "font size"
 msgid "Medium"
 msgstr ""
 
@@ -4291,8 +4295,8 @@ msgid "Only available in private chats."
 msgstr "Disponível apenas em conversas privadas."
 
 #: src/components/sidebar-footer.tsx
-msgid "Only on this device"
-msgstr ""
+#~ msgid "Only on this device"
+#~ msgstr ""
 
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
