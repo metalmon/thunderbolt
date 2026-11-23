@@ -29,6 +29,13 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  // ⚠ The flag's life must END with this file, not merely begin with each of its
+  // tests. `mock.module` is process-wide and never undone, so `isMobile` stays
+  // bound to this variable for every suite that runs afterwards; a `true` left by
+  // the last test here makes `isTouchPlatform()` true everywhere, and the failure
+  // lands in `lib/platform.test.ts` as if the platform detection were broken.
+  // Resetting in `beforeEach` alone cannot help — nothing of this file runs again.
+  isMobileValue = false
   if (originalPicker) {
     picker.showSaveFilePicker = originalPicker
   } else {
