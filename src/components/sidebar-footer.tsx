@@ -11,7 +11,6 @@ import {
   CloudAlert,
   CloudOff,
   Download,
-  HardDrive,
   Loader2,
   LogOut,
   MessageCirclePlus,
@@ -49,7 +48,6 @@ import { reconnectSync } from '@/db/powersync/sync-state'
 import { getDownloadUrl } from '@/lib/download-links'
 import { isWebDesktopPlatform, isTauri } from '@/lib/platform'
 import { cn } from '@/lib/utils'
-import { useLocalSettingsStore } from '@/stores/local-settings-store'
 
 const showAppDownloads = import.meta.env.VITE_SHOW_APP_DOWNLOADS === 'true'
 
@@ -218,7 +216,6 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
   }
 
   const { data: session, isPending } = authClient.useSession()
-  const localMode = useLocalSettingsStore((state) => !state.cloudUrl)
   // Treat anonymous sessions as logged-out for the footer UI: anonymous users have a
   // synthetic email and no real account, so showing them as "logged in" is misleading.
   // The Sign In affordance (below) is the correct surface for them to upgrade.
@@ -379,30 +376,6 @@ export const SidebarFooter = ({ className }: SidebarFooterProps) => {
    */
   const renderAccountControl = (collapsed = false) => {
     const iconOnly = collapsed || isMobile
-    // Fork: local mode has no account, so this slot says what the install IS
-    // instead of offering a sign-in it cannot do. Quiet and inert on purpose —
-    // it replaces the account row rather than adding a band over the chat,
-    // which is where this statement used to live and was unwelcome.
-    if (localMode) {
-      return iconOnly ? (
-        <div
-          className={cn(
-            'flex items-center justify-center rounded-full',
-            isMobile ? 'size-[var(--touch-height-lg)]' : 'size-[var(--touch-height-default)]',
-          )}
-          title={t`Only on this device`}
-        >
-          <HardDrive className={cn(iconSize, 'text-muted-foreground')} aria-hidden />
-        </div>
-      ) : (
-        <div className={cn(pillClassName(true), 'cursor-default hover:bg-transparent')}>
-          <HardDrive className={cn(iconSize, 'shrink-0 text-muted-foreground')} aria-hidden />
-          <span className="truncate text-muted-foreground">
-            <Trans>Only on this device</Trans>
-          </span>
-        </div>
-      )
-    }
     if (isPending) {
       return iconOnly ? (
         <div
