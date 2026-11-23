@@ -84,33 +84,24 @@ const renderWithProviders = (authClient: AuthClient, children?: ReactNode) => {
 }
 
 describe('SidebarFooter', () => {
-  // Local mode has no account, so the footer must offer nothing to do with one:
-  // neither a sign-in button nor the account menu. Both are the same affordance
-  // in the source, so both are asserted — a guard on one alone would pass while
-  // the other still rendered.
-  describe('local mode', () => {
+  // An install with no server address keeps the account control, because that is
+  // where the address is typed: `sign-in-modal.tsx` answers an empty cloud URL with
+  // the server-connection modal rather than a sign-in form. The fork once replaced
+  // this slot with an inert «Only on this device» pill, which — together with the
+  // fork's own Settings → Server section going away — left a release build no
+  // surface to point itself at a server at all. Onboarding does not come back and
+  // dev-settings is stripped from the bundle, so this control is the only door.
+  describe('with no server address', () => {
     afterEach(() => {
       useLocalSettingsStore.setState({ cloudUrl: 'https://test-api.local/v1' })
     })
 
-    it('offers no sign-in and no account menu', () => {
+    it('still offers the control that opens the server-connection modal', () => {
       useLocalSettingsStore.setState({ cloudUrl: '' })
       useConfigStore.setState({ config: {}, configLoaded: true })
       renderWithProviders(createMockAuthClient({ session: null }))
 
-      expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull()
-      expect(screen.queryByRole('button', { name: 'Account menu' })).toBeNull()
-    })
-
-    // A session can linger — the mode switch clears it, but an install that
-    // got here another way must still show no account.
-    it('offers no account menu even with a session present', () => {
-      useLocalSettingsStore.setState({ cloudUrl: '' })
-      useConfigStore.setState({ config: {}, configLoaded: true })
-      renderWithProviders(createMockAuthClient({ session: { user: { id: 'u1', email: 'u@e.com', name: 'U' } } }))
-
-      expect(screen.queryByRole('button', { name: 'Account menu' })).toBeNull()
-      expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull()
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeTruthy()
     })
   })
 
