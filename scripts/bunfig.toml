@@ -1,0 +1,18 @@
+# Fork: the tests in this directory run with `--cwd=scripts`, which makes bun read
+# THIS file instead of the repository root's — and that is the whole point.
+#
+# The root config preloads `src/testing-library.ts`, the frontend harness: a happy-dom
+# document and, in its `beforeEach`, sinon fake timers. The tests here are node-side
+# tooling. Two of them stand up a real Vite dev server and a real HTTP upstream and
+# relay bytes between them over a socket, and on Windows that path waits on a timer
+# the frozen clock never fires — so the request never completes and the test hangs
+# until the runner kills it. Measured: 30s hang each with the preload, 0.7s for the
+# whole pair without it.
+#
+# Declaring no preload is the fix; the repository already does the same thing the
+# other way round for the frontend, with `src/bunfig.toml` and `--cwd=src`.
+#
+# ⚠ Running one of these files from the repository root (`bun test scripts/x.test.ts`)
+# picks up the root config again, and a relay test will hang. Use `--cwd=scripts`,
+# as `bun run test` does.
+[test]
