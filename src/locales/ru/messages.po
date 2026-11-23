@@ -3120,7 +3120,7 @@ msgstr "https://your-server.example"
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 msgid "I agree to share this chat session with the {recipient} team."
-msgstr "Я согласен поделиться этой сессией чата с командой {recipient}."
+msgstr "Я разрешаю передать эту сессию чата команде {recipient}."
 
 #: src/components/share-debug-transcript/share-debug-transcript-dialog.tsx
 #~ msgid "I agree to share this chat session with the Thunderbolt team."
@@ -3128,7 +3128,7 @@ msgstr "Я согласен поделиться этой сессией чат�
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "I agree to the <0>Privacy Policy</0> and <1>Terms of Service</1>."
-msgstr "Я согласен с <0>Политикой конфиденциальности</0> и <1>Условиями использования</1>."
+msgstr "Я принимаю <0>Политику конфиденциальности</0> и <1>Условия использования</1>."
 
 #: src/components/sync-setup/recovery-key-display-step.tsx
 msgid "I have saved my recovery phrase"
