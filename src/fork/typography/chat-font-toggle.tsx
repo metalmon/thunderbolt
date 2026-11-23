@@ -57,7 +57,11 @@ export const ChatFontToggle = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="small">{t`Small`}</SelectItem>
-            <SelectItem value="medium">{t`Medium`}</SelectItem>
+            {/* ⚠ Not t`Medium`: that id is already the reasoning-effort selector's, where
+                Russian needs the feminine «Средняя» for «глубина». A size is masculine.
+                One gettext id cannot carry both genders, so this one declares a context
+                of its own — as `System` above does for the same reason. */}
+            <SelectItem value="medium">{t({ message: 'Medium', context: 'font size' })}</SelectItem>
             <SelectItem value="large">{t`Large`}</SelectItem>
           </SelectContent>
         </Select>
