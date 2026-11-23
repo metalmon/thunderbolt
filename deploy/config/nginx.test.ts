@@ -14,7 +14,26 @@ const fixtureDir = mkdtempSync(join(tmpdir(), 'thunderbolt-nginx-'))
 const containerName = `thunderbolt-nginx-test-${process.pid}`
 let origin: string
 
+/**
+ * Fork: whether a Docker daemon is actually reachable.
+ *
+ * These cases run a real nginx container. Without a daemon every one of them fails on
+ * the same connection error, which reads like a defect in the configuration under test
+ * rather than a missing service on the machine — and that noise is what made the whole
+ * suite's result arguable. Measured, not assumed: the probe asks the daemon.
+ */
+const hasDocker =
+  Bun.spawnSync(['docker', 'version', '--format', '{{.Server.Version}}'], { stdout: 'pipe', stderr: 'pipe' })
+    .exitCode === 0
+
+test('has the Docker daemon that CI requires', () => {
+  expect({ ci: Boolean(process.env.CI), hasDocker }).not.toEqual({ ci: true, hasDocker: false })
+})
+
 beforeAll(async () => {
+  if (!hasDocker) {
+    return
+  }
   // nginx runs as a different UID on Linux; mkdtemp defaults to owner-only access.
   chmodSync(fixtureDir, 0o755)
   mkdirSync(join(fixtureDir, 'assets'))
@@ -36,6 +55,9 @@ beforeAll(async () => {
 }, 30_000)
 
 afterAll(() => {
+  if (!hasDocker) {
+    return
+  }
   try {
     docker('rm', '--force', containerName)
   } finally {
@@ -43,7 +65,7 @@ afterAll(() => {
   }
 })
 
-describe('deployed frontend caching', () => {
+describe.skipIf(!hasDocker)('deployed frontend caching', () => {
   test('a missing chunk is a non-cacheable 404, then becomes available', async () => {
     const response = await fetch(`${origin}/assets/entry-next.js`)
     expect(response.status).toBe(404)
@@ -85,7 +107,7 @@ describe('deployed frontend caching', () => {
   })
 })
 
-describe('encrypted search relay', () => {
+describe.skipIf(!hasDocker)('encrypted search relay', () => {
   test('uses the container DNS resolver rather than Docker-specific loopback DNS', () => {
     const config = docker('exec', containerName, 'cat', '/etc/nginx/conf.d/default.conf')
     expect(config).toContain('resolver 192.0.2.53 valid=60s;')
@@ -113,7 +135,7 @@ describe('encrypted search relay', () => {
   })
 })
 
-describe('Exa browser relay', () => {
+describe.skipIf(!hasDocker)('Exa browser relay', () => {
   test('only maps the same fixed endpoints as the client and development relay', () => {
     const config = docker('exec', containerName, 'cat', '/etc/nginx/conf.d/default.conf')
     for (const [path, endpoint] of Object.entries(exaRelayEndpoints)) {
