@@ -50,6 +50,21 @@ msgstr "Если это были не вы, не вводите код — от�
 
 #. js-lingui-explicit-id
 #: src/lib/security-notifications.tsx
+msgid "Confirm your account recovery"
+msgstr "Подтвердите восстановление учётной записи"
+
+#. js-lingui-explicit-id
+#: src/lib/security-notifications.tsx
+msgid "Device “{deviceName}” asked to recover your account and upgrade its encryption. Enter this code in the app to continue. That device will get access to your encrypted data, a new recovery phrase will replace the old one, and your other app devices will need to be approved again."
+msgstr "Устройство «{deviceName}» запросило восстановление учётной записи и обновление её шифрования. Чтобы продолжить, введите этот код в приложении. Устройство получит доступ к вашим зашифрованным данным, прежняя фраза восстановления сменится новой, а остальные ваши устройства придётся подтвердить заново."
+
+#. js-lingui-explicit-id
+#: src/lib/security-notifications.tsx
+msgid "If this wasn’t you, don’t enter the code — someone may be trying to take over your account. Sign out of that device and change your sign-in method immediately."
+msgstr "Если это были не вы, код не вводите — возможно, кто-то пытается завладеть вашей учётной записью. Выйдите из учётной записи на том устройстве и немедленно смените способ входа."
+
+#. js-lingui-explicit-id
+#: src/lib/security-notifications.tsx
 msgid "Your recovery phrase was changed"
 msgstr "Фраза восстановления изменена"
 
