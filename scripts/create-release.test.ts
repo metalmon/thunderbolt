@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { afterEach, beforeEach, describe, expect, it, jest } from 'bun:test'
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { dirname, join } from 'path'
 
@@ -1124,60 +1124,94 @@ describe('create-release.ts repository refs', () => {
 
   const hasReftable = canInitReftable()
 
+  /**
+   * Fork: whether a raw 0xFF byte still is one by the time git stores it.
+   *
+   * The byte is produced by `sh` and handed to git as an argument, and that only survives
+   * where the shell passes arguments through unchanged. Git Bash on Windows runs on MSYS,
+   * which re-encodes a lone 0xFF as U+00FF (0xC3 0xBF) before the native git.exe sees it —
+   * measured with `od`: the stored ref reads `relÃ¿`, valid UTF-8. The cases below
+   * then have nothing to exercise: the script's decoder is right not to refuse a name that
+   * is, in fact, well-formed. Measured rather than keyed on the platform, because the
+   * answer belongs to the shell in use, not to the operating system.
+   */
+  const canStoreNonUtf8RefName = () => {
+    if (!hasReftable) {
+      return false
+    }
+    const repo = createReftableRepo()
+    shWithRawByte(repo, 'git update-ref "refs/heads/rel$ff" HEAD')
+    const stored = Bun.spawnSync(['git', 'for-each-ref', '--format=%(refname)', 'refs/heads'], {
+      cwd: repo,
+      env: gitEnv,
+      stdout: 'pipe',
+    }).stdout
+    return stored.includes(0xff)
+  }
+
+  const hasNonUtf8Refs = canStoreNonUtf8RefName()
+
   it('has the Git reftable support that CI requires', () => {
     expect({ ci: Boolean(process.env.CI), hasReftable }).not.toEqual({ ci: true, hasReftable: false })
   })
 
+  it('can store a ref name that is not valid UTF-8, as CI must be able to', () => {
+    expect({ ci: Boolean(process.env.CI), hasNonUtf8Refs }).not.toEqual({ ci: true, hasNonUtf8Refs: false })
+  })
+
   describe.skipIf(!hasReftable)('on the reftable backend', () => {
-    it.each([[false], [true]])(
-      'stops before changing anything when the branch name is not valid UTF-8 (--push: %p)',
-      (push) => {
+    // Fork: these three need a ref name that is NOT valid UTF-8; see canStoreNonUtf8RefName.
+    describe.skipIf(!hasNonUtf8Refs)('with a ref name the shell can keep ill-formed', () => {
+      it.each([[false], [true]])(
+        'stops before changing anything when the branch name is not valid UTF-8 (--push: %p)',
+        (push) => {
+          const repo = createReftableRepo()
+          const remote = checkoutWithRemote(repo, 'main')
+          // Decoding the 0xFF byte as U+FFFD would name this other branch, on an older commit
+          git(repo, 'branch', 'rel\ufffd', 'HEAD~1')
+          shWithRawByte(repo, 'git update-ref "refs/heads/rel$ff" HEAD && git symbolic-ref HEAD "refs/heads/rel$ff"')
+          const before = repoState(repo, remote)
+
+          const { exitCode, stdout, stderr } = runScript(repo, ...releaseArgs(push))
+
+          expect(exitCode).toBe(1)
+          expect(stderr).toContain('not valid for encoding utf-8')
+          expect(stdout).not.toContain('push origin')
+          expect(repoState(repo, remote)).toBe(before)
+        },
+      )
+
+      it('stops before changing anything when an annotated tag is stored under a ref that is not valid UTF-8', () => {
         const repo = createReftableRepo()
-        const remote = checkoutWithRemote(repo, 'main')
-        // Decoding the 0xFF byte as U+FFFD would name this other branch, on an older commit
-        git(repo, 'branch', 'rel\ufffd', 'HEAD~1')
-        shWithRawByte(repo, 'git update-ref "refs/heads/rel$ff" HEAD && git symbolic-ref HEAD "refs/heads/rel$ff"')
+        const remote = checkoutWithRemote(repo, 'release')
+        git(repo, 'tag', '-a', 'inner', '-m', 'inner', 'HEAD~1')
+        shWithRawByte(repo, 'git update-ref "refs/tags/v1.0.0$ff" refs/tags/inner && git update-ref -d refs/tags/inner')
         const before = repoState(repo, remote)
 
-        const { exitCode, stdout, stderr } = runScript(repo, ...releaseArgs(push))
+        const { exitCode, stderr } = runScript(repo, '--type', 'auto', '--platform', 'desktop')
 
         expect(exitCode).toBe(1)
         expect(stderr).toContain('not valid for encoding utf-8')
-        expect(stdout).not.toContain('push origin')
         expect(repoState(repo, remote)).toBe(before)
-      },
-    )
+      })
 
-    it('stops before changing anything when an annotated tag is stored under a ref that is not valid UTF-8', () => {
-      const repo = createReftableRepo()
-      const remote = checkoutWithRemote(repo, 'release')
-      git(repo, 'tag', '-a', 'inner', '-m', 'inner', 'HEAD~1')
-      shWithRawByte(repo, 'git update-ref "refs/tags/v1.0.0$ff" refs/tags/inner && git update-ref -d refs/tags/inner')
-      const before = repoState(repo, remote)
+      it('stops when the nearest tag name is not valid UTF-8', () => {
+        const repo = createReftableRepo()
+        shWithRawByte(repo, 'git update-ref "refs/tags/v1.0.0$ff" HEAD~1')
+        // Decoding the 0xFF byte as U+FFFD would name this tag, on a commit after HEAD, so no commits would be read
+        git(
+          repo,
+          'update-ref',
+          'refs/tags/v1.0.0\ufffd',
+          git(repo, 'commit-tree', 'HEAD^{tree}', '-p', 'HEAD', '-m', 'side'),
+        )
 
-      const { exitCode, stderr } = runScript(repo, '--type', 'auto', '--platform', 'desktop')
+        const { exitCode, stdout, stderr } = runScript(repo, '--type', 'auto', '--dry-run')
 
-      expect(exitCode).toBe(1)
-      expect(stderr).toContain('not valid for encoding utf-8')
-      expect(repoState(repo, remote)).toBe(before)
-    })
-
-    it('stops when the nearest tag name is not valid UTF-8', () => {
-      const repo = createReftableRepo()
-      shWithRawByte(repo, 'git update-ref "refs/tags/v1.0.0$ff" HEAD~1')
-      // Decoding the 0xFF byte as U+FFFD would name this tag, on a commit after HEAD, so no commits would be read
-      git(
-        repo,
-        'update-ref',
-        'refs/tags/v1.0.0\ufffd',
-        git(repo, 'commit-tree', 'HEAD^{tree}', '-p', 'HEAD', '-m', 'side'),
-      )
-
-      const { exitCode, stdout, stderr } = runScript(repo, '--type', 'auto', '--dry-run')
-
-      expect(exitCode).toBe(1)
-      expect(stderr).toContain('not valid for encoding utf-8')
-      expect(stdout).not.toContain('Auto-detected version')
+        expect(exitCode).toBe(1)
+        expect(stderr).toContain('not valid for encoding utf-8')
+        expect(stdout).not.toContain('Auto-detected version')
+      })
     })
 
     it.each(pushModes)('pushes a reftable branch whose name holds a literal U+FFFD (%s)', (mode) => {
@@ -1248,31 +1282,70 @@ describe('create-release.ts repository refs', () => {
     })
   })
 
-  it('passes the precomposeUnicode override to every git call that reads or names a repository ref', () => {
-    const repo = createRepo('v1.0.0')
-    checkoutWithRemote(repo, 'release')
-    const shim = join(dirname(repo), 'git-shim')
-    const argvLog = join(dirname(repo), 'git-argv.log')
-    const realGit = Bun.which('git')
-    mkdirSync(shim)
-    writeFileSync(join(shim, 'git'), `#!/bin/sh\nprintf '%s\\n' "$*" >> '${argvLog}'\nexec '${realGit}' "$@"\n`, {
-      mode: 0o755,
+  /**
+   * Fork: whether a `git` shim dropped on PATH actually intercepts a child's git calls.
+   *
+   * The shim below is a `#!/bin/sh` file named `git`, and the PATH entries are joined with
+   * ':'. Windows honours none of the three — it needs an executable extension, does not
+   * read a shebang, and separates PATH with ';'. A batch shim cannot stand in for it
+   * either: `cmd` expands `%0` inside `echo %*`, and `%00` sits in the middle of the very
+   * `--format=%(refname)%00%(objecttype)` line this test compares, so the log would be
+   * corrupted exactly where it matters. Measured rather than keyed on the platform: the
+   * question is whether the shim ran, and only running it answers that.
+   */
+  const canShimGitOnPath = () => {
+    const dir = mkdtempSync(join(tmpdir(), 'create-release-shim-'))
+    tempDirs.push(dir)
+    const log = join(dir, 'argv.log')
+    writeFileSync(
+      join(dir, 'git'),
+      `#!/bin/sh
+printf '%s\n' "$*" >> '${log}'
+`,
+      { mode: 0o755 },
+    )
+    Bun.spawnSync(['git', '--version'], {
+      env: { ...gitEnv, PATH: `${dir}:${process.env.PATH}` },
+      stdout: 'pipe',
+      stderr: 'pipe',
     })
+    return existsSync(log)
+  }
 
-    const result = Bun.spawnSync(
-      ['bun', 'scripts/create-release.ts', '--type', 'auto', '--platform', 'desktop', '--push'],
-      { cwd: repo, env: { ...gitEnv, PATH: `${shim}:${process.env.PATH}` }, stdout: 'pipe', stderr: 'pipe' },
-    )
+  const hasGitShim = canShimGitOnPath()
 
-    expect(result.exitCode).toBe(0)
-    expect(readFileSync(argvLog, 'utf8').split('\n')).toEqual(
-      expect.arrayContaining([
-        '-c core.precomposeUnicode=false describe --tags --abbrev=0',
-        '-c core.precomposeUnicode=false for-each-ref --merged=HEAD --format=%(refname)%00%(objecttype)%00%(tag) refs/tags',
-        '-c core.precomposeUnicode=false log --encoding=UTF-8 --pretty=format:%s refs/tags/v1.0.0..HEAD',
-        '-c core.precomposeUnicode=false symbolic-ref --quiet HEAD',
-        '-c core.precomposeUnicode=false push origin refs/heads/release:refs/heads/release',
-      ]),
-    )
+  it('can intercept git on PATH, as CI must be able to', () => {
+    expect({ ci: Boolean(process.env.CI), hasGitShim }).not.toEqual({ ci: true, hasGitShim: false })
   })
+
+  it.skipIf(!hasGitShim)(
+    'passes the precomposeUnicode override to every git call that reads or names a repository ref',
+    () => {
+      const repo = createRepo('v1.0.0')
+      checkoutWithRemote(repo, 'release')
+      const shim = join(dirname(repo), 'git-shim')
+      const argvLog = join(dirname(repo), 'git-argv.log')
+      const realGit = Bun.which('git')
+      mkdirSync(shim)
+      writeFileSync(join(shim, 'git'), `#!/bin/sh\nprintf '%s\\n' "$*" >> '${argvLog}'\nexec '${realGit}' "$@"\n`, {
+        mode: 0o755,
+      })
+
+      const result = Bun.spawnSync(
+        ['bun', 'scripts/create-release.ts', '--type', 'auto', '--platform', 'desktop', '--push'],
+        { cwd: repo, env: { ...gitEnv, PATH: `${shim}:${process.env.PATH}` }, stdout: 'pipe', stderr: 'pipe' },
+      )
+
+      expect(result.exitCode).toBe(0)
+      expect(readFileSync(argvLog, 'utf8').split('\n')).toEqual(
+        expect.arrayContaining([
+          '-c core.precomposeUnicode=false describe --tags --abbrev=0',
+          '-c core.precomposeUnicode=false for-each-ref --merged=HEAD --format=%(refname)%00%(objecttype)%00%(tag) refs/tags',
+          '-c core.precomposeUnicode=false log --encoding=UTF-8 --pretty=format:%s refs/tags/v1.0.0..HEAD',
+          '-c core.precomposeUnicode=false symbolic-ref --quiet HEAD',
+          '-c core.precomposeUnicode=false push origin refs/heads/release:refs/heads/release',
+        ]),
+      )
+    },
+  )
 })

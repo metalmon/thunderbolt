@@ -5,7 +5,7 @@
 import { afterAll, describe, expect, test } from 'bun:test'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { getChromeCacheDir, getChromeExecutablePath } from './chrome'
 
 const cacheDir = mkdtempSync(join(tmpdir(), 'thunderbolt-chrome-'))
@@ -14,22 +14,28 @@ afterAll(() => rmSync(cacheDir, { recursive: true, force: true }))
 describe('Chrome cache', () => {
   test('shares an explicitly configured Playwright cache across OS users', () => {
     expect(getChromeCacheDir({ PLAYWRIGHT_BROWSERS_PATH: '/shared/browsers' }, 'linux', '/other-user')).toBe(
-      '/shared/browsers/stable-chrome',
+      resolve('/shared/browsers', 'stable-chrome'),
     )
   })
 
+  // Fork: each expectation is built with the same `path` helper the subject uses, not
+  // written out with forward slashes. `getChromeCacheDir` takes the target platform but
+  // assembles the path with the HOST's flavour — correct, since production only ever asks
+  // about the machine it runs on — so a literal POSIX string asserts the host's separator
+  // rather than the branch under test, and every case here fails on Windows. What these
+  // cases are actually for is which directory wins, and that still holds.
   test.each([
-    ['macOS default', {}, 'darwin', '/home/Library/Caches/ms-playwright/stable-chrome'],
-    ['Linux default', {}, 'linux', '/home/.cache/ms-playwright/stable-chrome'],
-    ['XDG_CACHE_HOME', { XDG_CACHE_HOME: '/cache' }, 'linux', '/cache/ms-playwright/stable-chrome'],
-    ['empty XDG_CACHE_HOME', { XDG_CACHE_HOME: '' }, 'linux', '/home/.cache/ms-playwright/stable-chrome'],
-    ['LOCALAPPDATA', { LOCALAPPDATA: '/local' }, 'win32', '/local/ms-playwright/stable-chrome'],
-    ['win32 without LOCALAPPDATA', {}, 'win32', '/home/AppData/Local/ms-playwright/stable-chrome'],
+    ['macOS default', {}, 'darwin', join('/home', 'Library/Caches/ms-playwright/stable-chrome')],
+    ['Linux default', {}, 'linux', join('/home', '.cache/ms-playwright/stable-chrome')],
+    ['XDG_CACHE_HOME', { XDG_CACHE_HOME: '/cache' }, 'linux', join('/cache', 'ms-playwright/stable-chrome')],
+    ['empty XDG_CACHE_HOME', { XDG_CACHE_HOME: '' }, 'linux', join('/home', '.cache/ms-playwright/stable-chrome')],
+    ['LOCALAPPDATA', { LOCALAPPDATA: '/local' }, 'win32', join('/local', 'ms-playwright/stable-chrome')],
+    ['win32 without LOCALAPPDATA', {}, 'win32', join(join('/home', 'AppData/Local'), 'ms-playwright/stable-chrome')],
     [
       'relative PLAYWRIGHT_BROWSERS_PATH',
       { PLAYWRIGHT_BROWSERS_PATH: 'browsers', INIT_CWD: '/repo' },
       'linux',
-      '/repo/browsers/stable-chrome',
+      resolve('/repo', 'browsers', 'stable-chrome'),
     ],
   ] as const)('%s', (_, env, platform, expected) => {
     expect(getChromeCacheDir(env, platform, '/home')).toBe(expected)
