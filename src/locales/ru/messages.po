@@ -795,7 +795,7 @@ msgstr "Или соберите из исходников (нужен Bun):"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Built to protect your data."
-msgstr "Создано, чтобы защищать ваши данные."
+msgstr "Устроен так, чтобы защищать ваши данные."
 
 #: src/settings/models/model-detail.tsx
 msgid "Built-in models can't be edited or removed"
@@ -1164,7 +1164,7 @@ msgstr "Код не подошёл"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Code you can inspect and improve."
-msgstr "Исходный код, который можно изучить и улучшить."
+msgstr "Его можно изучить и улучшить."
 
 #: src/components/approve-device/approval-code-options.tsx
 msgid "Codes to choose from"
@@ -2062,7 +2062,7 @@ msgstr "Голос"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Customizable"
-msgstr "Настраивается"
+msgstr "Гибкость"
 
 #: src/settings/models/model-detail.tsx
 msgid "Customized model"
@@ -4149,7 +4149,7 @@ msgstr "Открыть Otari"
 
 #: src/components/onboarding/onboarding-privacy-step.tsx
 msgid "Open Source"
-msgstr "Открытый исходный код"
+msgstr "Открытый код"
 
 #: src/settings/app-version-section.tsx
 msgid "Open the store to check for updates."
@@ -4423,7 +4423,7 @@ msgstr "Конфиденциальность"
 #: src/components/onboarding/onboarding-privacy-step.tsx
 #: src/components/ui/private-badge.tsx
 msgid "Private"
-msgstr "Приватная"
+msgstr "Приватность"
 
 #: src/components/chat/attestation/use-attestation-display.ts
 msgid "Private inference"
