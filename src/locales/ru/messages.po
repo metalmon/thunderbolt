@@ -3533,7 +3533,11 @@ msgid "MCP servers"
 msgstr "MCP-серверы"
 
 #: src/components/chat/effort-selector/use-effort-selector-state.ts
+msgid "Medium"
+msgstr "Средняя"
+
 #: src/fork/typography/chat-font-toggle.tsx
+msgctxt "font size"
 msgid "Medium"
 msgstr "Средний"
 
@@ -4063,8 +4067,8 @@ msgstr "Доступны только в конфиденциальных чат
 #~ msgstr "Допустим только https, либо http для адреса на этой машине."
 
 #: src/components/sidebar-footer.tsx
-msgid "Only on this device"
-msgstr "Только на этом устройстве"
+#~ msgid "Only on this device"
+#~ msgstr "Только на этом устройстве"
 
 #: src/fork/documents/file-chip.tsx
 #: src/fork/zeroclaw/ui-resource-chip.tsx
