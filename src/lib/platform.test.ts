@@ -7,6 +7,7 @@ import { getClock } from '@/testing-library'
 import {
   deleteIndexedDbDatabase,
   deleteOpfsFile,
+  getDeviceDisplayName,
   hasIndexedDbDatabase,
   hasOpfsFile,
   isIndexedDbAvailable,
@@ -300,5 +301,43 @@ describe('isTouchPlatform', () => {
   it('is false for a Windows touchscreen laptop', () => {
     stubNavigator('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36', 10)
     expect(isTouchPlatform()).toBe(false)
+  })
+})
+
+describe('getDeviceDisplayName', () => {
+  // Fork: the desktop build's device name is the one place the brand has to be
+  // BUILT, not read — it is stored on the device row rather than rendered from a
+  // message id, so `src/i18n/brand.test.ts`, which judges the catalogs, cannot see
+  // it. That is how it outlived the rename once and reached the pilot as «старый
+  // бренд остался», on every machine at once. Equality against the literal also
+  // pins the deliberate ASCII `Volt`: the value travels in `X-Device-Name`, where
+  // a non-Latin name makes `fetch` throw.
+  const originalUserAgent = navigator.userAgent
+
+  const enterTauri = (platform: string) => {
+    Object.defineProperty(window, 'isTauri', { value: true, configurable: true })
+    Object.defineProperty(window, '__TAURI_OS_PLUGIN_INTERNALS__', { value: { platform }, configurable: true })
+  }
+
+  afterEach(() => {
+    Reflect.deleteProperty(window, 'isTauri')
+    Reflect.deleteProperty(window, '__TAURI_OS_PLUGIN_INTERNALS__')
+    Object.defineProperty(navigator, 'userAgent', { value: originalUserAgent, configurable: true })
+  })
+
+  it.each([
+    ['windows', 'Volt on Windows'],
+    ['macos', 'Volt on macOS'],
+  ])('names the fork on %s, not the upstream product', (platform, expected) => {
+    enterTauri(platform)
+    expect(getDeviceDisplayName()).toBe(expected)
+  })
+
+  it('names no product at all on the web, where the browser identifies the device', () => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36',
+      configurable: true,
+    })
+    expect(getDeviceDisplayName()).toBe('Chrome on Windows')
   })
 })
